@@ -20,13 +20,13 @@ const Input = ({label, onChangeText, placeholder, onSubmitEditing}) => {
 
 const styles = {
   inputStyle: {
-    color: '#000',
+    backgroundColor: '#FFFFFF',
     paddingRight: 5,
     paddingLeft: 5,
     fontSize: 18,
     lineHeight: 23,
     flex: 1,
-    borderWidth: 2,
+    borderWidth: 0,
     borderRadius: 15,
     textAlign: 'center',
   },
@@ -36,6 +36,7 @@ const styles = {
     lineHeight: 23,
     alignSelf: 'center',
     marginBottom: 10,
+    color: '#FFFFFF',
   },
   containerStyle: {
     flex: 1,

@@ -1,5 +1,5 @@
 import {IS_UNICODE} from './lang';
-import {STRUCT,USER} from './default';
+import {STRUCT, USER} from './default';
 const initialState = {
   todos: STRUCT,
   userRole: USER,
@@ -14,7 +14,6 @@ export default function appReducer(state = initialState, action) {
   // The reducer normally looks at the action type field to decide what happens
   switch (action.type) {
     case 'todos':
-      console.log(action);
       return {
         // that has all the existing state data
         ...state,
@@ -29,14 +28,13 @@ export default function appReducer(state = initialState, action) {
             other: 'yes',
           },
       };
-    case 'DECREMENT':
+    case 'login':
       return {
         ...state,
-        todos: {
-          // Use an auto-incrementing numeric ID for this example
-          id: 1,
-          name: 'stuff-trigger',
-          other: 'yes',
+        userRole: {
+          type: action.payload === 'demo' ? 'Warehouse' : 'Delivery',
+          id: 0,
+          name: 'Nana',
         },
       };
     // Do something here based on the different types of actions

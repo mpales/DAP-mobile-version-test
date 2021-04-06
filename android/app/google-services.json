@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "621851903479",
+    "project_id": "dap-app-f99bc",
+    "storage_bucket": "dap-app-f99bc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:621851903479:android:80566eba6a17dbfc5d1af2",
+        "android_client_info": {
+          "package_name": "com.transportapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "621851903479-rju45fecfcu7r1geri6pktqv5uluuqud.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUtGTMGcrja2mQ2FJKU-BOUc77quv5SwQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "621851903479-rju45fecfcu7r1geri6pktqv5uluuqud.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

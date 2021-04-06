@@ -5,11 +5,12 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
-import Scanner from './scanner/index';
+import Scanner from './peripheral';
 
 class WarehouseNavigator extends React.Component {
   constructor(props) {
     super(props);
+    this.warehouseTab.bind(this)
   }
 
   warehouseRoute = () => {
