@@ -1,7 +1,6 @@
 import React from 'react';
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 import Client from './client/detail';
 import Delivery from './delivery/detail';
 import Warehouse from './warehouse/detail';
@@ -12,7 +11,6 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {ReactReduxContext} from 'react-redux';
 import noAccess from './error/no-access';
 class Details extends React.Component {
-  [x: string]: any;
   constructor(props: {} | Readonly<{}>) {
     super(props);
     this.detailsRoute.bind(this);

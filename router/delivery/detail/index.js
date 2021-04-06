@@ -14,7 +14,6 @@ import {
   StyleSheet,
   ScrollView,
   View,
-  Button,
   StatusBar,
   TouchableOpacity,
   Keyboard,
@@ -28,7 +27,7 @@ import {
   Divider,
   withBadge,
   Card,
-  Icon,
+  Button,
 } from 'react-native-elements';
 import {Dimensions} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -40,6 +39,12 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import error from '../../error/no-rights';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Carousel from '../../../component/carousel/carousel';
+import IconTask1Mobile from '../../../assets/icon/iconmonstr-task-1 1mobile.svg';
+import IconNavigation10Mobile from '../../../assets/icon/iconmonstr-navigation-10 1mobile.svg';
+import IconAward23Mobile from '../../../assets/icon/iconmonstr-award-23 1mobile.svg';
+import IconMenu6Mobile from '../../../assets/icon/iconmonstr-menu-6 1mobile.svg';
+
+import Manifest from '../../../component/extend/ListItem-manifest';
 const window = Dimensions.get('window');
 
 class Delivery extends React.Component<IProps, {}> {
@@ -47,11 +52,27 @@ class Delivery extends React.Component<IProps, {}> {
   keyboardDidHideListener: any;
   constructor(props: IProps | Readonly<IProps>) {
     super(props);
+
+    const manifestList = [
+      {
+        name: 'Lorem ipsum dolor sit',
+        avatar_url:
+          'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
+        subtitle: 'amet, consectetur adipiscing elit vivamus turpis mattis ',
+      },
+      {
+        name: 'Lorem ipsum dolor sit',
+        avatar_url:
+          'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
+        subtitle: 'amet, consectetur adipiscing elit vivamus turpis mattis ',
+      },
+    ];
     this.state = {
       text: 'Initial Placeholder',
       textTwo: 'Initial Two',
       keyboardState: 'closed',
       transitionTo: 0,
+      manifestList,
     };
     this._keyboardDidHide.bind(this);
     this._keyboardDidShow.bind(this);
@@ -63,18 +84,7 @@ class Delivery extends React.Component<IProps, {}> {
       'keyboardDidHide',
       this._keyboardDidHide,
     );
-    this.resetAction.bind(this);
-    if (this.props.userRole.type !== 'Delivery') {
-      this.props.navigation.dispatch(this.resetAction);
-    }
   }
-
-  resetAction = () => {
-    return CommonActions.reset({
-      index: 1,
-      routes: [{name: 'NoRights'}],
-    });
-  };
 
   onChangeText(text: any) {
     this.setState({text});
@@ -105,28 +115,45 @@ class Delivery extends React.Component<IProps, {}> {
   }
   render() {
     var image = {uri: 'https://reactnative.dev/img/tiny_logo.png'};
+    const {manifestList} = this.state;
     return (
       <>
         <StatusBar barStyle="dark-content" />
         <SafeAreaProvider>
           <ScrollView style={styles.body}>
             <View style={styles.headerBeranda}>
+              <View style={styles.headerNav}>
+                <Button
+                  type="clear"
+                  containerStyle={styles.navSection}
+                  buttonStyle={{padding: 0, margin: 0}}
+                  iconContainerStyle={{padding: 0, margin: 0}}
+                  titleStyle={{padding: 0, margin: 0}}
+                  icon={() => (
+                    <IconMenu6Mobile height="24" width="24" fill="#fff" />
+                  )}
+                />
+                <View style={styles.logoSection}>
+                  <Text h7>Logo</Text>
+                </View>
+              </View>
               <View style={styles.headerContainer}>
+                <View style={styles.headerNav} />
                 <View style={styles.sliderContainer}>
                   <Carousel
-                   indicatorOffset={-50}
-                    width={window.width / 1.1}
+                    indicatorOffset={-25}
+                    width={window.width / 1.2}
                     height={window.width / 3}
                     onScroll={() => console.log('on scroll view')}
                     onScrollBegin={() => console.log('scroll begin')}
                     onPageChange={(page) => console.log('scroll change', page)}>
-                    <View style={{backgroundColor: 'yellow'}}>
+                    <View style={{backgroundColor: '#F07120'}}>
                       <Text>Page 1</Text>
                     </View>
-                    <View style={{backgroundColor: 'black'}}>
+                    <View style={{backgroundColor: '#F07120'}}>
                       <Text>Page 2</Text>
                     </View>
-                    <View style={{backgroundColor: 'red'}}>
+                    <View style={{backgroundColor: '#F07120'}}>
                       <Text>Page 3</Text>
                     </View>
                   </Carousel>
@@ -134,15 +161,58 @@ class Delivery extends React.Component<IProps, {}> {
               </View>
             </View>
             <View style={styles.navContainer}>
-              <Divider style={styles.sectionContainer}>
+              <View style={styles.sectionContainer}>
                 <Avatar
-                  size="large"
-                  icon={{
-                    name: 'rocket',
-                    type: 'font-awesome',
-                    color: 'white',
+                  size={79}
+                  ImageComponent={() => (
+                    <IconTask1Mobile height="40" width="40" fill="#fff" />
+                  )}
+                  imageProps={{
+                    containerStyle: {
+                      alignItems: 'center',
+                      paddingTop: 18,
+                      paddingBottom: 21,
+                    },
                   }}
-                  overlayContainerStyle={{backgroundColor: 'black', flex: 2}}
+                  overlayContainerStyle={{
+                    backgroundColor: '#F07120',
+                    flex: 2,
+                    borderRadius: 5,
+                  }}
+                  onPress={() => console.log('Works!')}
+                  activeOpacity={0.7}
+                  containerStyle={{alignSelf: 'center'}}
+                />
+                <Badge
+                  status="success"
+                  containerStyle={{position: 'absolute', top: 5, right: 25}}
+                />
+                <Text h4 style={styles.sectionText}>
+                  Schedule Today
+                </Text>
+              </View>
+              <View style={styles.sectionContainer}>
+                <Avatar
+                  size={79}
+                  ImageComponent={() => (
+                    <IconNavigation10Mobile
+                      height="40"
+                      width="40"
+                      fill="#fff"
+                    />
+                  )}
+                  imageProps={{
+                    containerStyle: {
+                      alignItems: 'center',
+                      paddingTop: 18,
+                      paddingBottom: 21,
+                    },
+                  }}
+                  overlayContainerStyle={{
+                    backgroundColor: '#F07120',
+                    flex: 2,
+                    borderRadius: 5,
+                  }}
                   onPress={() => console.log('Works!')}
                   activeOpacity={0.7}
                   containerStyle={{alignSelf: 'center'}}
@@ -152,75 +222,50 @@ class Delivery extends React.Component<IProps, {}> {
                   containerStyle={{position: 'absolute', top: 5, right: 25}}
                 />
 
-                <Text h4>Heading 4</Text>
-              </Divider>
-              <Divider style={styles.sectionContainer}>
+                <Text h4 style={styles.sectionText}>
+                  History
+                </Text>
+              </View>
+              <View style={styles.sectionContainer}>
                 <Avatar
-                  size="large"
-                  icon={{
-                    name: 'rocket',
-                    type: 'font-awesome',
-                    color: 'white',
+                  size={79}
+                  ImageComponent={() => (
+                    <IconAward23Mobile height="40" width="40" fill="#fff" />
+                  )}
+                  imageProps={{
+                    containerStyle: {
+                      alignItems: 'center',
+                      paddingTop: 18,
+                      paddingBottom: 21,
+                    },
                   }}
-                  overlayContainerStyle={{backgroundColor: 'black', flex: 2}}
+                  overlayContainerStyle={{
+                    backgroundColor: '#F07120',
+                    flex: 2,
+                    borderRadius: 5,
+                  }}
                   onPress={() => console.log('Works!')}
                   activeOpacity={0.7}
                   containerStyle={{alignSelf: 'center'}}
                 />
                 <Badge
-                  value="1"
-                  status="error"
+                  status="success"
                   containerStyle={{position: 'absolute', top: 5, right: 25}}
                 />
 
-                <Text h4>Heading 4</Text>
-              </Divider>
-              <Divider style={styles.sectionContainer}>
-                <Avatar
-                  size="large"
-                  icon={{
-                    name: 'rocket',
-                    type: 'font-awesome',
-                    color: 'white',
-                  }}
-                  overlayContainerStyle={{backgroundColor: 'black', flex: 2}}
-                  onPress={() => console.log('Works!')}
-                  activeOpacity={0.7}
-                  containerStyle={{alignSelf: 'center'}}
-                />
-                <Badge
-                  value="1"
-                  status="error"
-                  containerStyle={{position: 'absolute', top: 5, right: 25}}
-                />
-
-                <Text h4>Heading 4</Text>
-              </Divider>
+                <Text h4 style={styles.sectionText}>
+                  Points
+                </Text>
+              </View>
             </View>
             <View style={styles.contentContainer}>
-              <Card>
-                <Card.Title>HELLO WORLD</Card.Title>
-                <Card.Divider />
-                <Card.Image source={require('../../../assets/default.png')}>
-                  <Text style={{marginBottom: 10}}>
-                    The idea with React Native Elements is more about component
-                    structure than actual design.
-                  </Text>
-                  <Button
-                    icon={{
-                      name: 'rocket',
-                      type: 'font-awesome',
-                      color: 'white',
-                    }}
-                    buttonStyle={{
-                      borderRadius: 0,
-                      marginLeft: 0,
-                      marginRight: 0,
-                      marginBottom: 0,
-                    }}
-                    title="VIEW NOW"
-                  />
-                </Card.Image>
+              <Card containerStyle={styles.cardContainer}>
+                <Card.Title style={styles.headingCard}>
+                  Today Manisfest
+                </Card.Title>
+                {manifestList.map((u, i) => (
+                  <Manifest key={i} index={i} item={u} />
+                ))}
               </Card>
             </View>
           </ScrollView>
@@ -252,7 +297,19 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: window.width,
     overflow: 'hidden',
-    height: window.width / 1.7,
+    height: window.width / 1.3,
+  },
+  headerNav: {
+    alignSelf: 'center',
+    width: window.width / 1.2,
+    elevation: 7,
+    flexDirection: 'row',
+    marginTop: window.width * 0.1,
+  },
+  navSection: {},
+  logoSection: {
+    flex: 1,
+    alignItems: 'flex-end',
   },
   headerContainer: {
     borderRadius: window.width * 0.8,
@@ -262,14 +319,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     overflow: 'hidden',
-    backgroundColor: '#9DD6EB',
+    backgroundColor: '#121C78',
     justifyContent: 'center',
     alignItems: 'center',
   },
   sliderContainer: {
     position: 'absolute',
-    bottom: window.width / 4.5,
-    width: window.width / 1.1,
+    bottom: window.width / 4.6,
+    width: window.width / 1.2,
     height: window.width / 3,
   },
   contentSlider: {
@@ -279,7 +336,7 @@ const styles = StyleSheet.create({
     flex: 3,
     height: window.width / 3,
     marginHorizontal: 10,
-    marginVertical: 20,
+    marginTop: -45,
     flexDirection: 'row',
   },
   sectionContainer: {
@@ -294,6 +351,31 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 3,
     flexDirection: 'column',
+  },
+  sectionText: {
+    textAlign: 'center',
+    width: 65,
+    fontSize: 14,
+    color: '#6C6B6B',
+    marginVertical: 16,
+  },
+  headingCard: {
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'left',
+    paddingBottom: 8,
+  },
+  cardContainer: {
+    borderWidth: 0,
+    padding: 0,
+    marginHorizontal: 43,
+    marginVertical: 42,
+    shadowColor: 'rgba(0,0,0, .2)',
+    shadowOffset: {height: 0, width: 0},
+    shadowOpacity: 0, //default is 1
+    shadowRadius: 0, //default is 1
+    elevation: 0,
+    backgroundColor: '#ffffff',
   },
 });
 
@@ -331,33 +413,4 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
   };
 };
 
-const ConnectedApp = connect(mapStateToProps, mapDispatchToProps)(Delivery);
-const Stack = createStackNavigator();
-const Root = () => {
-  return (
-    <Stack.Navigator
-      initialRouteName="Delivery"
-      headerMode="screen"
-      screenOptions={{
-        headerTintColor: 'white',
-        headerStyle: {backgroundColor: 'tomato'},
-        headerShown: false,
-      }}>
-      <Stack.Screen
-        name="Delivery"
-        component={ConnectedApp}
-        options={{
-          title: 'Awesome app',
-        }}
-      />
-      <Stack.Screen
-        name="NoRights"
-        component={error}
-        options={{
-          title: 'Error app',
-        }}
-      />
-    </Stack.Navigator>
-  );
-};
-export default Root;
+export default connect(mapStateToProps, mapDispatchToProps)(Delivery);

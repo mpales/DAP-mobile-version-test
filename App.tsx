@@ -22,7 +22,7 @@ import {
   Text,
   Keyboard,
 } from 'react-native';
-
+import Signature from './Browser';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
@@ -32,11 +32,13 @@ import {AnyAction, Dispatch} from 'redux';
 import {connect, Provider} from 'react-redux';
 import Beranda from './router/details';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {enableScreens} from 'react-native-screens';
 
+enableScreens();
 class App extends React.Component<IProps, {}> {
   keyboardDidShowListener: any;
   keyboardDidHideListener: any;
-  constructor(props: IProps | Readonly<IProps>) {
+  constructor(props: IProps | Readonly<IProps>){
     super(props);
     this.state = {
       text: 'Initial Placeholder',
@@ -54,8 +56,12 @@ class App extends React.Component<IProps, {}> {
       'keyboardDidHide',
       this._keyboardDidHide,
     );
+    this.webWorker.bind(this);
+    this.webWorker();
+    this.onSubmitToBeranda.bind(this);
   }
 
+  webWorker() {}
   onChangeText(text: any) {
     this.setState({text});
   }
@@ -78,19 +84,25 @@ class App extends React.Component<IProps, {}> {
     this.setState({textTwo: text});
   }
   onSubmited(e: any) {
-    console.log(e);
+    this.setState({textTwo: e.nativeEvent.text});
+
+    const {textTwo} = this.state;
+    this.props.login(textTwo);
   }
   onSubmitToBeranda(e: any) {
-    return this.props.navigation.navigate('Details');
+    this.state.textTwo;
+    this.props.login(textTwo);
+    this.props.navigation.navigate('Details');
   }
   render() {
     var image = {uri: 'https://reactnative.dev/img/tiny_logo.png'};
     return (
       <>
         <StatusBar barStyle="dark-content" />
+        <Signature />
         <View style={styles.body}>
           <View style={styles.sectionContainerIMG}>
-            <Image style={styles.tinyLogo} source={image} />
+            <View style={styles.tinyLogo} />
           </View>
           <FadeInView
             transition={this.state.transitionTo}
@@ -107,12 +119,15 @@ class App extends React.Component<IProps, {}> {
               onChangeText={this.onChangeTextTwo.bind(this)}
               onSubmitEditing={this.onSubmited.bind(this)}
             />
+            <View>
+              <Text style={styles.buttonText}>Forgot password?</Text>
+            </View>
           </FadeInView>
 
           <View style={styles.footer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={this.onSubmitToBeranda.bind(this)}>
+              onPress={this.onSubmitToBeranda}>
               <Text style={styles.buttonText}>LOGIN</Text>
             </TouchableOpacity>
           </View>
@@ -124,7 +139,7 @@ class App extends React.Component<IProps, {}> {
 
 const styles = StyleSheet.create({
   scrollView: {
-    backgroundColor: Colors.lighter,
+    backgroundColor: '#121C78',
   },
   engine: {
     position: 'absolute',
@@ -134,18 +149,19 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     alignSelf: 'center',
+    backgroundColor: '#F07120',
   },
   header: {
     backgroundColor: Colors.black,
     marginBottom: 40,
   },
   body: {
-    backgroundColor: Colors.white,
+    backgroundColor: '#121C78',
     flexDirection: 'column',
     flex: 1,
   },
   footer: {
-    backgroundColor: Colors.white,
+    backgroundColor: '#121C78',
     flex: 1,
     marginHorizontal: 20,
     marginBottom: 40,
@@ -158,8 +174,8 @@ const styles = StyleSheet.create({
     flex: 0,
     flexShrink: 1,
     padding: 20,
-    backgroundColor: Colors.black,
-    borderColor: Colors.white,
+    backgroundColor: '#F07120',
+    borderColor: '#F07120',
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
@@ -218,9 +234,10 @@ interface IProps {
   textfield: string;
   value: string;
   todos: {};
-  decrement: () => void;
-  reset: () => void;
+  textTwo: string;
+  login: (text: any) => void;
   onChange: (text: any) => void;
+  navigation: any;
 }
 
 interface dispatch {
@@ -237,8 +254,7 @@ function mapStateToProps(state: {todos: {name: any}}) {
 
 const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
   return {
-    decrement: () => dispatch({type: 'DECREMENT'}),
-    reset: () => dispatch({type: 'RESET'}),
+    login: (text: any) => dispatch({type: 'login', payload: text}),
     onChange: (text: any) => {
       return {type: 'todos', payload: text};
     },

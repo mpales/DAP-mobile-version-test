@@ -1,0 +1,10 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="iconmonstr-building-6" clip-path="url(#clip0)">
+<path id="Vector" fill-rule="evenodd" clip-rule="evenodd" d="M5 23H3V13L11.991 4.995C13.115 5.993 14.241 6.992 15.369 7.991L17.624 9.988C18.751 10.987 19.876 12.001 21 13V23H19V13.882L11.991 7.667L5 13.887V23ZM7 21H17V23H7V21ZM7 18H17V20H7V18ZM17 15V17H7V15H17ZM12 1L24 11.632L22.672 13.125L12 3.644L1.328 13.125L0 11.632L12 1Z" fill="#000"/>
+</g>
+<defs>
+<clipPath id="clip0">
+<rect width="24" height="24" fill="#000"/>
+</clipPath>
+</defs>
+</svg>
