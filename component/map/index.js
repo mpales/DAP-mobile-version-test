@@ -313,9 +313,11 @@ class AnimatedMarkers extends React.Component {
       useNativeDriver: false,
     }).start();
     this.setState({toggleContainer: true});
+    this.props.bottomBar(false);
   };
   onLihatDetail = () => {
     this.props.navigation.navigate('Package');
+    this.props.bottomBar(true);
   };
   onStartShouldSetPanResponder = (e) => {
     // we only want to move the view if they are starting the gesture on top

@@ -34,7 +34,7 @@ import Beranda from './router/details';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {enableScreens} from 'react-native-screens';
 
-enableScreens();
+enableScreens(false);
 class App extends React.Component<IProps, {}> {
   keyboardDidShowListener: any;
   keyboardDidHideListener: any;
@@ -58,7 +58,6 @@ class App extends React.Component<IProps, {}> {
     );
     this.webWorker.bind(this);
     this.webWorker();
-    this.onSubmitToBeranda.bind(this);
   }
 
   webWorker() {}
@@ -90,8 +89,7 @@ class App extends React.Component<IProps, {}> {
     this.props.login(textTwo);
   }
   onSubmitToBeranda(e: any) {
-    this.state.textTwo;
-    this.props.login(textTwo);
+   this.props.login(this.state.textTwo);
     this.props.navigation.navigate('Details');
   }
   render() {
@@ -127,7 +125,7 @@ class App extends React.Component<IProps, {}> {
           <View style={styles.footer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={this.onSubmitToBeranda}>
+              onPress={this.onSubmitToBeranda.bind(this)}>
               <Text style={styles.buttonText}>LOGIN</Text>
             </TouchableOpacity>
           </View>
@@ -275,6 +273,7 @@ const Root = () => {
             headerTintColor: 'white',
             headerStyle: {backgroundColor: 'tomato'},
             headerShown: false,
+            animationEnabled: false, // hack to fix android 10-12 crash with react-native-screens
           }}>
           <Stack.Screen
             name="Home"
