@@ -1,4 +1,5 @@
 rootProject.name = 'transportApp'
+apply from: '../node_modules/react-native-unimodules/gradle.groovy'; includeUnimodulesProjects()
 include ':react-native-threads'
 project(':react-native-threads').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-threads/android')
 include ':react-native-reanimated'
