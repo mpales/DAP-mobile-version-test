@@ -7,6 +7,7 @@ import IconPen7 from '../../../assets/icon/iconmonstr-pen-7 1mobile.svg';
 import IconFile24 from '../../../assets/icon/iconmonstr-file-24 2mobile.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import Camera from '../peripheral/camera';
+import Signature from '../peripheral/signature';
 
 class Example extends React.Component {
   constructor(props) {
@@ -14,21 +15,17 @@ class Example extends React.Component {
     this.state = {
       bottomSheet: false,
       isShowCamera: false,
+      isShowSignature: false,
       isPhotoProofSubmitted: false,
+      isSignatureSubmitted: false,
     };
   }
 
-  componentDidUpdate(prevStates) {
-    if(this.state.isShowCamera !== prevStates.isShowCamera) {
-      if(this.state.isShowCamera) {
-        this.props.navigation.setOptions({
-          headerTransparent: true,
-        });
-      } else {
-        this.props.navigation.setOptions({
-          headerTransparent: false,
-        });
-      }
+  componentDidUpdate(prevState) {
+    if(this.state.isShowCamera !== prevState.isShowCamera) {
+      this.props.navigation.setOptions({
+        headerTransparent: this.state.isShowCamera ? true : false,
+      });
     }
   }
 
@@ -36,9 +33,18 @@ class Example extends React.Component {
     this.setState({isPhotoProofSubmitted: true});
   }
 
+  signatureSubmittedHandler = () => {
+    this.setState({isSignatureSubmitted: true});
+  }
+
   showCameraHandler = () => {
     this.setState({isShowCamera: !this.state.isShowCamera});
   }
+
+  showSignatureHandler = () => {
+    this.setState({isShowSignature: !this.state.isShowSignature});
+  }
+
   render() {
     return (
       <>
@@ -101,7 +107,6 @@ class Example extends React.Component {
               />
               {this.state.isPhotoProofSubmitted && 
                 <Checkmark height="20" width="20" fill="#fff" style={{position: 'absolute', bottom: 45, right: 16}} />
-              
               }
               <Text style={styles.sectionText}>Photo Proof</Text>
             </View>
@@ -119,15 +124,17 @@ class Example extends React.Component {
                   },
                 }}
                 overlayContainerStyle={{
-                  backgroundColor: '#F07120',
+                  backgroundColor: this.state.isSignatureSubmitted ? '#17B055' : '#F07120',
                   flex: 2,
                   borderRadius: 5,
                 }}
-                onPress={() => console.log('Works!')}
+                onPress={() => this.showSignatureHandler()}
                 activeOpacity={0.7}
                 containerStyle={{alignSelf: 'center'}}
               />
-
+              {this.state.isSignatureSubmitted && 
+                <Checkmark height="20" width="20" fill="#fff" style={{position: 'absolute', bottom: 45, right: 16}} />
+              }
               <Text style={styles.sectionText}>E-Signature</Text>
             </View>
 
@@ -189,6 +196,12 @@ class Example extends React.Component {
           <Camera 
             showCameraHandler={this.showCameraHandler}
             photoProofSubmittedHandler={this.photoProofSubmittedHandler}
+          />
+        )}
+        {this.state.isShowSignature && (
+          <Signature
+            showSignatureHandler={this.showSignatureHandler}
+            signatureSubmittedHandler={this.signatureSubmittedHandler}
           />
         )}
       </>
