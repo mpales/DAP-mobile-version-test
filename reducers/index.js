@@ -6,6 +6,9 @@ const initialState = {
   filters: {
     status: IS_UNICODE,
     colors: [],
+    isPhotoProofSubmitted: false,
+    bottomBar : true,
+    onStartDelivered : false,
   },
 };
 
@@ -37,6 +40,27 @@ export default function appReducer(state = initialState, action) {
           name: 'Nana',
         },
       };
+    case 'PhotoProof':
+      return {
+        ...state,
+        filters: {
+          isPhotoProofSubmitted: action.payload,
+        },
+      };
+    case 'BottomBar':
+        return {
+          ...state,
+          filters: {
+            bottomBar: action.payload,
+          },
+        };
+        case 'startDelivered':
+          return {
+            ...state,
+            filters: {
+              onStartDelivered: action.payload,
+            },
+          };
     // Do something here based on the different types of actions
     default:
       // If this reducer doesn't recognize the action type, or doesn't

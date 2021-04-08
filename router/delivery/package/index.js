@@ -4,10 +4,12 @@ import {View} from 'react-native';
 import IconPaperMobile from '../../../assets/icon/iconmonstr-paper-plane-2mobile.svg';
 import IconSpeechMobile from '../../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import IconVector from '../../../assets/icon/Vector.svg';
+import {connect} from 'react-redux';
 
-class Example extends React.Component {
+class Packages extends React.Component {
   constructor(props) {
     super(props);
+    
   }
 
   render() {
@@ -192,4 +194,20 @@ const styles = {
     marginVertical: 15,
   },
 };
-export default Example;
+
+function mapStateToProps(state) {
+  return {
+    bottomBar: state.filters.bottomBar,
+  };
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setBottomBar: (toggle) => {
+      return dispatch({type: 'BottomBar', payload: toggle});
+    },
+    //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Packages);

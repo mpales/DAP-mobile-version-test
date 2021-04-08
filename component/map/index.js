@@ -282,6 +282,7 @@ class AnimatedMarkers extends React.Component {
     this.updateAnimated.bind(this);
     this.onLihatRincian.bind(this);
     this.onLihatDetail.bind(this);
+    this.onCompleteDelivery.bind(this);
   }
 
   componentDidUpdate(nextProps) {}
@@ -312,12 +313,17 @@ class AnimatedMarkers extends React.Component {
       duration: 200,
       useNativeDriver: false,
     }).start();
+    this.props.setStartDelivered(true);
     this.setState({toggleContainer: true});
-    this.props.bottomBar(false);
+    this.props.setBottomBar(false);
   };
   onLihatDetail = () => {
+    this.props.setBottomBar(true);
     this.props.navigation.navigate('Package');
-    this.props.bottomBar(true);
+  };
+  onCompleteDelivery = () =>{
+    this.props.setBottomBar(true);
+    this.props.navigation.navigate('Order');
   };
   onStartShouldSetPanResponder = (e) => {
     // we only want to move the view if they are starting the gesture on top
@@ -513,7 +519,7 @@ class AnimatedMarkers extends React.Component {
           <Button
             buttonStyle={styles.navigationButton}
             titleStyle={styles.deliveryText}
-            onPress={() => this.props.navigation.navigate('Order')}
+            onPress={this.onCompleteDelivery}
             title="Complete Delivery"
           />
           <View style={[styles.sectionDividier, {marginVertical: 12}]}>
@@ -563,7 +569,6 @@ class AnimatedMarkers extends React.Component {
       bottomPan,
       toggleContainer,
     } = this.state;
-
     return (
       <View style={styles.container}>
         <PanController
@@ -1074,4 +1079,25 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AnimatedMarkers;
+
+function mapStateToProps(state) {
+  return {
+    bottomBar: state.filters.bottomBar,
+    startDelivered : state.filters.onStartDelivered,
+  };
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setBottomBar: (toggle) => {
+      return dispatch({type: 'BottomBar', payload: toggle});
+    },
+    setStartDelivered : (toggle) => {
+      return dispatch({type: 'startDelivered', payload: toggle});
+    }
+    //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(AnimatedMarkers);
+
