@@ -11,6 +11,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import UploadIcon from '../../../assets/icon/iconmonstr-upload-5 1mobile.svg';
 import SettingIcon from '../../../assets/icon/iconmonstr-gear-2mobile.svg';
 import FlashIcon from '../../../assets/icon/Flash.svg';
+import {connect} from 'react-redux';
 
 class Camera extends React.Component {
     constructor(props) {
@@ -19,6 +20,7 @@ class Camera extends React.Component {
             photoData: null,
             isFlashActive: false,
         }
+        this.submitPhotoProof.bind(this);
     }
 
     componentDidUpdate(prevStates) {
@@ -28,8 +30,8 @@ class Camera extends React.Component {
     }
 
     submitPhotoProof = () => {
-        this.props.photoProofSubmittedHandler();
-        this.props.showCameraHandler();
+        this.props.photoProofSubmittedHandler(true);
+        this.props.navigation.navigate('Order');
     }
 
     launchGallery = (data) => {
@@ -151,4 +153,28 @@ const styles = StyleSheet.create({
     },
 })
 
-export default Camera;
+function mapStateToProps(state) {
+    return {
+      todos: state.todos,
+      textfield: state.todos.name,
+      value: state.todos.name,
+      userRole: state.userRole,
+      isPhotoProofSubmitted: state.filters.isPhotoProofSubmitted,
+    };
+  }
+  
+  const mapDispatchToProps = (dispatch) => {
+    return {
+      decrement: () => dispatch({type: 'DECREMENT'}),
+      reset: () => dispatch({type: 'RESET'}),
+      onChange: (text) => {
+        return {type: 'todos', payload: text};
+      },
+      photoProofSubmittedHandler : (proof) => dispatch({type:'PhotoProof',payload:proof}),
+      //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
+      setBottomBar: (toggle) =>  dispatch({type: 'BottomBar', payload: toggle}),
+    };
+    
+  };
+  
+export default connect(mapStateToProps, mapDispatchToProps)(Camera);
