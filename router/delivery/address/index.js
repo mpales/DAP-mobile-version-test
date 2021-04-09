@@ -1,7 +1,7 @@
 import React from 'react';
 import {TextInput, View, Text, useWindowDimensions} from 'react-native';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
-import {createStackNavigator} from '@react-navigation/stack';
+import {createStackNavigator, HeaderBackButton} from '@react-navigation/stack';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
@@ -13,7 +13,8 @@ import ListMap from './list-map';
 import Navigation from '../../../component/map/index';
 import { TabRouter } from '@react-navigation/native';
 import Package from '../package';
-import Order from '../package/order';
+import Order from '../order/index';
+import Camera from '../peripheral/camera';
 
 const Stack = createStackNavigator();
 
@@ -21,15 +22,18 @@ class AddressNavigator extends React.Component {
   constructor(props) {
     super(props);
     this.deliveryTab.bind(this);
-    this.toggleBarVisible.bind(this);
+    this.backwithoutBottom.bind(this);
+    this.cancelDelivery.bind(this);
   }
-  toggleBarVisible = (toggle) => {
-    if (toggle) {
-      this.props.navigation.setOptions({tabBarVisible: true});
-    } else {
-      this.props.navigation.setOptions({tabBarVisible: false});
-    }
-  };
+  backwithoutBottom = () => {
+    this.props.setBottomBar(false);
+    this.props.navigation.setOptions({tabBarVisible: false});
+  }
+  cancelDelivery = ()=> {
+    this.props.setStartDelivered(false);
+    this.props.setBottomBar(true);
+    this.props.navigation.setOptions({tabBarVisible: true});
+  }
   deliveryTab = createCompatNavigatorFactory(createMaterialTopTabNavigator)(
     {
       Address: {
@@ -60,6 +64,11 @@ class AddressNavigator extends React.Component {
     },
   );
   render() {
+    if(this.props.bottomBar){
+    this.props.navigation.setOptions({tabBarVisible: true});
+    } else {
+    this.props.navigation.setOptions({tabBarVisible: false});
+    }
     return (
       <Stack.Navigator initialRouteName="List">
         <Stack.Screen
@@ -89,10 +98,8 @@ class AddressNavigator extends React.Component {
         />
         <Stack.Screen
           name="Navigation"
-          component={props => (
-            <Navigation bottomBar={this.toggleBarVisible} {...props} />
-          )}
-          options={{
+          component={Navigation}
+          options={({ navigation }) => ({
             headerStyle: {
               backgroundColor: '#121C78',
               elevation: 0,
@@ -101,6 +108,15 @@ class AddressNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitle: 'Delivery Order',
+            headerLeft: (props) => {
+              return(
+              <HeaderBackButton  {...props} onPress={()=>{
+                this.cancelDelivery();
+                navigation.goBack();
+              }
+              }
+              />);
+            },
             headerRight: () => (
               <Button
                 type="clear"
@@ -112,12 +128,12 @@ class AddressNavigator extends React.Component {
                 )}
               />
             ),
-          }}
+          })}
         />
         <Stack.Screen
           name="Package"
           component={Package}
-          options={{
+          options={({ navigation }) => ({
             headerStyle: {
               backgroundColor: '#121C78',
               elevation: 0,
@@ -126,6 +142,15 @@ class AddressNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitle: 'Delivery Order',
+            headerLeft: (props) => {
+              return(
+              <HeaderBackButton  {...props} onPress={()=>{
+                this.backwithoutBottom();
+                navigation.goBack();
+              }
+              }
+              />);
+            },
             headerRight: () => (
               <Button
                 type="clear"
@@ -137,12 +162,12 @@ class AddressNavigator extends React.Component {
                 )}
               />
             ),
-          }}
+          })}
         />
         <Stack.Screen
           name="Order"
           component={Order}
-          options={{
+          options={({ navigation }) => ({
             headerStyle: {
               backgroundColor: '#121C78',
               elevation: 0,
@@ -151,6 +176,15 @@ class AddressNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitle: 'Delivery Order',
+            headerLeft: (props) => {
+              return(
+              <HeaderBackButton  {...props} onPress={()=>{
+                this.backwithoutBottom();
+                navigation.goBack();
+              }
+              }
+              />);
+            },
             headerRight: () => (
               <Button
                 type="clear"
@@ -162,7 +196,7 @@ class AddressNavigator extends React.Component {
                 )}
               />
             ),
-          }}
+          })}
         />
       </Stack.Navigator>
     );
@@ -174,7 +208,8 @@ function mapStateToProps(state) {
     todos: state.todos,
     textfield: state.todos.name,
     value: state.todos.name,
-    toggle: state.toggle,
+    bottomBar: state.filters.bottomBar,
+    startDelivered: state.filters.startDelivered,
   };
 }
 
@@ -185,6 +220,12 @@ const mapDispatchToProps = (dispatch) => {
     onChange: (text) => {
       return {type: 'todos', payload: text};
     },
+    setBottomBar: (toggle) => {
+      return dispatch({type: 'BottomBar', payload: toggle});
+    },
+    setStartDelivered : (toggle) => {
+      return dispatch({type: 'startDelivered', payload: toggle});
+    }
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };

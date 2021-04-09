@@ -8,44 +8,25 @@ import IconFile24 from '../../../assets/icon/iconmonstr-file-24 2mobile.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import Camera from '../peripheral/camera';
 import Signature from '../peripheral/signature';
+import {connect} from 'react-redux';
+import {createStackNavigator} from '@react-navigation/stack';
+import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
+import {createCompatNavigatorFactory} from '@react-navigation/compat';
 
-class Example extends React.Component {
+class POD extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       bottomSheet: false,
       isShowCamera: false,
-      isShowSignature: false,
-      isPhotoProofSubmitted: false,
-      isSignatureSubmitted: false,
     };
+    this.navigateToCamera.bind(this);
   }
-
-  componentDidUpdate(prevState) {
-    if(this.state.isShowCamera !== prevState.isShowCamera) {
-      this.props.navigation.setOptions({
-        headerTransparent: this.state.isShowCamera ? true : false,
-      });
-    }
+  navigateToCamera = () => {
+    this.props.setBottomBar(false);
+    this.props.navigation.navigate('Camera')
   }
-
-  photoProofSubmittedHandler = () => {
-    this.setState({isPhotoProofSubmitted: true});
-  }
-
-  signatureSubmittedHandler = () => {
-    this.setState({isSignatureSubmitted: true});
-  }
-
-  showCameraHandler = () => {
-    this.setState({isShowCamera: !this.state.isShowCamera});
-  }
-
-  showSignatureHandler = () => {
-    this.setState({isShowSignature: !this.state.isShowSignature});
-  }
-
-  render() {
+  render(){
     return (
       <>
         <View style={{flex: 1, backgroundColor: 'white', paddingHorizontal: 22}}>
@@ -97,15 +78,15 @@ class Example extends React.Component {
                   },
                 }}
                 overlayContainerStyle={{
-                  backgroundColor: this.state.isPhotoProofSubmitted ? '#17B055' : '#F07120',
+                  backgroundColor: this.props.isPhotoProofSubmitted ? '#17B055' : '#F07120',
                   flex: 2,
                   borderRadius: 5,
                 }}
-                onPress={() => this.showCameraHandler()}
+                onPress={this.navigateToCamera}
                 activeOpacity={0.7}
                 containerStyle={{alignSelf: 'center'}}
               />
-              {this.state.isPhotoProofSubmitted && 
+              {this.props.isPhotoProofSubmitted && 
                 <Checkmark height="20" width="20" fill="#fff" style={{position: 'absolute', bottom: 45, right: 16}} />
               }
               <Text style={styles.sectionText}>Photo Proof</Text>
@@ -192,18 +173,6 @@ class Example extends React.Component {
             </View>
           </View>
         </View>
-        {this.state.isShowCamera && (
-          <Camera 
-            showCameraHandler={this.showCameraHandler}
-            photoProofSubmittedHandler={this.photoProofSubmittedHandler}
-          />
-        )}
-        {this.state.isShowSignature && (
-          <Signature
-            showSignatureHandler={this.showSignatureHandler}
-            signatureSubmittedHandler={this.signatureSubmittedHandler}
-          />
-        )}
       </>
     );
   }
@@ -289,4 +258,33 @@ const styles = {
     paddingTop: 10,
   },
 };
-export default Example;
+function mapStateToProps(state) {
+  return {
+    todos: state.todos,
+    textfield: state.todos.name,
+    value: state.todos.name,
+    userRole: state.userRole,
+    isPhotoProofSubmitted: state.filters.isPhotoProofSubmitted,
+  };
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    decrement: () => dispatch({type: 'DECREMENT'}),
+    reset: () => dispatch({type: 'RESET'}),
+    onChange: (text) => {
+      return {type: 'todos', payload: text};
+    },
+    
+    setBottomBar: (toggle) => {
+      return dispatch({type: 'BottomBar', payload: toggle});
+    },
+    setStartDelivered : (toggle) => {
+      return dispatch({type: 'startDelivered', payload: toggle});
+    }
+    //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(POD);
+
