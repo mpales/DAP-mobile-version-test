@@ -189,12 +189,14 @@ dependencies {
         exclude group: "com.google.firebase", module: "firebase-ml-vision-face-model"
     }
     
-   implementation(project(':react-native-maps')){
-       exclude group: 'com.google.android.gms', module: 'play-services-base'
-       exclude group: 'com.google.android.gms', module: 'play-services-maps'
-   }
-   implementation 'com.google.android.gms:play-services-base:17.6.0'
-   implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation(project(':react-native-maps')){
+        exclude group: 'com.google.android.gms', module: 'play-services-base'
+        exclude group: 'com.google.android.gms', module: 'play-services-maps'
+    }
+    implementation 'com.google.android.gms:play-services-base:17.6.0'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+
+    implementation project(':rn-fetch-blob')
 
     implementation project(':react-native-threads')
     implementation ("com.google.firebase:firebase-ml-vision:19.0.3") {
