@@ -6,26 +6,35 @@ import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.s
 import IconPen7 from '../../../assets/icon/iconmonstr-pen-7 1mobile.svg';
 import IconFile24 from '../../../assets/icon/iconmonstr-file-24 2mobile.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
-import Camera from '../peripheral/camera';
 import Signature from '../peripheral/signature';
 import {connect} from 'react-redux';
-import {createStackNavigator} from '@react-navigation/stack';
-import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
-import {createCompatNavigatorFactory} from '@react-navigation/compat';
 
 class POD extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       bottomSheet: false,
-      isShowCamera: false,
+      isShowSignature: false,
     };
     this.navigateToCamera.bind(this);
+    this.submitSignature.bind(this);
   }
+
   navigateToCamera = () => {
     this.props.setBottomBar(false);
     this.props.navigation.navigate('Camera')
   }
+
+  showSignatureHandler = (bottomBarValue) => {
+    this.setState({isShowSignature: !this.state.isShowSignature});
+    this.props.setBottomBar(bottomBarValue ?? true);
+  }
+
+  submitSignature = () => {
+    this.props.signatureSubmittedHandler(true);
+    this.showSignatureHandler();
+  };
+
   render(){
     return (
       <>
@@ -105,15 +114,15 @@ class POD extends React.Component {
                   },
                 }}
                 overlayContainerStyle={{
-                  backgroundColor: this.state.isSignatureSubmitted ? '#17B055' : '#F07120',
+                  backgroundColor: this.props.isSignatureSubmitted ? '#17B055' : '#F07120',
                   flex: 2,
                   borderRadius: 5,
                 }}
-                onPress={() => this.showSignatureHandler()}
+                onPress={() => this.showSignatureHandler(false)}
                 activeOpacity={0.7}
                 containerStyle={{alignSelf: 'center'}}
               />
-              {this.state.isSignatureSubmitted && 
+              {this.props.isSignatureSubmitted && 
                 <Checkmark height="20" width="20" fill="#fff" style={{position: 'absolute', bottom: 45, right: 16}} />
               }
               <Text style={styles.sectionText}>E-Signature</Text>
@@ -173,6 +182,12 @@ class POD extends React.Component {
             </View>
           </View>
         </View>
+        {this.state.isShowSignature && 
+          <Signature
+            showSignatureHandler={this.showSignatureHandler}
+            signatureSubmittedHandler={this.props.signatureSubmittedHandler}
+          />
+        }
       </>
     );
   }
@@ -265,6 +280,7 @@ function mapStateToProps(state) {
     value: state.todos.name,
     userRole: state.userRole,
     isPhotoProofSubmitted: state.filters.isPhotoProofSubmitted,
+    isSignatureSubmitted: state.filters.isSignatureSubmitted,
   };
 }
 
@@ -275,10 +291,8 @@ const mapDispatchToProps = (dispatch) => {
     onChange: (text) => {
       return {type: 'todos', payload: text};
     },
-    
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
+    signatureSubmittedHandler: (signature) => dispatch({type: 'Signature', payload: signature}),
+    setBottomBar: (toggle) => dispatch({type: 'BottomBar', payload: toggle}),
     setStartDelivered : (toggle) => {
       return dispatch({type: 'startDelivered', payload: toggle});
     }
