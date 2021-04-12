@@ -7,6 +7,7 @@ const initialState = {
     status: IS_UNICODE,
     colors: [],
     isPhotoProofSubmitted: false,
+    isSignatureSubmitted: false,
     bottomBar : true,
     onStartDelivered : false,
   },
@@ -44,23 +45,34 @@ export default function appReducer(state = initialState, action) {
       return {
         ...state,
         filters: {
+          ...state.filters,
           isPhotoProofSubmitted: action.payload,
+        },
+      };
+    case 'Signature':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          isSignatureSubmitted: action.payload,
         },
       };
     case 'BottomBar':
         return {
           ...state,
           filters: {
+            ...state.filters,
             bottomBar: action.payload,
           },
         };
-        case 'startDelivered':
-          return {
-            ...state,
-            filters: {
-              onStartDelivered: action.payload,
-            },
-          };
+    case 'startDelivered':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          onStartDelivered: action.payload,
+        },
+      };
     // Do something here based on the different types of actions
     default:
       // If this reducer doesn't recognize the action type, or doesn't
