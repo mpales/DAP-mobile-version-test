@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Dimensions,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,11 +11,14 @@ import RNFetchBlob from 'rn-fetch-blob';
 // icon
 import XMarkIcon from '../../../assets/icon/iconmonstr-x-mark-1 1mobile.svg';
 
+const window = Dimensions.get("window");
+
 class Signature extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       signatureData: null,
+      dimension: window,
     }
   }
 
@@ -96,7 +100,8 @@ const styles = StyleSheet.create({
     marginVertical: 15,
   },
   canvasContainer: {
-    flex: 0.6,
+    width: window.width,
+    height: window.height - (window.height * 40 / 100),
     flexDirection: 'column',
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
