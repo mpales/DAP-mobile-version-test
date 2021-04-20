@@ -87,7 +87,7 @@ class POD extends React.Component {
                   },
                 }}
                 overlayContainerStyle={{
-                  backgroundColor: this.props.isPhotoProofSubmitted ? '#17B055' : '#F07120',
+                  backgroundColor: this.props.photoProofList.length > 0 ? '#17B055' : '#F07120',
                   flex: 2,
                   borderRadius: 5,
                 }}
@@ -95,7 +95,7 @@ class POD extends React.Component {
                 activeOpacity={0.7}
                 containerStyle={{alignSelf: 'center'}}
               />
-              {this.props.isPhotoProofSubmitted && 
+              {this.props.photoProofList.length > 0 && 
                 <Checkmark height="20" width="20" fill="#fff" style={{position: 'absolute', bottom: 45, right: 16}} />
               }
               <Text style={styles.sectionText}>Photo Proof</Text>
@@ -281,6 +281,7 @@ function mapStateToProps(state) {
     userRole: state.userRole,
     isPhotoProofSubmitted: state.filters.isPhotoProofSubmitted,
     isSignatureSubmitted: state.filters.isSignatureSubmitted,
+    photoProofList: state.photoProofList,
   };
 }
 

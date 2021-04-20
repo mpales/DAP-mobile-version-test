@@ -1,6 +1,14 @@
 //for coordinate definition and algorithm within geo function
 // distance related function in static format and other.<?php
 
+interface staticCordinate {
+  latitude: number,
+  longitude: number,
+  altitude?: number,
+  lat :number,
+  lng :number,
+  alt? :number,
+}
 export default class Location {
   // We'll need another constant here,
   // when we'll start using GPS on Mars
@@ -8,7 +16,7 @@ export default class Location {
   EARTH_RADIUS = 6371000;
   static latitude: any;
   static longitude: any;
-  constructor(latitude, longitude) {
+  constructor(latitude:number, longitude:number) {
     // Taskrunners
     if (!Number.MAX_SAFE_INTEGER) {
       Number.MAX_SAFE_INTEGER = 9007199254740991; // Math.pow(2, 53) - 1;
@@ -34,16 +42,13 @@ export default class Location {
     this.latitude.bind(this);
     this.longitude.bind(this);
     this.meters.bind(this);
+    this.location.bind(this);
   }
 
-  location = (type) => {
-    if (type === 'leaflet') {
-      return {lat: Location.latitude(), lng: Location.longitude()};
-    }
-    if (type === 'google') {
-      return {lat: Location.latitude(), lng: Location.longitude()};
-    }
-    return {latitude: Location.latitude(), longitude: Location.longitude()};
+  location = (type?:any): staticCordinate => {
+    let lat = this.latitude();
+    let lng = this.longitude();
+    return {lat: lat, lng: lng,latitude: lat, longitude: lng};
   };
   isFloat = (n: number) => {
     return Number(n) === n && n % 1 !== 0;
@@ -53,28 +58,28 @@ export default class Location {
    * @return float
    */
   latitude() {
-    return (Location.latitude * Math.PI) / 180.0;
+    return Location.latitude;
   }
 
   /**
    * @return float
    */
   longitude() {
-    return (Location.longitude * Math.PI) / 180.0;
+    return Location.longitude;
   }
 
   meters = (locationX: Location, locationY: Location, precision: number) => {
     let y = this.location.call(locationX);
     let x = this.location.call(locationY);
-    let deltaLatitude = y.latitude - x.latitude;
-    let deltaLongitude = y.longitude - x.longitude;
+    let deltaLatitude = y.lat - x.lat;
+    let deltaLongitude = y.lng - x.lng;
 
     let angle =
       Math.asin(
         Math.sqrt(
           Math.pow(Math.sin(deltaLatitude * 0.5), 2) +
-            Math.cos(x.latitude) *
-              Math.cos(y.latitude) *
+            Math.cos(x.lat) *
+              Math.cos(y.lat) *
               Math.pow(Math.sin(deltaLongitude * 0.5), 2),
         ),
       ) * 2;

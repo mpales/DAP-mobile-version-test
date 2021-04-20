@@ -15,9 +15,10 @@ class WarehouseNavigator extends React.Component {
 
   warehouseRoute = () => {
     let Route = '';
-    if (this.props.userRole.type === 'Client') {
-      Route = 'Client';
-    } else if (this.props.userRole.type === 'Warehouse') {
+    if (this.props.userRole.type === 'Warehouse') {
+      Route= 'Client';
+    }
+    else if (this.props.userRole.type === 'Warehouse') {
       Route = 'Warehouse';
     } else if (this.props.userRole.type === 'Delivery') {
       Route = 'Delivery';

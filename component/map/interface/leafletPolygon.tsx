@@ -7,69 +7,160 @@
 // this for loop and irritate polygonal in spatial function
 // lihat pada : https://leafletjs.com/reference-1.7.1.html#polyutil
 
-import leaflet from 'leaflet';
-import PolyUtils from 'leaflet-polyutils';
-class Util {
-    layerGroup = null;
-    layers: any;
-    markers = null;
-    layerArray: any;
-    constructor() {
-        
+import L from './shim-leaflet';
+import Geo from './geoConditional';
+import { cos } from 'react-native-reanimated';
+
+interface geoLocation {
+    lat: number,
+    lng: number,
+    timestamp: number,
+}
+export default class Util {
+    layerGroup: undefined | L.LayerGroup;
+    layers: any; // 1-5 route exist with coresponding items 1 | and items 0 will have 0 route cordinate 
+    markers:any[] = [];
+    layerArray: any[] = []; 
+    geoLocation:undefined | geoLocation = undefined;// 0-5 is exist within marker key 1 | and marker key 0 will have one cordinate
+    constructor() {        
+     //   this.setLayerGroup.bind(this);
     }
-    setToPrune = () => {
+    setToGeoJSON = () => {
         // prune the layer which not useable because re-ordering of route.
-      this.layerGroup = 
+      return this.layerGroup.toGeoJSON()
     };
-    translateToOrder = (markers,order) => {
-            let markerLayer =   this.layerGroup.getLayer(this.layerGroup.getLayerId(markers));
-            this.layerGroup.removeLayer(markerLayer);
-            
-            markerLayer = Array.from({length:markerLayer.length}).map((num,index)=>{
-             return [markers[order[index]]];  
+    setGeoLocation = (geoLocation) => {
+        this.geoLocation = geoLocation;
+        return this.geoLocation;
+    }
+    compareLatLngs = (order,reorder) => {
+        order = this.setLatLng(order);
+        reorder = this.setLatLng(reorder);
+        return Array.from({length:order.length}).map((num, index)=>{
+            if(order[index].equals(reorder[index]))
+            return reorder[index];
+        }).length === order.length;
+    };
+    //orders = {1:coordinate, 2: coordinate, 3: coordinate}
+    translateToStats = (orders) => {       
+        var tempArray: any[][] = [];
+        var stats: any[] = [];
+        
+        orders.forEach((element,index, array) => {
+            var latLngToBeFound = L.latLng(element);
+            let test = this.setLatLng(orders).findIndex(x => x.equals( this.markers[this.markers.length - 1].getLatLng()));
+           
+            let next = index < array.length - 1 ? index + 1 : test;
+           
+            var latLngNextToBeFound = L.latLng(orders[next]);
+            var saved = false;
+            var double = false;
+            tempArray[index] = [];
+            this.layerArray.forEach((layer,i,arr) => {
+                let latLng = layer.getLatLngs();
+    
+                var leg: any[] = [];
+                latLng.forEach((element,index) => {
+                    if(latLngToBeFound.equals(element) || latLngNextToBeFound.equals(element)){
+                    leg.push(index);
+                    } 
+                });
+
+                let segment = leg.length > 1 ? false : true ;
+
+                saved = segment && !saved ? true : !segment && saved ? true : false;
+
+                if(leg.length > 1){
+                    tempArray[index] = layer;
+                } else if((segment || saved) && Array.isArray(tempArray[index])){
+                    //non double saved delete the array
+                    tempArray[index].push(layer);
+                    if(segment && !saved)
+                    double = true;
+                }
             });
-            this.layerGroup.addLayer(markerLayer);      
+            if(!double && Array.isArray(tempArray[index]))
+            delete tempArray[index];
+        });
+        
+        tempArray.forEach((layers,index) => {
+            //segment
+            let layer = [];
+            if(Array.isArray(layers)){
+                 layer = Array.from({length:layers.length}).map((num,i)=>{
+                    return layers[i].getLatLngs();
+                });
+                layer = [...layer.reduce((acc, val) => acc.concat(val), [])];
+            } else {
+            //leg
+            layer = [...layers.getLatLngs()];
+            }   
+            
+            let route = [...layer];
+            if(this.geoLocation){
+                route.splice(0,0,[this.geoLocation.lat,this.geoLocation.lng]);
+            }
+            var routes = L.polyline(route);
+            let GEO = new Geo();
+            let items = GEO.setItem(routes.getLatLngs());
+            let distance = GEO.getDistanceRoute();
+            let chrono = GEO.getChronoByDistance();
+            stats[index] = {key: index,dist: distance, chrono: chrono.chrono ,distance:Math.round(distance/1000),eta:chrono.eta,hour:chrono.hour, current: layer[0].lat +","+ layer[0].lng, to: layer[layer.length -1].lat + ","+ layer[layer.length -1].lng};
+        });
+        return stats;
     }; 
     setMarkers = (markers)=>{
-        return Array.from({length:markers.length}).map((num,index)=>{
-            return [leaflet.latLng(markers[index].location('leaflet'))]
+        this.markers = Array.from({length:markers.length}).map((num,index)=>{
+
+            if(markers[index] instanceof L.LatLng)
+            return L.marker(markers[index]);
+
+            return L.marker(L.latLng(markers[index]));
+        });
+        return this.markers;
+    }
+    setLatLng = (LatLng) => {
+        return Array.from({length:LatLng.length}).map((num,index)=>{
+
+            if(LatLng[index] instanceof L.LatLng)
+            return LatLng[index];
+
+            return L.latLng(LatLng[index]);
         });
     }
-    isMarkerLayered = (markers) => {
-        return this.layerGroup.hasLayer(markers);
+    isMarkerLayered = (marker) => {
+        return this.layerGroup.hasLayer(marker);
     };
-    setLayerGroup = (items,markers) => {
-        let prev = 0;
-        let latlngs = [];
+    setLayerStats = (items,markers) => {
+        var prev = 0;
+        var latlngs = [];
+        var multipolygon = false;
+
+        markers = this.setLatLng(markers);
         this.layers = Array.from({length: items.length}).map((num,index)=> {
             
-            let nLat = markers.findIndex(x => x.latitude === items[index].latitude);
-            let nLng = markers.findIndex(x => x.longitude === items[index].longitude);
-            if(nLat === nLng){
-                let latlngs = items.slice(prev,index);
-                markers[nLat] = leaflet.latLng(latlngs.shift());
-                this.layerArray[nLat] = leaflet.polyline(markers[nLat],{color:'red'});  
-                prev = index;
-                let tempArray = Array.from({length: latlngs.length}).map((num, index) => {
-                    let latLng = leaflet.latLng(latlngs[index]);
-                    this.layerArray[nLat].addLatLng(latLng);
-                    return [latLng];
-                });
-                return [tempArray];
-            }
-            return [items[index].lat, items[index].lng];
-        });
-        //split the item to layer group and update local variable 
-        //this mean it also update the layer after re-ordering. 
-        if(this.layers.length === markers.length) {
 
-            this.layerGroup = leaflet.layerGroup(markers)
-            .addLayer(this.layers);
+        var mark = markers.findIndex(x => x.equals(items[index]));
+                if(mark >= 0){
+                    let next = index > 0 ? index+1 : 1;
     
-        } else {
-            this.layerGroup = leaflet.layerGroup(this.layers)
-        }
+                    var latlngs = items.slice(prev,next);
+                    //update markers and add first dot in polyline
+                    this.layerArray[mark] = L.polyline(this.setLatLng(latlngs),{color:'red'});  
+                    //udate prev
+                    prev = index;
+                    //return [this.layerArray[nLat]];
+                }
+                return L.latLng(items[index]);
+        });
+
+        this.layerGroup = L.layerGroup(this.setMarkers(markers)).addLayer(L.polyline(this.layers,{color:'blue'}));
+        
         return this.layerGroup;
     };
+    setLayersGroup = (items,markers) => {
 
+    return L.layerGroup(this.setMarkers(markers)).addLayer(L.polyline(this.setLatLng(items),{color:'blue'}));
+    };
+    
 }

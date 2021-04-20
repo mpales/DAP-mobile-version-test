@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import SignatureCanvas from 'react-native-signature-canvas';
 import RNFetchBlob from 'rn-fetch-blob';
+import { SafeAreaView } from 'react-native-safe-area-context';
 // icon
 import XMarkIcon from '../../../assets/icon/iconmonstr-x-mark-1 1mobile.svg';
 
@@ -30,14 +31,13 @@ class Signature extends React.Component {
   }
 
   signatureHandler = async (signature) => {
-    const cacheDir = RNFetchBlob.fs.dirs.CacheDir;
+    const cacheDir = RNFetchBlob.fs.dirs.DownloadDir;
     const fs = RNFetchBlob.fs;
-    const base64 = RNFetchBlob.base64;
-    await fs.writeFile(`${cacheDir}/signature.png`, base64.encode(signature), 'base64')
+    await fs.writeFile(`${cacheDir}/signature.png`, signature.replace('data:image/png;base64,', ''), 'base64')
     RNFetchBlob.fs.readFile(`${cacheDir}/signature.png`, 'base64')
       .then((data) => {
         this.setState({signatureData: data});
-      })
+      });
   };
 
   emptyHandler = () => {

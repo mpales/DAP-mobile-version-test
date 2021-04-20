@@ -121,7 +121,7 @@ const Manifest = ({item, index, drag, isActive}) => {
         <TouchableOpacity style={styles.leftList}>
           <Text
             style={{fontWeight: '600', color: '#424141', textAlign: 'center'}}>
-            {item.label}
+            {index}
           </Text>
           <Button
             icon={() => (
@@ -133,26 +133,26 @@ const Manifest = ({item, index, drag, isActive}) => {
         </TouchableOpacity>
         <ListItem.Content>
           <ListItem.Title style={{color: '#000000', fontWeight: '600'}}>
-            {item.label}
+            {index}
           </ListItem.Title>
           <ListItem.Subtitle style={{color: '#6C6B6B', fontWeight: '400'}}>
-            {item.label}
+            Distant Location {item.distance} Km
           </ListItem.Subtitle>
           <View style={styles.legend}>
             <View style={styles.legendLabel}>
-              <Text style={styles.label}>Current</Text>
+              <Text style={styles.label}>Location</Text>
               <Text style={styles.label}>To</Text>
             </View>
             <View style={styles.legendInfo}>
-              <Text style={styles.info}>Chinese town no.23</Text>
-              <Text style={styles.info}>Chinese town no.23</Text>
+              <Text style={styles.info}>{item.current}</Text>
+              <Text style={styles.info}>{item.to}</Text>
             </View>
           </View>
         </ListItem.Content>
         <View style={styles.rightList}>
-          <Text style={styles.eta}>ETA : 30 minute</Text>
+          <Text style={styles.eta}>ETA : {item.eta}</Text>
           <Button
-            title="01.00-2.00 p.m"
+            title={item.hour}
             type="clear"
             titleStyle={{marginLeft: 9, fontSize: 10, color: '#000000'}}
             icon={() => (

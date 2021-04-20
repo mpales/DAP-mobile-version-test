@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import com.github.reactnativecommunity.location.RNLocationPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import com.reactlibrary.RNThreadPackage;
 import com.swmansion.reanimated.ReanimatedPackage;
@@ -34,7 +35,8 @@ public class MainApplication extends Application implements ReactApplication {
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for example:
-          packages.add(new RNThreadPackage(mReactNativeHost));
+         // packages.add(new RNLocationPackage());
+          // packages.add(new RNThreadPackage(mReactNativeHost));
           return packages;
         }
 

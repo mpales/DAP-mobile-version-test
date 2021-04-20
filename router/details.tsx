@@ -1,12 +1,10 @@
 import React from 'react';
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
-import Client from './client/detail';
 import Delivery from './delivery/detail';
 import Warehouse from './warehouse/detail';
 import WarehouseNavigator from './warehouse';
 import DeliveryNavigator from './delivery';
-import ClientNavigator from './client';
 import {createStackNavigator} from '@react-navigation/stack';
 import {ReactReduxContext} from 'react-redux';
 import noAccess from './error/no-access';
@@ -20,14 +18,12 @@ class Details extends React.Component {
   }
   detailsRoute = () => {
     let Route = '';
-    if (this.props.userRole.type === 'Client') {
-      Route = 'Client';
-    } else if (this.props.userRole.type === 'Warehouse') {
+    if (this.props.userRole.type === 'Warehouse') {
       Route = 'Warehouse';
     } else if (this.props.userRole.type === 'Delivery') {
       Route = 'Delivery';
     } else {
-      Route = 'Client';
+      Route = 'Delivery';
     }
     return Route;
   };
@@ -42,13 +38,6 @@ class Details extends React.Component {
           headerStyle: {backgroundColor: 'tomato'},
           headerShown: false,
         }}>
-        <Stack.Screen
-          name="Client"
-          component={Client}
-          options={{
-            title: 'Awesome app',
-          }}
-        />
         <Stack.Screen
           name="Delivery"
           component={Delivery}
@@ -73,8 +62,6 @@ class Details extends React.Component {
       Navigate = <WarehouseNavigator component={this.detailPage} />;
     } else if (this.props.userRole.type === 'Delivery') {
       Navigate =  <DeliveryNavigator component={this.detailPage} />;
-    } else if (this.props.userRole.type === 'Client') {
-      Navigate = <ClientNavigator component={this.detailPage} />;
     } else {
       Navigate = <Stack.Navigator
         initialRouteName="Home"
