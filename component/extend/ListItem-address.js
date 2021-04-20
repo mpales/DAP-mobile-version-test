@@ -120,7 +120,7 @@ const Manifest = ({item, index, drag, isActive, navigation}) => {
         <TouchableOpacity style={styles.leftList}>
           <Text
             style={{fontWeight: '600', color: '#424141', textAlign: 'center'}}>
-            {item.label}
+            {index}
           </Text>
           <Button
             icon={() => (
@@ -132,12 +132,12 @@ const Manifest = ({item, index, drag, isActive, navigation}) => {
         </TouchableOpacity>
         <ListItem.Content>
           <ListItem.Title style={{color: '#000000', fontWeight: '600'}}>
-            {item.label}
+            {index}
           </ListItem.Title>
           <ListItem.Subtitle style={{color: '#6C6B6B', fontWeight: '400'}}>
-            {item.label}
+            Distant Location {item.distance} Km
           </ListItem.Subtitle>
-          <Text style={styles.eta}>ETA : 30 minute</Text>
+          <Text style={styles.eta}>ETA : {item.eta}</Text>
           <View style={styles.detail}>
             <Text style={styles.labelDetail}>Packages</Text>
             <Text style={styles.labelInfo}>3 box</Text>
@@ -148,8 +148,8 @@ const Manifest = ({item, index, drag, isActive, navigation}) => {
               <Text style={styles.label}>To</Text>
             </View>
             <View style={styles.legendInfo}>
-              <Text style={styles.info}>Chinese town no.23</Text>
-              <Text style={styles.info}>Chinese town no.23</Text>
+            <Text style={styles.info}>{item.current}</Text>
+              <Text style={styles.info}>{item.to}</Text>
             </View>
           </View>
 
@@ -172,7 +172,7 @@ const Manifest = ({item, index, drag, isActive, navigation}) => {
             textStyle={{fontSize: 10}}
           />
           <Button
-            title="01.00-2.00 p.m"
+            title={item.hour}
             type="clear"
             titleStyle={{marginLeft: 9, fontSize: 10, color: '#000000'}}
             icon={() => (

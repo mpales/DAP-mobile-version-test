@@ -1,56 +1,85 @@
 import React from 'react';
 import {
+    FlatList,
+    Image,
     StyleSheet,
-    Text,
     TouchableOpacity,
     View,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { connect } from 'react-redux';
 // icons
-import UploadIcon from '../../../assets/icon/iconmonstr-upload-5 1mobile.svg';
-import SettingIcon from '../../../assets/icon/iconmonstr-gear-2mobile.svg';
+import GalleryAttachment from '../../../assets/icon/iconmonstr-picture-10.svg';
 import FlashIcon from '../../../assets/icon/Flash.svg';
-import {connect} from 'react-redux';
+import FlashActiveIcon from '../../../assets/icon/FlashActive.svg';
 
 class Camera extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            photoData: null,
+            pictureData: this.props.photoProofList,
+            isShowImagePreview: false,
             isFlashActive: false,
         }
         this.submitPhotoProof.bind(this);
+        this.flashToggle.bind(this);
     }
 
-    componentDidUpdate(prevStates) {
-        if(this.state.photoData !== prevStates.photoData) {
-            this.submitPhotoProof();
+    componentDidUpdate(prevProps, prevState) {
+        if(this.state.pictureData !== prevState.pictureData) {
+            if(this.state.isShowImagePreview) {
+                this.flatlist.scrollToEnd();
+            }
         }
     }
 
+    flashToggle = () => {
+        this.setState({
+            isFlashActive: !this.state.isFlashActive,
+        });
+    }
+
     submitPhotoProof = () => {
+        this.props.addPhotoProofList([]);
         this.props.photoProofSubmittedHandler(true);
         this.props.navigation.navigate('Order');
     }
 
     launchGallery = (data) => {
-        this.setState({
-            photoData: data,
-        })
+        if(!data.didCancel) {
+            this.setState({pictureData: [...this.state.pictureData, data.uri]})
+            this.props.addPhotoProofList(this.state.pictureData);
+        }
     }
 
     takePicture = async () => {
         if (this.camera) {
             const options = { quality: 0.5, base64: true };
             const data = await this.camera.takePictureAsync(options);
-            this.setState({
-                photoData: data,
-            })
+            this.setState({pictureData: [...this.state.pictureData, data.uri]});
+            this.props.addPhotoProofList(this.state.pictureData);
         }
     };
 
+    handleShowImagePreview = () => {
+        if(this.state.pictureData.length > 0) {
+            this.setState({
+                isShowImagePreview: !this.state.isShowImagePreview,
+            });
+        }
+    }
+
     render() {
+        const renderItem = ({ item, index }) => (
+            <TouchableOpacity
+                style={styles.pictureSize}
+                onPress={()=> this.props.navigation.navigate('EnlargeImage', {index: index})}
+            >
+                <Image style={{width: '100%', height: '100%'}} source={{ uri: item }} />
+            </TouchableOpacity>
+        )
+
         return (
             <View style={styles.container}>
                 <RNCamera
@@ -72,27 +101,38 @@ class Camera extends React.Component {
                         buttonPositive: 'Ok',
                         buttonNegative: 'Cancel',
                     }}
-                    // onGoogleVisionBarcodesDetected={({ barcodes }) => {
-                    //     console.log(barcodes);
-                    // }}
                 />
                 <View style={styles.optionContainer}>
-                    <TouchableOpacity onPress={() => {}}>
-                        <SettingIcon height="25" width="25" fill="#FFFFFF" />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => {}} style={{marginTop: 20}}>
-                        <FlashIcon height="25" width="25" fill="#FFFFFF" />
+                    <TouchableOpacity onPress={this.flashToggle}>
+                        {this.state.isFlashActive
+                            ? <FlashActiveIcon height="25" width="25" fill="#FFFFFF" />
+                            : <FlashIcon height="25" width="25" fill="#FFFFFF" />
+                        }
                     </TouchableOpacity>
                 </View>
+                {this.state.isShowImagePreview && 
+                    this.state.pictureData.length > 0 &&
+                        <View style={styles.pictureListContainer}>
+                            <FlatList 
+                                ref={ref => { this.flatlist = ref }}
+                                data={this.state.pictureData}
+                                renderItem={renderItem}
+                                keyExtractor={(item, index) => index}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={{flexGrow: 1, justifyContent: 'center', alignItems: 'center'}}
+                            />
+                        </View>
+                }
                 <View style={styles.buttonContainer}>
+                    <TouchableOpacity onPress={this.handleShowImagePreview} style={styles.gallery}>
+                        {this.state.pictureData.length > 0 &&
+                            <Image style={styles.imagePreviewButton} source={{uri: this.state.pictureData[this.state.pictureData.length - 1]}} />
+                        }
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={this.takePicture.bind(this)} style={styles.capture} />
                     <TouchableOpacity onPress={() => launchImageLibrary({mediaType: 'photo'}, this.launchGallery)} style={styles.gallery}>
-                        <Text style={{ fontSize: 12 }}> Gallery </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={this.takePicture.bind(this)} style={styles.capture}>
-                        {/* <Text style={{ fontSize: 14 }}> SNAP </Text> */}
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => {}} style={styles.gallery}>
-                        <UploadIcon height="25" width="25" fill="#FFFFFF" />
+                        <GalleryAttachment height="39" width="30" fill="#fff" />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -112,14 +152,16 @@ const styles = StyleSheet.create({
         left: 0,
     },
     buttonContainer: { 
+        backgroundColor: 'rgba(0,0,0,0.2)',
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: 30, 
+        bottom: 0, 
         flexDirection: 'row', 
         justifyContent: 'space-evenly',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         zIndex: 2,
+        paddingVertical: 35,
     },
     optionContainer: {
         position: 'absolute',
@@ -129,6 +171,20 @@ const styles = StyleSheet.create({
         right: 20,
         zIndex: 2,
     },
+    pictureListContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        bottom: 130,
+        zIndex: 3,
+    },
+    pictureSize: {
+        width: 80,
+        height: 80,
+        marginHorizontal: 2,
+    },
     preview: {
         flex: 1,
         justifyContent: 'flex-end',
@@ -137,7 +193,7 @@ const styles = StyleSheet.create({
     },
     capture: {
         flex: 0,
-        backgroundColor: '#121C78',
+        backgroundColor: '#fff',
         width: 80,
         height: 80,
         borderRadius: 80,
@@ -146,35 +202,30 @@ const styles = StyleSheet.create({
         flex: 0,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#C4C4C4',
+        backgroundColor: 'transparent',
         width: 60,
         height: 60,
         borderRadius: 60,
     },
+    imagePreviewButton: {
+        width: '100%', 
+        height: '100%',
+        borderRadius: 60,
+    }
 })
 
 function mapStateToProps(state) {
     return {
-      todos: state.todos,
-      textfield: state.todos.name,
-      value: state.todos.name,
-      userRole: state.userRole,
-      isPhotoProofSubmitted: state.filters.isPhotoProofSubmitted,
+        photoProofList: state.photoProofList,
     };
-  }
+}
   
-  const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch) => {
     return {
-      decrement: () => dispatch({type: 'DECREMENT'}),
-      reset: () => dispatch({type: 'RESET'}),
-      onChange: (text) => {
-        return {type: 'todos', payload: text};
-      },
-      photoProofSubmittedHandler : (proof) => dispatch({type:'PhotoProof',payload:proof}),
-      //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
-      setBottomBar: (toggle) =>  dispatch({type: 'BottomBar', payload: toggle}),
+        reset: () => dispatch({type: 'RESET'}),
+        photoProofSubmittedHandler : (proof) => dispatch({type:'PhotoProof',payload:proof}),
+        addPhotoProofList: (uri) => dispatch({type: 'PhotoProofList', payload: uri}),
     };
-    
-  };
+};
   
 export default connect(mapStateToProps, mapDispatchToProps)(Camera);

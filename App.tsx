@@ -11,7 +11,6 @@
 import React from 'react';
 import store from './Store';
 import {
-  SafeAreaView,
   StyleSheet,
   ScrollView,
   View,
@@ -22,6 +21,7 @@ import {
   Text,
   Keyboard,
 } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Signature from './Browser';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -95,7 +95,7 @@ class App extends React.Component<IProps, {}> {
   render() {
     var image = {uri: 'https://reactnative.dev/img/tiny_logo.png'};
     return (
-      <>
+      <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
         <Signature />
         <View style={styles.body}>
@@ -130,7 +130,7 @@ class App extends React.Component<IProps, {}> {
             </TouchableOpacity>
           </View>
         </View>
-      </>
+      </SafeAreaProvider>
     );
   }
 }

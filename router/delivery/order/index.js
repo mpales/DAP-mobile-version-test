@@ -1,10 +1,16 @@
 import React from 'react';
+import { Button } from 'react-native-elements';
 import Camera from '../peripheral/camera';
 import POD from './POD';
+import EnlargeImage from '../peripheral/enlargeImage';
 import {connect} from 'react-redux';
 import {createStackNavigator,HeaderBackButton} from '@react-navigation/stack';
 import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
+// icons
+import IconDelivery8Mobile from '../../../assets/icon/iconmonstr-delivery-8 1mobile.svg';
+import IconMenu11Mobile from '../../../assets/icon/iconmonstr-menu-11mobile.svg';
+
 
 class Example extends React.Component {
   constructor(props) {
@@ -36,7 +42,19 @@ class Example extends React.Component {
                   }}
                 />
               );
-            }
+            },
+            headerRight: () => (
+              <Button
+                type="clear"
+                buttonStyle={{paddingHorizontal: 20, margin: 0}}
+                iconContainerStyle={{padding: 0, margin: 0}}
+                titleStyle={{padding: 0, margin: 0}}
+                onPres={() => {}}
+                icon={() => (
+                  <IconDelivery8Mobile height="24" width="24" fill="#fff" />
+                )}
+              />
+            ),
           });
           return <Camera {...props}/>;
         },
@@ -44,6 +62,35 @@ class Example extends React.Component {
           title: 'Awesome app',
         },
       },
+      EnlargeImage: {
+        screen:  (props) => {
+          this.props.navigation.setOptions({headerTransparent:true});
+          this.props.navigation.setOptions({
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} 
+                  onPress={()=> {
+                    this.props.navigation.navigate('Camera', {screen: 'Camera'});
+                  }}
+                />
+              );
+            },
+            headerRight: () => (
+              <Button
+                type="clear"
+                buttonStyle={{paddingHorizontal: 20, margin: 0}}
+                iconContainerStyle={{padding: 0, margin: 0}}
+                titleStyle={{padding: 0, margin: 0}}
+                onPress={() => {}}
+                icon={() => (
+                  <IconMenu11Mobile height="20" width="20" fill="#fff" />
+                )}
+              />
+            )
+          });
+          return <EnlargeImage {...props}/>;
+        },
+      }
     },
     {
       initialRouteName:"Order",

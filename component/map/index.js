@@ -24,12 +24,17 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import IconEllipse from '../../assets/icon/Ellipse 9.svg';
 import IconSpeech26 from '../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import {connect} from 'react-redux';
+import Util from './interface/leafletPolygon';
+import Location from './interface/geoCoordinate'
+import Geojson from './section/GeoJSON';
 
 const screen = Dimensions.get('window');
 
 const ASPECT_RATIO = screen.width / screen.height;
-const LATITUDE = 37.78825;
-const LONGITUDE = -122.4324;
+
+
+const LATITUDE = 1.1037975445392902;
+const LONGITUDE = 104.09571858289692;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
@@ -223,33 +228,28 @@ class AnimatedMarkers extends React.Component {
       outputRange: [0, -100],
       extrapolate: 'clamp',
     });
+    
+    const COORDINATES = this.props.steps;
 
-    const markers = [
-      {
-        id: 0,
-        amount: 99,
-        coordinate: {
-          latitude: LATITUDE,
-          longitude: LONGITUDE,
-        },
-      },
-      {
-        id: 1,
-        amount: 199,
-        coordinate: {
-          latitude: LATITUDE + 0.004,
-          longitude: LONGITUDE - 0.004,
-        },
-      },
-      {
-        id: 2,
-        amount: 285,
-        coordinate: {
-          latitude: LATITUDE - 0.004,
-          longitude: LONGITUDE - 0.004,
-        },
-      },
-    ];
+
+      const LatLngs =  Array.from({length: COORDINATES.length}).map((num, index) => {
+        let latLng = new Location(COORDINATES[index][0],COORDINATES[index][1]);
+        return latLng.location();
+      });
+      const marker = Array.from({length:this.props.markers.length}).map((num,index)=>{
+        let latLng = new Location(this.props.markers[index][0],this.props.markers[index][1]);
+      return  latLng.location(); 
+      });
+      const Polygon = new Util;
+      let LayerGroup = Polygon.setLayersGroup(LatLngs,marker);
+      //console.log(Polygon.setLatLng(this.props.orders));
+     // Polygon.translateToOrder(Polygon.setLatLng(this.props.orders));
+      const GeoJSON = LayerGroup.toGeoJSON();
+
+      const markers = Array.from({length:this.props.markers.length}).map((num,index)=>{
+        return {id: index, ammount: index*10, coordinate: {latitude:this.props.markers[index][0],longitude:this.props.markers[index][1]}};
+      });
+
     const index = 0;
     const animations = markers.map((m, i) =>
       getMarkerState(panX, panY, scrollY, i, index),
@@ -278,6 +278,7 @@ class AnimatedMarkers extends React.Component {
       bottomPan: new Animated.Value(0),
       bottomSheet: React.createRef(),
       toggleContainer: false,
+      GeoJSON
     };
     this.updateAnimated.bind(this);
     this.onLihatRincian.bind(this);
@@ -442,13 +443,14 @@ class AnimatedMarkers extends React.Component {
   renderInner = () => {
     const {markers, index} = this.state;
     let marker = markers[index];
+    let {distance,to,current,hour,eta} = this.props.stat[index];
     return (
       <View style={styles.sheetContainer}>
         <View style={styles.sectionSheetDetail}>
           <View style={styles.detailContent}>
             <Text style={styles.orderTitle}>{marker.amount}</Text>
-            <Text style={styles.chrono}>Distant Location 8.5 Km</Text>
-            <Text style={styles.eta}>ETA : 30 minute</Text>
+            <Text style={styles.chrono}>Distant Location {distance} Km</Text>
+            <Text style={styles.eta}>ETA : {eta}</Text>
             <View style={styles.detail}>
               <Text style={styles.labelDetail}>Packages</Text>
               <Text style={styles.labelInfo}>3 box</Text>
@@ -467,7 +469,7 @@ class AnimatedMarkers extends React.Component {
             containerStyle={styles.spatialSheetContainer}
             inputContainerStyle={styles.spatialInput}
             inputStyle={styles.spatialInputText}
-            value={'' + marker.coordinate.latitude}
+            value={'' + current}
             leftIcon={() => {
               return (
                 <View style={styles.leftLabel}>
@@ -481,7 +483,7 @@ class AnimatedMarkers extends React.Component {
             containerStyle={styles.spatialSheetContainer}
             inputContainerStyle={styles.spatialInput}
             inputStyle={styles.spatialInputText}
-            value={'' + marker.coordinate.longitude}
+            value={'' + to}
             leftIcon={() => {
               return (
                 <View style={styles.leftLabel}>
@@ -568,6 +570,7 @@ class AnimatedMarkers extends React.Component {
       carousel,
       bottomPan,
       toggleContainer,
+      GeoJSON
     } = this.state;
     return (
       <View style={styles.container}>
@@ -588,22 +591,7 @@ class AnimatedMarkers extends React.Component {
             style={styles.map}
             region={region}
             onRegionChange={this.onRegionChange}>
-            {markers.map((marker, i) => {
-              const {selected, markerOpacity, markerScale} = animations[i];
-
-              return (
-                <Marker key={marker.id} coordinate={marker.coordinate}>
-                  <PriceMarker
-                    style={{
-                      opacity: markerOpacity,
-                      transform: [{scale: markerScale}],
-                    }}
-                    amount={marker.amount}
-                    selected={selected}
-                  />
-                </Marker>
-              );
-            })}
+            <Geojson geojson={GeoJSON} strokeWidth={3}/>
           </AnimatedMap>
           {!toggleContainer && (
             <Animated.View style={[styles.itemContainer, {opacity: carousel}]}>
@@ -642,6 +630,7 @@ class AnimatedMarkers extends React.Component {
                   opacity,
                   height,
                 } = animations[i];
+                const {current,eta,to,distance,hour} = this.props.stat[i];
                 return (
                   <Animated.View
                     key={marker.id}
@@ -662,9 +651,9 @@ class AnimatedMarkers extends React.Component {
                         <View style={styles.detailContent}>
                           <Text style={styles.orderTitle}>{marker.amount}</Text>
                           <Text style={styles.chrono}>
-                            Distant Location 8.5 Km
+                            Distant Location {distance} Km
                           </Text>
-                          <Text style={styles.eta}>ETA : 30 minute</Text>
+                          <Text style={styles.eta}>ETA : {eta}</Text>
                           <View style={styles.detail}>
                             <Text style={styles.labelDetail}>Packages</Text>
                             <Text style={styles.labelInfo}>3 box</Text>
@@ -683,7 +672,7 @@ class AnimatedMarkers extends React.Component {
                           containerStyle={styles.spatialContainer}
                           inputContainerStyle={styles.spatialInput}
                           inputStyle={styles.spatialInputText}
-                          value={'' + marker.coordinate.latitude}
+                          value={'' + current}
                           leftIcon={() => {
                             return (
                               <View style={styles.leftLabel}>
@@ -703,7 +692,7 @@ class AnimatedMarkers extends React.Component {
                           containerStyle={styles.spatialContainer}
                           inputContainerStyle={styles.spatialInput}
                           inputStyle={styles.spatialInputText}
-                          value={'' + marker.coordinate.longitude}
+                          value={'' + to}
                           leftIcon={() => {
                             return (
                               <View style={styles.leftLabel}>
@@ -728,16 +717,16 @@ class AnimatedMarkers extends React.Component {
                     </Animated.View>
                     <View style={styles.sectionContentTitle}>
                       <Text style={styles.orderTitle}>#302323402323</Text>
-                      <Text style={styles.chrono}>Distant Location 8.5 Km</Text>
+                      <Text style={styles.chrono}>Distant Location {distance} Km</Text>
                     </View>
                     <View style={styles.sectionContent}>
                       <View style={styles.contentList}>
                         <Text style={styles.listLabel}>From</Text>
-                        <Text style={styles.listContent}>Test1</Text>
+                        <Text style={styles.listContent}>{current}</Text>
                       </View>
                       <View style={styles.contentList}>
                         <Text style={styles.listLabel}>To</Text>
-                        <Text style={styles.listContent}>Test3</Text>
+                        <Text style={styles.listContent}>{to}</Text>
                       </View>
                       <View style={styles.contentList}>
                         <Text style={styles.listLabel}>Package</Text>
@@ -1084,6 +1073,9 @@ function mapStateToProps(state) {
   return {
     bottomBar: state.filters.bottomBar,
     startDelivered : state.filters.onStartDelivered,
+    markers: state.route.markers,
+    stat : state.route.stat,
+    steps: state.route.steps,
   };
 }
 

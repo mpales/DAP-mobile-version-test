@@ -43,7 +43,7 @@ import IconTask1Mobile from '../../../assets/icon/iconmonstr-task-1 1mobile.svg'
 import IconNavigation10Mobile from '../../../assets/icon/iconmonstr-navigation-10 1mobile.svg';
 import IconAward23Mobile from '../../../assets/icon/iconmonstr-award-23 1mobile.svg';
 import IconMenu6Mobile from '../../../assets/icon/iconmonstr-menu-6 1mobile.svg';
-
+import { useIsDrawerOpen } from '@react-navigation/drawer';
 import Manifest from '../../../component/extend/ListItem-manifest';
 const window = Dimensions.get('window');
 
@@ -386,6 +386,7 @@ interface IProps {
   decrement: () => void;
   reset: () => void;
   onChange: (text: any) => void;
+  toggleDrawer: () => void;
 }
 
 interface dispatch {
@@ -399,6 +400,7 @@ function mapStateToProps(state: {todos: {name: any}, userRole: any}) {
     textfield: state.todos.name,
     value: state.todos.name,
     userRole: state.userRole,
+    isDrawer: state.filters.isDrawer,
   };
 }
 

@@ -1,8 +1,10 @@
 import {IS_UNICODE} from './lang';
-import {STRUCT, USER} from './default';
+import {STRUCT, USER, ROUTE} from './default';
 const initialState = {
   todos: STRUCT,
   userRole: USER,
+  photoProofList: [],
+  route: ROUTE,
   filters: {
     status: IS_UNICODE,
     colors: [],
@@ -10,6 +12,8 @@ const initialState = {
     isSignatureSubmitted: false,
     bottomBar : true,
     onStartDelivered : false,
+    isDrawer : true,
+    isFiltered : 0,
   },
 };
 
@@ -41,6 +45,12 @@ export default function appReducer(state = initialState, action) {
           name: 'Nana',
         },
       };
+    case 'PhotoProofList': {
+      return {
+        ...state,
+        photoProofList: action.payload,
+      };
+    }
     case 'PhotoProof':
       return {
         ...state,
@@ -65,6 +75,22 @@ export default function appReducer(state = initialState, action) {
             bottomBar: action.payload,
           },
         };
+    case 'ToggleDrawer':
+          return {
+            ...state,
+            filters: {
+              ...state.filters,
+              isDrawer: action.payload,
+            },
+    };
+    case 'filtered_sort':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          isFiltered: action.payload,
+        },
+  };
     case 'startDelivered':
       return {
         ...state,
@@ -73,7 +99,54 @@ export default function appReducer(state = initialState, action) {
           onStartDelivered: action.payload,
         },
       };
-    // Do something here based on the different types of actions
+      case 'GeoLocation':
+        return {
+          ...state,
+          userRole: {
+            ...state.userRole,
+            location:action.payload.position
+          },
+        };
+    case 'Directions':
+    return {
+        ...state,
+        route:{
+          ...state.route,
+          id: action.payload.uuid, 
+          markers: action.payload.markers,
+          steps: action.payload.steps,
+          orders: action.payload.markers,
+          routes : {
+            ...state.route.routes,
+            [action.payload.uuid]: action.payload.steps,
+          },
+        }
+      };
+      case 'RouteStats':
+        return {
+          ...state,
+          route:{
+            ...state.route,
+            stats : {
+              ...state.route.stats,
+              [action.payload.uuid]: action.payload.stats,
+            },
+            stat : action.payload.stats, 
+          }
+        };
+    case 'MarkerOrdered':
+        return {
+          ...state,
+          route:{
+            ...state.route,
+            id: state.route.routes.hasOwnProperty(action.payload.uuid) ? action.payload.uuid : state.route.id, //might be id of backend markers array
+            orders: action.payload.orders,
+            steps : state.route.routes.hasOwnProperty(action.payload.uuid) ? state.route.routes[action.payload.uuid] : false, 
+            markers : action.payload.orders,
+            stat :  state.route.stats.hasOwnProperty(action.payload.uuid) ? state.route.stats[action.payload.uuid] : [],
+          }
+        };
+      // Do something here based on the different types of actions
     default:
       // If this reducer doesn't recognize the action type, or doesn't
       // care about this specific action, return the existing state unchanged
