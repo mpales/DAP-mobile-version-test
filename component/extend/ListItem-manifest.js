@@ -1,6 +1,6 @@
 import React from 'react';
 import {ListItem, Avatar, ThemeProvider} from 'react-native-elements';
-
+import Mixins from '../../mixins';
 const styles = {
   sectionContainer: {
     marginHorizontal: 21,
@@ -13,10 +13,15 @@ const styles = {
     borderRadius: 10,
   },
   titleText: {
+    ...Mixins.subtitle3,
     color: '#6C6B6B',
     fontWeight: '600',
+    lineHeight: 21,
   },
   subtitleText: {
+    ...Mixins.small3,
+    fontWeight: '300',
+    lineHeight: 15,
     marginVertical: 2,
     color: '#ABABAB',
   },

@@ -88,6 +88,7 @@ const Geojson = props => {
             <MapView.Marker
               key={overlay.id}
               coordinate={overlay.coordinates}
+              tracksViewChanges={false}
             >
                 <View style={styles.iconContaner}>
                     <IconLocation5Mobile height="25" width="25" fill="#000" style={styles.iconSVG} />
@@ -109,16 +110,6 @@ const Geojson = props => {
           );
         }
         if (overlay.type === 'polyline') {
-            let color = "rgba(255,0,0,0.3)";
-            if(overlay.num === 0){
-                color = "rgba(0,255,0,0.3)";
-            } else if(overlay.num === 1){
-                color = "rgba(0,0,255,0.3)";
-            } else if(overlay.num === 2){
-                color = "rgba(192,192,192,0.3)";
-            } else {
-                color = color;
-            }
           return (
             <MapView.Polyline
               key={overlay.id}

@@ -16,16 +16,18 @@ import {
   View,
   Button,
   StatusBar,
-  Image,
   TouchableOpacity,
   Text,
   Keyboard,
 } from 'react-native';
+import {
+  Image,
+} from 'react-native-elements';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Signature from './Browser';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-
+import Mixins from './mixins';
 import {Input} from './input';
 import {FadeInView} from './animated';
 import {AnyAction, Dispatch} from 'redux';
@@ -93,14 +95,17 @@ class App extends React.Component<IProps, {}> {
     this.props.navigation.navigate('Details');
   }
   render() {
-    var image = {uri: 'https://reactnative.dev/img/tiny_logo.png'};
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
         <Signature />
         <View style={styles.body}>
           <View style={styles.sectionContainerIMG}>
-            <View style={styles.tinyLogo} />
+            <Image
+              source={require('./assets/dap_logo_hires1large.png')}
+              style={{ width: 176, height: 91 }}
+              containerStyle={styles.tinyLogo}
+            />
           </View>
           <FadeInView
             transition={this.state.transitionTo}
@@ -118,7 +123,7 @@ class App extends React.Component<IProps, {}> {
               onSubmitEditing={this.onSubmited.bind(this)}
             />
             <View>
-              <Text style={styles.buttonText}>Forgot password?</Text>
+              <Text style={styles.buttonTextForgot}>Forgot password?</Text>
             </View>
           </FadeInView>
 
@@ -126,7 +131,7 @@ class App extends React.Component<IProps, {}> {
             <TouchableOpacity
               style={styles.button}
               onPress={this.onSubmitToBeranda.bind(this)}>
-              <Text style={styles.buttonText}>LOGIN</Text>
+              <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -144,10 +149,9 @@ const styles = StyleSheet.create({
     right: 0,
   },
   tinyLogo: {
-    width: 50,
-    height: 50,
+    width: 176,
+    height: 91,
     alignSelf: 'center',
-    backgroundColor: '#F07120',
   },
   header: {
     backgroundColor: Colors.black,
@@ -167,11 +171,19 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: Colors.white,
+    ...Mixins.h5,
+    lineHeight: 27,
+
+  },
+  buttonTextForgot: {
+    color: Colors.white,
+    ...Mixins.body1,
+    lineHeight:21,
   },
   button: {
     flex: 0,
     flexShrink: 1,
-    padding: 20,
+    padding: 10,
     backgroundColor: '#F07120',
     borderColor: '#F07120',
     borderRadius: 10,
@@ -180,7 +192,8 @@ const styles = StyleSheet.create({
   },
 
   sectionContainerIMG: {
-    marginTop: 32,
+    marginTop: 52,
+    marginBottom: 60,
     paddingHorizontal: 20,
     flex: 0,
     flexShrink: 1,

@@ -27,7 +27,8 @@ import {connect} from 'react-redux';
 import Util from './interface/leafletPolygon';
 import Location from './interface/geoCoordinate'
 import Geojson from './section/GeoJSON';
-
+import { BaseRouter } from '@react-navigation/native';
+import Mixins from '../../mixins';
 const screen = Dimensions.get('window');
 
 const ASPECT_RATIO = screen.width / screen.height;
@@ -228,32 +229,33 @@ class AnimatedMarkers extends React.Component {
       outputRange: [0, -100],
       extrapolate: 'clamp',
     });
-    
-    const COORDINATES = this.props.steps;
 
+    const {steps,markers} = this.props;
 
-      const LatLngs =  Array.from({length: COORDINATES.length}).map((num, index) => {
-        let latLng = new Location(COORDINATES[index][0],COORDINATES[index][1]);
-        return latLng.location();
-      });
-      const marker = Array.from({length:this.props.markers.length}).map((num,index)=>{
-        let latLng = new Location(this.props.markers[index][0],this.props.markers[index][1]);
-      return  latLng.location(); 
-      });
-      const Polygon = new Util;
-      let LayerGroup = Polygon.setLayersGroup(LatLngs,marker);
-      //console.log(Polygon.setLatLng(this.props.orders));
-     // Polygon.translateToOrder(Polygon.setLatLng(this.props.orders));
-      const GeoJSON = LayerGroup.toGeoJSON();
-
-      const markers = Array.from({length:this.props.markers.length}).map((num,index)=>{
-        return {id: index, ammount: index*10, coordinate: {latitude:this.props.markers[index][0],longitude:this.props.markers[index][1]}};
+    let data = [...markers];
+    const route = Array.from({length:markers.length}).map((num,index)=>{
+        return {id: index, ammount: index*10, coordinate: {latitude:markers[index][0],longitude:markers[index][1]}};
       });
 
     const index = 0;
-    const animations = markers.map((m, i) =>
+    const animations = route.map((m, i) =>
       getMarkerState(panX, panY, scrollY, i, index),
     );
+    
+    const LatLngs =  Array.from({length: steps.length}).map((num, index) => {
+      let latLng = new Location(steps[index][0],steps[index][1]);
+      return latLng.location();
+    });
+    const marker = Array.from({length:markers.length}).map((num,index)=>{
+      let latLng = new Location(markers[index][0],markers[index][1]);
+    return  latLng.location(); 
+    });
+    const Polygon = new Util();
+    let LayerGroup = Polygon.setLayersGroup(LatLngs,marker);
+    //console.log(Polygon.setLatLng(this.props.orders));
+   // Polygon.translateToOrder(Polygon.setLatLng(this.props.orders));
+    const GeoJSON = LayerGroup.toGeoJSON();
+  
     this.state = {
       index: index,
       panX,
@@ -265,7 +267,7 @@ class AnimatedMarkers extends React.Component {
       scrollX,
       scale,
       translateY,
-      markers,
+      route,
       bottomInfo: false,
       triggerBottom: false,
       region: new AnimatedRegion({
@@ -278,7 +280,8 @@ class AnimatedMarkers extends React.Component {
       bottomPan: new Animated.Value(0),
       bottomSheet: React.createRef(),
       toggleContainer: false,
-      GeoJSON
+      GeoJSON,
+      trafficLayer: false,
     };
     this.updateAnimated.bind(this);
     this.onLihatRincian.bind(this);
@@ -286,22 +289,40 @@ class AnimatedMarkers extends React.Component {
     this.onCompleteDelivery.bind(this);
   }
 
-  componentDidUpdate(nextProps) {}
+  componentDidUpdate(prevProps, prevState, snapshot)
+  {
+    if(prevProps.isTraffic !== this.props.isTraffic){
+      if(!this.props.isTraffic){
+        this.setState({trafficLayer: false});
+      }
+    } else {
+      if(prevState.index !== this.state.index){
+        if(this.props.isTraffic){
+          let {duration_in_trafficAPI, durationAPI} = this.props.statAPI[this.state.index];
+          let secDiffinTraffic = duration_in_trafficAPI - durationAPI;
+          if(secDiffinTraffic > 40){
+            this.setState({trafficLayer: true});
+          }else {
+            this.setState({trafficLayer: false});
+          }
+        }
+      }
+    }
+  }
   componentDidMount() {
-    const {region, panX, panY, scrollX, markers} = this.state;
-
+    const {region, panX, panY, scrollX, route} = this.state;
     panX.addListener(this.onPanXChange);
     panY.addListener(this.onPanYChange);
     region.stopAnimation();
     region
       .timing({
         latitude: scrollX.interpolate({
-          inputRange: markers.map((m, i) => i * SNAP_WIDTH),
-          outputRange: markers.map((m) => m.coordinate.latitude),
+          inputRange: route.map((m, i) => i * SNAP_WIDTH),
+          outputRange: route.map((m) => m.coordinate.latitude),
         }),
         longitude: scrollX.interpolate({
-          inputRange: markers.map((m, i) => i * SNAP_WIDTH),
-          outputRange: markers.map((m) => m.coordinate.longitude),
+          inputRange: route.map((m, i) => i * SNAP_WIDTH),
+          outputRange: route.map((m) => m.coordinate.longitude),
         }),
         duration: 0,
       })
@@ -314,7 +335,7 @@ class AnimatedMarkers extends React.Component {
       duration: 200,
       useNativeDriver: false,
     }).start();
-    this.props.setStartDelivered(true);
+    //this.props.setStartDelivered(true);
     this.setState({toggleContainer: true});
     this.props.setBottomBar(false);
   };
@@ -330,7 +351,7 @@ class AnimatedMarkers extends React.Component {
     // we only want to move the view if they are starting the gesture on top
     // of the view, so this calculates that and returns true if so. If we return
     // false, the gesture should get passed to the map view appropriately.
-    const {panY, markers, index} = this.state;
+    const {panY, route, index} = this.state;
     const {pageY} = e.nativeEvent;
     const topOfMainWindow = ITEM_PREVIEW_HEIGHT + panY.__getValue();
     const topOfTap = screen.height - pageY;
@@ -338,25 +359,25 @@ class AnimatedMarkers extends React.Component {
   };
 
   onMoveShouldSetPanResponder = (e) => {
-    const {panY, markers, index} = this.state;
+    const {panY, route, index} = this.state;
     const {pageY} = e.nativeEvent;
     const topOfMainWindow = ITEM_PREVIEW_HEIGHT + panY.__getValue();
     const topOfTap = screen.height - pageY;
     return topOfTap < screen.height * 0.6 && topOfTap > screen.height * 0.5;
   };
   updateAnimated = () => {
-    const {markers, index, panX, panY, scrollY} = this.state;
+    const {route, index, panX, panY, scrollY} = this.state;
     this.setState({
       animations: {
-        ...markers.map((m, i) => getMarkerState(panX, panY, scrollY, i, index)),
+        ...route.map((m, i) => getMarkerState(panX, panY, scrollY, i, index)),
       },
     });
   };
   onPanXChange = ({value}) => {
-    const {index, markers, canMoveVertical, animations} = this.state;
-    const {coordinate} = markers[index];
+    const {index, route, canMoveVertical, animations} = this.state;
+    const {coordinate} = route[index];
     const newIndex = Math.floor((-1 * value + SNAP_WIDTH / 2) / SNAP_WIDTH);
-    if (index !== newIndex && newIndex < markers.length && newIndex >= 0) {
+    if (index !== newIndex && newIndex < route.length && newIndex >= 0) {
       this.setState({index: newIndex});
       let {translateX, isNotIndex, center, xPos} = animations[newIndex];
       Animated.timing(translateX, {
@@ -365,7 +386,7 @@ class AnimatedMarkers extends React.Component {
         useNativeDriver: false,
       }).start();
     } else {
-      if (newIndex > markers.length || newIndex < 0) {
+      if (newIndex > route.length || newIndex < 0) {
         let {translateX, isNotIndex, center, xPos} = animations[index];
         Animated.timing(translateX, {
           toValue: xPos,
@@ -382,7 +403,7 @@ class AnimatedMarkers extends React.Component {
       canMoveVertical,
       scrollY,
       scrollX,
-      markers,
+      route,
       index,
       animations,
       bottomInfo,
@@ -393,7 +414,7 @@ class AnimatedMarkers extends React.Component {
     if (shouldBeMovable !== canMoveHorizontal) {
       this.setState({canMoveHorizontal: shouldBeMovable});
       if (!shouldBeMovable) {
-        const {coordinate} = markers[index];
+        const {coordinate} = route[index];
         region.stopAnimation();
         region
           .timing({
@@ -423,12 +444,12 @@ class AnimatedMarkers extends React.Component {
         region
           .timing({
             latitude: scrollX.interpolate({
-              inputRange: markers.map((m, i) => i * SNAP_WIDTH),
-              outputRange: markers.map((m) => m.coordinate.latitude),
+              inputRange: route.map((m, i) => i * SNAP_WIDTH),
+              outputRange: route.map((m) => m.coordinate.latitude),
             }),
             longitude: scrollX.interpolate({
-              inputRange: markers.map((m, i) => i * SNAP_WIDTH),
-              outputRange: markers.map((m) => m.coordinate.longitude),
+              inputRange: route.map((m, i) => i * SNAP_WIDTH),
+              outputRange: route.map((m) => m.coordinate.longitude),
             }),
             duration: 0,
           })
@@ -441,8 +462,8 @@ class AnimatedMarkers extends React.Component {
     // this.state.region.setValue(region);
   }
   renderInner = () => {
-    const {markers, index} = this.state;
-    let marker = markers[index];
+    const {route, index} = this.state;
+    let marker = route[index];
     let {distance,to,current,hour,eta} = this.props.stat[index];
     return (
       <View style={styles.sheetContainer}>
@@ -529,7 +550,7 @@ class AnimatedMarkers extends React.Component {
               containerStyle={[styles.buttonDivider, {marginRight: 10}]}
               title="Cancel"
               type="outline"
-              titleStyle={{color: '#F1811C', fontSize: 14}}
+              titleStyle={{color: '#F1811C', ...Mixins.subtitle3, lineHeight: 21}}
             />
 
             <Button
@@ -540,7 +561,7 @@ class AnimatedMarkers extends React.Component {
                 </View>
               )}
               title="Chat Client"
-              titleStyle={{color: '#fff', fontSize: 14}}
+              titleStyle={{color: '#fff', ...Mixins.subtitle3, lineHeight: 21}}
               buttonStyle={{backgroundColor: '#F07120'}}
             />
           </View>
@@ -563,15 +584,23 @@ class AnimatedMarkers extends React.Component {
       animations,
       canMoveHorizontal,
       canMoveVertical,
-      markers,
+      route,
       bottomInfo,
       triggerBottom,
       region,
       carousel,
       bottomPan,
       toggleContainer,
-      GeoJSON
+      GeoJSON,
+      index,
+      trafficLayer
     } = this.state;
+
+    const {
+      opacity,
+    } = animations[index];
+
+    const {current,eta,to,distance,hour} = this.props.stat[index];
     return (
       <View style={styles.container}>
         <PanController
@@ -581,75 +610,29 @@ class AnimatedMarkers extends React.Component {
           xMode="snap"
           snapSpacingX={ITEM_WIDTH * 1.47}
           yBounds={[-1 * screen.height, 0]}
-          xBounds={[-screen.width * (markers.length - 1), 0]}
+          xBounds={[-screen.width * (route.length - 1), 0]}
           panY={panY}
           panX={panX}
           onStartShouldSetPanResponder={this.onStartShouldSetPanResponder}
           onMoveShouldSetPanResponder={this.onMoveShouldSetPanResponder}>
           <AnimatedMap
+            showsTraffic={trafficLayer}
             provider={this.props.provider}
             style={styles.map}
             region={region}
-            onRegionChange={this.onRegionChange}>
+            onRegionChange={this.onRegionChange}
+            >
             <Geojson geojson={GeoJSON} strokeWidth={3}/>
           </AnimatedMap>
           {!toggleContainer && (
             <Animated.View style={[styles.itemContainer, {opacity: carousel}]}>
-              <View style={styles.itemContent}>
-                <TouchableOpacity style={styles.buttonHistory}>
-                  <Text style={styles.buttonText} h5>
-                    History
-                  </Text>
-                </TouchableOpacity>
-                <View style={styles.indicator}>
-                  {markers.map((marker, i) => {
-                    const {selecter} = animations[i];
-                    return (
-                      <Animated.View
-                        key={marker.id}
-                        style={styles.indicatorIcon}>
-                        <Animated.Text
-                          style={[styles.indicatorText, {color: selecter}]}>
-                          ▂
-                        </Animated.Text>
-                      </Animated.View>
-                    );
-                  })}
-                </View>
-                <TouchableOpacity style={styles.buttonAll}>
-                  <Text style={styles.buttonText} h5>
-                    See All
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              {markers.map((marker, i) => {
-                const {
-                  translateY,
-                  translateX,
-                  scale,
-                  opacity,
-                  height,
-                } = animations[i];
-                const {current,eta,to,distance,hour} = this.props.stat[i];
-                return (
-                  <Animated.View
-                    key={marker.id}
-                    style={[
-                      styles.item,
-                      {
-                        transform: [{translateX: translateX}],
-                      },
-                    ]}>
+              <View style={styles.itemLegend}>
+                <View style={styles.itemDivider} />
                     <Animated.View
-                      style={[
-                        styles.itemHead,
-                        i === markers.length - 1
-                          ? {opacity: opacity, left: -20}
-                          : {opacity: opacity},
-                      ]}>
+                      style={[styles.itemHead,{opacity:opacity}]}>
                       <View style={styles.sectionDetail}>
                         <View style={styles.detailContent}>
-                          <Text style={styles.orderTitle}>{marker.amount}</Text>
+                          <Text style={styles.orderTitle}>0</Text>
                           <Text style={styles.chrono}>
                             Distant Location {distance} Km
                           </Text>
@@ -715,8 +698,51 @@ class AnimatedMarkers extends React.Component {
                         />
                       </View>
                     </Animated.View>
+              </View>
+              <View style={styles.itemContent}>
+                <TouchableOpacity style={styles.buttonHistory}>
+                  <Text style={styles.buttonText}>
+                    History
+                  </Text>
+                </TouchableOpacity>
+                <View style={styles.indicator}>
+                  {route.map((marker, i) => {
+                    const {selecter} = animations[i];
+                    return (
+                      <Animated.View
+                        key={marker.id}
+                        style={styles.indicatorIcon}>
+                        <Animated.Text
+                          style={[styles.indicatorText, {color: selecter}]}>
+                          ▂
+                        </Animated.Text>
+                      </Animated.View>
+                    );
+                  })}
+                </View>
+                <TouchableOpacity style={styles.buttonAll}>
+                  <Text style={styles.buttonText}>
+                    See All
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.itemWrapper}>
+              {route.map((marker, i) => {
+                const {
+                  translateX,
+                } = animations[i];
+                const {current,eta,to,distance,hour} = this.props.stat[i];
+                return (
+                  <Animated.View
+                    key={marker.id}
+                    style={[
+                      styles.item,
+                      {
+                        transform: [{translateX: translateX}],
+                      },
+                    ]}>
                     <View style={styles.sectionContentTitle}>
-                      <Text style={styles.orderTitle}>#302323402323</Text>
+                      <Text style={styles.orderTitleItem}>#302323402323</Text>
                       <Text style={styles.chrono}>Distant Location {distance} Km</Text>
                     </View>
                     <View style={styles.sectionContent}>
@@ -738,12 +764,13 @@ class AnimatedMarkers extends React.Component {
                         buttonStyle={styles.contentButton}
                         onPress={this.onLihatRincian}
                         titleStyle={styles.contentButtonText}
-                        title="Start delivery"
+                        title="See details"
                       />
                     </View>
                   </Animated.View>
                 );
               })}
+              </View>
             </Animated.View>
           )}
           {toggleContainer && (
@@ -780,27 +807,34 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     backgroundColor: 'transparent',
-    flexDirection: 'row',
-    paddingHorizontal: ITEM_SPACING / 2 + ITEM_PREVIEW,
+    flexDirection: 'column',
     position: 'absolute',
     // top: screen.height - ITEM_PREVIEW_HEIGHT - 64,
-    paddingTop: screen.height - ITEM_PREVIEW_HEIGHT - 64 - 89,
+    marginTop: screen.height - ITEM_PREVIEW_HEIGHT - 440, // 270
     // paddingTop: !ANDROID ? 0 : screen.height - ITEM_PREVIEW_HEIGHT - 64,
+  },
+  itemWrapper : {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    paddingBottom: 15,
+    paddingTop: 20,
   },
   itemContent: {
     backgroundColor: 'white',
-    position: 'absolute',
-    bottom: -screen.height * 0.02,
-    height: screen.height * 0.3,
     width: screen.width,
     flexDirection: 'row',
-    flexShrink: 0,
-    paddingVertical: 30,
+    flexShrink: 1,
+    paddingTop: 10,
+    marginVertical: 0,
+  },
+  itemLegend: {
+    backgroundColor: 'transparent',
+    flexShrink: 1,
   },
   buttonHistory: {
     flex: 1,
-    marginHorizontal: 10,
     fontWeight: 'bold',
+    marginHorizontal: 10,
     alignItems: 'flex-start',
   },
   buttonAll: {
@@ -812,7 +846,7 @@ const styles = StyleSheet.create({
   indicator: {
     flex: 2,
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-around',
   },
   indicatorIcon: {
     flexShrink: 1,
@@ -843,25 +877,32 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     elevation: 7,
   },
+  itemDivider: {
+    height: 30,
+    width: screen.width,
+    backgroundColor:'white',
+    position:'absolute',
+    bottom:-1,
+    left:0,
+  },
   itemHead: {
-    position: 'absolute',
-    top: -ITEM_PREVIEW_HEIGHT * 1.7,
-    width: ITEM_WIDTH * 1.47,
-    height: ITEM_PREVIEW_HEIGHT * 1.4,
+    width: screen.width - ITEM_SPACING * 4,
+    marginHorizontal: (ITEM_SPACING * 4 )/2,
+    marginBottom:5,
+    height: 220,
     backgroundColor: 'white',
-    alignSelf: 'center',
-    left: 0,
     borderRadius: 5,
     borderColor: '#000',
     flexDirection: 'column',
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 9,
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+
+    elevation: 4,
   },
   sectionDetail: {
     flex: 1,
@@ -889,7 +930,8 @@ const styles = StyleSheet.create({
     marginTop: 23,
   },
   detailTitle: {
-    fontSize: 10,
+...Mixins.small3,
+lineHeight: 12,
     fontWeight: '600',
     color: 'white',
   },
@@ -922,8 +964,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
   },
   spatialInputText: {
-    fontWeight: '600',
-    fontSize: 10,
+...Mixins.small3,
+lineHeight: 12,
   },
   sectionContentTitle: {
     flex: 1,
@@ -960,9 +1002,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#121C78',
   },
   contentButtonText: {
-    fontWeight: '600',
+    ...Mixins.small3,
+    lineHeight: 15,
     color: '#FEFEFE',
     fontSize: 10,
+  },
+  buttonText: {
+    ...Mixins.small3,
+    lineHeight:12,
+    color: '#000000',
   },
   header: {
     backgroundColor: '#ffffff',
@@ -981,16 +1029,24 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   orderTitle: {
-    fontSize: 14,
-    fontWeight: '600',
+    ...Mixins.subtitle3,
+    lineHeight:21,
+  },
+  orderTitleItem: {
+    ...Mixins.body3,
+    color : '#000000',
+    lineHeight: 18,
   },
   chrono: {
-    fontSize: 10,
+...Mixins.small3,
+lineHeight:15,
     fontWeight: '400',
     color: '#6C6B6B',
   },
   eta: {
-    fontSize: 10,
+    ...Mixins.small3,
+    lineHeight:15,
+        fontWeight: '400',
     color: '#424141',
   },
   detail: {
@@ -998,11 +1054,15 @@ const styles = StyleSheet.create({
   },
   labelDetail: {
     color: '#6C6B6B',
-    fontSize: 10,
+    ...Mixins.small3,
+    lineHeight:15,
+        fontWeight: '400',
     marginRight: 5,
   },
   labelInfo: {
-    fontSize: 10,
+    ...Mixins.small3,
+    lineHeight:15,
+        fontWeight: '400',
     color: '#000000',
   },
   leftLabel: {
@@ -1010,8 +1070,8 @@ const styles = StyleSheet.create({
   },
   leftLabelText: {
     marginHorizontal: 15,
-    fontSize: 10,
-    fontWeight: '600',
+    ...Mixins.small3,
+    lineHeight: 12,
     color: '#C4C4C4',
   },
   sectionButton: {
@@ -1023,9 +1083,9 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   deliveryText: {
-    fontWeight: '600',
+    ...Mixins.subtitle3,
+    lineHeight: 21,
     color: '#ffffff',
-    fontSize: 14,
   },
   navigationButton: {
     backgroundColor: '#121C78',
@@ -1038,8 +1098,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   titlePackage: {
-    fontWeight: '700',
-    fontSize: 18,
+    ...Mixins.h4,
     lineHeight: 21,
   },
   sectionDividier: {
@@ -1054,13 +1113,12 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   labelPackage: {
-    fontWeight: '600',
-    fontSize: 14,
-    lineHeight: 21,
+    ...Mixins.subtitle3,
+    color: '#424141',
   },
   infoPackage: {
+    ...Mixins.body3,
     fontWeight: '400',
-    fontSize: 12,
     lineHeight: 18,
   },
   buttonDivider: {
@@ -1075,7 +1133,9 @@ function mapStateToProps(state) {
     startDelivered : state.filters.onStartDelivered,
     markers: state.route.markers,
     stat : state.route.stat,
+    statAPI : state.route.statAPI,
     steps: state.route.steps,
+    isTraffic: state.filters.isTraffic,
   };
 }
 

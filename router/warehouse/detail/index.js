@@ -14,7 +14,6 @@ import {
   StyleSheet,
   ScrollView,
   View,
-  Button,
   StatusBar,
   TouchableOpacity,
   Keyboard,
@@ -22,7 +21,8 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import {Avatar, Badge, Divider, withBadge, Text} from 'react-native-elements';
+import {Avatar, 
+  Button, Text,Input, Card} from 'react-native-elements';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -31,68 +31,39 @@ import {AnyAction, Dispatch} from 'redux';
 import {connect, Provider} from 'react-redux';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import error from '../../error/no-rights';
+import IconMenu6Mobile from '../../../assets/icon/iconmonstr-menu-6 1mobile.svg';
+import IconBell2Mobile from '../../../assets/icon/iconmonstr-bell-2mobile.svg';
+import IconUser7Mobile from '../../../assets/icon/iconmonstr-user-7 1mobile.svg';
+import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
+import Mixins from '../../../mixins';
+import Inbound from '../../../component/extend/ListItem-inbound';
 const window = Dimensions.get('window');
 
-class Warehouse extends React.Component<IProps, {}> {
-  keyboardDidShowListener: any;
-  keyboardDidHideListener: any;
-  constructor(props: IProps | Readonly<IProps>) {
+class Warehouse extends React.Component{
+
+  constructor(props) {
     super(props);
+    const inboundList = [
+      {
+        name: 'Lorem ipsum dolor sit',
+        avatar_url:
+          'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
+        subtitle: 'amet, consectetur adipiscing elit vivamus turpis mattis ',
+      },
+      {
+        name: 'Lorem ipsum dolor sit',
+        avatar_url:
+          'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
+        subtitle: 'amet, consectetur adipiscing elit vivamus turpis mattis ',
+      },
+    ];
     this.state = {
-      text: 'Initial Placeholder',
-      textTwo: 'Initial Two',
-      keyboardState: 'closed',
-      transitionTo: 0,
+      inboundList,
     };
-    this._keyboardDidHide.bind(this);
-    this._keyboardDidShow.bind(this);
-    this.keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      this._keyboardDidShow,
-    );
-    this.keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      this._keyboardDidHide,
-    );
-    this.resetAction.bind(this);
-    if (this.props.userRole.type !== 'Warehouse') {
-      this.props.navigation.dispatch(this.resetAction);
-    }
-  }
-  resetAction = () => {
-    return CommonActions.reset({
-      index: 1,
-      routes: [{name: 'NoRights'}],
-    });
-  };
-  onChangeText(text: any) {
-    this.setState({text});
-  }
 
-  _keyboardDidShow = () => {
-    this.setState({
-      keyboardState: 'opened',
-      transitionTo: 0,
-    });
-  };
-
-  _keyboardDidHide = () => {
-    this.setState({
-      keyboardState: 'closed',
-      transitionTo: 0,
-    });
-  };
-
-  onChangeTextTwo(text: any) {
-    this.setState({textTwo: text});
-  }
-  onSubmited(e: any) {
-    console.log(e);
-  }
-  onSubmitToBeranda(e: any) {
-    return this.props.navigation.navigate('Details');
   }
   render() {
+    const {inboundList} = this.state;
     var image = {uri: 'https://reactnative.dev/img/tiny_logo.png'};
     return (
       <>
@@ -100,121 +71,107 @@ class Warehouse extends React.Component<IProps, {}> {
         <SafeAreaProvider>
           <ScrollView style={styles.body}>
             <View style={styles.headerBeranda}>
-              <Text h1>Welcome Back</Text>
-              <Text h2>Username</Text>
-              <Text h3>Warehouse Dashboard</Text>
+              <View style={styles.berandaNav}>
+                <View style={[styles.navSection,styles.toggleDrawer]}>
+                  <Button
+                    type="clear"
+                    containerStyle={{padding: 0, margin:0 }}
+                    buttonStyle={{padding: 0, margin: 0}}
+                    iconContainerStyle={{padding: 0, margin: 0}}
+                    titleStyle={{padding: 0, margin: 0}}
+                    onPress={()=>{
+                      this.props.toggleDrawer(true);
+                    }}
+                    icon={() => (
+                      <IconMenu6Mobile height="24" width="24" fill="#ABABAB" />
+                    )}
+                  />
+                </View>
+                <View style={[styles.navSection, styles.logoWrapper]}>
+                  <Text>Logo</Text>
+                </View>
+                <View style={[styles.navSection, styles.navWrapper]}>
+                  <Button
+                    type="clear"
+                    containerStyle={[styles.navSection,{alignItems: 'flex-end'}]}
+                    buttonStyle={{padding: 0, margin: 0}}
+                    iconContainerStyle={{padding: 0, margin: 0}}
+                    titleStyle={{padding: 0, margin: 0}}
+                    onPress={()=>{
+                      this.props.toggleDrawer(true);
+                    }}
+                    icon={() => (
+                      <IconBell2Mobile height="24" width="20" fill="#ABABAB" />
+                    )}
+                  />
+                  <Button
+                    type="clear"
+                    containerStyle={[styles.navSection,{alignItems: 'flex-end'}]}
+                    buttonStyle={{padding: 0, margin: 0}}
+                    iconContainerStyle={{padding: 0, margin: 0}}
+                    titleStyle={{padding: 0, margin: 0}}
+                    onPress={()=>{
+                      this.props.toggleDrawer(true);
+                    }}
+                    icon={() => (
+                      <IconUser7Mobile height="24" width="20" fill="#ABABAB" />
+                    )}
+                  />
+                    
+                </View>
+              </View>
+              <View style={styles.berandaBar}>
+                  <View style={[styles.barSection,styles.breadcrumb]}>
+                            <Text>CCM Module</Text>
+                  </View>
+                  <View style={[styles.barSection,styles.search]}>
+                    <Button
+                    type="clear"
+                    containerStyle={styles.navSection}
+                    buttonStyle={{padding: 0, margin: 0}}
+                    iconContainerStyle={{padding: 0, margin: 0}}
+                    titleStyle={{padding: 0, margin: 0}}
+                    onPress={()=>{
+                      this.props.toggleDrawer(true);
+                    }}
+                    icon={() => (
+                      <IconSearchMobile height="20" width="21" fill="#ABABAB" />
+                    )}
+                  />    
+                  </View>
+             
             </View>
-            <View style={styles.contentContainer}>
-              <View style={styles.dividerContainer}>
-                <View style={styles.sectionContainer}>
-                  <Avatar
-                    size="xlarge"
-                    icon={{
-                      name: 'rocket',
-                      type: 'font-awesome',
-                      color: 'white',
-                    }}
-                    overlayContainerStyle={{backgroundColor: 'black'}}
-                    onPress={() => console.log('Works!')}
-                    containerStyle={{alignSelf: "flex-end",marginRight:10}}
-                  />
-                  <Badge
-                    status="success"
-                    containerStyle={{position: 'absolute', top: 5, right: 15}}
-                  />
-                </View>
-                <View style={styles.sectionContainer}>
-                  <Avatar
-                    size="xlarge"
-                    icon={{
-                      name: 'rocket',
-                      type: 'font-awesome',
-                      color: 'white',
-                    }}
-                    overlayContainerStyle={{backgroundColor: 'black', flex: 2}}
-                    onPress={() => console.log('Works!')}
-                    containerStyle={{alignSelf: "flex-start",marginLeft:10}}
-                  />
-                  <Badge
-                    status="success"
-                    containerStyle={{position: 'absolute', top: 5, right: 40}}
-                  />
-                </View>
-              </View>
-              <View style={styles.dividerContainer}>
-                <View style={styles.sectionContainer}>
-                  <Avatar
-                    size="xlarge"
-                    icon={{
-                      name: 'rocket',
-                      type: 'font-awesome',
-                      color: 'white',
-                    }}
-                    overlayContainerStyle={{backgroundColor: 'black', flex: 2}}
-                    onPress={() => console.log('Works!')}
-                    containerStyle={{alignSelf: "flex-end", marginRight: 10}}
-                  />
-                  <Badge
-                    status="success"
-                    containerStyle={{position: 'absolute', top: 5, right: 15}}
-                  />
-                </View>
-                <View style={styles.sectionContainer}>
-                  <Avatar
-                    size="xlarge"
-                    icon={{
-                      name: 'rocket',
-                      type: 'font-awesome',
-                      color: 'white',
-                    }}
-                    overlayContainerStyle={{backgroundColor: 'black', flex: 2}}
-                    onPress={() => console.log('Works!')}
-                    containerStyle={{alignSelf: "flex-start", marginLeft: 10}}
-                  />
-                  <Badge
-                    status="success"
-                    containerStyle={{position: 'absolute', top: 5, right: 40}}
-                  />
-                </View>
-              </View>
-              <View style={styles.dividerContainer}>
-                <View style={styles.sectionContainer}>
-                  <Avatar
-                    size="xlarge"
-                    icon={{
-                      name: 'rocket',
-                      type: 'font-awesome',
-                      color: 'white',
-                    }}
-                    overlayContainerStyle={{backgroundColor: 'black', flex: 2}}
-                    onPress={() => console.log('Works!')}
-                    containerStyle={{alignSelf: "flex-end", marginRight: 10}}
-                  />
-                  <Badge
-                    status="success"
-                    containerStyle={{position: 'absolute', top: 5, right: 15}}
-                  />
-                </View>
-                <View style={styles.sectionContainer}>
-                  <Avatar
-                    size="xlarge"
-                    icon={{
-                      name: 'rocket',
-                      type: 'font-awesome',
-                      color: 'white',
-                    }}
-                    overlayContainerStyle={{backgroundColor: 'black', flex: 2}}
-                    onPress={() => console.log('Works!')}
-                    containerStyle={{alignSelf: "flex-start", marginLeft: 10}}
-                  />
-                  <Badge
-                    status="success"
-                    containerStyle={{position: 'absolute', top: 5, right: 40}}
-                  />
-                </View>
-              </View>
             </View>
-          </ScrollView>
+            <View style={styles.sectionContent}>
+            <Card containerStyle={styles.cardContainer}>
+                  <View style={styles.headingCard}>
+                      <Input 
+                      containerStyle={{flex: 1,}}
+                      inputContainerStyle={[Mixins.containedInputDefaultContainer,{maxHeight: 30}]} 
+                      inputStyle={Mixins.containedInputDefaultStyle}
+                      labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                      rightIconContainerStyle={Mixins.containedInputDefaultRightIcon}
+                      leftIconContainerStyle={Mixins.containedInputDefaultLeftIcon}
+                      label="Date"
+                      />
+                      <Input 
+                      
+                      containerStyle={{flex: 1,}}
+                      inputContainerStyle={[Mixins.containedInputDefaultContainer,{maxHeight: 30}]}
+                      inputStyle={Mixins.containedInputDefaultStyle}
+                      labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                      rightIconContainerStyle={Mixins.containedInputDefaultRightIcon}
+                      leftIconContainerStyle={Mixins.containedInputDefaultLeftIcon}
+                      label="Manifest"
+                      />
+                  </View>
+                  {inboundList.map((u, i) => (
+                    <Inbound key={i} index={i} item={u} />
+                  ))}
+              </Card>
+             
+            </View>
+           </ScrollView>
         </SafeAreaProvider>
       </>
     );
@@ -225,67 +182,71 @@ const styles = StyleSheet.create({
   scrollView: {
     backgroundColor: Colors.lighter,
   },
-  engine: {
-    position: 'absolute',
-    right: 0,
-  },
-  tinyLogo: {
-    width: 50,
-    height: 50,
-    alignSelf: 'center',
-  },
-  header: {
-    backgroundColor: Colors.black,
-    marginBottom: 40,
-  },
   body: {
     backgroundColor: Colors.white,
     flexDirection: 'column',
     flex: 1,
   },
-  headerBeranda: {
-    height: window.width / 2,
-  },
-  contentContainer: {
-    height: window.width * 2,
-    flexDirection: 'column',
-    backgroundColor: Colors.white,
-  },
-  footer: {
-    backgroundColor: Colors.white,
-    flex: 1,
-    marginHorizontal: 20,
-    marginBottom: 40,
-    justifyContent: 'flex-end',
-  },
-  dividerContainer: {
-    flexShrink: 0,
-    height: 150,
+  headingCard: {
     flexDirection: 'row',
-    marginHorizontal: 10,
-    justifyContent: 'space-evenly',
-    marginVertical: 10,
+    marginBottom: 20,
   },
-  sectionContainer: {
+  sectionContent: {
+    marginVertical: 4,
+    marginHorizontal: 30,
+  },
+  headerBeranda: {
+    flexDirection: 'column',
+    height: window.width * 0.3,
+    backgroundColor: '#F5F5FB',
+    paddingHorizontal: 30,
+    paddingVertical: 20,
+  },
+  berandaNav : {
+    flexDirection: 'row',
+  },
+  berandaBar: {
+    marginTop: 40,
+    flexDirection: 'row',
+  },
+  barSection: {
     flex: 1,
+  },
+  breadcrumb : {
+    alignItems: 'flex-start',
+  },
+  search: {
+    alignItems: 'flex-end',
+  },
+  navSection: {
+    flex: 1,
+  },
+  toggleDrawer: {
+    alignItems: 'flex-start',
+  },
+  logoWrapper: {
+    alignItems: 'center',
+  },
+  navWrapper: {
+    alignItems: 'flex-end',
+    flexDirection: 'row',
+  },
+  cardContainer: {
+    borderWidth: 0,
+    padding: 0,
+    marginHorizontal: 0,
+    marginVertical: 20,
+    shadowColor: 'rgba(0,0,0, .2)',
+    shadowOffset: {height: 0, width: 0},
+    shadowOpacity: 0, //default is 1
+    shadowRadius: 0, //default is 1
+    elevation: 0,
+    backgroundColor: '#ffffff',
   },
 });
 
-interface IProps {
-  textfield: string;
-  value: string;
-  todos: {};
-  decrement: () => void;
-  reset: () => void;
-  onChange: (text: any) => void;
-}
 
-interface dispatch {
-  type: string;
-  payload: {};
-}
-
-function mapStateToProps(state: {todos: {name: any}, userRole: any}) {
+function mapStateToProps(state) {
   return {
     todos: state.todos,
     textfield: state.todos.name,
@@ -294,44 +255,21 @@ function mapStateToProps(state: {todos: {name: any}, userRole: any}) {
   };
 }
 
-const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
+const mapDispatchToProps = (dispatch) => {
   return {
     decrement: () => dispatch({type: 'DECREMENT'}),
     reset: () => dispatch({type: 'RESET'}),
-    onChange: (text: any) => {
+    onChange: (text) => {
       return {type: 'todos', payload: text};
+    },
+    toggleDrawer: (bool) => {
+      return dispatch({type: 'ToggleDrawer', payload: bool});
+    },
+    setBottomBar: (toggle) => {
+      return dispatch({type: 'BottomBar', payload: toggle});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };
 
-const ConnectedApp = connect(mapStateToProps, mapDispatchToProps)(Warehouse);
-const Stack = createStackNavigator();
-const Root = () => {
-  return (
-    <Stack.Navigator
-      initialRouteName="Warehouse"
-      headerMode="screen"
-      screenOptions={{
-        headerTintColor: 'white',
-        headerStyle: {backgroundColor: 'tomato'},
-        headerShown: false,
-      }}>
-      <Stack.Screen
-        name="Warehouse"
-        component={ConnectedApp}
-        options={{
-          title: 'Awesome app',
-        }}
-      />
-      <Stack.Screen
-        name="NoRights"
-        component={error}
-        options={{
-          title: 'Error app',
-        }}
-      />
-    </Stack.Navigator>
-  );
-};
-export default Root;
+export default connect(mapStateToProps, mapDispatchToProps)(Warehouse);

@@ -10,10 +10,14 @@ const initialState = {
     colors: [],
     isPhotoProofSubmitted: false,
     isSignatureSubmitted: false,
+    imageConfirmationData: null,
     bottomBar : true,
     onStartDelivered : false,
-    isDrawer : true,
+    isDrawer : false,
+    manifestCompleted: false,
     isFiltered : 0,
+    isBarcodeScan: true,
+    isTraffic : true,
   },
 };
 
@@ -45,12 +49,11 @@ export default function appReducer(state = initialState, action) {
           name: 'Nana',
         },
       };
-    case 'PhotoProofList': {
+    case 'PhotoProofList':
       return {
         ...state,
         photoProofList: action.payload,
       };
-    }
     case 'PhotoProof':
       return {
         ...state,
@@ -58,6 +61,11 @@ export default function appReducer(state = initialState, action) {
           ...state.filters,
           isPhotoProofSubmitted: action.payload,
         },
+      };
+    case 'ImageConfirmation': 
+      return {
+        ...state,
+        imageConfirmationData: action.payload,
       };
     case 'Signature':
       return {
@@ -68,6 +76,7 @@ export default function appReducer(state = initialState, action) {
         },
       };
     case 'BottomBar':
+      console.log('bottomBar' + action.payload);
         return {
           ...state,
           filters: {
@@ -122,6 +131,26 @@ export default function appReducer(state = initialState, action) {
           },
         }
       };
+      case 'DirectionsPoint':
+        return {
+            ...state,
+            route:{
+              ...state.route,
+              id: action.payload.uuid, 
+              markers: action.payload.markers,
+              steps: action.payload.steps,
+              orders: action.payload.markers,
+              routes : {
+                ...state.route.routes,
+                [action.payload.uuid]: action.payload.steps,
+              },
+              statsAPI : {
+                ...state.route.statsAPI,
+                [action.payload.uuid]: action.payload.statsAPI,
+              },
+              statAPI : action.payload.statsAPI, 
+            }
+          };
       case 'RouteStats':
         return {
           ...state,
@@ -134,6 +163,31 @@ export default function appReducer(state = initialState, action) {
             stat : action.payload.stats, 
           }
         };
+    
+    case 'ManifestCompleted':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          manifestCompleted: action.payload,
+        },
+      };
+      case 'ScannerActive':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            isBarcodeScan: action.payload,
+          },
+        };
+        case 'TrafficToggle':
+          return {
+            ...state,
+            filters: {
+              ...state.filters,
+              isTraffic: action.payload,
+            },
+          };
     case 'MarkerOrdered':
         return {
           ...state,

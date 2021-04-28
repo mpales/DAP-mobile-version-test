@@ -12,7 +12,8 @@ import {View, TouchableOpacity} from 'react-native';
 import TouchableScale from 'react-native-touchable-scale'; // https://github.com/kohver/react-native-touchable-scale
 import IconCursor20Mobile from '../../assets/icon/iconmonstr-cursor-20 1mobile.svg';
 import IconTime2Mobile from '../../assets/icon/iconmonstr-time-2 1mobile.svg';
-
+import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
+import Mixins from '../../mixins';
 const BadgedIcon = withBadge((props) => {
   return {bottom: props.value};
 })(IconCursor20Mobile);
@@ -44,23 +45,35 @@ const styles = {
     flexDirection: 'row',
   },
   label: {
+    ...Mixins.small3,
+    lineHeight: 12,
     color: '#C4C4C4',
   },
   info: {
+    ...Mixins.small3,
+    lineHeight: 12,
     color: '#000000',
   },
   eta: {
-    fontSize: 10,
+...Mixins.small3,
+fontWeight: '400',
+lineHeight: 15,
     color: '#424141',
   },
   detail: {
     flexDirection: 'row',
   },
   labelDetail: {
+    ...Mixins.small3,
+    fontWeight: '400',
+    lineHeight: 15,
     color: '#6C6B6B',
     marginRight: 5,
   },
   labelInfo: {
+    ...Mixins.small3,
+    fontWeight: '400',
+    lineHeight: 15,
     color: '#000000',
   },
   legendLabel: {
@@ -101,6 +114,15 @@ const theme = {
   },
 };
 const Manifest = ({item, index, drag, isActive, navigation}) => {
+  let secDiffinTraffic = item.duration_in_trafficAPI - item.durationAPI;
+  let translateFromTraffic = item.chrono + secDiffinTraffic;
+  var durationAPI = "";
+  if (translateFromTraffic >= 3600) durationAPI += Math.floor(translateFromTraffic / 3600) + "h";
+  translateFromTraffic %= 3600;
+  if (translateFromTraffic >= 60) durationAPI += Math.floor(translateFromTraffic / 60) + "m";
+  translateFromTraffic %= 60;
+  durationAPI += Math.round(translateFromTraffic) + "s";
+  
   return (
     <ThemeProvider theme={theme}>
       <ListItem
@@ -119,7 +141,7 @@ const Manifest = ({item, index, drag, isActive, navigation}) => {
         activeScale={0.95}>
         <TouchableOpacity style={styles.leftList}>
           <Text
-            style={{fontWeight: '600', color: '#424141', textAlign: 'center'}}>
+            style={{...Mixins.body3,lineHeight: 18,fontWeight: '600', color: '#424141', textAlign: 'center'}}>
             {index}
           </Text>
           <Button
@@ -131,13 +153,13 @@ const Manifest = ({item, index, drag, isActive, navigation}) => {
           />
         </TouchableOpacity>
         <ListItem.Content>
-          <ListItem.Title style={{color: '#000000', fontWeight: '600'}}>
+          <ListItem.Title style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
             {index}
           </ListItem.Title>
-          <ListItem.Subtitle style={{color: '#6C6B6B', fontWeight: '400'}}>
+          <ListItem.Subtitle style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
             Distant Location {item.distance} Km
           </ListItem.Subtitle>
-          <Text style={styles.eta}>ETA : {item.eta}</Text>
+          <Text style={styles.eta}>ETA : {(item.hasOwnProperty('durationAPI') ?  durationAPI : item.eta)}</Text>
           <View style={styles.detail}>
             <Text style={styles.labelDetail}>Packages</Text>
             <Text style={styles.labelInfo}>3 box</Text>
@@ -155,7 +177,7 @@ const Manifest = ({item, index, drag, isActive, navigation}) => {
 
           <Button
             containerStyle={{marginTop: 12}}
-            titleStyle={{fontSize: 10}}
+            titleStyle={{...Mixins.small3,lineHeight:12}}
             buttonStyle={{
               paddingHorizontal: 34,
               paddingVertical: 6,
@@ -169,12 +191,12 @@ const Manifest = ({item, index, drag, isActive, navigation}) => {
             value="delivering"
             status="warning"
             badgeStyle={{paddingHorizontal: 16, height: 16}}
-            textStyle={{fontSize: 10}}
+            textStyle={{...Mixins.small3,lineHeight: 12,}}
           />
           <Button
             title={item.hour}
             type="clear"
-            titleStyle={{marginLeft: 9, fontSize: 10, color: '#000000'}}
+            titleStyle={{...Mixins.small3, marginLeft: 9,lineHeight: 15, fontWeight: '400', color: '#000000'}}
             icon={() => (
               <IconTime2Mobile height="15" width="15" fill="#ABABAB" />
             )}
@@ -182,6 +204,14 @@ const Manifest = ({item, index, drag, isActive, navigation}) => {
           <ListItem.Chevron
             size={26}
             color="#2D2C2C"
+            Component={(props)=>(
+              <Button
+                {...props}
+                type="clear"
+                icon={
+                  <IconArrow66Mobile height="16" width="26" fill="#2D2C2C"/>
+                }
+              />)}
             onPress={() => navigation.navigate('Navigation')}
           />
         </View>

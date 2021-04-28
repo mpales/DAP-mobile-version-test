@@ -1,6 +1,6 @@
 import React from 'react';
 import {TextInput, View, Text} from 'react-native';
-
+import Mixins from './mixins';
 const Input = ({label, onChangeText, placeholder, onSubmitEditing}) => {
   const {inputStyle, labelStyle, containerStyle} = styles;
 
@@ -23,17 +23,17 @@ const styles = {
     backgroundColor: '#FFFFFF',
     paddingRight: 5,
     paddingLeft: 5,
-    fontSize: 18,
-    lineHeight: 23,
+    ...Mixins.body1,
+    lineHeight: 21,
     flex: 1,
     borderWidth: 0,
     borderRadius: 15,
     textAlign: 'center',
   },
   labelStyle: {
-    fontSize: 18,
+    ...Mixins.body1,
     flex: 1,
-    lineHeight: 23,
+    lineHeight: 21,
     alignSelf: 'center',
     marginBottom: 10,
     color: '#FFFFFF',
