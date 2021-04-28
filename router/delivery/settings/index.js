@@ -1,13 +1,13 @@
 import React from 'react';
 import {Avatar, Text, Button} from 'react-native-elements';
-import {View} from 'react-native';
+import {View,Switch} from 'react-native';
 import IconPaperMobile from '../../../assets/icon/iconmonstr-paper-plane-2mobile.svg';
 import IconSpeechMobile from '../../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import IconVector from '../../../assets/icon/Vector.svg';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
 
-class Packages extends React.Component {
+class Settings extends React.Component {
   constructor(props) {
     super(props);
     
@@ -17,63 +17,47 @@ class Packages extends React.Component {
     return (
       <View style={{flex: 1, backgroundColor: 'white', paddingHorizontal: 25}}>
         <View style={styles.sectionHeadPackage}>
-          <Text style={styles.headTitle}>Name</Text>
-          <Text style={styles.headSubtitle}>#323344567553</Text>
+          <Text style={styles.headTitle}>Settings</Text>
+          <Text style={styles.headSubtitle}>lorem ipsum dolor sit amet</Text>
         </View>
-        <View style={styles.sectionLegend}>
-          <View style={styles.sectionMarker}>
-            <Avatar
-              size="small"
-              rounded
-              containerStyle={styles.markerPoint}
-              title="A"
-              overlayContainerStyle={{backgroundColor: '#F1811C'}}
-            />
-            <Text style={styles.legendLabel}>Drop off</Text>
-          </View>
-          <View style={styles.sectionInfo}>
-            <View style={styles.markerIcon}>
-              <IconPaperMobile height="15" width="15" fill="#7177AE" />
-            </View>
-            <Text style={styles.markerLabel}>
-              Location Company Chang i 26th, Singapore
-            </Text>
-          </View>
-          <View style={styles.sectionInfo}>
-            <View style={styles.markerIcon}>
-              <IconVector height="15" width="15" fill="#7177AE" />
-            </View>
-            <Text style={styles.markerLabel}>09.00 -10.00 a.m</Text>
-          </View>
-          <View style={styles.sectionInfo}>
-            <View style={styles.markerIcon}>
-              <IconSpeechMobile height="15" width="15" fill="#7177AE" />
-            </View>
-            <Text style={styles.markerLabel}>
-              Delivery Instruction Put in the lobby only
-            </Text>
-          </View>
-        </View>
+      
         <View style={styles.sectionPackage}>
-          <Text style={styles.titlePackage}>Package Detail</Text>
+          <Text style={styles.titlePackage}>GPS Related Stuff</Text>
           <View style={styles.sectionDividier}>
             <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Transfer</Text>
-              <Text style={styles.infoPackage}>Van</Text>
+              <Text style={styles.labelPackage}>Traffic</Text>
+              <View style={styles.switchWrapper}> 
+                  <Switch onValueChange={(value) => this.props.setTraffic(value)}
+                    value={this.props.isTraffic}
+                />
+                </View>
+
             </View>
             <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Commodity</Text>
-              <Text style={styles.infoPackage}>Dry Food</Text>
+              <Text style={styles.labelPackage}>Geo Location Fuse</Text>
+              <View style={styles.switchWrapper}> 
+              <Switch onValueChange={(value) => this.props.setTraffic(value)}
+                    value={this.props.isTraffic}
+                />
+              </View>
             </View>
           </View>
           <View style={styles.sectionDividierRight}>
             <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Packaging type</Text>
-              <Text style={styles.infoPackage}>20 pallet</Text>
+              <Text style={styles.labelPackage}>Calculate using API</Text>
+              <View style={styles.switchWrapper}> 
+                  <Switch onValueChange={(value) => this.setTraffic(value)}
+                    value={this.props.isTraffic}
+                />
+                </View>
             </View>
             <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Weight</Text>
-              <Text style={styles.infoPackage}>23.00 Kg</Text>
+              <Text style={styles.labelPackage}>Sort by Server</Text>
+              <View style={styles.switchWrapper}> 
+              <Switch onValueChange={(value) => this.setTraffic(value)}
+                    value={this.props.isTraffic}
+                />
+                </View>
             </View>
           </View>
         </View>
@@ -81,7 +65,7 @@ class Packages extends React.Component {
           <Button
             buttonStyle={styles.navigationButton}
             titleStyle={styles.deliveryText}
-            title="Start delivery"
+            title="Submit"
           />
         </View>
       </View>
@@ -192,21 +176,22 @@ lineHeight: 16,
     flexDirection: 'row',
     marginVertical: 15,
   },
+  switchWrapper: {alignItems:'flex-start'}
 };
 
 function mapStateToProps(state) {
   return {
-    bottomBar: state.filters.bottomBar,
+    isTraffic: state.filters.isTraffic,
   };
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
+    setTraffic: (toggle) => {
+      return dispatch({type: 'TrafficToggle', payload: toggle});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Packages);
+export default connect(mapStateToProps, mapDispatchToProps)(Settings);

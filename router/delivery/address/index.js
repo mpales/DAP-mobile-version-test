@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import Map from '../../../component/map/index';
 import {Button} from 'react-native-elements';
 import IconDelivery8Mobile from '../../../assets/icon/iconmonstr-delivery-8 1mobile.svg';
+import IconArrow66Mobile from '../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 import List from './list';
 import ListMap from './list-map';
 import Navigation from '../../../component/map/index';
@@ -15,6 +16,7 @@ import { TabRouter } from '@react-navigation/native';
 import Package from '../package';
 import Order from '../order/index';
 import Camera from '../peripheral/camera';
+import Mixins from '../../../mixins';
 
 const Stack = createStackNavigator();
 
@@ -27,12 +29,10 @@ class AddressNavigator extends React.Component {
   }
   backwithoutBottom = () => {
     this.props.setBottomBar(false);
-    this.props.navigation.setOptions({tabBarVisible: false});
   }
   cancelDelivery = ()=> {
     this.props.setStartDelivered(false);
     this.props.setBottomBar(true);
-    this.props.navigation.setOptions({tabBarVisible: true});
   }
   deliveryTab = createCompatNavigatorFactory(createMaterialTopTabNavigator)(
     {
@@ -54,6 +54,11 @@ class AddressNavigator extends React.Component {
         style: {
           backgroundColor: '#121C78',
         },
+        labelStyle : {
+          ...Mixins.h5,
+          lineHeight: 21,
+          textTransform: 'none'
+        },
         indicatorStyle: {
           borderWidth: 1,
           borderColor: 'black',
@@ -64,13 +69,8 @@ class AddressNavigator extends React.Component {
     },
   );
   render() {
-    if(this.props.bottomBar){
-    this.props.navigation.setOptions({tabBarVisible: true});
-    } else {
-    this.props.navigation.setOptions({tabBarVisible: false});
-    }
     return (
-      <Stack.Navigator initialRouteName="List">
+      <Stack.Navigator initialRouteName="List" screenOptions={{headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>)}}>
         <Stack.Screen
           name="List"
           component={this.deliveryTab}
@@ -83,6 +83,7 @@ class AddressNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitle: 'Delivery Order',
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
             headerRight: () => (
               <Button
                 type="clear"
@@ -107,6 +108,7 @@ class AddressNavigator extends React.Component {
               borderBottomWidth: 0,
             },
             headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
             headerTitle: 'Delivery Order',
             headerLeft: (props) => {
               return(
@@ -141,6 +143,7 @@ class AddressNavigator extends React.Component {
               borderBottomWidth: 0,
             },
             headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
             headerTitle: 'Delivery Order',
             headerLeft: (props) => {
               return(
@@ -175,6 +178,7 @@ class AddressNavigator extends React.Component {
               borderBottomWidth: 0,
             },
             headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
             headerTitle: 'Delivery Order',
             headerLeft: (props) => {
               return(

@@ -8,6 +8,7 @@ import IconFile24 from '../../../assets/icon/iconmonstr-file-24 2mobile.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import Signature from '../peripheral/signature';
 import {connect} from 'react-redux';
+import Mixins from '../../../mixins';
 
 class POD extends React.Component {
   constructor(props) {
@@ -43,30 +44,37 @@ class POD extends React.Component {
             <View style={styles.inputContainer}>
               <Text style={styles.inputHead}>#323344567553</Text>
               <Input
-                inputContainerStyle={{height: 30}}
+                containerStyle={{padding:0, margin: 0,marginVertical: 0,}}
+                inputContainerStyle={{padding:0,margin:0,}}
                 labelStyle={styles.labelStyle}
                 inputStyle={styles.inputStyle}
+                errorStyle={styles.inputErrorStyle}
                 placeholder="John"
                 label="Name"
               />
               <Input
-                inputContainerStyle={{height: 30}}
+              
+                containerStyle={{padding:0, margin: 0,marginVertical: 0,}}
+                inputContainerStyle={styles.containerInput}
                 labelStyle={styles.labelStyle}
                 inputStyle={styles.inputStyle}
+                errorStyle={styles.inputErrorStyle}
                 placeholder="Jln. Raja H Fisabiliah, Post 5, Kota"
                 label="Address"
               />
               <Input
-                inputContainerStyle={{height: 30}}
+                inputContainerStyle={styles.containerInput}
                 labelStyle={styles.labelStyle}
                 inputStyle={styles.inputStyle}
+                errorStyle={styles.inputErrorStyle}
                 placeholder="Sneaker shoes 30 box"
                 label="Package item"
               />
               <Input
-                inputContainerStyle={{height: 30}}
+                inputContainerStyle={styles.containerInput}
                 labelStyle={styles.labelStyle}
                 inputStyle={styles.inputStyle}
+                errorStyle={styles.inputErrorStyle}
                 placeholder="Please put in lobby"
                 label="Instruction"
               />
@@ -87,16 +95,20 @@ class POD extends React.Component {
                   },
                 }}
                 overlayContainerStyle={{
-                  backgroundColor: this.props.photoProofList.length > 0 ? '#17B055' : '#F07120',
+                  backgroundColor: this.props.isPhotoProofSubmitted ? '#17B055' : '#F07120',
                   flex: 2,
                   borderRadius: 5,
                 }}
-                onPress={this.navigateToCamera}
+                onPress={() => {
+                  this.props.isPhotoProofSubmitted 
+                  ? null
+                  : this.navigateToCamera()
+                }}
                 activeOpacity={0.7}
                 containerStyle={{alignSelf: 'center'}}
               />
-              {this.props.photoProofList.length > 0 && 
-                <Checkmark height="20" width="20" fill="#fff" style={{position: 'absolute', bottom: 45, right: 16}} />
+              {this.props.isPhotoProofSubmitted && 
+                <Checkmark height="20" width="20" fill="#fff" style={styles.checkmark} />
               }
               <Text style={styles.sectionText}>Photo Proof</Text>
             </View>
@@ -123,7 +135,7 @@ class POD extends React.Component {
                 containerStyle={{alignSelf: 'center'}}
               />
               {this.props.isSignatureSubmitted && 
-                <Checkmark height="20" width="20" fill="#fff" style={{position: 'absolute', bottom: 45, right: 16}} />
+                <Checkmark height="20" width="20" fill="#fff" style={styles.checkmark} />
               }
               <Text style={styles.sectionText}>E-Signature</Text>
             </View>
@@ -158,14 +170,14 @@ class POD extends React.Component {
             <Button
               buttonStyle={styles.navigationButton}
               titleStyle={styles.deliveryText}
-              title="Complete Delivery"
+              title="Submit"
             />
             <View style={[styles.sectionDividier, {marginVertical: 12}]}>
               <Button
                 containerStyle={[styles.buttonDivider, {marginRight: 10}]}
                 title="Cancel"
                 type="outline"
-                titleStyle={{color: '#F1811C', fontSize: 14}}
+                titleStyle={{color: '#ABABAB', ...Mixins.subtitle3, lineHeight: 21}}
               />
 
               <Button
@@ -176,7 +188,7 @@ class POD extends React.Component {
                   </View>
                 )}
                 title="Chat Client"
-                titleStyle={{color: '#fff', fontSize: 14}}
+                titleStyle={{color: '#fff', ...Mixins.subtitle3, lineHeight: 21}}
                 buttonStyle={{backgroundColor: '#F07120'}}
               />
             </View>
@@ -199,9 +211,9 @@ const styles = {
     marginVertical: 10,
   },
   deliveryText: {
-    fontWeight: '600',
+    ...Mixins.subtitle3,
+    lineHeight: 21,
     color: '#ffffff',
-    fontSize: 14,
   },
   navigationButton: {
     backgroundColor: '#121C78',
@@ -229,9 +241,8 @@ const styles = {
     elevation: 2,
   },
   inputHead: {
-    marginVertical: 17,
-    fontWeight: '600',
-    fontSize: 18,
+    marginVertical: 12,
+    ...Mixins.h4,
     lineHeight: 27,
   },
   sectionButtonGroup: {
@@ -246,23 +257,36 @@ const styles = {
   sectionText: {
     textAlign: 'center',
     width: 83,
-    fontSize: 14,
+    ...Mixins.subtitle3,
+    lineHeight: 21,
     color: '#6C6B6B',
     marginVertical: 12,
   },
+  containerInput: {
+    borderBottomColor: '#ABABAB',
+    borderBottomWidth: 1,
+    marginVertical: 0,
+    paddingVertical: 0,
+  },
   inputStyle: {
-    padding: 0,
-    margin: 0,
-    fontSize: 14,
+    ...Mixins.lineInputDefaultStyle,
+    ...Mixins.body1,
+    marginHorizontal: 0,
+    flexShrink: 1,
+    minHeight: 30,
+    lineHeight: 21,
     fontWeight: '400',
-    color: '#ABABAB',
   },
   labelStyle: {
-    padding: 0,
-    margin: 0,
-    fontSize: 14,
+    ...Mixins.lineInputDefaultLabel,
+    ...Mixins.body1,
+    lineHeight: 14,
     fontWeight: '400',
-    color: '#000000',
+  },
+  inputErrorStyle: {
+    ...Mixins.body2,
+    lineHeight: 14,
+    marginVertical: 0,
   },
   inputContainer: {
     backgroundColor: '#fff',
@@ -270,7 +294,12 @@ const styles = {
     elevation: 8,
     paddingHorizontal: 20,
     paddingBottom: 5,
-    paddingTop: 10,
+    paddingTop: 0,
+  },
+  checkmark: {
+    position: 'absolute', 
+    bottom: 62, 
+    right: 16
   },
 };
 function mapStateToProps(state) {
@@ -281,7 +310,6 @@ function mapStateToProps(state) {
     userRole: state.userRole,
     isPhotoProofSubmitted: state.filters.isPhotoProofSubmitted,
     isSignatureSubmitted: state.filters.isSignatureSubmitted,
-    photoProofList: state.photoProofList,
   };
 }
 

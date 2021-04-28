@@ -3,6 +3,7 @@ import { Button } from 'react-native-elements';
 import Camera from '../peripheral/camera';
 import POD from './POD';
 import EnlargeImage from '../peripheral/enlargeImage';
+import ImageConfirmation from '../peripheral/imageConfirmation';
 import {connect} from 'react-redux';
 import {createStackNavigator,HeaderBackButton} from '@react-navigation/stack';
 import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
@@ -21,6 +22,15 @@ class Example extends React.Component {
     };
     this.orderTab.bind(this);
   }
+
+  submitPhotoProof = () => {
+    if(this.props.photoProofList.length > 0) {
+      this.props.photoProofSubmittedHandler(true);
+      this.props.addPhotoProofList([]);
+      this.props.navigation.navigate('Order', {screen: 'Order'});
+    }
+  }
+  
   orderTab = createCompatNavigatorFactory(createStackNavigator)(
     {
       Order: {
@@ -33,6 +43,7 @@ class Example extends React.Component {
         screen: (props) => {
           this.props.navigation.setOptions({headerTransparent:true});
           this.props.navigation.setOptions({
+            headerShown: true,
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} 
@@ -46,13 +57,11 @@ class Example extends React.Component {
             headerRight: () => (
               <Button
                 type="clear"
+                title="Submit"
                 buttonStyle={{paddingHorizontal: 20, margin: 0}}
                 iconContainerStyle={{padding: 0, margin: 0}}
-                titleStyle={{padding: 0, margin: 0}}
-                onPres={() => {}}
-                icon={() => (
-                  <IconDelivery8Mobile height="24" width="24" fill="#fff" />
-                )}
+                titleStyle={{padding: 0, margin: 0, color: '#fff'}}
+                onPress={this.submitPhotoProof}
               />
             ),
           });
@@ -90,6 +99,14 @@ class Example extends React.Component {
           });
           return <EnlargeImage {...props}/>;
         },
+      },
+      ImageConfirmation: {
+        screen: (props) => {
+          this.props.navigation.setOptions({
+            headerShown: false,
+          });
+          return <ImageConfirmation {...props} />
+        },
       }
     },
     {
@@ -123,7 +140,7 @@ function mapStateToProps(state) {
     textfield: state.todos.name,
     value: state.todos.name,
     userRole: state.userRole,
-    isPhotoProofSubmitted: state.filters.isPhotoProofSubmitted,
+    photoProofList: state.photoProofList,
   };
 }
 
@@ -137,6 +154,8 @@ const mapDispatchToProps = (dispatch) => {
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
     },
+    photoProofSubmittedHandler : (proof) => dispatch({type:'PhotoProof',payload:proof}),
+    addPhotoProofList: (uri) => dispatch({type: 'PhotoProofList', payload: uri}),
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };

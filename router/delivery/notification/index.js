@@ -29,6 +29,7 @@ import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
 import {createStackNavigator} from '@react-navigation/stack';
 import Contact from './contact';
+import Mixins from '../../../mixins';
 
 const window = Dimensions.get('window');
 
@@ -182,8 +183,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   headingCard: {
-    fontSize: 14,
-    fontWeight: '600',
+    ...Mixins.subtitle3,
     lineHeight:21,
     textAlign: 'left',
     color: '#000000',
