@@ -6,24 +6,18 @@ import addressList from '../../../component/extend/ListItem-map';
 import Map from '../../../component/map/map-address';
 import {connect} from 'react-redux';
 import { bindActionCreators } from 'redux'
-import {getDirectionsAPI,setDirections,setRouteStats} from '../../../action/direction';
+import {getDirectionsAPI,setDirections,setRouteStats,getDirectionsAPIWithTraffic} from '../../../action/direction';
 import {setGeoLocation} from '../../../action/geolocation';
 import RNLocation from 'react-native-location';
 import Util from '../../../component/map/interface/leafletPolygon';
 import Location from '../../../component/map/interface/geoCoordinate'
-
+import Mixins from '../../../mixins';
 
 class ListMap extends Component {
   
   constructor(props) {
     super(props);
-    this.state = {
-      search: '',
-      data : [],
-    };
-    this.translateOrders.bind(this);
-    this.translateDragToOrder.bind(this);
-    this.requestLocationPermission.bind(this);
+
     RNLocation.configure({
       distanceFilter: 0, // Meters
       desiredAccuracy: {
@@ -43,8 +37,19 @@ class ListMap extends Component {
       pausesLocationUpdatesAutomatically: false,
       showsBackgroundLocationIndicator: false,
   })
-
-    this.props.getDirectionsAPI([{lat: 1.1037975445392902,lng:104.09571858289692},{lat:1.14464508675823, lng:104.02156086973538},{lat:1.1082599092338112, lng:104.04078694269813},{lat:1.0698147079937361, lng:104.02362080612424},{lat:1.1031110269159847, lng:103.95735951894906},{lat:1.1243930156749928, lng:104.01812764242061},{lat:1.110319459656965, lng:103.99752827853195},{lat:1.115125071726475, lng:104.05348988376281}]);
+    if(this.props.isTraffic){
+      this.props.getDirectionsAPIWithTraffic([{lat: 1.1037975445392902,lng:104.09571858289692},{lat:1.1082599092338112, lng:104.04078694269813},{lat:1.0698147079937361, lng:104.02362080612424},{lat:1.1031110269159847, lng:103.95735951894906},{lat:1.1243930156749928, lng:104.01812764242061},{lat:1.110319459656965, lng:103.99752827853195},{lat:1.115125071726475, lng:104.05348988376281},{lat:1.14464508675823, lng:104.02156086973538}]);
+    } else {
+      this.props.getDirectionsAPI([{lat: 1.1037975445392902,lng:104.09571858289692},{lat:1.14464508675823, lng:104.02156086973538},{lat:1.1082599092338112, lng:104.04078694269813},{lat:1.0698147079937361, lng:104.02362080612424},{lat:1.1031110269159847, lng:103.95735951894906},{lat:1.1243930156749928, lng:104.01812764242061},{lat:1.110319459656965, lng:103.99752827853195},{lat:1.115125071726475, lng:104.05348988376281}]);
+    }
+    this.state = {
+      search: '',
+      data : [],
+    };
+    this.translateOrders.bind(this);
+    this.translateOrdersTraffic.bind(this);
+    this.translateDragToOrder.bind(this);
+    this.requestLocationPermission.bind(this);
   }
   
   async requestLocationPermission() {
@@ -106,9 +111,24 @@ class ListMap extends Component {
     translate.splice(1,0,last);
     return translate;
   }
-  
+
+  translateOrdersTraffic = () => {
+    const {orders} = this.props;
+    let translate = Array.from({length:orders.length}).map((num,index)=>{
+      return {lat:orders[index][0],lng:orders[index][1]};
+    });
+    return translate;
+  }
+
   componentDidUpdate(prevProps, prevState, snapshot) {
    
+   if( prevProps.statAPI.length !== this.props.statAPI.length || prevProps.stat.length !== this.props.stat.length ){
+    this.setState({data: Array.from({length: this.props.statAPI.length}).map((element,index)=>{
+      let statSingleOffline = this.props.stat[index];
+      let statSingleAPI = this.props.statAPI[index];
+      return {...statSingleOffline,...statSingleAPI};
+    })})
+   }
    
     let {locationPermission} = this.state;
     if (prevState.locationPermission !== locationPermission && locationPermission) {
@@ -121,8 +141,13 @@ class ListMap extends Component {
 
     if(!this.props.steps){
      console.log('new');
-     let orders = this.translateOrders();
-    this.props.getDirectionsAPI(orders);  
+     if(this.props.isTraffic){
+      let orders = this.translateOrdersTraffic();
+      this.props.getDirectionsAPIWithTraffic(orders);  
+     } else {
+      let orders = this.translateOrders();
+      this.props.getDirectionsAPI(orders);  
+     }
    } else {
      console.log('old');
    }
@@ -157,11 +182,11 @@ class ListMap extends Component {
     this.props.setDirections(markers);
   }
   render() {
-    const {search} = this.state;
+    const {search,data} = this.state;
     return (
       <View style={{flex: 1}}>
         <DraggableFlatList
-          data={this.props.stat}
+          data={data}
           autoscrollSpeed={700}
           renderItem={addressList}
           keyExtractor={(item, index) => index}
@@ -178,7 +203,7 @@ class ListMap extends Component {
                     paddingHorizontal: 73,
                     paddingVertical: 10,
                   }}>
-                  <Text style={{fontSize: 14, color: 'white'}}>
+                  <Text style={{...Mixins.subtitle3,lineHeight: 21, color: 'white'}}>
                     Delivery List
                   </Text>
                 </View>
@@ -213,6 +238,8 @@ function mapStateToProps(state) {
     location: state.userRole.location,
     route_id: state.route.id,
     stat : state.route.stat,
+    statAPI : state.route.statAPI,
+    isTraffic: state.filters.isTraffic,
   };
 }
 
@@ -229,7 +256,7 @@ const mapDispatchToProps = (dispatch) => {
     setStartDelivered : (toggle) => {
       return dispatch({type: 'startDelivered', payload: toggle});
     },
-    ...bindActionCreators({ getDirectionsAPI,setDirections,setGeoLocation,setRouteStats}, dispatch),
+    ...bindActionCreators({ getDirectionsAPI,setDirections,setGeoLocation,setRouteStats, getDirectionsAPIWithTraffic}, dispatch),
   };
 };
 

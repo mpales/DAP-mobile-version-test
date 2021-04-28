@@ -45,12 +45,13 @@ import IconAward23Mobile from '../../../assets/icon/iconmonstr-award-23 1mobile.
 import IconMenu6Mobile from '../../../assets/icon/iconmonstr-menu-6 1mobile.svg';
 import { useIsDrawerOpen } from '@react-navigation/drawer';
 import Manifest from '../../../component/extend/ListItem-manifest';
+import Mixins from '../../../mixins';
 const window = Dimensions.get('window');
 
-class Delivery extends React.Component<IProps, {}> {
-  keyboardDidShowListener: any;
-  keyboardDidHideListener: any;
-  constructor(props: IProps | Readonly<IProps>) {
+class Delivery extends React.Component {
+  keyboardDidShowListener = null;
+  keyboardDidHideListener = null;
+  constructor(props) {
     super(props);
 
     const manifestList = [
@@ -86,7 +87,7 @@ class Delivery extends React.Component<IProps, {}> {
     );
   }
 
-  onChangeText(text: any) {
+  onChangeText(text) {
     this.setState({text});
   }
 
@@ -104,13 +105,13 @@ class Delivery extends React.Component<IProps, {}> {
     });
   };
 
-  onChangeTextTwo(text: any) {
+  onChangeTextTwo(text) {
     this.setState({textTwo: text});
   }
-  onSubmited(e: any) {
+  onSubmited(e) {
     console.log(e);
   }
-  onSubmitToBeranda(e: any) {
+  onSubmitToBeranda(e) {
     return this.props.navigation.navigate('Details');
   }
   render() {
@@ -129,12 +130,18 @@ class Delivery extends React.Component<IProps, {}> {
                   buttonStyle={{padding: 0, margin: 0}}
                   iconContainerStyle={{padding: 0, margin: 0}}
                   titleStyle={{padding: 0, margin: 0}}
+                  onPress={()=>{
+                    this.props.toggleDrawer(true);
+                  }}
                   icon={() => (
                     <IconMenu6Mobile height="24" width="24" fill="#fff" />
                   )}
                 />
                 <View style={styles.logoSection}>
-                  <Text h7>Logo</Text>
+                <Image
+                  source={require('../../../assets/dap_logo_hires1thumb.png')}
+                  style={{ width: 74, height: 38 }}
+                />
                 </View>
               </View>
               <View style={styles.headerContainer}>
@@ -169,19 +176,13 @@ class Delivery extends React.Component<IProps, {}> {
                   )}
                   imageProps={{
                     containerStyle: {
-                      alignItems: 'center',
-                      paddingTop: 18,
-                      paddingBottom: 21,
+                     ...Mixins.buttonAvatarDefaultIconStyle
                     },
                   }}
-                  overlayContainerStyle={{
-                    backgroundColor: '#F07120',
-                    flex: 2,
-                    borderRadius: 5,
-                  }}
+                  overlayContainerStyle={Mixins.buttonAvatarDefaultOverlayStyle}
                   onPress={() => console.log('Works!')}
                   activeOpacity={0.7}
-                  containerStyle={{alignSelf: 'center'}}
+                  containerStyle={Mixins.buttonAvatarDefaultContainerStyle}
                 />
                 <Badge
                   status="success"
@@ -203,19 +204,13 @@ class Delivery extends React.Component<IProps, {}> {
                   )}
                   imageProps={{
                     containerStyle: {
-                      alignItems: 'center',
-                      paddingTop: 18,
-                      paddingBottom: 21,
+                     ...Mixins.buttonAvatarDefaultIconStyle
                     },
                   }}
-                  overlayContainerStyle={{
-                    backgroundColor: '#F07120',
-                    flex: 2,
-                    borderRadius: 5,
-                  }}
+                  overlayContainerStyle={Mixins.buttonAvatarDefaultOverlayStyle}
                   onPress={() => console.log('Works!')}
                   activeOpacity={0.7}
-                  containerStyle={{alignSelf: 'center'}}
+                  containerStyle={Mixins.buttonAvatarDefaultContainerStyle}
                 />
                 <Badge
                   status="success"
@@ -234,19 +229,13 @@ class Delivery extends React.Component<IProps, {}> {
                   )}
                   imageProps={{
                     containerStyle: {
-                      alignItems: 'center',
-                      paddingTop: 18,
-                      paddingBottom: 21,
+                     ...Mixins.buttonAvatarDefaultIconStyle
                     },
                   }}
-                  overlayContainerStyle={{
-                    backgroundColor: '#F07120',
-                    flex: 2,
-                    borderRadius: 5,
-                  }}
+                  overlayContainerStyle={Mixins.buttonAvatarDefaultOverlayStyle}
                   onPress={() => console.log('Works!')}
                   activeOpacity={0.7}
-                  containerStyle={{alignSelf: 'center'}}
+                  containerStyle={Mixins.buttonAvatarDefaultContainerStyle}
                 />
                 <Badge
                   status="success"
@@ -283,11 +272,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
   },
-  tinyLogo: {
-    width: 50,
-    height: 50,
-    alignSelf: 'center',
-  },
   body: {
     backgroundColor: Colors.white,
     flexDirection: 'column',
@@ -302,9 +286,10 @@ const styles = StyleSheet.create({
   headerNav: {
     alignSelf: 'center',
     width: window.width / 1.2,
-    elevation: 7,
+    elevation: 2,
     flexDirection: 'row',
     marginTop: window.width * 0.1,
+    zIndex: 10,
   },
   navSection: {},
   logoSection: {
@@ -322,6 +307,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#121C78',
     justifyContent: 'center',
     alignItems: 'center',
+    elevation:0,
+    zIndex: 0,
   },
   sliderContainer: {
     position: 'absolute',
@@ -355,13 +342,15 @@ const styles = StyleSheet.create({
   sectionText: {
     textAlign: 'center',
     width: 65,
-    fontSize: 14,
+    ...Mixins.subtitle3,
+    lineHeight: 21,
     color: '#6C6B6B',
     marginVertical: 16,
   },
   headingCard: {
-    fontSize: 18,
+    ...Mixins.h4,
     fontWeight: '700',
+    lineHeight: 27,
     textAlign: 'left',
     paddingBottom: 8,
   },
@@ -379,22 +368,7 @@ const styles = StyleSheet.create({
   },
 });
 
-interface IProps {
-  textfield: string;
-  value: string;
-  todos: {};
-  decrement: () => void;
-  reset: () => void;
-  onChange: (text: any) => void;
-  toggleDrawer: () => void;
-}
-
-interface dispatch {
-  type: string;
-  payload: {};
-}
-
-function mapStateToProps(state: {todos: {name: any}, userRole: any}) {
+function mapStateToProps(state) {
   return {
     todos: state.todos,
     textfield: state.todos.name,
@@ -404,12 +378,15 @@ function mapStateToProps(state: {todos: {name: any}, userRole: any}) {
   };
 }
 
-const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
+const mapDispatchToProps = (dispatch) => {
   return {
     decrement: () => dispatch({type: 'DECREMENT'}),
     reset: () => dispatch({type: 'RESET'}),
-    onChange: (text: any) => {
+    onChange: (text) => {
       return {type: 'todos', payload: text};
+    },
+    toggleDrawer: (bool) => {
+      return dispatch({type: 'ToggleDrawer', payload: bool});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };

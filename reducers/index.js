@@ -18,6 +18,7 @@ const initialState = {
     isFiltered : 0,
     isBarcodeScan: true,
     isTraffic : true,
+    indexBottomBar: 0,
   },
 };
 
@@ -49,6 +50,14 @@ export default function appReducer(state = initialState, action) {
           name: 'Nana',
         },
       };
+      case 'indexBottom':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            indexBottomBar: action.payload,
+          },
+        };
     case 'PhotoProofList':
       return {
         ...state,

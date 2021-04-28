@@ -22,15 +22,20 @@ class Camera extends React.Component {
             isShowImagePreview: false,
             isFlashActive: false,
         }
-        this.submitPhotoProof.bind(this);
         this.flashToggle.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if(this.state.pictureData !== prevState.pictureData) {
-            if(this.state.isShowImagePreview) {
+        if(this.props.photoProofList.length !== prevProps.photoProofList.length) {
+            this.setState({
+                pictureData: this.props.photoProofList,
+            });
+        }
+        if(this.state.pictureData.length !== prevState.pictureData.length) {
+            if(this.state.isShowImagePreview && this.state.pictureData.length > 0) {
                 this.flatlist.scrollToEnd();
             }
+            this.props.addPhotoProofList(this.state.pictureData);
         }
     }
 
@@ -40,16 +45,9 @@ class Camera extends React.Component {
         });
     }
 
-    submitPhotoProof = () => {
-        this.props.addPhotoProofList([]);
-        this.props.photoProofSubmittedHandler(true);
-        this.props.navigation.navigate('Order');
-    }
-
     launchGallery = (data) => {
         if(!data.didCancel) {
             this.setState({pictureData: [...this.state.pictureData, data.uri]})
-            this.props.addPhotoProofList(this.state.pictureData);
         }
     }
 
@@ -57,8 +55,8 @@ class Camera extends React.Component {
         if (this.camera) {
             const options = { quality: 0.5, base64: true };
             const data = await this.camera.takePictureAsync(options);
-            this.setState({pictureData: [...this.state.pictureData, data.uri]});
-            this.props.addPhotoProofList(this.state.pictureData);
+            this.props.imageConfirmationHandler(data.uri);
+            this.props.navigation.navigate('ImageConfirmation');
         }
     };
 
@@ -225,6 +223,7 @@ const mapDispatchToProps = (dispatch) => {
         reset: () => dispatch({type: 'RESET'}),
         photoProofSubmittedHandler : (proof) => dispatch({type:'PhotoProof',payload:proof}),
         addPhotoProofList: (uri) => dispatch({type: 'PhotoProofList', payload: uri}),
+        imageConfirmationHandler: (data) => dispatch({type: 'ImageConfirmation', payload: data}),
     };
 };
   
