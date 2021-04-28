@@ -24,15 +24,17 @@ const screen = Dimensions.get('window');
 const Drawer = createDrawerNavigator();
 
 class DeliveryNavigator extends React.Component {
+  _backHandlerRegisterToBottomBar = null;
   constructor(props) {
     super(props);
     this.drawerRef = React.createRef();
-    this.state = {
-      wrapperNavigationBottomBar : null,
-      indexBottomBar : null,
-    };
+    this.bottomUpdateRef = React.createRef();
+    this.navigationRef = React.createRef();
+
     this._CustomBottomTabContent.bind(this)
     this._CustomDrawerContent.bind(this);
+    this.setWrapperofNavigation.bind(this);
+    this.backActionFilterBottomBar.bind(this);
   }
 
   deliveryRoute = () => {
@@ -46,41 +48,40 @@ class DeliveryNavigator extends React.Component {
     }
     return Route;
   };
+  backActionFilterBottomBar = () => {
+    this.props.setBottomBar(true);
+    
+    /**
+     * Returning false will let the event to bubble up & let other event listeners
+     * or the system's default back action to be executed.
+     */
+    return false;
+  };
   shouldComponentUpdate(nextProps, nextState) {
     if (nextProps.isDrawer !== this.props.isDrawer) {
       this.drawerRef.current = true;
     } else { 
       this.drawerRef.current = false;
     }
+    if (this.props.bottomBar !== nextProps.bottomBar && this.props.indexBottomBar === nextProps.indexBottomBar) {
+      this._backHandlerRegisterToBottomBar = BackHandler.addEventListener(
+        "hardwareBackPress",
+        this.backActionFilterBottomBar
+      );
+      this.navigationRef.current.dispatch(state => {
+        const routes = state.routes;
+
+        return CommonActions.reset({
+          ...state,
+          routes,
+          index: state.index,
+        });
+      });
+      this.bottomUpdateRef.current = true;
+    }
     return true;
   }
   
-  
-  getSnapshotBeforeUpdate(prevProps, prevState) {
-    //this is for snapshot when navigator did not update within index
-    // would be better if there is params conditional, as the navigator already re-render when params changes.
-    if (prevProps.bottomBar !== this.props.bottomBar && prevState.indexBottomBar === this.state.indexBottomBar) {
-      return true;
-    }
-    return null;
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-
-    if (snapshot !== null) {
-          //refresh the navigator when no switch occur within navigator state
-     this.state.wrapperNavigationBottomBar.dispatch(state => {
-          // using same index
-          const routes = state.routes;
-
-          return CommonActions.reset({
-            ...state,
-            routes,
-            index: state.index,
-          });
-        });
-    }
-  }
   
   _CustomDrawerContent = (props) =>  {
     const {navigation,state} = props;
@@ -123,11 +124,26 @@ class DeliveryNavigator extends React.Component {
       Home: {screen: this.props.component},
     });
   };
+  setWrapperofNavigation= (navigation, index)=> {
+
+    if(!this.navigationRef.current){
+      this.navigationRef.current = navigation;
+    }
+
+    if(this.bottomUpdateRef.current){
+      this.bottomUpdateRef.current = false;
+    } else {
+      if(this._backHandlerRegisterToBottomBar !== null){
+        this._backHandlerRegisterToBottomBar.remove();
+      }
+      this.props.setIndexBottom(index);
+    }
+  }
   _CustomBottomTabContent = (props) => {
     const {navigation,state,descriptors} = props;
     const focusedOptions = descriptors[state.routes[state.index].key].options;
-    this.setState({wrapperNavigationBottomBar: navigation, indexBottomBar : state.index });
-
+   
+    this.setWrapperofNavigation(navigation,state.index);
     if (focusedOptions.tabBarVisible === false || this.props.bottomBar === false) {
       return null;
     }
@@ -290,6 +306,7 @@ function mapStateToProps(state) {
     userRole: state.userRole,
     isDrawer : state.filters.isDrawer,
     bottomBar: state.filters.bottomBar,
+    indexBottomBar : state.filters.indexBottomBar,
   };
 }
 
@@ -302,6 +319,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     toggleDrawer: (bool) => {
       return dispatch({type: 'ToggleDrawer', payload: bool});
+    },
+    setIndexBottom: (num) => {
+      return dispatch({type: 'indexBottom', payload: num});
     },
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
