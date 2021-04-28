@@ -6,9 +6,11 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
+import {Button} from 'react-native-elements';
 import Slider from '@react-native-community/slider';
 import {RNCamera} from 'react-native-camera';
-
+import Mixins from '../../mixins';
+import {connect} from 'react-redux';
 const flashModeOrder = {
   off: 'on',
   on: 'auto',
@@ -63,29 +65,42 @@ const aabb = (obj1, obj2) => {
   );
 };
 
-export default class CameraScreen extends React.Component {
-  state = {
-    flash: 'off',
-    zoom: 0,
-    autoFocus: 'on',
-    depth: 0,
-    type: 'back',
-    whiteBalance: 'auto',
-    ratio: '16:9',
-    recordOptions: {
-      mute: false,
-      maxDuration: 5,
-      quality: RNCamera.Constants.VideoQuality['288p'],
-    },
-    isRecording: false,
-    canDetectFaces: false,
-    canDetectText: false,
-    canDetectBarcode: false,
-    faces: [],
-    textBlocks: [],
-    barcodes: [],
-  };
+class CameraScreen extends React.Component {
+  constructor(props){
+    super(props);
+    const {detectBarcode} = this.props;
+    this.state = {
+      flash: 'off',
+      zoom: 0,
+      autoFocus: 'on',
+      depth: 0,
+      type: 'back',
+      whiteBalance: 'auto',
+      ratio: '16:9',
+      recordOptions: {
+        mute: false,
+        maxDuration: 5,
+        quality: RNCamera.Constants.VideoQuality['288p'],
+      },
+      isRecording: false,
+      canDetectFaces: false,
+      canDetectText: false,
+      canDetectBarcode: detectBarcode,
+      faces: [],
+      textBlocks: [],
+      barcodes: [],
+    };
+  }
 
+  componentDidUpdate(prevProps, prevState, snapshot){
+    if(prevProps.detectBarcode !== this.props.detectBarcode){
+     if(this.props.detectBarcode){
+      this.setState({canDetectBarcode: true});
+     } else {
+      this.setState({canDetectBarcode: false});
+     }
+    }
+  }
   toggleFacing() {
     this.setState({
       type: this.state.type === 'back' ? 'front' : 'back',
@@ -264,6 +279,9 @@ export default class CameraScreen extends React.Component {
       }),
     );
     this.setState({barcodes: filterBarcode});
+    if(filterBarcode.length > 0){
+      this.props.setBarcodeScanner(false);
+    }
     return this.props.renderBarcode(filterBarcode);
   };
 
@@ -346,72 +364,14 @@ export default class CameraScreen extends React.Component {
         }>
         <View
           style={{
-            flex: 0.5,
-          }}>
-          <View
-            style={{
-              elevation: 4,
-              backgroundColor: 'transparent',
-              flexDirection: 'row',
-              justifyContent: 'space-around',
-            }}>
-            <TouchableOpacity
-              style={styles.flipButton}
-              onPress={this.toggleFacing.bind(this)}>
-              <Text style={styles.flipText}> FLIP </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.flipButton}
-              onPress={this.toggleFlash.bind(this)}>
-              <Text style={styles.flipText}> FLASH: {this.state.flash} </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.flipButton}
-              onPress={this.toggleWB.bind(this)}>
-              <Text style={styles.flipText}>
-                {' '}
-                WB: {this.state.whiteBalance}{' '}
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View
-            style={{
-              backgroundColor: 'transparent',
-              flexDirection: 'row',
-              justifyContent: 'space-around',
-              elevation: 4,
-            }}>
-            <TouchableOpacity
-              onPress={this.toggle('canDetectFaces')}
-              style={styles.flipButton}>
-              <Text style={styles.flipText}>
-                {!canDetectFaces ? 'Detect Faces' : 'Detecting Faces'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={this.toggle('canDetectText')}
-              style={styles.flipButton}>
-              <Text style={styles.flipText}>
-                {!canDetectText ? 'Detect Text' : 'Detecting Text'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={this.toggle('canDetectBarcode')}
-              style={styles.flipButton}>
-              <Text style={styles.flipText}>
-                {!canDetectBarcode ? 'Detect Barcode' : 'Detecting Barcode'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        <View
-          style={{
-            flex: 0.4,
+            flex: 1,
             backgroundColor: 'transparant',
             flexDirection: 'row',
             alignSelf: 'center',
-            elevation: 3,
+            elevation: 5,
+            zIndex: 5
           }}>
+            
           <View style={styles.rectangleContainer}>
             <View style={styles.rectangle}>
               <View style={styles.rectangleColor} />
@@ -422,68 +382,21 @@ export default class CameraScreen extends React.Component {
             </View>
           </View>
         </View>
+        
         <View
           style={{
-            flex: 0.1,
+            flexShrink: 1,
             backgroundColor: 'transparent',
             flexDirection: 'row',
-            alignSelf: 'flex-end',
+            alignSelf: 'center',
+            elevation: 10, zIndex: 10
           }}>
-          <TouchableOpacity
-            style={[
-              styles.flipButton,
-              {
-                flex: 0.3,
-                alignSelf: 'flex-end',
-                backgroundColor: this.state.isRecording ? 'white' : 'darkred',
-              },
-            ]}
-            onPress={
-              this.state.isRecording ? () => {} : this.takeVideo.bind(this)
-            }>
-            {this.state.isRecording ? (
-              <Text style={styles.flipText}> ☕ </Text>
-            ) : (
-              <Text style={styles.flipText}> REC </Text>
-            )}
-          </TouchableOpacity>
-        </View>
-        {this.state.zoom !== 0 && (
-          <Text style={[styles.flipText, styles.zoomText]}>
-            Zoom: {this.state.zoom}
-          </Text>
-        )}
-        <View
-          style={{
-            flex: 0.1,
-            backgroundColor: 'transparent',
-            flexDirection: 'row',
-            alignSelf: 'flex-end',
-          }}>
-          <TouchableOpacity
-            style={[styles.flipButton, {flex: 0.1, alignSelf: 'flex-end'}]}
-            onPress={this.zoomIn.bind(this)}>
-            <Text style={styles.flipText}> + </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.flipButton, {flex: 0.1, alignSelf: 'flex-end'}]}
-            onPress={this.zoomOut.bind(this)}>
-            <Text style={styles.flipText}> - </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.flipButton, {flex: 0.25, alignSelf: 'flex-end'}]}
-            onPress={this.toggleFocus.bind(this)}>
-            <Text style={styles.flipText}> AF : {this.state.autoFocus} </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.flipButton,
-              styles.picButton,
-              {flex: 0.3, alignSelf: 'flex-end'},
-            ]}
-            onPress={this.takePicture.bind(this)}>
-            <Text style={styles.flipText}> SNAP </Text>
-          </TouchableOpacity>
+            <Button
+              containerStyle={{flex:1,marginHorizontal: 26,marginVertical:40}}
+              buttonStyle={styles.navigationButton}
+              titleStyle={styles.deliveryText}
+              title="Manual Input"
+            />
         </View>
         {!!canDetectFaces && this.renderFaces()}
         {!!canDetectFaces && this.renderLandmarks()}
@@ -578,7 +491,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'transparent',
-    marginTop: -deviceHeight / 9,
+    paddingTop: deviceWidth * 0.4,
   },
   rectangle: {
     borderLeftColor: 'rgba(0, 0, 0, .6)',
@@ -639,4 +552,32 @@ const styles = StyleSheet.create({
     borderRightColor: 'white',
     borderBottomColor: 'white',
   },
+  
+  navigationButton: {
+    backgroundColor: '#121C78',
+    borderRadius: 5,
+  },
+  
+  deliveryText: {
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#ffffff',
+  },
 });
+
+function mapStateToProps(state) {
+  return {
+    detectBarcode: state.filters.isBarcodeScan,
+  };
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setBarcodeScanner: (toggle) => {
+      return dispatch({type: 'ScannerActive', payload: toggle});
+    },
+    //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(CameraScreen);

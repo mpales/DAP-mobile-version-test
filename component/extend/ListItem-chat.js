@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text} from 'react-native';
 import {ListItem, Avatar, ThemeProvider, Badge} from 'react-native-elements';
-
+import Mixins from '../../mixins';
 const styles = {
   sectionContainer: {
     marginHorizontal: 21,
@@ -14,12 +14,15 @@ const styles = {
     borderRadius: 10,
   },
   titleText: {
-    color: '#6C6B6B',
-    fontWeight: '600',
+    ...Mixins.subtitle3,
+   color: '#000000',
+   lineHeight: 21,
   },
   subtitleText: {
+    ...Mixins.body3,
+    color: '#000000',
+    lineHeight: 18,
     marginVertical: 2,
-    color: '#ABABAB',
   },
   containerList: {
     marginHorizontal: 0,
@@ -30,6 +33,11 @@ const styles = {
     flexShrink: 1,
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
+  },
+  indicatorTime: {
+    ...Mixins.body3,
+    fontWeight: '400',
+    lineHeight: 18,
   },
 };
 const theme = {
@@ -65,7 +73,7 @@ const Manifest = ({item, index}) => {
         </ListItem.Content>
         <View style={styles.rightList}>
           <Text style={styles.indicatorTime}>{item.last_timestamp}</Text>
-          <Badge value={item.unread} status="warning" />
+          <Badge value={item.unread} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15}} />
         </View>
       </ListItem>
     </ThemeProvider>

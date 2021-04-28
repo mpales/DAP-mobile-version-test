@@ -12,7 +12,8 @@ import {View, TouchableOpacity} from 'react-native';
 import TouchableScale from 'react-native-touchable-scale'; // https://github.com/kohver/react-native-touchable-scale
 import IconCursor20Mobile from '../../assets/icon/iconmonstr-cursor-20 1mobile.svg';
 import IconTime2Mobile from '../../assets/icon/iconmonstr-time-2 1mobile.svg';
-
+import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
+import Mixins from '../../mixins';
 const BadgedIcon = withBadge((props) => {
   return {bottom: props.value};
 })(IconCursor20Mobile);
@@ -44,24 +45,36 @@ const styles = {
     flexDirection: 'row',
   },
   label: {
+    ...Mixins.small3,
+    lineHeight: 12,
     color: '#C4C4C4',
   },
   info: {
+    ...Mixins.small3,
+    lineHeight: 12,
     color: '#000000',
   },
   eta: {
-    fontSize: 10,
-    color: '#424141',
+    ...Mixins.small3,
+    fontWeight: '400',
+    lineHeight: 15,
+        color: '#424141',
     textAlign: 'center',
   },
   detail: {
     flexDirection: 'row',
   },
   labelDetail: {
+    ...Mixins.small3,
+    fontWeight: '400',
+    lineHeight: 15,
     color: '#6C6B6B',
     marginRight: 5,
   },
   labelInfo: {
+    ...Mixins.small3,
+    fontWeight: '400',
+    lineHeight: 15,
     color: '#000000',
   },
   legendLabel: {
@@ -102,6 +115,15 @@ const theme = {
   },
 };
 const Manifest = ({item, index, drag, isActive}) => {
+  let secDiffinTraffic = item.duration_in_trafficAPI - item.durationAPI;
+  let translateFromTraffic = item.chrono + secDiffinTraffic;
+  var durationAPI = "";
+  if (translateFromTraffic >= 3600) durationAPI += Math.floor(translateFromTraffic / 3600) + "h";
+  translateFromTraffic %= 3600;
+  if (translateFromTraffic >= 60) durationAPI += Math.floor(translateFromTraffic / 60) + "m";
+  translateFromTraffic %= 60;
+  durationAPI += Math.round(translateFromTraffic) + "s";
+  
   return (
     <ThemeProvider theme={theme}>
       <ListItem
@@ -120,7 +142,7 @@ const Manifest = ({item, index, drag, isActive}) => {
         activeScale={0.95}>
         <TouchableOpacity style={styles.leftList}>
           <Text
-            style={{fontWeight: '600', color: '#424141', textAlign: 'center'}}>
+            style={{...Mixins.body3,lineHeight: 18,fontWeight: '600', color: '#424141', textAlign: 'center'}}>
             {index}
           </Text>
           <Button
@@ -132,11 +154,11 @@ const Manifest = ({item, index, drag, isActive}) => {
           />
         </TouchableOpacity>
         <ListItem.Content>
-          <ListItem.Title style={{color: '#000000', fontWeight: '600'}}>
-            {index}
+        <ListItem.Title style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
+        {index}
           </ListItem.Title>
-          <ListItem.Subtitle style={{color: '#6C6B6B', fontWeight: '400'}}>
-            Distant Location {item.distance} Km
+          <ListItem.Subtitle style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
+         Distant Location { item.distance } Km
           </ListItem.Subtitle>
           <View style={styles.legend}>
             <View style={styles.legendLabel}>
@@ -150,7 +172,7 @@ const Manifest = ({item, index, drag, isActive}) => {
           </View>
         </ListItem.Content>
         <View style={styles.rightList}>
-          <Text style={styles.eta}>ETA : {item.eta}</Text>
+          <Text style={styles.eta}>ETA : {(item.hasOwnProperty('durationAPI') ?  durationAPI : item.eta)}</Text>
           <Button
             title={item.hour}
             type="clear"
@@ -159,7 +181,19 @@ const Manifest = ({item, index, drag, isActive}) => {
               <IconTime2Mobile height="15" width="15" fill="#ABABAB" />
             )}
           />
-          <ListItem.Chevron size={26} color="#2D2C2C" />
+          <ListItem.Chevron
+            size={26}
+            color="#2D2C2C"
+            Component={(props)=>(
+              <Button
+                {...props}
+                type="clear"
+                icon={
+                  <IconArrow66Mobile height="16" width="26" fill="#2D2C2C"/>
+                }
+              />)}
+            onPress={() => navigation.navigate('Navigation')}
+          />
         </View>
       </ListItem>
     </ThemeProvider>

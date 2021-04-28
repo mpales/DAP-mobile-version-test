@@ -58,7 +58,6 @@ export default class Util {
             tempArray[index] = [];
             this.layerArray.forEach((layer,i,arr) => {
                 let latLng = layer.getLatLngs();
-    
                 var leg: any[] = [];
                 latLng.forEach((element,index) => {
                     if(latLngToBeFound.equals(element) || latLngNextToBeFound.equals(element)){
@@ -83,28 +82,27 @@ export default class Util {
             delete tempArray[index];
         });
         
+        let layer: any[] = [];
         tempArray.forEach((layers,index) => {
             //segment
-            let layer = [];
+            layer = [];
             if(Array.isArray(layers)){
-                 layer = Array.from({length:layers.length}).map((num,i)=>{
-                    return layers[i].getLatLngs();
+                layers.forEach(element => {
+                    layer.push(...element.getLatLngs());
                 });
-                layer = [...layer.reduce((acc, val) => acc.concat(val), [])];
             } else {
-            //leg
-            layer = [...layers.getLatLngs()];
+            layer.push(...layers.getLatLngs());
             }   
             
-            let route = [...layer];
             if(this.geoLocation){
-                route.splice(0,0,[this.geoLocation.lat,this.geoLocation.lng]);
+                layer.splice(0,0,[this.geoLocation.lat,this.geoLocation.lng]);
             }
-            var routes = L.polyline(route);
-            let GEO = new Geo();
-            let items = GEO.setItem(routes.getLatLngs());
+
+            let GEO = new Geo;
+            let items = GEO.setItem(layer);
             let distance = GEO.getDistanceRoute();
             let chrono = GEO.getChronoByDistance();
+         
             stats[index] = {key: index,dist: distance, chrono: chrono.chrono ,distance:Math.round(distance/1000),eta:chrono.eta,hour:chrono.hour, current: layer[0].lat +","+ layer[0].lng, to: layer[layer.length -1].lat + ","+ layer[layer.length -1].lng};
         });
         return stats;
@@ -146,7 +144,14 @@ export default class Util {
     
                     var latlngs = items.slice(prev,next);
                     //update markers and add first dot in polyline
-                    this.layerArray[mark] = L.polyline(this.setLatLng(latlngs),{color:'red'});  
+                    if(this.layerArray[mark] !== undefined){
+                        // this will fail in intersection within marker
+                        let prevLayer = this.layerArray[mark].getLatLngs();
+                        prevLayer.push(...latlngs)
+                        this.layerArray[mark] = L.polyline(this.setLatLng(prevLayer),{color:'red'});
+                    } else {
+                        this.layerArray[mark] = L.polyline(this.setLatLng(latlngs),{color:'red'});  
+                    }
                     //udate prev
                     prev = index;
                     //return [this.layerArray[nLat]];
