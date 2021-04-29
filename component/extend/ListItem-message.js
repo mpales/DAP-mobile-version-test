@@ -1,13 +1,13 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, Dimensions} from 'react-native';
 import {ListItem, Avatar, ThemeProvider, Badge} from 'react-native-elements';
 import Mixins from '../../mixins';
-
-
+const window = Dimensions.get('window');
 const styles = {
   sectionContainer: {
     marginHorizontal: 21,
     padding: 0,
+    flexGrow: 1,
   },
   avatarContainer: {
   },
@@ -28,8 +28,27 @@ const styles = {
   },
   containerList: {
     marginHorizontal: 0,
-    padding: 0,
-    marginBottom: 18,
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    marginVertical: 20,
+    flexDirection: 'column',
+    flex: 0.5,
+  },
+  selfContainer : {
+    backgroundColor: '#E7E8F2',
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 15,
+    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 15,
+    alignSelf: 'flex-start',
+  },
+  otherContainer : {
+    backgroundColor: '#414993',
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 15,
+    alignSelf: 'flex-end',
   },
   rightList: {
     flexShrink: 1,
@@ -44,7 +63,6 @@ const styles = {
 };
 const theme = {
   ListItem: {
-    containerStyle: styles.containerList,
     titleStyle: {
       color: 'red',
     },
@@ -64,19 +82,17 @@ const theme = {
     containerStyle: styles.sectionContainer,
   },
 };
-const Manifest = ({item, index, toSingle}) => {
+const Manifest = ({item, index}) => {
   return (
     <ThemeProvider theme={theme}>
-      <ListItem key={index} onPress={toSingle}>
-        <Avatar size={50} rounded source={{uri: item.avatar_url}} />
+      <ListItem key={index} containerStyle={[styles.containerList,
+        item.role > 0 ? styles.otherContainer : styles.selfContainer]}>
         <ListItem.Content>
-          <ListItem.Title>{item.name}</ListItem.Title>
-          <ListItem.Subtitle>{item.desc}</ListItem.Subtitle>
+          <ListItem.Subtitle>{item.message}</ListItem.Subtitle>
         </ListItem.Content>
         <View style={styles.rightList}>
-          <Text style={styles.indicatorTime}>{item.last_timestamp}</Text>
-          <Badge value={item.unread} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15}} />
-        </View>
+          <Text style={styles.indicatorTime}>{item.timestamp}</Text>
+          </View>
       </ListItem>
     </ThemeProvider>
   );

@@ -31,7 +31,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 
 const window = Dimensions.get('window');
 
-class Contact extends React.Component<IProps, {}> {
+class List extends React.Component<IProps, {}> {
   keyboardDidShowListener: any;
   keyboardDidHideListener: any;
   constructor(props: IProps | Readonly<IProps>) {
@@ -64,8 +64,11 @@ class Contact extends React.Component<IProps, {}> {
       search: '',
     };
     this.updateSearch.bind(this);
+    this.navigateToSingle.bind(this);
   }
-
+  navigateToSingle = () => {
+    this.props.navigation.navigate('Single');
+  }
   updateSearch = (search) => {
     this.setState({search});
   };
@@ -106,7 +109,7 @@ class Contact extends React.Component<IProps, {}> {
             Recent
             </Card.Title>
             {manifestList.map((u, i) => (
-              <ListChat key={i} index={i} item={u} />
+              <ListChat key={i} index={i} item={u} toSingle={this.navigateToSingle} />
             ))}
           </Card>
         </View>
@@ -192,4 +195,4 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Contact);
+export default connect(mapStateToProps, mapDispatchToProps)(List);
