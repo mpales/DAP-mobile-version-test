@@ -9,7 +9,7 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {Input} from 'react-native-elements';
 import {Text, Button} from 'react-native-elements';
-import PanController from './pan-gesture';
+import PanController from './pan-controller';
 
 import {
   ProviderPropType,
@@ -208,6 +208,8 @@ class AnimatedMarkers extends React.Component {
     const panY = new Animated.Value(0);
     this.onPanYChange.bind(this);
     this.onPanXChange.bind(this);
+    this.onItemDetail.bind(this);
+    this.onPressedTraffic.bind(this);
     const scrollY = panY.interpolate({
       inputRange: [-1, 1],
       outputRange: [1, -1],
@@ -261,7 +263,7 @@ class AnimatedMarkers extends React.Component {
       panX,
       panY,
       animations,
-      canMoveHorizontal: true,
+      canMoveHorizontal: false,
       canMoveVertical: true,
       scrollY,
       scrollX,
@@ -279,9 +281,11 @@ class AnimatedMarkers extends React.Component {
       carousel: new Animated.Value(1),
       bottomPan: new Animated.Value(0),
       bottomSheet: React.createRef(),
+      itemHeadBool : true,
       toggleContainer: false,
       GeoJSON,
       trafficLayer: false,
+      trafficButton : false,
     };
     this.updateAnimated.bind(this);
     this.onLihatRincian.bind(this);
@@ -289,6 +293,13 @@ class AnimatedMarkers extends React.Component {
     this.onCompleteDelivery.bind(this);
   }
 
+  shouldComponentUpdate(nextProps, nextState){
+
+    if(nextState.index !== this.props.index && (nextState.itemHeadBool === this.state.itemHeadBool && nextState.toggleContainer === this.state.toggleContainer && nextState.trafficButton === this.state.trafficButton && nextState.trafficLayer === this.state.trafficLayer) ){
+      return false;
+    }
+    return true;
+  }
   componentDidUpdate(prevProps, prevState, snapshot)
   {
     if(prevProps.isTraffic !== this.props.isTraffic){
@@ -296,15 +307,15 @@ class AnimatedMarkers extends React.Component {
         this.setState({trafficLayer: false});
       }
     } else {
-      if(prevState.index !== this.state.index){
-        if(this.props.isTraffic){
-          let {duration_in_trafficAPI, durationAPI} = this.props.statAPI[this.state.index];
-          let secDiffinTraffic = duration_in_trafficAPI - durationAPI;
-          if(secDiffinTraffic > 40){
-            this.setState({trafficLayer: true});
-          }else {
-            this.setState({trafficLayer: false});
-          }
+      if(prevState.trafficButton !== this.state.trafficButton){
+        if(this.props.isTraffic && typeof this.props.statAPI[this.state.index] === 'object'){
+          let componentProps = this.props.statAPI[this.state.index];
+          let secDiffinTraffic = componentProps.duration_in_trafficAPI - componentProps.durationAPI;
+          if(secDiffinTraffic > 0 && this.state.trafficButton){
+              this.setState({trafficLayer: true});
+            }else {
+              this.setState({trafficLayer: false});
+            }
         }
       }
     }
@@ -312,7 +323,7 @@ class AnimatedMarkers extends React.Component {
   componentDidMount() {
     const {region, panX, panY, scrollX, route} = this.state;
     panX.addListener(this.onPanXChange);
-    panY.addListener(this.onPanYChange);
+   // panY.addListener(this.onPanYChange);
     region.stopAnimation();
     region
       .timing({
@@ -335,7 +346,7 @@ class AnimatedMarkers extends React.Component {
       duration: 200,
       useNativeDriver: false,
     }).start();
-    //this.props.setStartDelivered(true);
+    this.props.setStartDelivered(true);
     this.setState({toggleContainer: true});
     this.props.setBottomBar(false);
   };
@@ -347,23 +358,25 @@ class AnimatedMarkers extends React.Component {
     this.props.setBottomBar(true);
     this.props.navigation.navigate('Order');
   };
-  onStartShouldSetPanResponder = (e) => {
+  onStartShouldSetPanResponder = e => {
     // we only want to move the view if they are starting the gesture on top
     // of the view, so this calculates that and returns true if so. If we return
     // false, the gesture should get passed to the map view appropriately.
-    const {panY, route, index} = this.state;
-    const {pageY} = e.nativeEvent;
+    const { panY } = this.state;
+    const { pageY } = e.nativeEvent;
     const topOfMainWindow = ITEM_PREVIEW_HEIGHT + panY.__getValue();
     const topOfTap = screen.height - pageY;
-    return topOfTap < screen.height * 0.6 && topOfTap > screen.height * 0.5;
+
+    return true;
   };
 
-  onMoveShouldSetPanResponder = (e) => {
-    const {panY, route, index} = this.state;
-    const {pageY} = e.nativeEvent;
+  onMoveShouldSetPanResponder = e => {
+    const { panY } = this.state;
+    const { pageY } = e.nativeEvent;
     const topOfMainWindow = ITEM_PREVIEW_HEIGHT + panY.__getValue();
     const topOfTap = screen.height - pageY;
-    return topOfTap < screen.height * 0.6 && topOfTap > screen.height * 0.5;
+
+    return true;
   };
   updateAnimated = () => {
     const {route, index, panX, panY, scrollY} = this.state;
@@ -374,17 +387,12 @@ class AnimatedMarkers extends React.Component {
     });
   };
   onPanXChange = ({value}) => {
-    const {index, route, canMoveVertical, animations} = this.state;
+    const {index, route, animations} = this.state;
     const {coordinate} = route[index];
     const newIndex = Math.floor((-1 * value + SNAP_WIDTH / 2) / SNAP_WIDTH);
     if (index !== newIndex && newIndex < route.length && newIndex >= 0) {
-      this.setState({index: newIndex});
-      let {translateX, isNotIndex, center, xPos} = animations[newIndex];
-      Animated.timing(translateX, {
-        toValue: xPos,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
+    this.setState({index: newIndex});
+    this.setState({trafficLayer: false});
     } else {
       if (newIndex > route.length || newIndex < 0) {
         let {translateX, isNotIndex, center, xPos} = animations[index];
@@ -411,53 +419,18 @@ class AnimatedMarkers extends React.Component {
     } = this.state;
     console.log(value);
     const shouldBeMovable = value > 2;
-    if (shouldBeMovable !== canMoveHorizontal) {
-      this.setState({canMoveHorizontal: shouldBeMovable});
-      if (!shouldBeMovable) {
-        const {coordinate} = route[index];
-        region.stopAnimation();
-        region
-          .timing({
-            latitude: scrollY.interpolate({
-              inputRange: [0, BREAKPOINT1],
-              outputRange: [
-                coordinate.latitude,
-                coordinate.latitude - LATITUDE_DELTA * 0.5 * 0.375,
-              ],
-              extrapolate: 'clamp',
-            }),
-            latitudeDelta: scrollY.interpolate({
-              inputRange: [0, BREAKPOINT1],
-              outputRange: [LATITUDE_DELTA, LATITUDE_DELTA * 0.5],
-              extrapolate: 'clamp',
-            }),
-            longitudeDelta: scrollY.interpolate({
-              inputRange: [0, BREAKPOINT1],
-              outputRange: [LONGITUDE_DELTA, LONGITUDE_DELTA * 0.5],
-              extrapolate: 'clamp',
-            }),
-            duration: 0,
-          })
-          .start();
-      } else {
-        region.stopAnimation();
-        region
-          .timing({
-            latitude: scrollX.interpolate({
-              inputRange: route.map((m, i) => i * SNAP_WIDTH),
-              outputRange: route.map((m) => m.coordinate.latitude),
-            }),
-            longitude: scrollX.interpolate({
-              inputRange: route.map((m, i) => i * SNAP_WIDTH),
-              outputRange: route.map((m) => m.coordinate.longitude),
-            }),
-            duration: 0,
-          })
-          .start();
-      }
-    }
+   
   };
-
+  onItemDetail = () => {
+    const {itemHeadBool} = this.state;
+    this.setState({itemHeadBool: !itemHeadBool,canMoveHorizontal: itemHeadBool ? true : false});
+  }
+  onPressedTraffic = () => {
+    const {trafficButton,trafficLayer} = this.state;
+    if(!trafficButton === false)
+    this.setState({trafficLayer: false});
+    this.setState({trafficButton: !trafficButton});
+  };
   onRegionChange(/* region */) {
     // this.state.region.setValue(region);
   }
@@ -593,22 +566,20 @@ class AnimatedMarkers extends React.Component {
       toggleContainer,
       GeoJSON,
       index,
-      trafficLayer
+      trafficLayer,
+      itemHeadBool
     } = this.state;
 
-    const {
-      opacity,
-    } = animations[index];
 
     const {current,eta,to,distance,hour} = this.props.stat[index];
     return (
       <View style={styles.container}>
         <PanController
           style={styles.container}
-          vertical={canMoveVertical}
+          vertical={false}
           horizontal={canMoveHorizontal}
           xMode="snap"
-          snapSpacingX={ITEM_WIDTH * 1.47}
+          snapSpacingX={ITEM_WIDTH}
           yBounds={[-1 * screen.height, 0]}
           xBounds={[-screen.width * (route.length - 1), 0]}
           panY={panY}
@@ -629,7 +600,7 @@ class AnimatedMarkers extends React.Component {
               <View style={styles.itemLegend}>
                 <View style={styles.itemDivider} />
                     <Animated.View
-                      style={[styles.itemHead,{opacity:opacity}]}>
+                      style={[styles.itemHead,{opacity:itemHeadBool ? 1 : 0}]}>
                       <View style={styles.sectionDetail}>
                         <View style={styles.detailContent}>
                           <Text style={styles.orderTitle}>0</Text>
@@ -644,7 +615,7 @@ class AnimatedMarkers extends React.Component {
                         </View>
                         <TouchableOpacity
                           style={styles.buttonDetail}
-                          onPress={this.onLihatRincian}>
+                          onPress={this.onLihatDetail}>
                           <Text style={styles.detailTitle} h6>
                             Delivery Detail
                           </Text>
@@ -694,6 +665,7 @@ class AnimatedMarkers extends React.Component {
                         <Button
                           buttonStyle={styles.navigationButton}
                           titleStyle={styles.deliveryText}
+                          onPress={this.onLihatRincian}
                           title="Start delivery"
                         />
                       </View>
@@ -720,9 +692,9 @@ class AnimatedMarkers extends React.Component {
                     );
                   })}
                 </View>
-                <TouchableOpacity style={styles.buttonAll}>
+                <TouchableOpacity style={styles.buttonAll} onPressIn={this.onPressedTraffic} onPressOut={this.onPressedTraffic}>
                   <Text style={styles.buttonText}>
-                    See All
+                    Traffic
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -762,7 +734,7 @@ class AnimatedMarkers extends React.Component {
                     <View style={styles.sectionContentButton}>
                       <Button
                         buttonStyle={styles.contentButton}
-                        onPress={this.onLihatRincian}
+                        onPress={this.onItemDetail}
                         titleStyle={styles.contentButtonText}
                         title="See details"
                       />

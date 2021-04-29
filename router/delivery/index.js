@@ -21,7 +21,6 @@ import IconTime17Mobile from '../../assets/icon/iconmonstr-time-17 1mobile.svg';
 import IconLogout2Mobile from '../../assets/icon/iconmonstr-log-out-2 2mobile.svg';
 import Mixins from '../../mixins';
 import { ReactReduxContext } from 'react-redux'
-
 const screen = Dimensions.get('window');
 const Drawer = createDrawerNavigator();
 
@@ -51,8 +50,12 @@ class DeliveryNavigator extends React.Component {
     return Route;
   };
   backActionFilterBottomBar = () => {
-    this.props.setBottomBar(true);
-    
+    const {startDelivered} = this.props;
+    if(startDelivered){
+      this.props.setBottomBar(false); 
+    } else {
+      this.props.setBottomBar(true);
+    }
     /**
      * Returning false will let the event to bubble up & let other event listeners
      * or the system's default back action to be executed.
@@ -312,6 +315,7 @@ function mapStateToProps(state) {
     isDrawer : state.filters.isDrawer,
     bottomBar: state.filters.bottomBar,
     indexBottomBar : state.filters.indexBottomBar,
+    startDelivered : state.filters.onStartDelivered,
   };
 }
 
