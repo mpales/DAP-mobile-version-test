@@ -42,15 +42,76 @@ export default class Util {
         }).length === order.length;
     };
     //orders = {1:coordinate, 2: coordinate, 3: coordinate}
+    translateToTotalRoute = (orders) => {
+        var tempArray: any[][] = [];
+        var stats: any[] = [];
+        
+
+            var latLngToBeFound = L.latLng(orders[0]);
+            //get summary distance 
+            // let test = this.setLatLng(orders).findIndex(x => x.equals( this.markers[this.markers.length - 1].getLatLng()));
+             
+            var latLngNextToBeFound = L.latLng(orders[orders.length -1]);
+            var saved = false;
+            var double = false;
+            var totalRoute = [];
+            this.layerArray.forEach((layer,i,arr) => {
+                let latLng = layer.getLatLngs();
+                var leg: any[] = [];
+                latLng.forEach((element,index) => {
+                    if(latLngToBeFound.equals(element) || latLngNextToBeFound.equals(element)){
+                    leg.push(index);
+                    } 
+                });
+
+                let segment = leg.length > 1 ? false : true ;
+
+                saved = segment && !saved ? true : !segment && saved ? true : false;
+
+                if(leg.length > 1){
+                    totalRoute= layer;
+                } else if((segment || saved) && Array.isArray(totalRoute)){
+                    //non double saved delete the array
+                    totalRoute.push(layer);
+                    if(segment && !saved)
+                    double = true;
+                }
+            });
+            if(!double && Array.isArray(totalRoute))
+            return false;
+    
+        
+        let layer: any[] = [];
+            //segment
+            if(Array.isArray(totalRoute)){
+                totalRoute.forEach(element => {
+                    layer.push(...element.getLatLngs());
+                });
+            } else {
+            layer.push(...totalRoute.getLatLngs());
+            }   
+            
+            if(this.geoLocation){
+                layer.splice(0,0,L.latLng([this.geoLocation.lat,this.geoLocation.lng]));
+            }
+          
+            let GEO = new Geo;
+            let items = GEO.setItem(layer);
+            let distance = GEO.getDistanceRoute();
+            let chrono = GEO.getChronoByDistance();
+         
+
+        return {dist: distance, chrono: chrono.chrono ,distance:Math.round(distance/1000),eta:chrono.eta,hour:chrono.hour, current: layer[1].lat +","+ layer[1].lng, to: layer[layer.length -1].lat + ","+ layer[layer.length -1].lng};
+    }
     translateToStats = (orders) => {       
         var tempArray: any[][] = [];
         var stats: any[] = [];
         
         orders.forEach((element,index, array) => {
             var latLngToBeFound = L.latLng(element);
-            let test = this.setLatLng(orders).findIndex(x => x.equals( this.markers[this.markers.length - 1].getLatLng()));
-           
-            let next = index < array.length - 1 ? index + 1 : test;
+            //get summary distance 
+            // let test = this.setLatLng(orders).findIndex(x => x.equals( this.markers[this.markers.length - 1].getLatLng()));
+            let next = index < array.length - 1 ? index + 1 : array.length - 2;
            
             var latLngNextToBeFound = L.latLng(orders[next]);
             var saved = false;
@@ -95,15 +156,15 @@ export default class Util {
             }   
             
             if(this.geoLocation){
-                layer.splice(0,0,[this.geoLocation.lat,this.geoLocation.lng]);
+                layer.splice(0,0,L.latLng([this.geoLocation.lat,this.geoLocation.lng]));
             }
-
+          
             let GEO = new Geo;
             let items = GEO.setItem(layer);
             let distance = GEO.getDistanceRoute();
             let chrono = GEO.getChronoByDistance();
          
-            stats[index] = {key: index,dist: distance, chrono: chrono.chrono ,distance:Math.round(distance/1000),eta:chrono.eta,hour:chrono.hour, current: layer[0].lat +","+ layer[0].lng, to: layer[layer.length -1].lat + ","+ layer[layer.length -1].lng};
+            stats[index] = {key: index,dist: distance, chrono: chrono.chrono ,distance:Math.round(distance/1000),eta:chrono.eta,hour:chrono.hour, current: layer[1].lat +","+ layer[1].lng, to: layer[layer.length -1].lat + ","+ layer[layer.length -1].lng};
         });
         return stats;
     }; 

@@ -370,11 +370,11 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
   return {
-    todos: state.todos,
-    textfield: state.todos.name,
-    value: state.todos.name,
-    userRole: state.userRole,
-    isDrawer: state.filters.isDrawer,
+    todos: state.originReducer.todos,
+    textfield: state.originReducer.todos.name,
+    value: state.originReducer.todos.name,
+    userRole: state.originReducer.userRole,
+    isDrawer: state.originReducer.filters.isDrawer,
   };
 }
 

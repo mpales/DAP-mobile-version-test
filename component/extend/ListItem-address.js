@@ -212,7 +212,7 @@ const Manifest = ({item, index, drag, isActive, navigation}) => {
                   <IconArrow66Mobile height="16" width="26" fill="#2D2C2C"/>
                 }
               />)}
-            onPress={() => navigation.navigate('Navigation')}
+            onPress={() => navigation(index)}
           />
         </View>
       </ListItem>

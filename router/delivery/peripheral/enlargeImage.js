@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
     return {
-        photoProofList: state.photoProofList,
+        photoProofList: state.originReducer.photoProofList,
     };
 }
   

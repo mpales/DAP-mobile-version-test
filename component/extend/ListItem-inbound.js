@@ -74,7 +74,7 @@ const theme = {
     containerStyle: styles.sectionContainer,
   },
 };
-const Manifest = ({item, index, isActive}) => {
+const Manifest = ({item, index, isActive, navigation}) => {
   return (
     <ThemeProvider theme={theme}>
       <ListItem
@@ -87,10 +87,10 @@ const Manifest = ({item, index, isActive}) => {
         </View>
         <ListItem.Content style={styles.sectionContainer}>
         <ListItem.Title style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
-        {item.name}
+        PO Number
         </ListItem.Title>
         <ListItem.Subtitle style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
-        {item.subtitle}
+        {item.code}
         </ListItem.Subtitle>
         </ListItem.Content>
         <ListItem.Chevron
@@ -104,7 +104,7 @@ const Manifest = ({item, index, isActive}) => {
                   <IconArrow66Mobile height="16" width="26" fill="#2D2C2C"/>
                 }
               />)}
-            onPress={() => navigation.navigate('Navigation')}
+            onPress={() => navigation.navigate('ReceivingDetail')}
           />
       </ListItem>
     </ThemeProvider>

@@ -9,32 +9,40 @@
  */
 
 import React from 'react';
-import store from './Store';
+import configureStore from './Store';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
+  ActivityIndicator,
+  Linking,
+  Platform,
   StyleSheet,
   ScrollView,
   View,
-  Button,
   StatusBar,
   TouchableOpacity,
   Text,
   Keyboard,
+  InteractionManager
 } from 'react-native';
 import {
-  Image,
+  Image, Overlay, Button
 } from 'react-native-elements';
+import Loading from './component/loading/loading';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Signature from './Browser';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, TabRouter  } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import Mixins from './mixins';
 import {Input} from './input';
 import {FadeInView} from './animated';
 import {AnyAction, Dispatch} from 'redux';
-import {connect, Provider} from 'react-redux';
+import {connect, Provider, shallowEqual, useSelector ,useDispatch} from 'react-redux';
 import Beranda from './router/details';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {enableScreens} from 'react-native-screens';
+import { useIsConnected, ReduxNetworkProvider, offlineActionCreators} from 'react-native-offline';
+import { PersistGate } from 'redux-persist/integration/react';
+import Checkmark from './assets/icon/iconmonstr-check-mark-8mobile.svg';
 
 enableScreens(false);
 class App extends React.Component<IProps, {}> {
@@ -239,6 +247,15 @@ const styles = StyleSheet.create({
   highlight: {
     fontWeight: '700',
   },
+  deliveryText: {
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#ffffff',
+  },
+  navigationButton: {
+    backgroundColor: '#F07120',
+    borderRadius: 5,
+  },
 });
 
 interface IProps {
@@ -255,11 +272,11 @@ interface dispatch {
   type: string;
   payload: {};
 }
-function mapStateToProps(state: {todos: {name: any}}) {
+function mapStateToProps(state) {
   return {
-    todos: state.todos,
-    textfield: state.todos.name,
-    value: state.todos.name,
+    todos: state.originReducer.todos,
+    textfield: state.originReducer.todos.name,
+    value: state.originReducer.todos.name,
   };
 }
 
@@ -275,10 +292,49 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
 
 const ConnectedApp = connect(mapStateToProps, mapDispatchToProps)(App);
 const Stack = createStackNavigator();
-const Root = () => {
+const NavigationWrapper = (props)=> {
+  const isConnected = useSelector(state => state.network.isConnected);
+  const isGlobalLoading = useSelector(state => state.originReducer.filters.isGlobalLoading);
+  const isActionQueue = useSelector(state => state.network.actionQueue);
+  const dispatch = useDispatch();
+  const [visible, setVisible] = React.useState(false);
+  const { changeQueueSemaphore } = offlineActionCreators;
+
+  const toggleOverlay = () => {
+    setVisible(!visible);
+  };
+
+    const filterLoading = React.useCallback(
+      (state) => {
+        dispatch({ type: 'GlobalLoading', payload: true})
+        const task = InteractionManager.runAfterInteractions(() => dispatch({ type: 'GlobalLoading', payload: false }));
+        return () => task.cancel();
+      },
+      [dispatch]
+    );
+    React.useEffect(() => {
+
+      if(!isConnected){
+        dispatch(changeQueueSemaphore('RED'));
+      } 
+    }, [isConnected]); // Only re-run the effect if count changes
+
+return  (
+<NavigationContainer
+onStateChange={filterLoading} {...props} />
+);
+}
+
+const Root = (props) => {
+
+  const [isLoading, setLoading] = React.useState(true);
+  const {store,persistor} = configureStore(() => setLoading(false));
+  if (isLoading) return null;
   return (
     <Provider store={store}>
-      <NavigationContainer>
+        <PersistGate loading={null} persistor={persistor}>
+      <ReduxNetworkProvider>
+      <NavigationWrapper>
         <Stack.Navigator
           initialRouteName="Home"
           headerMode="screen"
@@ -303,7 +359,9 @@ const Root = () => {
             }}
           />
         </Stack.Navigator>
-      </NavigationContainer>
+      </NavigationWrapper>
+      </ReduxNetworkProvider>
+      </PersistGate>
     </Provider>
   );
 };

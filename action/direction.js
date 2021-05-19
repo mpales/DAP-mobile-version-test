@@ -2,7 +2,7 @@ import fetch from 'cross-fetch';
 const polyUtil = require('polyline-encoded');
 import { v5 as uuidv5 } from 'uuid';
 import Geohash from 'latlon-geohash';
-
+import { offlineActionCreators } from 'react-native-offline';
 
 // Define a custom namespace. 
 const MY_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
@@ -16,12 +16,20 @@ export const setDirections = (markers) => {
       geohash.splice(1,0,last);
 
     let uuid = uuidv5(geohash.join(), MY_NAMESPACE); // ⇨ '630eb68f-e0fa-5ecc-887a-7c7a62614681'
-    return dispatch => {
+    const thunk = (dispatch, getState) => {
         dispatch({
             type: 'MarkerOrdered',
             payload: {orders: markers, uuid: uuid},
           });
-      };    
+      };  
+      thunk.interceptInOffline = true;
+
+      thunk.meta = {
+        retry: true,
+        name: 'setDirections',
+        args: [markers],
+      };
+    return thunk;
 }
 export const getDirectionsAPI = (orders) => {
     let geohash = Array.from({length:orders.length}).map((num,index)=>{
@@ -43,7 +51,7 @@ export const getDirectionsAPI = (orders) => {
     waypoints = '&waypoints='+waypoints.join('|');
 
     let string = 'origin='+origin[0].lat+','+origin[0].lng+'&destination='+destination[0].lat+','+destination[0].lng+waypoints+'&key=AIzaSyCPhiV06uZ7rSLq2hOfeu_OXgVZ0PXVooQ';
-    return dispatch => {
+    const thunk = (dispatch, getState) => {
     fetch('https://maps.googleapis.com/maps/api/directions/json?'+string)
     .then(res => {
     if (res.status >= 400) {
@@ -80,10 +88,18 @@ export const getDirectionsAPI = (orders) => {
         }
     })
     .catch(err => {
-    console.error(err);
+        dispatch(offlineActionCreators.fetchOfflineMode(thunk));
     });
     
     };
+    thunk.interceptInOffline = true;
+
+    thunk.meta = {
+      retry: true,
+      name: 'getDirectionsAPI',
+      args: [orders],
+    };
+  return thunk;
 };
 
 
@@ -104,7 +120,7 @@ export const getDirectionsAPIWithTraffic = (orders) => {
     const urls = Array.from({length:orders.length}).map((element,index) => {
         let origin, destination;
         if(index === orders.length - 1){
-        origin = orders[index-1];
+        origin = orders[orders.length - 2];
         destination = orders[index];
         }else {
         origin = orders[index];
@@ -113,7 +129,7 @@ export const getDirectionsAPIWithTraffic = (orders) => {
         let string = 'origin='+origin.lat+','+origin.lng+'&destination='+destination.lat+','+destination.lng+'&departure_time=now&key=AIzaSyCPhiV06uZ7rSLq2hOfeu_OXgVZ0PXVooQ';
         return 'https://maps.googleapis.com/maps/api/directions/json?' + string;
     });
-    return dispatch => {
+    const thunk = (dispatch, getState) => {
         const requests = urls.map((url) => fetch(url));
         
             Promise.all(requests)
@@ -144,7 +160,7 @@ export const getDirectionsAPIWithTraffic = (orders) => {
                         ///}
                 
                         
-                        if(directions.routes[0].legs[0].hasOwnProperty('steps') && directions.routes[0].legs[0].steps.length > 0)
+                        if(index < arr.length -1 && directions.routes[0].legs[0].hasOwnProperty('steps') && directions.routes[0].legs[0].steps.length > 0)
                             directions.routes[0].legs[0].steps.forEach(element => {
                                 steps.push([element.start_location.lat,element.start_location.lng]);
                                 let decode = polyUtil.decode(element.polyline.points);
@@ -162,8 +178,19 @@ export const getDirectionsAPIWithTraffic = (orders) => {
             })
             .catch((errors) => {
                 errors.forEach((error) => console.error(error));
+                
+            dispatch(offlineActionCreators.fetchOfflineMode(thunk));
             });
     };
+    
+    thunk.interceptInOffline = true;
+
+    thunk.meta = {
+      retry: true,
+      name: 'getDirectionsAPIWithTraffic',
+      args: [orders],
+    };
+  return thunk;
 };
 export const setRouteStats = (markers,stats) => {
     
@@ -174,11 +201,17 @@ export const setRouteStats = (markers,stats) => {
       geohash.splice(1,0,last);
 
     let uuid = uuidv5(geohash.join(), MY_NAMESPACE); // ⇨ '630eb68f-e0fa-5ecc-887a-7c7a62614681'
-    return dispatch => {
+    const thunk = (dispatch, getState) => {
         dispatch({
             type: 'RouteStats',
             payload: {stats : stats ,uuid: uuid},
           });
     };
+    thunk.meta = {
+        retry: true,
+        name: 'setRouteStats',
+        args: [markers,stats],
+      };
+    return thunk;
 }    
   

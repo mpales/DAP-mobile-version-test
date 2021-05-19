@@ -1,6 +1,6 @@
 import React from 'react';
-import {Avatar, Text, Button, Input, Badge} from 'react-native-elements';
-import {View} from 'react-native';
+import {Avatar, Text, Button, Input, Badge,Overlay} from 'react-native-elements';
+import {View,TouchableOpacity, Dimensions} from 'react-native';
 import IconSpeech26 from '../../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
 import IconPen7 from '../../../assets/icon/iconmonstr-pen-7 1mobile.svg';
@@ -9,18 +9,36 @@ import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg'
 import Signature from '../peripheral/signature';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
+const window = Dimensions.get('window');
 
 class POD extends React.Component {
   constructor(props) {
     super(props);
+    const {routes, index} = this.props.navigation.dangerouslyGetState();
+    const singleData = this.props.dataPackage[routes[index].params.index];
+ 
     this.state = {
+      singleData: singleData,
       bottomSheet: false,
       isShowSignature: false,
+      _visibleOverlay : false,
+      indexPackage : routes[index].params.index,
     };
     this.navigateToCamera.bind(this);
     this.submitSignature.bind(this);
+    this.toggleOverlay.bind(this);
+    this.onLihatDetail.bind(this);
   }
-
+  onLihatDetail = () => {
+    this.props.setBottomBar(true);
+    const {routes, index} = this.props.navigation.dangerouslyGetState();
+    this.props.navigation.navigate({
+      routeName: 'Package',
+      params: {
+        index: routes[index].params.index,
+      }
+    });
+  };
   navigateToCamera = () => {
     this.props.setBottomBar(false);
     this.props.navigation.navigate('Camera')
@@ -35,21 +53,44 @@ class POD extends React.Component {
     this.props.signatureSubmittedHandler(true);
     this.showSignatureHandler();
   };
+  toggleOverlay =()=> {
+    const {_visibleOverlay} = this.state;
+    this.setState({_visibleOverlay: !_visibleOverlay})
+  }
+
+  handleConfirm = ({action}) => {
+    this.toggleOverlay();
+    if(action) {
+      this.props.setStartDelivered(false);
+      this.props.navigation.navigate('Completed');
+    }
+  }
+  componentDidMount(){
+    const {routes, index} = this.props.navigation.dangerouslyGetState();
+    const singleData = this.props.dataPackage[routes[index].params.index];
+    this.setState({singleData:singleData,indexPackage:routes[index].params.index});
+  }
+  componentDidUpdate(prevProps, prevState, snapshot){
+    const {routes, index} = this.props.navigation.dangerouslyGetState();
+    const singleData = this.props.dataPackage[routes[index].params.index];
+    if(this.state.indexPackage !== routes[index].params.index)
+    this.setState({singleData:singleData,indexPackage:routes[index].params.index});
+  }
 
   render(){
+    const {named,packages,Address,list} = this.state.singleData;
     return (
       <>
         <View style={{flex: 1, backgroundColor: 'white', paddingHorizontal: 22}}>
           <View style={styles.sectionInput}>
             <View style={styles.inputContainer}>
-              <Text style={styles.inputHead}>#323344567553</Text>
               <Input
                 containerStyle={{padding:0, margin: 0,marginVertical: 0,}}
                 inputContainerStyle={{padding:0,margin:0,}}
                 labelStyle={styles.labelStyle}
                 inputStyle={styles.inputStyle}
                 errorStyle={styles.inputErrorStyle}
-                placeholder="John"
+                placeholder={named}
                 label="Name"
               />
               <Input
@@ -59,7 +100,7 @@ class POD extends React.Component {
                 labelStyle={styles.labelStyle}
                 inputStyle={styles.inputStyle}
                 errorStyle={styles.inputErrorStyle}
-                placeholder="Jln. Raja H Fisabiliah, Post 5, Kota"
+                placeholder={Address}
                 label="Address"
               />
               <Input
@@ -78,6 +119,13 @@ class POD extends React.Component {
                 placeholder="Please put in lobby"
                 label="Instruction"
               />
+                <TouchableOpacity
+            style={styles.buttonDetail}
+            onPress={() => this.onLihatDetail()}>
+            <Text style={styles.detailTitle} h6>
+              Delivery Detail
+            </Text>
+          </TouchableOpacity>
             </View>
           </View>
           <View style={styles.sectionButtonGroup}>
@@ -171,6 +219,9 @@ class POD extends React.Component {
               buttonStyle={styles.navigationButton}
               titleStyle={styles.deliveryText}
               title="Submit"
+              onPress={()=>{
+                this.toggleOverlay();
+              }}
             />
             <View style={[styles.sectionDividier, {marginVertical: 12}]}>
               <Button
@@ -189,6 +240,9 @@ class POD extends React.Component {
                 )}
                 title="Chat Client"
                 titleStyle={{color: '#fff', ...Mixins.subtitle3, lineHeight: 21}}
+                onPress={()=>{
+                  this.props.setBottomBar(false);
+                  this.props.navigation.navigate('Notification', { screen: 'Single' })}}
                 buttonStyle={{backgroundColor: '#F07120'}}
               />
             </View>
@@ -200,6 +254,24 @@ class POD extends React.Component {
             signatureSubmittedHandler={this.props.signatureSubmittedHandler}
           />
         }
+         <Overlay fullScreen={false} overlayStyle={styles.containerStyleOverlay} isVisible={this.state._visibleOverlay} onBackdropPress={this.toggleOverlay}>
+          <Text style={styles.confirmText}>Are you sure you want to 
+Submit the POD?</Text>
+          <View style={styles.cancelButtonContainer}>
+            <TouchableOpacity 
+              style={[styles.cancelButton, {borderWidth: 1, borderColor: '#ABABAB'}]}
+              onPress={() => this.handleConfirm({action: false})}
+            >
+            <Text style={[styles.cancelText, {color: '#6C6B6B'}]}>No</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.cancelButton, {backgroundColor: '#F07120'}]}
+              onPress={() => this.handleConfirm({action: true})}
+            >
+              <Text style={[styles.cancelText, {color: '#fff'}]}>Yes</Text>
+            </TouchableOpacity>
+          </View>
+        </Overlay>
       </>
     );
   }
@@ -294,22 +366,69 @@ const styles = {
     elevation: 8,
     paddingHorizontal: 20,
     paddingBottom: 5,
-    paddingTop: 0,
+    paddingTop: 15,
   },
   checkmark: {
     position: 'absolute', 
     bottom: 62, 
     right: 16
   },
+  containerStyleOverlay: {
+    position:'absolute',
+    bottom:0,
+    right:0,
+    left:0,
+    height:window.height * 0.3,
+    borderTopRightRadius: 20, 
+    borderTopLeftRadius: 20,
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+  },
+  cancelButtonContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
+  confirmText: {
+    fontSize: 20,
+    textAlign: 'center',
+  },
+  cancelButton: {
+    width: '40%',
+    height: 40,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+  },
+  buttonDetail: {
+    flexShrink: 0,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 5,
+    backgroundColor: '#F1811C',
+    alignSelf: 'center',
+    alignItems: 'center',
+    height: 35,
+    width: 130,
+  },
+  detailTitle: {
+...Mixins.small3,
+lineHeight: 12,
+    fontWeight: '600',
+    color: 'white',
+  },
 };
 function mapStateToProps(state) {
   return {
-    todos: state.todos,
-    textfield: state.todos.name,
-    value: state.todos.name,
-    userRole: state.userRole,
-    isPhotoProofSubmitted: state.filters.isPhotoProofSubmitted,
-    isSignatureSubmitted: state.filters.isSignatureSubmitted,
+    todos: state.originReducer.todos,
+    textfield: state.originReducer.todos.name,
+    value: state.originReducer.todos.name,
+    userRole: state.originReducer.userRole,
+    isPhotoProofSubmitted: state.originReducer.filters.isPhotoProofSubmitted,
+    isSignatureSubmitted: state.originReducer.filters.isSignatureSubmitted,
+    dataPackage: state.originReducer.route.dataPackage,
   };
 }
 

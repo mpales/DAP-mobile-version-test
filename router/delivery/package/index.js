@@ -1,6 +1,6 @@
 import React from 'react';
 import {Avatar, Text, Button} from 'react-native-elements';
-import {View} from 'react-native';
+import {View, ScrollView} from 'react-native';
 import IconPaperMobile from '../../../assets/icon/iconmonstr-paper-plane-2mobile.svg';
 import IconSpeechMobile from '../../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import IconVector from '../../../assets/icon/Vector.svg';
@@ -10,86 +10,110 @@ import Mixins from '../../../mixins';
 class Packages extends React.Component {
   constructor(props) {
     super(props);
-    
+    const {routes, index} = this.props.navigation.dangerouslyGetState();
+    const singleData = this.props.dataPackage[routes[index].params.index];
+    this.state = {
+      singleData: singleData,
+      indexPackage : routes[index].params.index,
+    };
+  }
+  componentDidMount(){
+    const {routes, index} = this.props.navigation.dangerouslyGetState();
+    const singleData = this.props.dataPackage[routes[index].params.index];
+    this.setState({singleData:singleData,indexPackage:routes[index].params.index});
+  }
+  componentDidUpdate(prevProps, prevState, snapshot){
+    const {routes, index} = this.props.navigation.dangerouslyGetState();
+    const singleData = this.props.dataPackage[routes[index].params.index];
+    if(this.state.indexPackage !== routes[index].params.index)
+    this.setState({singleData:singleData,indexPackage:routes[index].params.index});
   }
 
   render() {
+    const {named,packages,Address,list} = this.state.singleData;
+    console.log(this.state.singleData);
     return (
-      <View style={{flex: 1, backgroundColor: 'white', paddingHorizontal: 25}}>
-        <View style={styles.sectionHeadPackage}>
-          <Text style={styles.headTitle}>Name</Text>
-          <Text style={styles.headSubtitle}>#323344567553</Text>
-        </View>
-        <View style={styles.sectionLegend}>
-          <View style={styles.sectionMarker}>
-            <Avatar
-              size="small"
-              rounded
-              containerStyle={styles.markerPoint}
-              title="A"
-              overlayContainerStyle={{backgroundColor: '#F1811C'}}
-            />
-            <Text style={styles.legendLabel}>Drop off</Text>
-          </View>
-          <View style={styles.sectionInfo}>
-            <View style={styles.markerIcon}>
-              <IconPaperMobile height="15" width="15" fill="#7177AE" />
-            </View>
-            <Text style={styles.markerLabel}>
-              Location Company Chang i 26th, Singapore
-            </Text>
-          </View>
-          <View style={styles.sectionInfo}>
-            <View style={styles.markerIcon}>
-              <IconVector height="15" width="15" fill="#7177AE" />
-            </View>
-            <Text style={styles.markerLabel}>09.00 -10.00 a.m</Text>
-          </View>
-          <View style={styles.sectionInfo}>
-            <View style={styles.markerIcon}>
-              <IconSpeechMobile height="15" width="15" fill="#7177AE" />
-            </View>
-            <Text style={styles.markerLabel}>
-              Delivery Instruction Put in the lobby only
-            </Text>
-          </View>
-        </View>
-        <View style={styles.sectionPackage}>
-          <Text style={styles.titlePackage}>Package Detail</Text>
-          <View style={styles.sectionDividier}>
-            <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Transfer</Text>
-              <Text style={styles.infoPackage}>Van</Text>
-            </View>
-            <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Commodity</Text>
-              <Text style={styles.infoPackage}>Dry Food</Text>
-            </View>
-          </View>
-          <View style={styles.sectionDividierRight}>
-            <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Packaging type</Text>
-              <Text style={styles.infoPackage}>20 pallet</Text>
-            </View>
-            <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Weight</Text>
-              <Text style={styles.infoPackage}>23.00 Kg</Text>
-            </View>
-          </View>
-        </View>
+      <ScrollView style={{flex: 1, backgroundColor: 'white', paddingHorizontal: 10}}>
+       {!this.props.startDelivered && (
+         <>
+              <View style={styles.sectionHeadPackage}>
+              <Text style={styles.headTitle}>{named}</Text>
+              </View>
+              <View style={styles.sectionLegend}>
+              <View style={styles.sectionMarker}>
+                <Avatar
+                  size="small"
+                  rounded
+                  containerStyle={styles.markerPoint}
+                  title="A"
+                  overlayContainerStyle={{backgroundColor: '#F1811C'}}
+                />
+                <Text style={styles.legendLabel}>Drop off</Text>
+              </View>
+              <View style={styles.sectionInfo}>
+                <View style={styles.markerIcon}>
+                  <IconPaperMobile height="15" width="15" fill="#7177AE" />
+                </View>
+                <Text style={styles.markerLabel}>
+                 {Address}
+                </Text>
+              </View>
+              <View style={styles.sectionInfo}>
+                <View style={styles.markerIcon}>
+                  <IconVector height="15" width="15" fill="#7177AE" />
+                </View>
+                <Text style={styles.markerTime}>09.00 -10.00 a.m</Text>
+              </View>
+              <View style={styles.sectionInfo}>
+                <View style={styles.markerIcon}>
+                  <IconSpeechMobile height="15" width="15" fill="#7177AE" />
+                </View>
+                <Text style={styles.markerLabel}>
+                  Delivery Instruction Put in the lobby only
+                </Text>
+              </View>
+              </View>
+              </>
+       )}
+         { list.map((element, i) => 
+                <View style={styles.sectionPackage}>
+                  <Text style={styles.headSubtitle}>{element.id}</Text>
+                    <Text style={styles.titlePackage}>Package Detail</Text>
+                    <View style={styles.sectionDividier}>
+                      <View style={[styles.dividerContent,{flex:2}]}>
+                        <Text style={styles.labelPackage}>Package Number</Text>
+                        <Text style={styles.infoPackage}>{element.package}</Text>
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelPackage}>Weight</Text>
+                        <Text style={styles.infoPackage}>{element.weight}</Text>
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelPackage}>CBM</Text>
+                        <Text style={styles.infoPackage}>{element.CBM}</Text>
+                      </View>
+                    </View>
+            
+                  </View>
+          )}
+       
+        {!this.props.startDelivered && (
         <View style={styles.sectionButton}>
           <Button
             buttonStyle={styles.navigationButton}
             titleStyle={styles.deliveryText}
             title="Start delivery"
           />
-        </View>
-      </View>
+        </View>)}
+      </ScrollView>
     );
   }
 }
 
 const styles = {
+  sectionButton: {
+    marginVertical: 25,
+  },
   filterContainer: {
     flexShrink: 1,
     marginVertical: 15,
@@ -105,8 +129,21 @@ const styles = {
   sectionPackage: {
     flexDirection: 'column',
     flexShrink: 1,
-    marginVertical: 24,
-    marginHorizontal: 20,
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginBottom: 10,
+    marginHorizontal: 10,
+    backgroundColor: '#fff',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.27,
+    shadowRadius: 4.65,
+    
+    elevation: 6,
   },
   titlePackage: {
     ...Mixins.h4,
@@ -146,7 +183,7 @@ const styles = {
   },
   sectionHeadPackage: {
     flexDirection: 'column',
-    marginHorizontal: 5,
+    marginHorizontal: 25,
     marginTop: 25,
   },
   headTitle: {
@@ -161,7 +198,7 @@ const styles = {
     flexDirection: 'column',
     marginBottom: 30,
     marginTop: 13,
-    marginHorizontal: 5,
+    marginHorizontal: 25,
   },
   legendLabel: {
     flexShrink: 1,
@@ -171,7 +208,7 @@ lineHeight: 16,
   },
   sectionInfo: {
     flexDirection: 'row',
-    marginHorizontal: 20,
+    marginHorizontal: 35,
     marginVertical: 5,
   },
   markerIcon: {
@@ -181,7 +218,13 @@ lineHeight: 16,
   markerLabel: {
     color: '#6C6B6B',
     ...Mixins.body3,
-    fontHeight: 18,
+    lineHeight: 18,
+    fontWeight: '400',
+  },
+  markerTime: {
+    color: '#F07120',
+    ...Mixins.body3,
+    lineHeight: 18,
     fontWeight: '400',
   },
   markerPoint: {
@@ -196,7 +239,9 @@ lineHeight: 16,
 
 function mapStateToProps(state) {
   return {
-    bottomBar: state.filters.bottomBar,
+    bottomBar: state.originReducer.filters.bottomBar,
+    startDelivered : state.originReducer.filters.onStartDelivered,
+    dataPackage: state.originReducer.route.dataPackage,
   };
 }
 

@@ -4,8 +4,9 @@ import Camera from '../peripheral/camera';
 import POD from './POD';
 import EnlargeImage from '../peripheral/enlargeImage';
 import ImageConfirmation from '../peripheral/imageConfirmation';
+import Completed from './completed';
 import {connect} from 'react-redux';
-import {createStackNavigator,HeaderBackButton} from '@react-navigation/stack';
+import {createStackNavigator,HeaderBackButton, Header} from '@react-navigation/stack';
 import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
 // icons
@@ -21,6 +22,7 @@ class Example extends React.Component {
       isShowCamera: false,
     };
     this.orderTab.bind(this);
+    this.setWrapperofStack.bind(this);
   }
 
   submitPhotoProof = () => {
@@ -30,11 +32,26 @@ class Example extends React.Component {
       this.props.navigation.navigate('Order', {screen: 'Order'});
     }
   }
-  
+  setWrapperofStack = (index,key) => {
+    const {indexBottomBar} = this.props;
+    console.log(indexBottomBar + key);
+    if(indexBottomBar === 1){
+      this.props.setCurrentStackKey(key);
+      this.props.setCurrentStackIndex(index);
+    }
+  }
   orderTab = createCompatNavigatorFactory(createStackNavigator)(
     {
       Order: {
         screen: POD,
+        options: {
+          title: 'Awesome app',
+        },
+      },
+      Completed: {
+        screen: (props) => {
+          this.props.navigation.setOptions({headerTransparent:false, headerShown: true});
+          return (<Completed {...props}/>);},
         options: {
           title: 'Awesome app',
         },
@@ -111,15 +128,19 @@ class Example extends React.Component {
     },
     {
       initialRouteName:"Order",
-      headerMode:"none",
-      screenOptions:{
-        headerTintColor: 'white',
-        headerStyle: {backgroundColor: 'tomato'},
-        headerShown: false,
+      headerMode: 'screen',
+      defaultNavigationOptions: {
+        header: (props) => {
+          let state = props.navigation.dangerouslyGetState();
+          let key =  state.routes[state.index].name;
+          let index = state.index;
+          this.setWrapperofStack(index,key);
+        },
       },
     }
   );
   render(){
+    console.log('navigation switch');
     this.props.navigation.setOptions({headerTransparent:false});
     this.props.navigation.setOptions({   headerLeft: (props) => {
       return(
@@ -136,11 +157,14 @@ class Example extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    todos: state.todos,
-    textfield: state.todos.name,
-    value: state.todos.name,
-    userRole: state.userRole,
-    photoProofList: state.photoProofList,
+    todos: state.originReducer.todos,
+    textfield: state.originReducer.todos.name,
+    value: state.originReducer.todos.name,
+    userRole: state.originReducer.userRole,
+    photoProofList: state.originReducer.photoProofList,
+    indexBottomBar : state.originReducer.filters.indexBottomBar,
+    indexStack : state.originReducer.filters.indexStack,
+    keyStack : state.originReducer.filters.keyStack,
   };
 }
 
@@ -156,6 +180,12 @@ const mapDispatchToProps = (dispatch) => {
     },
     photoProofSubmittedHandler : (proof) => dispatch({type:'PhotoProof',payload:proof}),
     addPhotoProofList: (uri) => dispatch({type: 'PhotoProofList', payload: uri}),
+    setCurrentStackKey: (string) => {
+      return dispatch({type: 'keyStack', payload: string});
+    },
+    setCurrentStackIndex: (num) => {
+      return dispatch({type: 'indexStack', payload: num});
+    },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };
