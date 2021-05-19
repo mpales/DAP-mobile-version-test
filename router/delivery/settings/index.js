@@ -181,7 +181,7 @@ lineHeight: 16,
 
 function mapStateToProps(state) {
   return {
-    isTraffic: state.filters.isTraffic,
+    isTraffic: state.originReducer.filters.isTraffic,
   };
 }
 

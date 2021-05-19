@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
-import {View, TouchableOpacity, PermissionsAndroid } from 'react-native';
+import {View, TouchableOpacity, PermissionsAndroid, Switch} from 'react-native';
 import {SearchBar, Badge, Divider, Text} from 'react-native-elements';
 import DraggableFlatList from 'react-native-draggable-flatlist';
-import addressList from '../../../component/extend/ListItem-map';
+import AddressList from '../../../component/extend/ListItem-map';
 import Map from '../../../component/map/map-address';
 import {connect} from 'react-redux';
 import { bindActionCreators } from 'redux'
+import {setDataOrder} from '../../../action/index';
 import {getDirectionsAPI,setDirections,setRouteStats,getDirectionsAPIWithTraffic} from '../../../action/direction';
 import {setGeoLocation} from '../../../action/geolocation';
 import RNLocation from 'react-native-location';
@@ -38,65 +39,62 @@ class ListMap extends Component {
       showsBackgroundLocationIndicator: false,
   })
     if(this.props.isTraffic){
-      this.props.getDirectionsAPIWithTraffic([{lat: 1.1037975445392902,lng:104.09571858289692},{lat:1.1082599092338112, lng:104.04078694269813},{lat:1.0698147079937361, lng:104.02362080612424},{lat:1.1031110269159847, lng:103.95735951894906},{lat:1.1243930156749928, lng:104.01812764242061},{lat:1.110319459656965, lng:103.99752827853195},{lat:1.115125071726475, lng:104.05348988376281},{lat:1.14464508675823, lng:104.02156086973538}]);
+      this.props.getDirectionsAPIWithTraffic([{lat: 1.3143394,lng:103.7038231},{lat:1.3287109, lng:103.8476682},{lat:1.2895404, lng:103.8081271},{lat:1.3250369, lng:103.6973209},{lat:1.3691909, lng:103.8436772},{lat:1.330895, lng:103.8375949},{lat: 1.3911178, lng:103.7664461}]);
     } else {
-      this.props.getDirectionsAPI([{lat: 1.1037975445392902,lng:104.09571858289692},{lat:1.14464508675823, lng:104.02156086973538},{lat:1.1082599092338112, lng:104.04078694269813},{lat:1.0698147079937361, lng:104.02362080612424},{lat:1.1031110269159847, lng:103.95735951894906},{lat:1.1243930156749928, lng:104.01812764242061},{lat:1.110319459656965, lng:103.99752827853195},{lat:1.115125071726475, lng:104.05348988376281}]);
+
+      this.props.getDirectionsAPI([{lat: 1.3143394,lng:103.7038231},{lat: 1.3911178, lng:103.7664461},{lat:1.3287109, lng:103.8476682},{lat:1.2895404, lng:103.8081271},{lat:1.3250369, lng:103.6973209},{lat:1.3691909, lng:103.8436772},{lat:1.330895, lng:103.8375949}]);
     }
+   
+    const namedOrder = [
+      {named: 'Ginny',packages:15,Address:'Chang i 26th, Singapore', list: [
+        {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323344567553' },
+        {package:'6',weight:'64.00 Kg',CBM:'0.50', id: '#323344342342' },
+        {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323312312312' },
+        {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323344897815'},
+      ]},
+      {named: 'Tho',packages:4,Address:'639 Balestier Rd, Singapura 329922', list: [
+        {package:'1',weight:'23.00 Kg',CBM:'0.18' , id: '#12544457577'},
+        {package:'3',weight:'64.00 Kg',CBM:'0.50' , id: '#67785464564'},
+      ]},
+      {named: 'West',packages:4,Address:'2 Orchard Turn, Singapura 238801', list: [
+        {package:'1',weight:'23.00 Kg',CBM:'0.18' , id: '#988786767666'},
+        {package:'3',weight:'64.00 Kg',CBM:'0.50' , id: '#455645645688'},
+      ]},
+      {named: 'Go',packages:1,Address:'221A Boon Lay Pl, Singapura 641221', list: [
+        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#768565463455'},
+      ]},
+      {named: 'Dolittle',packages:5,Address:'16 Ang Mo Kio Central 3, Singapore 567748', list: [
+        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#879755465377'},
+        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#345344234677'},
+        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#345345436435'},
+        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#213125432423'},
+        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#856756534555'},
+      ]},
+      {named: 'Cumberbatch',packages:1,Address:'510 Thomson Rd, Singapura 298135', list: [
+        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#323344897815'},
+      ]},
+      {named: 'Bram',packages:1,Address:'27 Woodlands Link, #01-01 Chang Cheng HQ, Singapura 738732', list: [
+        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#456456456542'},
+      ]},
+    ];
+    this.props.setDataOrder(namedOrder);
     this.state = {
       search: '',
       data : [],
+      namedOrder,
+      trafficButton: false,
     };
+    this.onPressedTraffic.bind(this);
     this.translateOrders.bind(this);
     this.translateOrdersTraffic.bind(this);
     this.translateDragToOrder.bind(this);
-    this.requestLocationPermission.bind(this);
   }
-  
-  async requestLocationPermission() {
-    let {locationPermission} = this.state;
-    if (locationPermission) {
-     await RNLocation.checkPermission({
-        ios: 'whenInUse', // or 'always'
-        android: {
-          detail: 'coarse' // or 'fine'
-        }
-      }).then(granted => {
-        if (granted) {
-          this.setState({locationPermission: true});
-        } else {
-
-          this.setState({locationPermission: false});
-        }
-      });
-    } else {
-      
-           await RNLocation.requestPermission({
-              ios: 'whenInUse', // or 'always'
-              android: {
-                detail: 'coarse', // or 'fine'
-                rationale: {
-                  title: "We need to access your location",
-                  message: "We use your location to show where you are on the map",
-                  buttonPositive: "OK",
-                  buttonNegative: "Cancel"
-                }
-              }
-          }).then(granted => {
-            if (granted) {
-              this.setState({locationPermission: true});
-            } else {
-
-              this.setState({locationPermission: false});
-            }
-          });
-     
-    }
-};
+  onPressedTraffic = (value) => {
+    this.setState({trafficButton: value});
+  };
 
   componentDidMount() {
-    
-    this.requestLocationPermission();
-    
+    this.updateStateData();
   }
   updateSearch = (search) => {
     this.setState({search});
@@ -121,17 +119,12 @@ class ListMap extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    if( prevProps.statAPI.length !== this.props.statAPI.length || prevProps.stat.length === 0 && this.props.stat.length > 0 ||  prevProps.route_id !== this.props.route_id || prevProps.isActionQueue.length !== this.props.isActionQueue.length || prevProps.isConnected !== this.props.isConnected ){
+      this.updateStateData();
+    }
    
-   if( prevProps.statAPI.length !== this.props.statAPI.length || prevProps.stat.length !== this.props.stat.length ){
-    this.setState({data: Array.from({length: this.props.statAPI.length}).map((element,index)=>{
-      let statSingleOffline = this.props.stat[index];
-      let statSingleAPI = this.props.statAPI[index];
-      return {...statSingleOffline,...statSingleAPI};
-    })})
-   }
-   
-    let {locationPermission} = this.state;
-    if (prevState.locationPermission !== locationPermission && locationPermission) {
+    let {locationPermission} = this.props;
+    if (locationPermission && prevProps.route_id !== this.props.route_id) {
       RNLocation.configure({ distanceFilter: 0 });
       RNLocation.getLatestLocation({ timeout: 600 })
         .then(latestLocation => {
@@ -140,17 +133,14 @@ class ListMap extends Component {
     }
 
     if(!this.props.steps){
-     console.log('new');
-     if(this.props.isTraffic){
-      let orders = this.translateOrdersTraffic();
-      this.props.getDirectionsAPIWithTraffic(orders);  
-     } else {
-      let orders = this.translateOrders();
-      this.props.getDirectionsAPI(orders);  
-     }
-   } else {
-     console.log('old');
-   }
+      if(this.props.isTraffic){
+        let orders = this.translateOrdersTraffic();
+        this.props.getDirectionsAPIWithTraffic(orders);  
+      } else {
+        let orders = this.translateOrders();
+        this.props.getDirectionsAPI(orders);  
+      }
+    }
   // for active subscribed geoLocation please see the conditional within props.step to update;
   if((prevProps.location === undefined && this.props.location !== undefined ) || (prevProps.route_id !== this.props.route_id && this.props.stat.length === 0)){
     let COORDINATES = this.props.steps;
@@ -174,42 +164,80 @@ class ListMap extends Component {
     this.props.setRouteStats(markers,stats)
     }
   }
+
+  updateStateData = () => {
+    this.setState({data: Array.from({length: this.props.statAPI.length}).map((element,index)=>{
+      let statSingleOffline = this.props.stat[index];
+      let statSingleAPI = this.props.statAPI[index];
+      let namedData = this.props.dataPackage.length > 0 ? this.props.dataPackage[index] : this.state.namedOrder[index];
+      return {...statSingleOffline,...statSingleAPI,...namedData};
+    })})
+  }
+
   translateDragToOrder = (from,to) => {
     let {markers} = this.props;
     let changed = markers.splice(from,1);
     markers.splice(to,0,changed[0]);
 
+    //demo purpose only
+    let {namedOrder} = this.state;
+    let changedNamed = namedOrder.splice(from,1);
+    namedOrder.splice(to,0,changedNamed[0]);
+    this.props.setDataOrder(namedOrder);
+    this.setState({namedOrder:namedOrder});
+    //demo purpose only
+
+
     this.props.setDirections(markers);
   }
+
+  navigateToDelivery = (index)=> {
+    const {startDelivered} = this.props;
+    if(startDelivered) {
+      this.props.setBottomBar(false);
+    } else {
+      this.props.setBottomBar(true);
+    }
+    this.props.navigation.navigate('Navigation', {
+      index: index,
+    })
+  }
+
   render() {
-    const {search,data} = this.state;
     return (
       <View style={{flex: 1}}>
+        <View style={styles.headerContainer}>
+          <View style={{height: 250}}>
+            <Map trafficLayer={this.state.trafficButton}/>
+          </View>
+          <View
+            style={{
+              backgroundColor: '#F07120',
+              paddingLeft: 73,
+              paddingRight: 23,
+              paddingVertical: 10,
+              flexDirection: 'row',
+            }}>
+            <Text style={{...Mixins.subtitle3,lineHeight: 21, color: 'white', flex:1}}>
+              Delivery List
+            </Text>
+                <View style={{flex:1,flexDirection:'row',justifyContent:'flex-end',alignSelf: 'flex-end',alignContent:'flex-end'}}>
+                <Text style={{...Mixins.subtitle3,lineHeight: 21, color: 'white', flexShrink:1,marginHorizontal: 5}}>
+              Traffic
+            </Text>
+            <Switch onValueChange={(value) => this.onPressedTraffic(value)}
+                      value={this.state.trafficButton}/>
+                </View>
+          </View>
+        </View>
         <DraggableFlatList
-          data={data}
+          data={this.state.data}
           autoscrollSpeed={700}
-          renderItem={addressList}
-          keyExtractor={(item, index) => index}
+          renderItem={(props) => (
+            <AddressList {...props} navigation={this.navigateToDelivery} />
+          )}
+          keyExtractor={(item, index) => `draggable-item-${index}`}
           onDragEnd={({data,from,to}) => this.translateDragToOrder(from,to)}
-          ListHeaderComponent={() => {
-            return (
-              <View style={styles.headerContainer}>
-                <View style={{height: 250}}>
-                  <Map />
-                </View>
-                <View
-                  style={{
-                    backgroundColor: '#F07120',
-                    paddingHorizontal: 73,
-                    paddingVertical: 10,
-                  }}>
-                  <Text style={{...Mixins.subtitle3,lineHeight: 21, color: 'white'}}>
-                    Delivery List
-                  </Text>
-                </View>
-              </View>
-            );
-          }}
         />
       </View>
     );
@@ -232,14 +260,18 @@ const styles = {
 };
 function mapStateToProps(state) {
   return {
-    markers: state.route.markers,
-    steps: state.route.steps,
-    orders: state.route.orders,
-    location: state.userRole.location,
-    route_id: state.route.id,
-    stat : state.route.stat,
-    statAPI : state.route.statAPI,
-    isTraffic: state.filters.isTraffic,
+    markers: state.originReducer.route.markers,
+    steps: state.originReducer.route.steps,
+    orders: state.originReducer.route.orders,
+    location: state.originReducer.userRole.location,
+    route_id: state.originReducer.route.id,
+    stat : state.originReducer.route.stat,
+    statAPI : state.originReducer.route.statAPI,
+    isTraffic: state.originReducer.filters.isTraffic,
+    locationPermission : state.originReducer.filters.locationPermission,
+    dataPackage: state.originReducer.route.dataPackage,
+    isConnected : state.network.isConnected,
+    isActionQueue: state.network.actionQueue,
   };
 }
 
@@ -256,7 +288,8 @@ const mapDispatchToProps = (dispatch) => {
     setStartDelivered : (toggle) => {
       return dispatch({type: 'startDelivered', payload: toggle});
     },
-    ...bindActionCreators({ getDirectionsAPI,setDirections,setGeoLocation,setRouteStats, getDirectionsAPIWithTraffic}, dispatch),
+ 
+    ...bindActionCreators({ setDataOrder,getDirectionsAPI,setDirections,setGeoLocation,setRouteStats, getDirectionsAPIWithTraffic}, dispatch),
   };
 };
 

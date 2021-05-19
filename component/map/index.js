@@ -5,11 +5,12 @@ import {
   Dimensions,
   Animated,
   TouchableOpacity,
+  Switch
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import {Input} from 'react-native-elements';
 import {Text, Button} from 'react-native-elements';
 import PanController from './pan-controller';
+import { Modalize } from 'react-native-modalize';
 
 import {
   ProviderPropType,
@@ -23,19 +24,20 @@ import PriceMarker from './section/AnimatedPriceMarker';
 import BottomSheet from 'reanimated-bottom-sheet';
 import IconEllipse from '../../assets/icon/Ellipse 9.svg';
 import IconSpeech26 from '../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
+import XMarkIcon from '../../assets/icon/iconmonstr-x-mark-1 1mobile.svg';
 import {connect} from 'react-redux';
 import Util from './interface/leafletPolygon';
 import Location from './interface/geoCoordinate'
 import Geojson from './section/GeoJSON';
-import { BaseRouter } from '@react-navigation/native';
 import Mixins from '../../mixins';
+import Loading from '../loading/loading';
+
 const screen = Dimensions.get('window');
 
 const ASPECT_RATIO = screen.width / screen.height;
 
-
-const LATITUDE = 1.1037975445392902;
-const LONGITUDE = 104.09571858289692;
+const LATITUDE = 1.3287109;
+const LONGITUDE = 103.8476682;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
@@ -49,7 +51,7 @@ const BREAKPOINT1 = 246;
 const BREAKPOINT2 = 350;
 const ONE = new Animated.Value(1);
 
-function getMarkerState(panX, panY, scrollY, i, index, marker) {
+function getMarkerState(panX, panY, scrollY, i, index) {
   const xLeft = -SNAP_WIDTH * i + SNAP_WIDTH;
   const xRight = -SNAP_WIDTH * i - SNAP_WIDTH;
   const xHeadLeft = -SNAP_WIDTH * i + SNAP_WIDTH * 0.95;
@@ -91,9 +93,25 @@ function getMarkerState(panX, panY, scrollY, i, index, marker) {
     outputRange: [0, 1, 0],
     extrapolate: 'clamp',
   });
+  const selectedHead = panX.interpolate({
+    inputRange: [xRight, xHeadRight, xPos,xHeadLeft, xLeft],
+    outputRange: [0,1, 1, 1,0],
+  });
+
+  const selectedHeadX = panX.interpolate({
+    inputRange: [xRight, xHeadRight, xPos,xHeadLeft, xLeft],
+    outputRange: [0,1, 1, 1,0],
+    extrapolate: 'clamp',
+  });
+  const ratioHead = panX.interpolate({
+    inputRange: [xRight, xHeadRight,xHeadLeft, xLeft],
+    outputRange: [0,1, 1,0],
+    extrapolate: 'clamp',
+  });
+  
   const selecter = selected.interpolate({
     inputRange: [0, 1],
-    outputRange: ['rgb(90,210,244)', 'rgb(224,82,99)'],
+    outputRange: ['#C4C4C4', '#424141'],
   });
   const translateY = Animated.multiply(isIndex, panY);
 
@@ -101,8 +119,12 @@ function getMarkerState(panX, panY, scrollY, i, index, marker) {
     inputRange: [0, 1],
     outputRange: [ITEM_PREVIEW_HEIGHT, ITEM_PREVIEW_HEIGHT * 1.5], // <-- value that larger than your content's height
   });
-
+  const scrollX = panX.interpolate({
+    inputRange: [-1, 1],
+    outputRange: [1, -1],
+  });
   const translateX = panX;
+  const headtranslateX = Animated.multiply(Animated.add(xPos,xPos * 0.64),selectedHeadX);
   //const translateX =
   //panX.__getValue() >= 0
   //? touchX.__getValue() > -10 && touchX.__getValue < 0
@@ -192,12 +214,20 @@ function getMarkerState(panX, panY, scrollY, i, index, marker) {
     anim,
     center,
     selected,
+    selectedHead,
     markerOpacity,
     markerScale,
     xPos,
+    xLeft,
     ratio,
     selecter,
     height,
+    isIndex,
+    isIndexHead,
+    isNotHeadIndex,
+    scrollX,
+    ratioHead,
+    headtranslateX
   };
 }
 
@@ -208,8 +238,9 @@ class AnimatedMarkers extends React.Component {
     const panY = new Animated.Value(0);
     this.onPanYChange.bind(this);
     this.onPanXChange.bind(this);
-    this.onItemDetail.bind(this);
-    this.onPressedTraffic.bind(this);
+
+    this.modalizeRef = React.createRef();
+
     const scrollY = panY.interpolate({
       inputRange: [-1, 1],
       outputRange: [1, -1],
@@ -263,7 +294,7 @@ class AnimatedMarkers extends React.Component {
       panX,
       panY,
       animations,
-      canMoveHorizontal: false,
+      canMoveHorizontal: true,
       canMoveVertical: true,
       scrollY,
       scrollX,
@@ -281,27 +312,61 @@ class AnimatedMarkers extends React.Component {
       carousel: new Animated.Value(1),
       bottomPan: new Animated.Value(0),
       bottomSheet: React.createRef(),
-      itemHeadBool : true,
       toggleContainer: false,
       GeoJSON,
       trafficLayer: false,
       trafficButton : false,
+      isShowSeeDetails: true,
+      isShowCancelOrder: false,
+      modalPosition: 'initial',
+      fadeAnim: new Animated.Value(0),
+      isLoading: true,
+      updateAnimated: false,
+      updateToRender: false,
     };
-    this.updateAnimated.bind(this);
+    this.onPressedTraffic.bind(this);
+    this.updateAnimatedToIndex.bind(this);
     this.onLihatRincian.bind(this);
     this.onLihatDetail.bind(this);
     this.onCompleteDelivery.bind(this);
   }
+ 
 
   shouldComponentUpdate(nextProps, nextState){
-
-    if(nextState.index !== this.props.index && (nextState.itemHeadBool === this.state.itemHeadBool && nextState.toggleContainer === this.state.toggleContainer && nextState.trafficButton === this.state.trafficButton && nextState.trafficLayer === this.state.trafficLayer) ){
+   
+    if( nextState.index !== this.props.index && (nextState.isShowSeeDetails === this.state.isShowSeeDetails && nextState.toggleContainer === this.state.toggleContainer && nextState.trafficButton === this.state.trafficButton && nextState.trafficLayer === this.state.trafficLayer && nextProps.keyStack === this.props.keyStack && nextState.modalPosition === this.state.modalPosition && nextProps.isActionQueue === this.props.isActionQueue && nextProps.isConnected === this.props.isConnected && nextProps.stat === this.props.stat && nextState.isLoading === this.state.isLoading && nextProps.route.params?.index  === this.props.route.params?.index && nextState.updateAnimated === this.state.updateAnimated && nextState.updateToRender === this.state.updateToRender && nextProps.startDelivered === this.props.startDelivered) ){
       return false;
     }
+
     return true;
   }
   componentDidUpdate(prevProps, prevState, snapshot)
   {
+    if(this.props.startDelivered !== prevProps.startDelivered){
+      console.log('change in delivery:'+ this.props.startDelivered);
+      if(this.props.startDelivered){
+        this.setState({toggleContainer: true});
+      } else {
+        this.setState({toggleContainer: false});
+      }
+    }
+    if(this.props.route.params?.index !== undefined && prevProps.route.params?.index !== this.props.route.params?.index) {
+      this.updateAnimatedToIndex(this.props.route.params?.index ?? 0);
+      this.setState({index: this.props.route.params?.index ?? 0})
+    }
+    if(prevState.updateAnimated !== this.state.updateAnimated && this.state.updateAnimated === true){
+      this.setState({updateAnimated:false});
+    }
+    if(prevState.updateToRender !== this.state.updateToRender && this.state.updateToRender === true){
+      this.setState({updateToRender:false});
+    }
+    if(prevState.isLoading !== this.state.isLoading){
+      if(this.props.isConnected){
+        this.setState({isLoading:false});
+      } else {
+        this.setState({isLoading:true});
+      }
+    }
     if(prevProps.isTraffic !== this.props.isTraffic){
       if(!this.props.isTraffic){
         this.setState({trafficLayer: false});
@@ -321,9 +386,13 @@ class AnimatedMarkers extends React.Component {
     }
   }
   componentDidMount() {
-    const {region, panX, panY, scrollX, route} = this.state;
+    const {region, panX, panY, scrollX, route,index} = this.state;
+    if(this.props.route.params?.index !== undefined && index !== this.props.route.params?.index) {
+      this.updateAnimatedToIndex(this.props.route.params?.index ?? 0);
+      this.setState({index: this.props.route.params?.index ?? 0})
+    }
     panX.addListener(this.onPanXChange);
-   // panY.addListener(this.onPanYChange);
+    panY.addListener(this.onPanYChange);
     region.stopAnimation();
     region
       .timing({
@@ -339,48 +408,106 @@ class AnimatedMarkers extends React.Component {
       })
       .start();
   }
-  onLihatRincian = () => {
-    const {carousel, bottomPan, toggleContainer} = this.state;
+  onLihatRincian = ({toggle, bottomBar}) => {
+    const {carousel} = this.state;
     Animated.timing(carousel, {
       toValue: 0,
       duration: 200,
       useNativeDriver: false,
     }).start();
     this.props.setStartDelivered(true);
-    this.setState({toggleContainer: true});
-    this.props.setBottomBar(false);
+    this.setState({...this.state, toggleContainer: toggle});
+    this.props.setBottomBar(bottomBar);
+    if(toggle) {
+      this.modalizeRef.current?.open();
+    } else {
+      this.modalizeRef.current?.close();
+    }
   };
   onLihatDetail = () => {
+    const {index} = this.state;
     this.props.setBottomBar(true);
-    this.props.navigation.navigate('Package');
+    this.props.navigation.navigate({
+      name: 'Package',
+      params: {
+        index: index,
+      }
+    });
   };
   onCompleteDelivery = () =>{
+    const {index} = this.state;
     this.props.setBottomBar(true);
-    this.props.navigation.navigate('Order');
+    this.props.navigation.navigate({
+      name: 'Order',
+      params: {
+        index: index,
+      }
+    });
+  };
+  onSeeDetails = (bool,indexTo) => {
+    const {route, panX, panY, scrollY, animations, isShowSeeDetails, index} = this.state;
+    if(indexTo){
+      const {xPos} = animations[indexTo];
+      if(indexTo !== index){
+        Animated.timing(panX, {
+          toValue: xPos,
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      }
+      if(!isShowSeeDetails){
+        this.setState({
+          ...this.state,
+          isShowSeeDetails: bool,
+          updateToRender:true,
+          //canMoveHorizontal: bool ? false : true
+        });
+      }
+    } else {
+      this.setState({
+        ...this.state,
+        isShowSeeDetails: bool,
+        updateToRender:true,
+        //canMoveHorizontal: bool ? false : true
+      });
+    }
+  }
+  onPressedTraffic = (value) => {
+    const {trafficButton,trafficLayer} = this.state;
+    if(!trafficButton === false)
+    this.setState({trafficLayer: false});
+    this.setState({trafficButton: value});
   };
   onStartShouldSetPanResponder = e => {
     // we only want to move the view if they are starting the gesture on top
     // of the view, so this calculates that and returns true if so. If we return
     // false, the gesture should get passed to the map view appropriately.
-    const { panY } = this.state;
+    const { panY, toggleContainer, canMoveHorizontal } = this.state;
     const { pageY } = e.nativeEvent;
     const topOfMainWindow = ITEM_PREVIEW_HEIGHT + panY.__getValue();
     const topOfTap = screen.height - pageY;
+    if(toggleContainer) 
+       return false;
 
     return true;
   };
 
   onMoveShouldSetPanResponder = e => {
-    const { panY } = this.state;
+    const { panY, toggleContainer, canMoveHorizontal } = this.state;
     const { pageY } = e.nativeEvent;
     const topOfMainWindow = ITEM_PREVIEW_HEIGHT + panY.__getValue();
     const topOfTap = screen.height - pageY;
-
+    if(toggleContainer)
+        return false;
+        
     return true;
   };
-  updateAnimated = () => {
-    const {route, index, panX, panY, scrollY} = this.state;
+  updateAnimatedToIndex = (index) => {
+    const {route, panX, panY, scrollY, animations} = this.state;
+    const {xPos} = animations[index];
+    panX.setValue(xPos);
     this.setState({
+      updateAnimated: true,
       animations: {
         ...route.map((m, i) => getMarkerState(panX, panY, scrollY, i, index)),
       },
@@ -393,6 +520,10 @@ class AnimatedMarkers extends React.Component {
     if (index !== newIndex && newIndex < route.length && newIndex >= 0) {
     this.setState({index: newIndex});
     this.setState({trafficLayer: false});
+    const {center} = animations[newIndex];
+    if(center.__getValue() > 0){
+      console.log('index updated in map');
+    }
     } else {
       if (newIndex > route.length || newIndex < 0) {
         let {translateX, isNotIndex, center, xPos} = animations[index];
@@ -417,20 +548,10 @@ class AnimatedMarkers extends React.Component {
       bottomInfo,
       region,
     } = this.state;
-    console.log(value);
     const shouldBeMovable = value > 2;
-   
+    
   };
-  onItemDetail = () => {
-    const {itemHeadBool} = this.state;
-    this.setState({itemHeadBool: !itemHeadBool,canMoveHorizontal: itemHeadBool ? true : false});
-  }
-  onPressedTraffic = () => {
-    const {trafficButton,trafficLayer} = this.state;
-    if(!trafficButton === false)
-    this.setState({trafficLayer: false});
-    this.setState({trafficButton: !trafficButton});
-  };
+
   onRegionChange(/* region */) {
     // this.state.region.setValue(region);
   }
@@ -438,21 +559,22 @@ class AnimatedMarkers extends React.Component {
     const {route, index} = this.state;
     let marker = route[index];
     let {distance,to,current,hour,eta} = this.props.stat[index];
+    const {named,packages, Address, list} = this.props.dataPackage[index];
     return (
       <View style={styles.sheetContainer}>
         <View style={styles.sectionSheetDetail}>
           <View style={styles.detailContent}>
-            <Text style={styles.orderTitle}>{marker.amount}</Text>
+            <Text style={styles.orderTitle}>{named}</Text>
             <Text style={styles.chrono}>Distant Location {distance} Km</Text>
             <Text style={styles.eta}>ETA : {eta}</Text>
             <View style={styles.detail}>
               <Text style={styles.labelDetail}>Packages</Text>
-              <Text style={styles.labelInfo}>3 box</Text>
+              <Text style={styles.labelInfo}>{packages} box</Text>
             </View>
           </View>
           <TouchableOpacity
             style={styles.buttonDetail}
-            onPress={this.onLihatDetail}>
+            onPress={() => this.onLihatDetail()}>
             <Text style={styles.detailTitle} h6>
               Delivery Detail
             </Text>
@@ -487,69 +609,123 @@ class AnimatedMarkers extends React.Component {
               );
             }}
           />
-        </View>
-        <View style={styles.sectionPackage}>
-          <Text style={styles.titlePackage}>Package Detail</Text>
-          <View style={styles.sectionDividier}>
-            <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Transfer</Text>
-              <Text style={styles.infoPackage}>Van</Text>
-            </View>
-            <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Commodity</Text>
-              <Text style={styles.infoPackage}>Dry Food</Text>
-            </View>
-          </View>
-          <View style={styles.sectionDividierRight}>
-            <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Packaging type</Text>
-              <Text style={styles.infoPackage}>20 pallet</Text>
-            </View>
-            <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Weight</Text>
-              <Text style={styles.infoPackage}>23.00 Kg</Text>
-            </View>
-          </View>
-        </View>
-        <View style={styles.sectionSheetButton}>
-          <Button
-            buttonStyle={styles.navigationButton}
-            titleStyle={styles.deliveryText}
-            onPress={this.onCompleteDelivery}
-            title="Complete Delivery"
-          />
-          <View style={[styles.sectionDividier, {marginVertical: 12}]}>
+          {this.state.modalPosition === 'initial' &&
             <Button
-              containerStyle={[styles.buttonDivider, {marginRight: 10}]}
-              title="Cancel"
-              type="outline"
-              titleStyle={{color: '#F1811C', ...Mixins.subtitle3, lineHeight: 21}}
+              buttonStyle={styles.navigationButton}
+              titleStyle={styles.deliveryText}
+              onPress={this.onCompleteDelivery}
+              title="Complete Delivery"
             />
-
-            <Button
-              containerStyle={[styles.buttonDivider, {marginLeft: 10}]}
-              icon={() => (
-                <View style={{marginRight: 6}}>
-                  <IconSpeech26 height="15" width="15" fill="#fff" />
-                </View>
+          }
+        </View>
+        {this.state.modalPosition === 'top' &&
+          <Animated.View style={{opacity: this.state.fadeAnim}}>
+            <View style={styles.sectionPackage}>
+              <Text style={styles.titlePackage}>Summary Order</Text>
+              { list.map((element, i) =>  
+                <Text style={styles.small3}>{element.id} </Text>
               )}
-              title="Chat Client"
-              titleStyle={{color: '#fff', ...Mixins.subtitle3, lineHeight: 21}}
-              buttonStyle={{backgroundColor: '#F07120'}}
-            />
-          </View>
-        </View>
+              <View style={styles.sectionDividier}>
+                <View style={[styles.dividerContent,{flex:2}]}>
+                  <Text style={styles.labelPackage}>Total Package</Text>
+                  <Text style={styles.infoPackage}>{packages}</Text>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelPackage}>Weight</Text>
+                  <Text style={styles.infoPackage}>-</Text>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelPackage}>CBM</Text>
+                  <Text style={styles.infoPackage}>-</Text>
+                </View>
+              </View>
+        
+            </View>
+            <View style={styles.sectionSheetButton}>
+              <Button
+                buttonStyle={styles.navigationButton}
+                titleStyle={styles.deliveryText}
+                onPress={this.onCompleteDelivery}
+                title="Complete Delivery"
+              />
+              <View style={[styles.sectionDividier, {marginVertical: 12}]}>
+                <Button
+                  containerStyle={[styles.buttonDivider, {marginRight: 10}]}
+                  title="Cancel"
+                  type="outline"
+                  titleStyle={{color: '#F1811C', ...Mixins.subtitle3, lineHeight: 21}}
+                  onPress={() => {
+                    this.onLihatRincian({toggle: false, bottomBar: true});
+                    this.handleCancelOrder({showCancel: true, bottomBar: false});
+                  }}
+                />
+
+                <Button
+                  containerStyle={[styles.buttonDivider, {marginLeft: 10}]}
+                  icon={() => (
+                    <View style={{marginRight: 6}}>
+                      <IconSpeech26 height="15" width="15" fill="#fff" />
+                    </View>
+                  )}
+                  title="Chat Client"
+                  titleStyle={{color: '#fff', ...Mixins.subtitle3, lineHeight: 21}}
+                                  onPress={()=>{
+                  this.props.setBottomBar(false);
+                  this.props.navigation.navigate('Notification', { screen: 'Single' })}}
+                  buttonStyle={{backgroundColor: '#F07120'}}
+                />
+              </View>
+            </View>
+          </Animated.View>
+        }
       </View>
     );
   };
   renderHeader = () => (
     <View style={styles.header}>
       <View style={styles.panelHeader}>
-        <View style={styles.panelHandle} />
+        {/* <View style={styles.panelHandle} /> */}
       </View>
     </View>
   );
 
+  fadeAnimation = (position) => {
+    if(position === 'top') {
+      this.setState({
+        ...this.state,
+        modalPosition: position,
+      })
+      Animated.timing(this.state.fadeAnim, {
+        toValue: 1,
+        duration: 0,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      this.setState({
+        ...this.state,
+        modalPosition: position,
+        fadeAnim: new Animated.Value(0),
+      })
+    }
+  }
+
+  handleCancelOrder = async ({showCancel, bottomBar, action, currentOrderId}) => {
+    this.setState({
+      ...this.state,
+      isShowCancelOrder: showCancel,
+    });
+    await this.props.setBottomBar(bottomBar);
+    this.modalizeRef.current.open();
+    if(action) {
+      this.onLihatRincian({toggle: false, bottomBar: true});
+      this.props.navigation.navigate({
+        name: 'Cancel',
+        params: {
+          orderId: currentOrderId
+        }
+      });
+    }
+  }
   render() {
     const {
       panX,
@@ -567,13 +743,28 @@ class AnimatedMarkers extends React.Component {
       GeoJSON,
       index,
       trafficLayer,
-      itemHeadBool
+      trafficButton,
     } = this.state;
-
-
+    if(this.props.keyStack === 'Map'){
+      if(toggleContainer){
+        this.props.setBottomBar(false);
+        } else {
+        this.props.setBottomBar(true);
+        }
+    }
+    console.log(this.props.isActionQueue);
+    if((!this.props.isConnected && this.props.isActionQueue.length > 0) || (this.props.isConnected && this.props.stat.length === 0) ){
+      return (
+        <View style={styles.container}>
+         <Loading />
+        </View>
+      );
+    }
     const {current,eta,to,distance,hour} = this.props.stat[index];
+    const {named,packages, Address} = this.props.dataPackage[index];
     return (
       <View style={styles.container}>
+        {this.state.isLoading && <Loading />}
         <PanController
           style={styles.container}
           vertical={false}
@@ -585,177 +776,219 @@ class AnimatedMarkers extends React.Component {
           panY={panY}
           panX={panX}
           onStartShouldSetPanResponder={this.onStartShouldSetPanResponder}
-          onMoveShouldSetPanResponder={this.onMoveShouldSetPanResponder}>
+          // onMoveShouldSetPanResponder={this.onMoveShouldSetPanResponder}
+          >
           <AnimatedMap
             showsTraffic={trafficLayer}
             provider={this.props.provider}
             style={styles.map}
             region={region}
             onRegionChange={this.onRegionChange}
+            onMapReady={() => this.setState({isLoading: false})}
             >
             <Geojson geojson={GeoJSON} strokeWidth={3}/>
           </AnimatedMap>
-          {!toggleContainer && (
-            <Animated.View style={[styles.itemContainer, {opacity: carousel}]}>
-              <View style={styles.itemLegend}>
-                <View style={styles.itemDivider} />
-                    <Animated.View
-                      style={[styles.itemHead,{opacity:itemHeadBool ? 1 : 0}]}>
-                      <View style={styles.sectionDetail}>
-                        <View style={styles.detailContent}>
-                          <Text style={styles.orderTitle}>0</Text>
-                          <Text style={styles.chrono}>
-                            Distant Location {distance} Km
-                          </Text>
-                          <Text style={styles.eta}>ETA : {eta}</Text>
-                          <View style={styles.detail}>
-                            <Text style={styles.labelDetail}>Packages</Text>
-                            <Text style={styles.labelInfo}>3 box</Text>
+          {toggleContainer
+            ? (
+              <Modalize 
+                ref={this.modalizeRef}
+                handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
+                handlePosition={'inside'}
+                disableScrollIfPossible={true}
+                modalHeight={520}
+                alwaysOpen={300}
+                HeaderComponent={<this.renderHeader />}
+                onPositionChange={(position) => this.fadeAnimation(position)}
+              >
+                <this.renderInner />
+              </Modalize>
+            ) 
+            : (
+              <Animated.View style={[styles.itemContainer]}>
+                {this.state.isShowSeeDetails && Object.keys(animations).length > 0 && 
+                <View style={[styles.itemLegend,{flexDirection:'row'}]}>
+                  <View style={styles.itemDivider} />
+               { Object.keys(animations).sort().map(key => {
+                const element = animations[key];
+                const {current,eta,to,distance,hour} = this.props.stat[key];
+                const {named,packages, Address} = this.props.dataPackage[key];
+                return (
+                    <Animated.View key={key} style={[styles.itemHead,{ opacity: element.selectedHead ,transform: [
+                        { translateX: element.headtranslateX }
+                     ]}]}>
+                      <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={() => this.onSeeDetails(false)}
+                      >
+                        <XMarkIcon width="15" height="15" fill="#fff" />
+                      </TouchableOpacity><View style={styles.sectionDetail}>
+                          <View style={styles.detailContent}>
+                            <Text style={styles.orderTitle}>{named}</Text>
+                            <Text style={styles.chrono}>
+                              Distant Location {distance} Km
+                            </Text>
+                            <Text style={styles.eta}>ETA: {eta}</Text>
+                            <View style={styles.detail}>
+                              <Text style={styles.labelDetail}>Packages</Text>
+                              <Text style={styles.labelInfo}>{packages} box</Text>
+                            </View>
                           </View>
+                          <TouchableOpacity
+                            style={styles.buttonDetail}
+                            onPress={() => this.onLihatDetail()}>
+                            <Text style={styles.detailTitle}>
+                              Delivery Detail
+                            </Text>
+                          </TouchableOpacity>
+                        </View><View style={styles.sectionCordinate}>
+                          <Input
+                            containerStyle={styles.spatialContainer}
+                            inputContainerStyle={styles.spatialInput}
+                            inputStyle={styles.spatialInputText}
+                            value={'' + current}
+                            leftIcon={() => {
+                              return (
+                                <View style={styles.leftLabel}>
+                                  <IconEllipse
+                                    height="13"
+                                    width="13"
+                                    fill="#F1811C" />
+                                  <Text style={styles.leftLabelText}>
+                                    Current
+                                  </Text>
+                                </View>
+                              );
+                            } } />
+                          <Input
+                            containerStyle={styles.spatialContainer}
+                            inputContainerStyle={styles.spatialInput}
+                            inputStyle={styles.spatialInputText}
+                            value={'' + to}
+                            leftIcon={() => {
+                              return (
+                                <View style={styles.leftLabel}>
+                                  <IconEllipse
+                                    height="13"
+                                    width="13"
+                                    fill="#F1811C" />
+                                  <Text style={styles.leftLabelText}>To</Text>
+                                </View>
+                              );
+                            } } />
                         </View>
-                        <TouchableOpacity
-                          style={styles.buttonDetail}
-                          onPress={this.onLihatDetail}>
-                          <Text style={styles.detailTitle} h6>
-                            Delivery Detail
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                      <View style={styles.sectionCordinate}>
-                        <Input
-                          containerStyle={styles.spatialContainer}
-                          inputContainerStyle={styles.spatialInput}
-                          inputStyle={styles.spatialInputText}
-                          value={'' + current}
-                          leftIcon={() => {
-                            return (
-                              <View style={styles.leftLabel}>
-                                <IconEllipse
-                                  height="13"
-                                  width="13"
-                                  fill="#F1811C"
-                                />
-                                <Text style={styles.leftLabelText}>
-                                  Current
-                                </Text>
-                              </View>
-                            );
-                          }}
-                        />
-                        <Input
-                          containerStyle={styles.spatialContainer}
-                          inputContainerStyle={styles.spatialInput}
-                          inputStyle={styles.spatialInputText}
-                          value={'' + to}
-                          leftIcon={() => {
-                            return (
-                              <View style={styles.leftLabel}>
-                                <IconEllipse
-                                  height="13"
-                                  width="13"
-                                  fill="#F1811C"
-                                />
-                                <Text style={styles.leftLabelText}>To</Text>
-                              </View>
-                            );
-                          }}
-                        />
-                      </View>
-                      <View style={styles.sectionButton}>
-                        <Button
-                          buttonStyle={styles.navigationButton}
-                          titleStyle={styles.deliveryText}
-                          onPress={this.onLihatRincian}
-                          title="Start delivery"
-                        />
-                      </View>
+                        <View style={styles.sectionButton}>
+                          <Button
+                            buttonStyle={styles.navigationButton}
+                            titleStyle={styles.deliveryText}
+                            title="Start delivery"
+                            onPress={() => this.onLihatRincian({ toggle: true, bottomBar: false })} />
+                        </View>
                     </Animated.View>
-              </View>
-              <View style={styles.itemContent}>
-                <TouchableOpacity style={styles.buttonHistory}>
-                  <Text style={styles.buttonText}>
-                    History
-                  </Text>
-                </TouchableOpacity>
-                <View style={styles.indicator}>
+                );
+              })}
+                  </View>
+                }
+                <View style={styles.itemContent}>
+                  <TouchableOpacity style={styles.buttonHistory}>
+                    <Text style={styles.buttonText}>
+                      See All
+                    </Text>
+                  </TouchableOpacity>
+                  <View style={styles.indicator}>
+                    {route.map((marker, i) => {
+                      const {selecter} = animations[i];
+                      return (
+                        <Animated.View
+                          key={marker.id}
+                          style={styles.indicatorIcon}>
+                          <Animated.Text
+                            style={[styles.indicatorText, {color: selecter}]}>
+                            ▂
+                          </Animated.Text>
+                        </Animated.View>
+                      );
+                    })}
+                  </View>
+                  <View style={styles.buttonAll}>
+                    <View style={{flexDirection: 'row'}}>
+                      <Text style={styles.buttonText}>
+                      Traffic
+                      </Text>
+                    
+                    <Switch onValueChange={(value) => this.onPressedTraffic(value)}
+                      value={trafficButton}/>
+                    </View>
+                </View>
+                </View>
+                <View style={styles.itemWrapper}>
                   {route.map((marker, i) => {
-                    const {selecter} = animations[i];
+                    const {
+                      translateX,
+                    } = animations[i];
+                    const {current,eta,to,distance,hour} = this.props.stat[i];
+                    const {named,packages, Address} = this.props.dataPackage[i];
                     return (
                       <Animated.View
                         key={marker.id}
-                        style={styles.indicatorIcon}>
-                        <Animated.Text
-                          style={[styles.indicatorText, {color: selecter}]}>
-                          ▂
-                        </Animated.Text>
+                        style={[
+                          styles.item,
+                          {
+                            transform: [{translateX: translateX}],
+                          },
+                        ]}>
+                        <View style={styles.sectionContentTitle}>
+                          <Text style={styles.orderTitleItem}>{named}</Text>
+                          <Text style={styles.chrono}>Distant Location {distance} Km</Text>
+                        </View>
+                        <View style={styles.sectionContent}>
+                          <View style={styles.contentList}>
+                            <Text style={styles.listLabel}>To</Text>
+                            <Text style={styles.listContent}>{Address}</Text>
+                          </View>
+                          <View style={styles.contentList}>
+                            <Text style={styles.listLabel}>Package</Text>
+                            <Text style={styles.listContent}>{packages}</Text>
+                          </View>
+                        </View>
+                        <View style={styles.sectionContentButton}>
+                          <Button
+                            buttonStyle={styles.contentButton}
+                            onPress={() => this.onSeeDetails(true,i)}
+                            titleStyle={styles.contentButtonText}
+                            title="See details"
+                          />
+                        </View>
                       </Animated.View>
                     );
                   })}
                 </View>
-                <TouchableOpacity style={styles.buttonAll} onPressIn={this.onPressedTraffic} onPressOut={this.onPressedTraffic}>
-                  <Text style={styles.buttonText}>
-                    Traffic
-                  </Text>
+              </Animated.View>
+            )
+          }
+        </PanController>
+        {this.state.isShowCancelOrder &&
+          <View style={styles.overlayContainer}>
+            <View style={styles.cancelOrderSheet}>
+              <Text style={styles.cancelText}>
+                Are you sure you want to cancel/postpone the deliver?
+              </Text>
+              <View style={styles.cancelButtonContainer}>
+                <TouchableOpacity 
+                  style={[styles.cancelButton, {borderWidth: 1, borderColor: '#ABABAB'}]}
+                  onPress={() => this.handleCancelOrder({showCancel: false, bottomBar: false, action: false})}
+                >
+                  <Text style={[styles.cancelText, {color: '#6C6B6B'}]}>No</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.cancelButton, {backgroundColor: '#F07120'}]}
+                  onPress={() => this.handleCancelOrder({showCancel: false, bottomBar: true, action: true, currentOrderId: index})}
+                >
+                  <Text style={[styles.cancelText, {color: '#fff'}]}>Yes</Text>
                 </TouchableOpacity>
               </View>
-              <View style={styles.itemWrapper}>
-              {route.map((marker, i) => {
-                const {
-                  translateX,
-                } = animations[i];
-                const {current,eta,to,distance,hour} = this.props.stat[i];
-                return (
-                  <Animated.View
-                    key={marker.id}
-                    style={[
-                      styles.item,
-                      {
-                        transform: [{translateX: translateX}],
-                      },
-                    ]}>
-                    <View style={styles.sectionContentTitle}>
-                      <Text style={styles.orderTitleItem}>#302323402323</Text>
-                      <Text style={styles.chrono}>Distant Location {distance} Km</Text>
-                    </View>
-                    <View style={styles.sectionContent}>
-                      <View style={styles.contentList}>
-                        <Text style={styles.listLabel}>From</Text>
-                        <Text style={styles.listContent}>{current}</Text>
-                      </View>
-                      <View style={styles.contentList}>
-                        <Text style={styles.listLabel}>To</Text>
-                        <Text style={styles.listContent}>{to}</Text>
-                      </View>
-                      <View style={styles.contentList}>
-                        <Text style={styles.listLabel}>Package</Text>
-                        <Text style={styles.listContent}>{marker.amount}</Text>
-                      </View>
-                    </View>
-                    <View style={styles.sectionContentButton}>
-                      <Button
-                        buttonStyle={styles.contentButton}
-                        onPress={this.onItemDetail}
-                        titleStyle={styles.contentButtonText}
-                        title="See details"
-                      />
-                    </View>
-                  </Animated.View>
-                );
-              })}
-              </View>
-            </Animated.View>
-          )}
-          {toggleContainer && (
-            <BottomSheet
-              ref={this.state.bottomSheet}
-              snapPoints={[40, 500, 250]}
-              enabledGestureInteraction={true}
-              renderContent={this.renderInner}
-              renderHeader={this.renderHeader}
-              initialSnap={1}
-            />
-          )}
-        </PanController>
+            </View>
+          </View>
+        }
       </View>
     );
   }
@@ -774,13 +1007,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   sheetContainer: {
-    backgroundColor: 'white',
-    height: 600,
   },
   itemContainer: {
     backgroundColor: 'transparent',
     flexDirection: 'column',
     position: 'absolute',
+    bottom: 0,
     // top: screen.height - ITEM_PREVIEW_HEIGHT - 64,
     marginTop: screen.height - ITEM_PREVIEW_HEIGHT - 440, // 270
     // paddingTop: !ANDROID ? 0 : screen.height - ITEM_PREVIEW_HEIGHT - 64,
@@ -797,6 +1029,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexShrink: 1,
     paddingTop: 10,
+    paddingBottom: 1,
     marginVertical: 0,
   },
   itemLegend: {
@@ -860,7 +1093,7 @@ const styles = StyleSheet.create({
   itemHead: {
     width: screen.width - ITEM_SPACING * 4,
     marginHorizontal: (ITEM_SPACING * 4 )/2,
-    marginBottom:5,
+    marginBottom:10,
     height: 220,
     backgroundColor: 'white',
     borderRadius: 5,
@@ -981,13 +1214,12 @@ lineHeight: 12,
   },
   buttonText: {
     ...Mixins.small3,
-    lineHeight:12,
+    lineHeight:20,
     color: '#000000',
   },
   header: {
     backgroundColor: '#ffffff',
-    shadowColor: '#000000',
-    paddingTop: 20,
+    height: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
@@ -1096,18 +1328,74 @@ lineHeight:15,
   buttonDivider: {
     flex: 1,
   },
+  closeButton: {
+    position: 'absolute',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F07120',
+    width: 40,
+    height: 40,
+    borderRadius: 40,
+    elevation: 10,
+    top: -20,
+    right: -20,
+  },
+  overlayContainer: {
+    flex: 1,
+    position: 'absolute',
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    top: 0,
+    bottom: 0, 
+    right: 0,
+    left: 0,
+  },
+  cancelOrderSheet: {
+    width: '100%',
+    backgroundColor: '#fff',
+    flex: 0.35,
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  cancelButtonContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
+  cancelText: {
+    fontSize: 20,
+    textAlign: 'center',
+  },
+  cancelButton: {
+    width: '40%',
+    height: 40,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+  },
 });
 
 
 function mapStateToProps(state) {
   return {
-    bottomBar: state.filters.bottomBar,
-    startDelivered : state.filters.onStartDelivered,
-    markers: state.route.markers,
-    stat : state.route.stat,
-    statAPI : state.route.statAPI,
-    steps: state.route.steps,
-    isTraffic: state.filters.isTraffic,
+    isConnected : state.network.isConnected,
+    bottomBar: state.originReducer.filters.bottomBar,
+    startDelivered : state.originReducer.filters.onStartDelivered,
+    markers: state.originReducer.route.markers,
+    stat : state.originReducer.route.stat,
+    statAPI : state.originReducer.route.statAPI,
+    steps: state.originReducer.route.steps,
+    isTraffic: state.originReducer.filters.isTraffic,
+    indexStack : state.originReducer.filters.indexStack,
+    keyStack : state.originReducer.filters.keyStack,
+    isActionQueue : state.network.actionQueue,
+    dataPackage: state.originReducer.route.dataPackage,
   };
 }
 

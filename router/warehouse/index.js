@@ -1,5 +1,5 @@
 import React from 'react';
-import {TextInput, View, Text, Dimensions,TouchableOpacity} from 'react-native';
+import {TextInput, View, Text, Dimensions,TouchableOpacity, BackHandler, InteractionManager} from 'react-native';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
 import { CommonActions } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -8,10 +8,11 @@ import { createDrawerNavigator,DrawerContentScrollView,
   DrawerItemList, } from '@react-navigation/drawer';
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
-import CCM from './CCM';
+import CCM from './inbound'
+import Notification from './notification'
 import {Button, Avatar} from 'react-native-elements';
 import IconHome7Mobile from '../../assets/icon/iconmonstr-home-7mobile.svg';
-import IconDelivery6Mobile from '../../assets/icon/iconmonstr-delivery-6mobile.svg';
+import IconNote19Mobile from '../../assets/icon/iconmonstr-note-19mobile.svg';
 import IconBubble26Mobile from '../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import IconGear2Mobile from '../../assets/icon/iconmonstr-gear-2mobile.svg';
 import IconBell2Mobile from '../../assets/icon/iconmonstr-bell-2mobile.svg';
@@ -23,7 +24,8 @@ import { ReactReduxContext } from 'react-redux'
 const screen = Dimensions.get('window');
 const Drawer = createDrawerNavigator();
 
-class DeliveryNavigator extends React.Component {
+
+class WarehouseNavigator extends React.Component {
   _backHandlerRegisterToBottomBar = null;
   constructor(props) {
     super(props);
@@ -35,6 +37,7 @@ class DeliveryNavigator extends React.Component {
     this._CustomDrawerContent.bind(this);
     this.setWrapperofNavigation.bind(this);
     this.backActionFilterBottomBar.bind(this);
+    this._refreshFromBackHandle.bind(this);
   }
 
   deliveryRoute = () => {
@@ -63,14 +66,11 @@ class DeliveryNavigator extends React.Component {
     } else { 
       this.drawerRef.current = false;
     }
+    
+ 
     if (this.props.bottomBar !== nextProps.bottomBar && this.props.indexBottomBar === nextProps.indexBottomBar) {
-      this._backHandlerRegisterToBottomBar = BackHandler.addEventListener(
-        "hardwareBackPress",
-        this.backActionFilterBottomBar
-      );
       this.navigationRef.current.dispatch(state => {
         const routes = state.routes;
-
         return CommonActions.reset({
           ...state,
           routes,
@@ -78,8 +78,32 @@ class DeliveryNavigator extends React.Component {
         });
       });
       this.bottomUpdateRef.current = true;
-    }
+    } 
+    
     return true;
+  }
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    
+    if(this._backHandlerRegisterToBottomBar !== null){
+      this._backHandlerRegisterToBottomBar.remove();
+    }
+    this._backHandlerRegisterToBottomBar = BackHandler.addEventListener(
+      "hardwareBackPress",
+      ()=>{
+         this._refreshFromBackHandle();
+         return false;
+       }
+    );
+  }
+  
+  _refreshFromBackHandle = () =>{
+    const interactionPromise = InteractionManager.runAfterInteractions(() => {
+      if(this._backHandlerRegisterToBottomBar !== null){
+        this._backHandlerRegisterToBottomBar.remove();
+      }
+     
+    });
+    return () => interactionPromise.cancel();
   }
   
   
@@ -124,7 +148,7 @@ class DeliveryNavigator extends React.Component {
       Home: {screen: this.props.component},
     });
   };
-  setWrapperofNavigation= (navigation, index)=> {
+  setWrapperofNavigation= (navigation, index,key)=> {
 
     if(!this.navigationRef.current){
       this.navigationRef.current = navigation;
@@ -133,9 +157,7 @@ class DeliveryNavigator extends React.Component {
     if(this.bottomUpdateRef.current){
       this.bottomUpdateRef.current = false;
     } else {
-      if(this._backHandlerRegisterToBottomBar !== null){
-        this._backHandlerRegisterToBottomBar.remove();
-      }
+      this.props.setKeyBottom(key);
       this.props.setIndexBottom(index);
     }
   }
@@ -143,7 +165,7 @@ class DeliveryNavigator extends React.Component {
     const {navigation,state,descriptors} = props;
     const focusedOptions = descriptors[state.routes[state.index].key].options;
    
-    this.setWrapperofNavigation(navigation,state.index);
+    this.setWrapperofNavigation(navigation,state.index,state.routes[state.index].name);
     if (focusedOptions.tabBarVisible === false || this.props.bottomBar === false) {
       return null;
     }
@@ -169,7 +191,7 @@ class DeliveryNavigator extends React.Component {
           ),
         }),
       },
-      Profile: {
+      Inbound: {
         screen: CCM,
         navigationOptions:  ({ navigation }) => ({
           tabBarIcon: ({color, focused}) => (
@@ -180,17 +202,16 @@ class DeliveryNavigator extends React.Component {
                   : {backgroundColor: 'transparent'}
               }
               onPress={()=> {
-                this.props.setBottomBar(false);
-                navigation.navigate('Profile')}}
+                navigation.navigate('Inbound')}}
               icon={() => (
-                <IconDelivery6Mobile height="22" width="24" fill={color} />
+                <IconNote19Mobile height="22" width="24" fill={color} />
               )}
             />
           ),
         }),
       },
       Notification: {
-        screen: CCM,
+        screen: Notification,
         navigationOptions:  ({ navigation }) => ({
           tabBarIcon: ({color, focused}) => (
             <Button
@@ -227,7 +248,10 @@ class DeliveryNavigator extends React.Component {
       },
     },
     {
-      tabBar : this._CustomBottomTabContent,
+      tabBar : (props)=> {
+        return this._CustomBottomTabContent(props)
+      },
+      initialRouteName: 'Home',
       tabBarOptions: {
         shifting: false,
         showLabel: false,
@@ -235,6 +259,7 @@ class DeliveryNavigator extends React.Component {
         inactiveTintColor: '#6C6B6B',
         tabStyle: {
           paddingVertical: 10,
+          justifyContent: 'space-evenly',
         },
         style: {
           height: 94,
@@ -245,6 +270,7 @@ class DeliveryNavigator extends React.Component {
           borderTopRightRadius: 15,
           borderColor: 'transparent',
           overflow: 'hidden',
+          paddingHorizontal: screen.width * 10 / 100,
         },
       },
     },
@@ -300,13 +326,16 @@ const styles = {
 };
 function mapStateToProps(state) {
   return {
-    todos: state.todos,
-    textfield: state.todos.name,
-    value: state.todos.name,
-    userRole: state.userRole,
-    isDrawer : state.filters.isDrawer,
-    bottomBar: state.filters.bottomBar,
-    indexBottomBar : state.filters.indexBottomBar,
+    todos: state.originReducer.todos,
+    textfield: state.originReducer.todos.name,
+    value: state.originReducer.todos.name,
+    userRole: state.originReducer.userRole,
+    isDrawer : state.originReducer.filters.isDrawer,
+    bottomBar: state.originReducer.filters.bottomBar,
+    indexBottomBar : state.originReducer.filters.indexBottomBar,
+    keyBottomBar : state.originReducer.filters.keyBottomBar,
+    keyStack : state.originReducer.filters.keyStack,
+    indexStack : state.originReducer.filters.indexStack,
   };
 }
 
@@ -323,6 +352,9 @@ const mapDispatchToProps = (dispatch) => {
     setIndexBottom: (num) => {
       return dispatch({type: 'indexBottom', payload: num});
     },
+    setKeyBottom: (string) => {
+      return dispatch({type: 'keyBottom', payload: string});
+    },
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
     },
@@ -330,4 +362,5 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DeliveryNavigator);
+export default connect(mapStateToProps, mapDispatchToProps)(WarehouseNavigator);
+

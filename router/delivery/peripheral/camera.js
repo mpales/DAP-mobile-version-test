@@ -87,18 +87,7 @@ class Camera extends React.Component {
                     style={styles.preview}
                     type={RNCamera.Constants.Type.back}
                     flashMode={this.state.isFlashActive ? RNCamera.Constants.FlashMode.on : RNCamera.Constants.FlashMode.off}
-                    androidCameraPermissionOptions={{
-                        title: 'Permission to use camera',
-                        message: 'We need your permission to use your camera',
-                        buttonPositive: 'Ok',
-                        buttonNegative: 'Cancel',
-                    }}
-                    androidRecordAudioPermissionOptions={{
-                        title: 'Permission to use audio recording',
-                        message: 'We need your permission to use your audio',
-                        buttonPositive: 'Ok',
-                        buttonNegative: 'Cancel',
-                    }}
+                    captureAudio={false}
                 />
                 <View style={styles.optionContainer}>
                     <TouchableOpacity onPress={this.flashToggle}>
@@ -214,7 +203,7 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
     return {
-        photoProofList: state.photoProofList,
+        photoProofList: state.originReducer.photoProofList,
     };
 }
   

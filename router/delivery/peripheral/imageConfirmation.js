@@ -88,8 +88,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
     return {
-        imageConfirmationData: state.imageConfirmationData,
-        photoProofList: state.photoProofList,
+        imageConfirmationData: state.originReducer.imageConfirmationData,
+        photoProofList: state.originReducer.photoProofList,
     };
 }
 

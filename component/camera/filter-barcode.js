@@ -335,12 +335,7 @@ class CameraScreen extends React.Component {
         ratio={this.state.ratio}
         focusDepth={this.state.depth}
         trackingEnabled
-        androidCameraPermissionOptions={{
-          title: 'Permission to use camera',
-          message: 'We need your permission to use your camera',
-          buttonPositive: 'Ok',
-          buttonNegative: 'Cancel',
-        }}
+        captureAudio={false}
         faceDetectionLandmarks={
           RNCamera.Constants.FaceDetection.Landmarks
             ? RNCamera.Constants.FaceDetection.Landmarks.all
@@ -395,6 +390,7 @@ class CameraScreen extends React.Component {
               containerStyle={{flex:1,marginHorizontal: 26,marginVertical:40}}
               buttonStyle={styles.navigationButton}
               titleStyle={styles.deliveryText}
+              onPress={() => this.props.navigation.navigate('ManualInput')}
               title="Manual Input"
             />
         </View>
@@ -414,7 +410,6 @@ class CameraScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 10,
     backgroundColor: '#000',
   },
   flipButton: {
@@ -554,7 +549,7 @@ const styles = StyleSheet.create({
   },
   
   navigationButton: {
-    backgroundColor: '#121C78',
+    backgroundColor: '#F07120',
     borderRadius: 5,
   },
   
@@ -567,7 +562,7 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
   return {
-    detectBarcode: state.filters.isBarcodeScan,
+    detectBarcode: state.originReducer.filters.isBarcodeScan,
   };
 }
 
@@ -576,7 +571,6 @@ const mapDispatchToProps = (dispatch) => {
     setBarcodeScanner: (toggle) => {
       return dispatch({type: 'ScannerActive', payload: toggle});
     },
-    //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };
 

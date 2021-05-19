@@ -9,7 +9,7 @@ import {
 import {
 Button
 } from 'react-native-elements'
-import BottomSheet from 'reanimated-bottom-sheet';
+import { Modalize } from 'react-native-modalize';
 import BarCode from '../../../component/camera/filter-barcode';
 import Mixins from '../../../mixins';
 import {connect} from 'react-redux';
@@ -22,96 +22,129 @@ class Example extends React.Component {
       dataCode: '0',
     };
     this.renderBarcode.bind(this);
+    this.modalizeRef = React.createRef();
+  }
+
+  componentDidUpdate(prevProps, prevStates) {
+    if(prevProps.route !== this.props.route) {
+      this.setState({
+        dataCode: this.props.route.params.inputCode,
+      });
+    }
   }
 
   renderInner = () => (
     <View style={styles.sheetContainer}>
-    <View style={styles.sectionSheetDetail}>
-      <View style={styles.detailContent}>
-      <Text style={styles.barcodeText}>{this.state.dataCode}</Text>
-      <Text style={styles.barcodeDesc}>大包号 : 01487595</Text>
+      <View style={styles.sectionSheetDetail}>
+        <View style={styles.sheetPackages}>
+            <View style={[styles.sectionDividier, {alignItems: 'center', justifyContent: 'space-between'}]}>
+                <Text style={styles.barcodeText}>{this.state.dataCode}</Text>
+                <Text style={styles.barcodeDesc}>1/5</Text>
+            </View>
+            <View style={styles.sectionDividier}>
+              <View style={styles.dividerContent}>
+                <Text style={styles.labelPackage}>CBM</Text>
+                <Text style={styles.infoPackage}>0.18</Text>
+              </View>
+              <View style={styles.dividerContent}>
+                <Text style={styles.labelPackage}>KG</Text>
+                <Text style={styles.infoPackage}>10s</Text>
+              </View>
+              <View style={styles.dividerContent}>
+                <Text style={styles.labelPackage}>Description</Text>
+                <Text style={styles.infoPackage}>Chair</Text>
+              </View>
+            </View>
+            <View style={styles.sectionDividier}>
+              <View style={styles.dividerContent}>
+                <Text style={styles.deliverTitle}>Deliver By</Text>
+                <Text style={styles.deliverText}>VAN 098234</Text>
+              </View>
+            </View>
+        </View>
+        <View style={styles.buttonSheet}>
+        {this.props.barcodeScanned.includes(this.state.dataCode) &&
+        (<Button
+          containerStyle={{flex:1, marginTop: 10,}}
+          buttonStyle={styles.navigationButton}
+          titleStyle={styles.deliveryText}
+          onPress={() => this.onSubmit()}
+          title="Confirm"
+        />)}
+        {this.props.barcodeScanned.includes(this.state.dataCode) === false &&
+        (<Button
+          containerStyle={{flex:1, marginTop: 10,}}
+          buttonStyle={styles.navigationButton}
+          titleStyle={styles.deliveryText}
+          onPress={() => this.props.navigation.navigate('newItem',{dataCode: this.state.dataCode})}
+          title="Register New Item"
+        />)}
+        
+        </View>
+        <View style={styles.buttonSheet}>
+        <Button
+          containerStyle={{flex:1, marginTop: 10,marginRight: 5,}}
+          buttonStyle={styles.navigationButton}
+          titleStyle={styles.deliveryText}
+          onPress={() => this.props.navigation.navigate('ReportManifest')}
+          title="Report Item"
+        />
+          <Button
+          containerStyle={{flex:1, marginTop: 10,marginLeft:5,}}
+          buttonStyle={styles.navigationButton}
+          titleStyle={styles.deliveryText}
+          onPress={() => this.props.navigation.navigate('ManualInput')}
+          title="Input Manual"
+        />
+        </View>
       </View>
-      <View style={styles.sheetPackages}>
-          <View style={styles.sectionDividier}>
-            <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Name</Text>
-              <Text style={styles.infoPackage}>Yan Ting</Text>
-            </View>
-            <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Number Packages</Text>
-              <Text style={styles.infoPackage}>2</Text>
-            </View>
-          </View>
-          <View style={styles.sectionDividier}>
-            <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Description</Text>
-              <Text style={styles.infoPackage}>Chair</Text>
-            </View>
-            <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Qty</Text>
-              <Text style={styles.infoPackage}>8/20</Text>
-            </View>
-            <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>KG</Text>
-              <Text style={styles.infoPackage}>10 kg</Text>
-            </View>
-          </View>
-          <View style={styles.sectionDividier}>
-            <View style={styles.dividerContent}>
-              <Text style={styles.labelPackage}>Deliver To</Text>
-              <Text style={styles.infoPackage}>A1</Text>
-            </View>
-          </View>
-      </View>
-      <View style={styles.buttonSheet}>
-      <Button
-              containerStyle={{flex:1,alignSelf: 'flex-start', marginVertical:40}}
-              buttonStyle={styles.navigationButton}
-              titleStyle={styles.deliveryText}
-              onPress={()=>{
-                this.props.dispatchCompleteManifest(true);
-                this.props.navigation.navigate('List')
-              }}
-              title="Confirm"
-            />
-      </View>
-    </View>
     </View>
   );
 
   renderHeader = () => (
     <View style={styles.header}>
-    <View style={styles.panelHeader}>
-      <View style={styles.panelHandle} />
+      <View style={styles.panelHeader} />
     </View>
-  </View>
   );
 
   renderBarcode = (barcode) => {
     if (barcode.length > 0 && barcode[0].data.length > 0) {
       this.setState({dataCode: barcode[0].data});
-      return this.bs.current.snapTo(2);
     }
-    if (this.state.dataCode !== '0') {
-      return this.bs.current.snapTo(2);
-    }
-    return this.bs.current.snapTo(0);
   };
-  bs = React.createRef();
+
+  onSubmit = () => {
+    this.props.setBarcodeScanner(true);
+    this.setState({
+      dataCode: '0',
+    });
+    // for prototype only
+    (this.props.barcodeScanned.length > 0)
+     ? this.props.barcodeScanned.push(this.props.barcodeScanned[this.props.barcodeScanned.length - 1] + 1)
+     : this.props.barcodeScanned.push(0);
+    // end
+    this.props.navigation.navigate('itemDetail');
+  }
 
   render() {
+    const { dataCode } = this.state;
     return (
       <View style={styles.container}>
-        <BottomSheet
-          ref={this.bs}
-          snapPoints={[screen.height * 0.1, screen.height * 0.5, screen.height * 0.2]}
-          enabledGestureInteraction={true}
-          renderContent={this.renderInner}
-          renderHeader={this.renderHeader}
-          initialSnap={1}
-        />
-        <TouchableWithoutFeedback onPress={() => this.bs.current.snapTo(1)}>
-          <BarCode renderBarcode={this.renderBarcode} />
+        {parseInt(dataCode) !== 0 && 
+          <Modalize 
+            ref={this.modalizeRef}
+            handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
+            handlePosition={'inside'}
+            disableScrollIfPossible={true}
+            modalHeight={350}
+            alwaysOpen={350}
+            HeaderComponent={<this.renderHeader />}
+          >
+            <this.renderInner />
+          </Modalize>
+        }
+        <TouchableWithoutFeedback onPress={() => {}}>
+          <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} />
         </TouchableWithoutFeedback>
       </View>
     );
@@ -175,13 +208,12 @@ const styles = StyleSheet.create({
   },
   sheetContainer: {
     backgroundColor: 'white',
-   
-    height: screen.height * 0.5,
   },
   sectionSheetDetail: {
     flexGrow: 1,
     flexDirection: 'column',
     marginHorizontal: 32,
+    marginTop: 20,
   },
   detailContent: {
     flexShrink: 1,
@@ -189,13 +221,14 @@ const styles = StyleSheet.create({
     marginTop: 19,
   },
   barcodeText: {
-    ...Mixins.h5,
+    ...Mixins.h1,
     lineHeight: 27,
+    maxWidth: '80%',
   },
   barcodeDesc: {
-    ...Mixins.body3,
-    fontWeight: '400',
-    lineHeight: 21,
+    color: '#6C6B6B',
+    fontSize: 36,
+    maxWidth: '20%',
   },
   sectionDividier: {
     flexDirection: 'row',
@@ -209,7 +242,7 @@ const styles = StyleSheet.create({
   labelPackage: {
     ...Mixins.subtitle3,
     color: '#000000',
-    lineHeight: 21,
+    fontWeight: '700'
   },
   infoPackage: {
     ...Mixins.subtitle3,
@@ -219,7 +252,7 @@ const styles = StyleSheet.create({
   },
   
   navigationButton: {
-    backgroundColor: '#121C78',
+    backgroundColor: '#F07120',
     borderRadius: 5,
   },
   
@@ -234,12 +267,25 @@ const styles = StyleSheet.create({
   buttonSheet: {
     flexGrow: 1,
     flexDirection:'row',
-  }
+  },
+  deliverTitle: {
+    fontSize: 20,
+    lineHeight: 27,
+    fontWeight: '700',
+  },
+  deliverText: {
+    fontSize: 20,
+    lineHeight: 40,
+  },
 });
 
 function mapStateToProps(state) {
   return {
-    ManifestCompleted: state.filters.manifestCompleted,
+    ManifestCompleted: state.originReducer.filters.manifestCompleted,
+    detectBarcode: state.originReducer.filters.isBarcodeScan,
+    // for prototype only
+    barcodeScanned: state.originReducer.barcodeScanned,
+    // end
   };
 }
 
@@ -248,7 +294,9 @@ const mapDispatchToProps = (dispatch) => {
     dispatchCompleteManifest: (bool) => {
       return dispatch({type: 'ManifestCompleted', payload: bool});
     },
-    //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
+    setBarcodeScanner: (toggle) => {
+      return dispatch({type: 'ScannerActive', payload: toggle});
+    },
   };
 };
 

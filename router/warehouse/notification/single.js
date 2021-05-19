@@ -79,7 +79,6 @@ class Chat extends React.Component {
       manifestList,
       search: '',
     };
-    this.props.setBottomBar(false);
     this.updateSearch.bind(this);
   }
   updateSearch = (search) => {

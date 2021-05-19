@@ -14,9 +14,7 @@ import IconCursor20Mobile from '../../assets/icon/iconmonstr-cursor-20 1mobile.s
 import IconTime2Mobile from '../../assets/icon/iconmonstr-time-2 1mobile.svg';
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
 import Mixins from '../../mixins';
-const BadgedIcon = withBadge((props) => {
-  return {bottom: props.value};
-})(IconCursor20Mobile);
+
 
 const styles = {
   sectionContainer: {
@@ -114,7 +112,7 @@ const theme = {
     paddingVertical: 12,
   },
 };
-const Manifest = ({item, index, drag, isActive}) => {
+const Manifest = ({item, index, drag, isActive, navigation}) => {
   let secDiffinTraffic = item.duration_in_trafficAPI - item.durationAPI;
   let translateFromTraffic = item.chrono + secDiffinTraffic;
   var durationAPI = "";
@@ -155,19 +153,17 @@ const Manifest = ({item, index, drag, isActive}) => {
         </TouchableOpacity>
         <ListItem.Content>
         <ListItem.Title style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
-        {index}
+        {item.named}
           </ListItem.Title>
           <ListItem.Subtitle style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
-         Distant Location { item.distance } Km
+         Distant : Location { item.distance } Km | Legs : {Number.parseFloat(item.distanceAPI/1000).toFixed(0)} Km
           </ListItem.Subtitle>
           <View style={styles.legend}>
             <View style={styles.legendLabel}>
-              <Text style={styles.label}>Location</Text>
               <Text style={styles.label}>To</Text>
             </View>
             <View style={styles.legendInfo}>
-              <Text style={styles.info}>{item.current}</Text>
-              <Text style={styles.info}>{item.to}</Text>
+              <Text style={styles.info}>{item.Address}</Text>
             </View>
           </View>
         </ListItem.Content>
@@ -178,7 +174,7 @@ const Manifest = ({item, index, drag, isActive}) => {
             type="clear"
             titleStyle={{marginLeft: 9, fontSize: 10, color: '#000000'}}
             icon={() => (
-              <IconTime2Mobile height="15" width="15" fill="#ABABAB" />
+              <IconTime2Mobile height="15" width="15" fill={secDiffinTraffic > 0 ? ("red") : ("#ABABAB")} />
             )}
           />
           <ListItem.Chevron
@@ -192,7 +188,7 @@ const Manifest = ({item, index, drag, isActive}) => {
                   <IconArrow66Mobile height="16" width="26" fill="#2D2C2C"/>
                 }
               />)}
-            onPress={() => navigation.navigate('Navigation')}
+            onPress={() => navigation(index)}
           />
         </View>
       </ListItem>

@@ -1,7 +1,7 @@
 import React from 'react';
 import {TextInput, View, Text, useWindowDimensions} from 'react-native';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
-import {createStackNavigator, HeaderBackButton} from '@react-navigation/stack';
+import {createStackNavigator, HeaderBackButton, Header} from '@react-navigation/stack';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
@@ -15,7 +15,7 @@ import Navigation from '../../../component/map/index';
 import { TabRouter } from '@react-navigation/native';
 import Package from '../package';
 import Order from '../order/index';
-import Camera from '../peripheral/camera';
+import Cancel from '../order/cancelOrder';
 import Mixins from '../../../mixins';
 
 const Stack = createStackNavigator();
@@ -26,6 +26,15 @@ class AddressNavigator extends React.Component {
     this.deliveryTab.bind(this);
     this.backwithoutBottom.bind(this);
     this.cancelDelivery.bind(this);
+    this.setWrapperofStack.bind(this);
+  }
+  setWrapperofStack = (index,key) => {
+    const {indexBottomBar} = this.props;
+    console.log(indexBottomBar + key);
+    if(indexBottomBar === 0){
+      this.props.setCurrentStackKey(key);
+      this.props.setCurrentStackIndex(index);
+    }
   }
   backwithoutBottom = () => {
     this.props.setBottomBar(false);
@@ -70,7 +79,20 @@ class AddressNavigator extends React.Component {
   );
   render() {
     return (
-      <Stack.Navigator initialRouteName="List" screenOptions={{headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>)}}>
+      <Stack.Navigator initialRouteName="List" screenOptions={{
+        headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
+        header: (props) => {
+          let state = props.navigation.dangerouslyGetState();
+          let key =  state.routes[state.index].name;
+          let index = state.index;
+          this.setWrapperofStack(index,key);
+          return (
+            <Header
+            {...props}
+            />
+          );
+        },
+        }}>     
         <Stack.Screen
           name="List"
           component={this.deliveryTab}
@@ -168,6 +190,41 @@ class AddressNavigator extends React.Component {
           })}
         />
         <Stack.Screen
+          name="Cancel"
+          component={Cancel}
+          options={({ navigation }) => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
+            headerTitle: 'Cancel Deliver',
+            headerLeft: (props) => {
+              return(
+              <HeaderBackButton  {...props} onPress={()=>{
+                this.backwithoutBottom();
+                navigation.goBack();
+              }
+              }
+              />);
+            },
+            headerRight: () => (
+              <Button
+                type="clear"
+                buttonStyle={{paddingHorizontal: 20, margin: 0}}
+                iconContainerStyle={{padding: 0, margin: 0}}
+                titleStyle={{padding: 0, margin: 0}}
+                icon={() => (
+                  <IconDelivery8Mobile height="24" width="24" fill="#fff" />
+                )}
+              />
+            ),
+          })}
+        />
+        <Stack.Screen
           name="Order"
           component={Order}
           options={({ navigation }) => ({
@@ -209,11 +266,14 @@ class AddressNavigator extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    todos: state.todos,
-    textfield: state.todos.name,
-    value: state.todos.name,
-    bottomBar: state.filters.bottomBar,
-    startDelivered: state.filters.startDelivered,
+    todos: state.originReducer.todos,
+    textfield: state.originReducer.todos.name,
+    value: state.originReducer.todos.name,
+    bottomBar: state.originReducer.filters.bottomBar,
+    startDelivered: state.originReducer.filters.startDelivered,
+    indexStack : state.originReducer.filters.indexStack,
+    keyStack : state.originReducer.filters.keyStack,
+    indexBottomBar : state.originReducer.filters.indexBottomBar,
   };
 }
 
@@ -229,7 +289,16 @@ const mapDispatchToProps = (dispatch) => {
     },
     setStartDelivered : (toggle) => {
       return dispatch({type: 'startDelivered', payload: toggle});
-    }
+    },
+    toggleDrawer: (bool) => {
+      return dispatch({type: 'ToggleDrawer', payload: bool});
+    },
+    setCurrentStackKey: (string) => {
+      return dispatch({type: 'keyStack', payload: string});
+    },
+    setCurrentStackIndex: (num) => {
+      return dispatch({type: 'indexStack', payload: num});
+    },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };

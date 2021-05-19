@@ -27,8 +27,8 @@ const screen = Dimensions.get('window');
 const ASPECT_RATIO = screen.width / screen.height;
 const LATITUDE_DELTA = 0.2222;
 
-const LATITUDE = 1.1037975445392902;
-const LONGITUDE = 104.09571858289692;
+const LATITUDE = 1.3287109;
+const LONGITUDE = 103.8476682;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 class AnimatedMarkers extends React.Component {
@@ -74,20 +74,31 @@ class AnimatedMarkers extends React.Component {
     };
   }
 
-  static getDerivedStateFromProps(props,state){
-    return state;
 
-  }
-  shouldComponentUpdate(nextProps, nextState){
-    
-  }
+
   componentDidUpdate(prevProps, prevState, snapshot) {
-    // same construct polygon in state variable
-    //console.log('test');
-    const { Polygon } = this.state;
-    if (snapshot !== null) {
-    //  Polygon.translateToOrder(...this.props.markers);
-    //  this.setState({GeoJSON:Polygon.setToGeoJSON()});
+    if(prevProps.route_id !== this.props.route_id){
+      const COORDINATES = this.props.steps;
+
+      const markers = this.props.markers;
+  
+        const LatLngs =  Array.from({length: COORDINATES.length}).map((num, index) => {
+          let latLng = new Location(COORDINATES[index][0],COORDINATES[index][1]);
+          return latLng.location();
+        });
+        let marker = Array.from({length:markers.length}).map((num,index)=>{
+          let latLng = new Location(markers[index][0],markers[index][1]);
+        return  latLng.location(); 
+        });
+      
+        const Polygon = new Util;
+        let LayerGroup = Polygon.setLayersGroup(LatLngs,marker);
+        //console.log(Polygon.setLatLng(this.props.orders));
+       // Polygon.translateToOrder(Polygon.setLatLng(this.props.orders));
+        const GeoJSON = LayerGroup.toGeoJSON();
+      this.setState({
+        GeoJSON
+      });
     }
   }
   
@@ -106,6 +117,7 @@ class AnimatedMarkers extends React.Component {
     return (
       <View style={styles.container}>
         <AnimatedMap
+        showsTraffic={this.props.trafficLayer}
           provider={this.props.provider}
           style={styles.map}
           region={region}
@@ -134,9 +146,10 @@ const styles = {
 
 function mapStateToProps(state) {
   return {
-    orders : state.route.orders,
-    markers: state.route.markers,
-    steps: state.route.steps,
+    orders : state.originReducer.route.orders,
+    markers: state.originReducer.route.markers,
+    steps: state.originReducer.route.steps,
+    route_id: state.originReducer.route.id,
   };
 }
 
