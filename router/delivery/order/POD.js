@@ -119,13 +119,7 @@ class POD extends React.Component {
                 placeholder="Please put in lobby"
                 label="Instruction"
               />
-                <TouchableOpacity
-            style={styles.buttonDetail}
-            onPress={() => this.onLihatDetail()}>
-            <Text style={styles.detailTitle} h6>
-              Delivery Detail
-            </Text>
-          </TouchableOpacity>
+        
             </View>
           </View>
           <View style={styles.sectionButtonGroup}>
