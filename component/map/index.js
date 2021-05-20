@@ -621,26 +621,28 @@ class AnimatedMarkers extends React.Component {
         {this.state.modalPosition === 'top' &&
           <Animated.View style={{opacity: this.state.fadeAnim}}>
             <View style={styles.sectionPackage}>
-              <Text style={styles.titlePackage}>Summary Order</Text>
-              { list.map((element, i) =>  
-                <Text style={styles.small3}>{element.id} </Text>
-              )}
-              <View style={styles.sectionDividier}>
-                <View style={[styles.dividerContent,{flex:2}]}>
-                  <Text style={styles.labelPackage}>Total Package</Text>
-                  <Text style={styles.infoPackage}>{packages}</Text>
-                </View>
-                <View style={styles.dividerContent}>
-                  <Text style={styles.labelPackage}>Weight</Text>
-                  <Text style={styles.infoPackage}>-</Text>
-                </View>
-                <View style={styles.dividerContent}>
-                  <Text style={styles.labelPackage}>CBM</Text>
-                  <Text style={styles.infoPackage}>-</Text>
-                </View>
-              </View>
-        
+          <Text style={styles.titlePackage}>Package Detail</Text>
+          <View style={styles.sectionDividier}>
+            <View style={styles.dividerContent}>
+              <Text style={styles.labelPackage}>Transfer</Text>
+              <Text style={styles.infoPackage}>Van</Text>
             </View>
+            <View style={styles.dividerContent}>
+              <Text style={styles.labelPackage}>Commodity</Text>
+              <Text style={styles.infoPackage}>Dry Food</Text>
+            </View>
+          </View>
+          <View style={styles.sectionDividierRight}>
+            <View style={styles.dividerContent}>
+              <Text style={styles.labelPackage}>Packaging type</Text>
+              <Text style={styles.infoPackage}>20 pallet</Text>
+            </View>
+            <View style={styles.dividerContent}>
+              <Text style={styles.labelPackage}>Weight</Text>
+              <Text style={styles.infoPackage}>23.00 Kg</Text>
+            </View>
+          </View>
+        </View>
             <View style={styles.sectionSheetButton}>
               <Button
                 buttonStyle={styles.navigationButton}

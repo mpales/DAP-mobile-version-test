@@ -34,8 +34,7 @@ class Packages extends React.Component {
     console.log(this.state.singleData);
     return (
       <ScrollView style={{flex: 1, backgroundColor: 'white', paddingHorizontal: 10}}>
-       {!this.props.startDelivered && (
-         <>
+
               <View style={styles.sectionHeadPackage}>
               <Text style={styles.headTitle}>{named}</Text>
               </View>
@@ -73,38 +72,40 @@ class Packages extends React.Component {
                 </Text>
               </View>
               </View>
-              </>
-       )}
-         { list.map((element, i) => 
-                <View style={styles.sectionPackage}>
-                  <Text style={styles.headSubtitle}>{element.id}</Text>
-                    <Text style={styles.titlePackage}>Package Detail</Text>
-                    <View style={styles.sectionDividier}>
-                      <View style={[styles.dividerContent,{flex:2}]}>
-                        <Text style={styles.labelPackage}>Package Number</Text>
-                        <Text style={styles.infoPackage}>{element.package}</Text>
-                      </View>
-                      <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>Weight</Text>
-                        <Text style={styles.infoPackage}>{element.weight}</Text>
-                      </View>
-                      <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>CBM</Text>
-                        <Text style={styles.infoPackage}>{element.CBM}</Text>
-                      </View>
-                    </View>
-            
-                  </View>
-          )}
+          
+  
+           <View style={styles.sectionPackage}>
+          <Text style={styles.titlePackage}>Package Detail</Text>
+          <View style={styles.sectionDividier}>
+            <View style={styles.dividerContent}>
+              <Text style={styles.labelPackage}>Transfer</Text>
+              <Text style={styles.infoPackage}>Van</Text>
+            </View>
+            <View style={styles.dividerContent}>
+              <Text style={styles.labelPackage}>Commodity</Text>
+              <Text style={styles.infoPackage}>Dry Food</Text>
+            </View>
+          </View>
+          <View style={styles.sectionDividierRight}>
+            <View style={styles.dividerContent}>
+              <Text style={styles.labelPackage}>Packaging type</Text>
+              <Text style={styles.infoPackage}>20 pallet</Text>
+            </View>
+            <View style={styles.dividerContent}>
+              <Text style={styles.labelPackage}>Weight</Text>
+              <Text style={styles.infoPackage}>23.00 Kg</Text>
+            </View>
+          </View>
+        </View>
        
-        {!this.props.startDelivered && (
+        
         <View style={styles.sectionButton}>
           <Button
             buttonStyle={styles.navigationButton}
             titleStyle={styles.deliveryText}
             title="Start delivery"
           />
-        </View>)}
+        </View>
       </ScrollView>
     );
   }
