@@ -67,6 +67,7 @@ class List extends React.Component<IProps, {}> {
     this.navigateToSingle.bind(this);
   }
   navigateToSingle = () => {
+    this.props.setBottomBar(false);
     this.props.navigation.navigate('Single');
   }
   updateSearch = (search) => {
@@ -190,6 +191,9 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
     reset: () => dispatch({type: 'RESET'}),
     onChange: (text: any) => {
       return {type: 'todos', payload: text};
+    },
+    setBottomBar: (toggle) => {
+      return dispatch({type: 'BottomBar', payload: toggle});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };

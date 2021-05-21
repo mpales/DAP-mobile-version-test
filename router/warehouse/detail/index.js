@@ -42,7 +42,9 @@ class Acknowledge extends React.Component {
                   }}
                   title="BARCODE"
                   overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
-                  onPress={() => this.props.navigation.navigate('Inbound',{screen:'Barcode'})}
+                  onPress={() => {
+                    this.props.setBottomBar(false);
+                    this.props.navigation.navigate('Inbound',{screen:'Barcode'})}}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
@@ -62,7 +64,9 @@ class Acknowledge extends React.Component {
                   }}
                   title="PURCHASE ORDER"
                   overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
-                  onPress={() =>this.props.navigation.navigate('Inbound',{screen:'Manifest'})}
+                  onPress={() => {
+                    this.props.setBottomBar(false);
+                    this.props.navigation.navigate('Inbound',{screen:'Manifest'})}}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}

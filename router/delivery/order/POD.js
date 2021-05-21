@@ -9,6 +9,8 @@ import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg'
 import Signature from '../peripheral/signature';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
+
+import OfflineMode from '../../../component/linked/offlinemode';
 const window = Dimensions.get('window');
 
 class POD extends React.Component {
@@ -82,6 +84,7 @@ class POD extends React.Component {
     return (
       <>
         <View style={{flex: 1, backgroundColor: 'white', paddingHorizontal: 22}}>
+          <OfflineMode/>
           <View style={styles.sectionInput}>
             <View style={styles.inputContainer}>
               <Input

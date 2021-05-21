@@ -1,6 +1,6 @@
 import React from 'react';
 import {Image, Text, TouchableOpacity, View} from 'react-native';
-import {createStackNavigator, HeaderBackButton} from '@react-navigation/stack';
+import {createStackNavigator, HeaderBackButton, Header} from '@react-navigation/stack';
 import {connect} from 'react-redux';
 import {Button} from 'react-native-elements';
 import IconDelivery8Mobile from '../../../assets/icon/iconmonstr-delivery-8 1mobile.svg';
@@ -22,11 +22,31 @@ const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
   constructor(props) {
     super(props);
+    
+    this.setWrapperofStack.bind(this);
   }
-
+  setWrapperofStack = (index,key) => {
+    const {indexBottomBar} = this.props;
+    if(indexBottomBar === 1){
+      this.props.setCurrentStackKey(key);
+      this.props.setCurrentStackIndex(index);
+    }
+  }
   render() {
     return (
-      <Stack.Navigator initialRouteName="List" screenOptions={{headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>)}}>
+      <Stack.Navigator initialRouteName="List" screenOptions={{
+        headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
+        header: (props) => {
+          let state = props.navigation.dangerouslyGetState();
+          let key =  state.routes[state.index].name;
+          let index = state.index;
+          this.setWrapperofStack(index,key);
+          return (
+            <Header
+            {...props}/>
+          );
+        },
+        }}>     
         <Stack.Screen
           name="List"
           component={List}
@@ -114,7 +134,9 @@ class HomeNavigator extends React.Component {
               <View style={{display: 'flex', flexDirection: 'row'}}>
                 <TouchableOpacity
                   style={{paddingHorizontal: 20, margin: 0}}
-                  onPress={() => this.props.navigation.navigate('ReportManifest')}
+                  onPress={() => {
+                    this.props.setBottomBar(true);
+                    this.props.navigation.navigate('ReportManifest')}}
                 >
                   <Text style={{...Mixins.h6,fontWeight: '400',lineHeight: 22, color: '#FFF'}}>Report</Text>
                 </TouchableOpacity>
@@ -212,7 +234,8 @@ class HomeNavigator extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    bottomBar: state.originReducer.filters.bottomBar,
+    indexBottomBar : state.originReducer.filters.indexBottomBar,
+    keyBottomBar : state.originReducer.filters.keyBottomBar,
   };
 }
 
@@ -223,6 +246,12 @@ const mapDispatchToProps = (dispatch) => {
     },
     toggleDrawer: (bool) => {
       return dispatch({type: 'ToggleDrawer', payload: bool});
+    },
+    setCurrentStackKey: (string) => {
+      return dispatch({type: 'keyStack', payload: string});
+    },
+    setCurrentStackIndex: (num) => {
+      return dispatch({type: 'indexStack', payload: num});
     },
   };
 };

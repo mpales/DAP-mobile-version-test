@@ -19,6 +19,7 @@ class Acknowledge extends React.Component {
 
 
   render(){
+    this.props.setBottomBar(false);
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: '#E5E5E5', paddingHorizontal: 22,}}>
           <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 100}}>
@@ -37,6 +38,7 @@ class Acknowledge extends React.Component {
                 title="INBOUND"
                 titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
                 onPress={()=>{
+                  this.props.setBottomBar(true);
                   this.props.navigation.navigate('Warehouse')}}
                 buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
               />
@@ -50,6 +52,7 @@ class Acknowledge extends React.Component {
                 title="OUTBOND"
                 titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
                 onPress={()=>{
+                  this.props.setBottomBar(true);
                     this.props.navigation.navigate('Warehouse')}}
                     buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
                     />
@@ -63,6 +66,7 @@ class Acknowledge extends React.Component {
                 title="WAREHOUSE"
                 titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
                 onPress={()=>{
+                  this.props.setBottomBar(true);
                     this.props.navigation.navigate('Warehouse')}}
                     buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
                     />

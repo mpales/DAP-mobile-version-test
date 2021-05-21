@@ -390,7 +390,9 @@ class CameraScreen extends React.Component {
               containerStyle={{flex:1,marginHorizontal: 26,marginVertical:40}}
               buttonStyle={styles.navigationButton}
               titleStyle={styles.deliveryText}
-              onPress={() => this.props.navigation.navigate('ManualInput')}
+              onPress={() => {
+                this.props.setBottomBar(true);
+                this.props.navigation.navigate('ManualInput')}}
               title="Manual Input"
             />
         </View>
@@ -570,6 +572,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     setBarcodeScanner: (toggle) => {
       return dispatch({type: 'ScannerActive', payload: toggle});
+    },
+    setBottomBar: (toggle) => {
+      return dispatch({type: 'BottomBar', payload: toggle});
     },
   };
 };

@@ -27,7 +27,7 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import ListChat from '../../../component/extend/ListItem-chat';
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
-import {createStackNavigator} from '@react-navigation/stack';
+import {createStackNavigator,Header} from '@react-navigation/stack';
 import List from './list';
 import Chat from './single';
 import Mixins from '../../../mixins';
@@ -39,8 +39,17 @@ class Notification extends React.Component {
     super(props);
 
     this.StackSelector.bind(this);
+        this.setWrapperofStack.bind(this);
   }
+  setWrapperofStack = (index,key) => {
+    const {indexBottomBar} = this.props;
+    
+    if(indexBottomBar === 2 ){
 
+      this.props.setCurrentStackKey(key);
+      this.props.setCurrentStackIndex(index);
+    }
+  }
   StackSelector = createCompatNavigatorFactory(createStackNavigator)(
     {
       List: {
@@ -72,6 +81,21 @@ class Notification extends React.Component {
     },
     {
       initialRouteName: 'List',
+      headerMode: 'screen',
+      defaultNavigationOptions: {
+        header: (props) => {
+          let state = props.navigation.dangerouslyGetState();
+          let key =  state.routes[state.index].name;
+          let index = state.index;
+          this.setWrapperofStack(index,key);
+        
+          return (
+            <Header
+            {...props}
+            />
+          );
+        },
+      },
     },
   );
   render() {
@@ -87,6 +111,7 @@ function mapStateToProps(state) {
     value: state.originReducer.todos.name,
     userRole: state.originReducer.userRole,
     isDrawer: state.originReducer.filters.isDrawer,
+    indexBottomBar : state.originReducer.filters.indexBottomBar,
   };
 }
 
@@ -96,6 +121,12 @@ const mapDispatchToProps = (dispatch) => {
     reset: () => dispatch({type: 'RESET'}),
     onChange: (text) => {
       return {type: 'todos', payload: text};
+    },
+    setCurrentStackKey: (string) => {
+      return dispatch({type: 'keyStack', payload: string});
+    },
+    setCurrentStackIndex: (num) => {
+      return dispatch({type: 'indexStack', payload: num});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };

@@ -9,6 +9,7 @@ import {
 import { CheckBox } from 'react-native-elements';
 import { connect } from 'react-redux';
 
+import OfflineMode from '../../../component/linked/offlinemode';
 class CancelOrder extends React.Component {
     constructor(props) {
         super(props)
@@ -59,6 +60,7 @@ class CancelOrder extends React.Component {
     render() {
         return (
             <View style={styles.container}>
+                <OfflineMode />
                 <View style={styles.contentContainer}>
                     <Text style={styles.title}>Delivery</Text>
                     <CheckBox

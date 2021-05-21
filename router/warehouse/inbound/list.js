@@ -32,7 +32,6 @@ class List extends React.Component {
     componentDidMount() {
         this.props.setInboundLIst(inboundList)
     }
-
     render() {
         return(
             <SafeAreaProvider>
@@ -74,7 +73,10 @@ class List extends React.Component {
                                     key={i} 
                                     index={i} 
                                     item={data} 
-                                    navigation={this.props.navigation}
+                                    ToManifest={()=>{
+                                        this.props.setBottomBar(true);
+                                        this.props.navigation.navigate('ReceivingDetail');
+                                    }}
                                     // for prototype only
                                     completedInboundList={this.props.completedInboundList}
                                     // end
@@ -220,7 +222,6 @@ const inboundList = [
 
 function mapStateToProps(state) {
     return {
-        bottomBar: state.originReducer.filters.bottomBar,
         inboundList: state.originReducer.inboundList,
         completedInboundList: state.originReducer.completedInboundList,
     };
@@ -228,13 +229,15 @@ function mapStateToProps(state) {
   
 const mapDispatchToProps = (dispatch) => {
     return {
-        setBottomBar: (toggle) => {
-            return dispatch({type: 'BottomBar', payload: toggle});
-        },
-        setInboundLIst: (data) => {
+      
+    setInboundLIst: (data) => {
             return dispatch({type: 'InboundList', payload: data});
-        }
+        },
+      setBottomBar: (toggle) => {
+        return dispatch({type: 'BottomBar', payload: toggle});
+      },
+      //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
     };
-};
+  };
 
 export default connect(mapStateToProps, mapDispatchToProps)(List)

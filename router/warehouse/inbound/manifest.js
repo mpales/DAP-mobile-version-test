@@ -107,34 +107,8 @@ class Warehouse extends React.Component{
             </View>
           </Overlay>
           <View style={styles.buttonSticky}>
-            <Avatar
-              size={75}
-              ImageComponent={() => (
-                <IconBarcodeMobile height="40" width="37" fill="#fff" />
-              )}
-              imageProps={{
-                containerStyle: {
-                  ...Mixins.buttonAvatarDefaultIconStyle,
-                },
-              }}
-              overlayContainerStyle={styles.barcodeButton}
-              onPress={() => {
-                this.props.setBarcodeScanner(true);
-                this.props.navigation.navigate('Barcode')}}
-              activeOpacity={0.7}
-              containerStyle={Mixins.buttonAvatarDefaultContainerStyle}
-            />
-          </View>
-          <View style={styles.bottomTabContainer}>
-            <Button
-              containerStyle={{flex:0.4, marginLeft: 20}}
-              buttonStyle={styles.reportButton}
-              titleStyle={[styles.deliveryText, {color: '#6C6B6B'}]}
-              onPress={() => this.props.navigation.navigate('ReportManifest')}
-              title="Report"
-            />
-            <Button
-              containerStyle={{flex:0.4, marginRight: 20,}}
+          <Button
+              containerStyle={{flex:0.4, marginHorizontal: 20,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.toggleOverlay}
@@ -171,7 +145,7 @@ const styles = StyleSheet.create({
   },
   buttonSticky: {
     position: 'absolute',
-    bottom:60,
+    bottom:30,
     left:0,
     right:0,
     elevation: 10,

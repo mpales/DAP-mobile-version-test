@@ -7,6 +7,7 @@ import IconVector from '../../../assets/icon/Vector.svg';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
 
+import OfflineMode from '../../../component/linked/offlinemode';
 class Settings extends React.Component {
   constructor(props) {
     super(props);
@@ -16,6 +17,7 @@ class Settings extends React.Component {
   render() {
     return (
       <View style={{flex: 1, backgroundColor: 'white', paddingHorizontal: 25}}>
+           <OfflineMode/>
         <View style={styles.sectionHeadPackage}>
           <Text style={styles.headTitle}>Settings</Text>
           <Text style={styles.headSubtitle}>lorem ipsum dolor sit amet</Text>

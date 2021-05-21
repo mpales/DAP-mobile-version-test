@@ -45,6 +45,7 @@ import IconAward23Mobile from '../../../assets/icon/iconmonstr-award-23 1mobile.
 import IconMenu6Mobile from '../../../assets/icon/iconmonstr-menu-6 1mobile.svg';
 import { useIsDrawerOpen } from '@react-navigation/drawer';
 import Manifest from '../../../component/extend/ListItem-manifest';
+import OfflineMode from '../../../component/linked/offlinemode';
 import Mixins from '../../../mixins';
 const window = Dimensions.get('window');
 
@@ -122,6 +123,7 @@ class Delivery extends React.Component {
         <StatusBar barStyle="dark-content" />
         <SafeAreaProvider>
           <ScrollView style={styles.body}>
+            <OfflineMode position="top" />
             <View style={styles.headerBeranda}>
               <View style={styles.headerNav}>
                 <Button

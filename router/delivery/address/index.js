@@ -2,7 +2,7 @@ import React from 'react';
 import {TextInput, View, Text, useWindowDimensions} from 'react-native';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
 import {createStackNavigator, HeaderBackButton, Header} from '@react-navigation/stack';
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+import {createMaterialTopTabNavigator, MaterialTopTabBar} from '@react-navigation/material-top-tabs';
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
 import Map from '../../../component/map/index';
@@ -12,6 +12,7 @@ import IconArrow66Mobile from '../../../assets/icon/iconmonstr-arrow-66mobile-7.
 import List from './list';
 import ListMap from './list-map';
 import Navigation from '../../../component/map/index';
+import OfflineMode from '../../../component/linked/offlinemode';
 import { TabRouter } from '@react-navigation/native';
 import Package from '../package';
 import Order from '../order/index';
@@ -31,7 +32,7 @@ class AddressNavigator extends React.Component {
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
     console.log(indexBottomBar + key);
-    if(indexBottomBar === 0){
+    if(indexBottomBar === 1 && key !== 'Order'){
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }
@@ -59,6 +60,12 @@ class AddressNavigator extends React.Component {
       },
     },
     {
+      tabBar : (props)=> {
+        return (<>
+        <MaterialTopTabBar  {...props}/>
+        <OfflineMode position="top" pixel={48}/>
+          </>);
+      },
       tabBarOptions: {
         style: {
           backgroundColor: '#121C78',
@@ -88,8 +95,7 @@ class AddressNavigator extends React.Component {
           this.setWrapperofStack(index,key);
           return (
             <Header
-            {...props}
-            />
+            {...props}/>
           );
         },
         }}>     

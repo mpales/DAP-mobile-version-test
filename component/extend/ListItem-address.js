@@ -154,7 +154,7 @@ const Manifest = ({item, index, drag, isActive, navigation}) => {
         </TouchableOpacity>
         <ListItem.Content>
           <ListItem.Title style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
-            {index}
+            {item.named}
           </ListItem.Title>
           <ListItem.Subtitle style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
             Distant Location {item.distance} Km

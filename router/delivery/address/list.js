@@ -170,24 +170,37 @@ class List extends Component {
   }
   translatePressTimeToOrder = () => {
     let {stat,markers} = this.props;
+    let {namedOrder} = this.state;
     let copyStat = [...stat];
+    let changedNamed = [];
     let order = Array.from({length:markers.length}).map((num,index)=>{
       let prop = copyStat.reduce((prev, curr) => prev.chrono < curr.chrono ? prev : curr);
       delete copyStat[prop.key];
+      changedNamed.push(namedOrder[prop.key]);
       return markers[prop.key]
     });
+    console.log(changedNamed);
+    this.props.setDataOrder(changedNamed);
+    this.setState({namedOrder:changedNamed});
+
     this.props.setFilter(1);
     this.props.setDirections(order);
   };
   translatePressPickupToOrder = () => {
    
     let {stat,markers} = this.props;
+    let {namedOrder} = this.state;
     let copyStat = [...stat];
+    let changedNamed = [];
     let order = Array.from({length:markers.length}).map((num,index)=>{
       let prop = copyStat.reduce((prev, curr) => prev.dist < curr.dist ? prev : curr);
       delete copyStat[prop.key];
+      changedNamed.push(namedOrder[prop.key]);
       return markers[prop.key]
     });    
+    console.log(changedNamed);
+    this.props.setDataOrder(changedNamed);
+    this.setState({namedOrder:changedNamed});
     this.props.setFilter(2);
     this.props.setDirections(order);
   };

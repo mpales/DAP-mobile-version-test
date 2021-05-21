@@ -5,6 +5,8 @@ import Checkmark from '../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
 
+import OfflineMode from '../../../component/linked/offlinemode';
+
 class Completed extends React.Component {
   constructor(props) {
     super(props);
@@ -20,6 +22,7 @@ class Completed extends React.Component {
   render(){
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 100}}>
+                         <OfflineMode />
          <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column'}}>
              <Checkmark height="103" width="103" fill="#17B055"/>
             <Text style={{...Mixins.h1,lineHeight: 36, color:'#17B055',marginVertical: 30}}>TASK COMPLETED</Text>

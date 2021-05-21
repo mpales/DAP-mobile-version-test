@@ -74,7 +74,7 @@ const theme = {
     containerStyle: styles.sectionContainer,
   },
 };
-const Manifest = ({item, index, isActive, navigation}) => {
+const Manifest = ({item, index, isActive, ToManifest}) => {
   return (
     <ThemeProvider theme={theme}>
       <ListItem
@@ -104,7 +104,7 @@ const Manifest = ({item, index, isActive, navigation}) => {
                   <IconArrow66Mobile height="16" width="26" fill="#2D2C2C"/>
                 }
               />)}
-            onPress={() => navigation.navigate('ReceivingDetail')}
+            onPress={ToManifest}
           />
       </ListItem>
     </ThemeProvider>

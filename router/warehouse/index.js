@@ -98,10 +98,44 @@ class WarehouseNavigator extends React.Component {
   
   _refreshFromBackHandle = () =>{
     const interactionPromise = InteractionManager.runAfterInteractions(() => {
-      if(this._backHandlerRegisterToBottomBar !== null){
-        this._backHandlerRegisterToBottomBar.remove();
-      }
-     
+      if(this.props.keyStack === 'MenuWarehouse'){
+        this.props.setBottomBar(false);
+        if(this._backHandlerRegisterToBottomBar !== null){
+          this._backHandlerRegisterToBottomBar.remove();
+        }
+      } else if(this.props.indexBottomBar === 0){
+        this.props.setBottomBar(true);
+       }
+        if(this.props.keyStack === 'List' && this.props.indexBottomBar === 1){
+        this.props.setBottomBar(true);
+       } 
+       if(this.props.keyStack === 'ReceivingDetail' && this.props.indexBottomBar === 1){
+        this.props.setBottomBar(true);
+       } 
+       if(this.props.keyStack === 'Manifest' && this.props.indexBottomBar === 1){
+        this.props.setBottomBar(false);
+       } 
+       if(this.props.keyStack === 'Barcode' && this.props.indexBottomBar === 1){
+        this.props.setBottomBar(false);
+       } 
+       if(this.props.keyStack === 'itemDetail' && this.props.indexBottomBar === 1){
+         this.props.setBottomBar(false);
+        } 
+        if(this.props.keyStack === 'newItem' && this.props.indexBottomBar === 1){
+         this.props.setBottomBar(false);
+        }
+        if(this.props.keyStack === 'ReportManifest' && this.props.indexBottomBar === 1){
+          this.props.setBottomBar(true);
+         }
+         if(this.props.keyStack === 'ManualInput' && this.props.indexBottomBar === 1){
+          this.props.setBottomBar(true);
+         }
+         if(this.props.keyStack === 'List' && this.props.indexBottomBar === 2){
+          this.props.setBottomBar(true);
+         } 
+         if(this.props.keyStack === 'Chat' && this.props.indexBottomBar === 2){
+          this.props.setBottomBar(false);
+         } 
     });
     return () => interactionPromise.cancel();
   }
@@ -149,6 +183,7 @@ class WarehouseNavigator extends React.Component {
     });
   };
   setWrapperofNavigation= (navigation, index,key)=> {
+
 
     if(!this.navigationRef.current){
       this.navigationRef.current = navigation;
@@ -202,7 +237,7 @@ class WarehouseNavigator extends React.Component {
                   : {backgroundColor: 'transparent'}
               }
               onPress={()=> {
-                navigation.navigate('Inbound')}}
+                navigation.navigate('Inbound',{screen:"List"})}}
               icon={() => (
                 <IconNote19Mobile height="22" width="24" fill={color} />
               )}
