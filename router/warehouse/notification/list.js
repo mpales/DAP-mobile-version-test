@@ -17,7 +17,8 @@ import {
 } from 'react-native';
 import {
   Card,
-  SearchBar
+  SearchBar, 
+  FAB 
 } from 'react-native-elements';
 import {Dimensions} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -26,6 +27,7 @@ import {connect, Provider} from 'react-redux';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import ListChat from '../../../component/extend/ListItem-chat';
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
+import IconSpeech from '../../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
 import {createStackNavigator} from '@react-navigation/stack';
 
@@ -78,8 +80,8 @@ class List extends React.Component<IProps, {}> {
     const {manifestList,search} = this.state;
     return (
     <SafeAreaProvider>
-      <ScrollView style={styles.body}>
-        <View style={styles.contentContainer}>
+      <ScrollView style={[styles.body]}>
+        <View style={[styles.contentContainer,{minHeight:window.height}]}>
         <SearchBar
               placeholder="Type Here..."
               onChangeText={this.updateSearch}
@@ -94,7 +96,7 @@ class List extends React.Component<IProps, {}> {
                 backgroundColor: 'transparent',
                 borderTopWidth: 0,
                 borderBottomWidth: 0,
-                paddingHorizontal: 37,
+                paddingHorizontal: 25,
                 marginVertical: 5,
               }}
               inputContainerStyle={{
@@ -115,6 +117,14 @@ class List extends React.Component<IProps, {}> {
           </Card>
         </View>
       </ScrollView>
+            <FAB 
+            onPress={()=>{
+              this.props.setBottomBar(false);
+              this.props.navigation.navigate('Contact');
+            }}
+            icon={()=><IconSpeech fill="#fff" height="24" width="24"/>}
+            color="#121C78"
+            placement="right" style={{elevation:10,}} buttonStyle={{borderRadius:100}}/>
     </SafeAreaProvider>
     );
   }
@@ -141,8 +151,9 @@ const styles = StyleSheet.create({
   cardContainer: {
     borderWidth: 0,
     padding: 0,
-    marginHorizontal: 43,
-    marginVertical: 28,
+    marginHorizontal: 25,
+    marginTop: 15,
+    marginBottom:28,
     shadowColor: 'rgba(0,0,0, .2)',
     shadowOffset: {height: 0, width: 0},
     shadowOpacity: 0, //default is 1
@@ -152,11 +163,12 @@ const styles = StyleSheet.create({
   },
   headingCard: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
     lineHeight:21,
     textAlign: 'left',
     color: '#000000',
-    paddingBottom: 20,
+    paddingBottom:10,
+    margin:0,
   },
 });
 

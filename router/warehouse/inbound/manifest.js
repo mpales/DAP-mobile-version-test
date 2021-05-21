@@ -18,13 +18,15 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import {Avatar, Card, Overlay, Button} from 'react-native-elements';
+import {Avatar, Card, Overlay, Button, SearchBar} from 'react-native-elements';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect, Provider} from 'react-redux';
 import Mixins from '../../../mixins';
 import InboundDetail from '../../../component/extend/ListItem-inbound-detail';
 import IconBarcodeMobile from '../../../assets/icon/iconmonstr-barcode-3 2mobile.svg';
+
+import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component{
@@ -34,8 +36,11 @@ class Warehouse extends React.Component{
     this.state = {
       inboundCode: this.props.route.params?.code ?? '',
       _visibleOverlay : false,
+      search: '',
     };
     this.toggleOverlay.bind(this);
+    
+    this.updateSearch.bind(this);
   }
 
   componentDidMount() {
@@ -66,6 +71,9 @@ class Warehouse extends React.Component{
     }
   }
 
+  updateSearch = (search) => {
+    this.setState({search});
+  };
   render() {
     const {_visibleOverlay} = this.state;
     return (
@@ -74,7 +82,31 @@ class Warehouse extends React.Component{
         <SafeAreaProvider>
           <ScrollView style={styles.body}>
             <View style={styles.sectionContent}>
-              <Text style={styles.code}>{this.state.inboundCode}</Text>
+            <SearchBar
+              placeholder="Type Here..."
+              onChangeText={this.updateSearch}
+              value={this.state.search}
+              lightTheme={true}
+              inputStyle={{backgroundColor: '#fff'}}
+              placeholderTextColor="#2D2C2C"
+              searchIcon={() => (
+                <IconSearchMobile height="20" width="20" fill="#2D2C2C" />
+              )}
+              containerStyle={{
+                backgroundColor: 'transparent',
+                borderTopWidth: 0,
+                borderBottomWidth: 0,
+                paddingHorizontal: 0,
+                marginVertical: 5,
+              }}
+              inputContainerStyle={{
+                backgroundColor: 'white',
+                borderWidth: 1,
+                borderBottomWidth: 1,
+                borderColor: '#D5D5D5',
+              }}
+              leftIconContainerStyle={{backgroundColor: 'white'}}
+            />
               <Card containerStyle={styles.cardContainer}>
                 {this.props.manifestList.map((u, i) => (
                   <InboundDetail 
@@ -107,8 +139,37 @@ class Warehouse extends React.Component{
             </View>
           </Overlay>
           <View style={styles.buttonSticky}>
-          <Button
-              containerStyle={{flex:0.4, marginHorizontal: 20,}}
+            <Avatar
+              size={75}
+              ImageComponent={() => (
+                <IconBarcodeMobile height="40" width="37" fill="#fff" />
+              )}
+              imageProps={{
+                containerStyle: {
+                  ...Mixins.buttonAvatarDefaultIconStyle,
+                },
+              }}
+              overlayContainerStyle={styles.barcodeButton}
+              onPress={() => {
+                this.props.setBottomBar(false);
+                this.props.setBarcodeScanner(true);
+                this.props.navigation.navigate('Barcode')}}
+              activeOpacity={0.7}
+              containerStyle={Mixins.buttonAvatarDefaultContainerStyle}
+            />
+          </View>
+          <View style={styles.bottomTabContainer}>
+            <Button
+              containerStyle={{flex:0.4, marginLeft: 20}}
+              buttonStyle={styles.reportButton}
+              titleStyle={[styles.deliveryText, {color: '#6C6B6B'}]}
+              onPress={() => {
+                this.props.setBottomBar(true);
+                this.props.navigation.navigate('ReportManifest')}}
+              title="Report"
+            />
+            <Button
+              containerStyle={{flex:0.4, marginRight: 20,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.toggleOverlay}
@@ -128,7 +189,7 @@ const styles = StyleSheet.create({
   code: {
     fontSize: 20,
     color: '#424141',
-    marginVertical: 10,
+    marginVertical: 0,
   },
   body: {
     backgroundColor: 'white',
@@ -140,12 +201,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionContent: {
-    marginBottom: 25,
+    marginBottom: 0,
     marginHorizontal: 20,
   },
   buttonSticky: {
     position: 'absolute',
-    bottom:30,
+    bottom:60,
     left:0,
     right:0,
     elevation: 10,

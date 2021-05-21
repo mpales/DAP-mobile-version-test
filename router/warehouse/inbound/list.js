@@ -11,6 +11,8 @@ import {
 import {
     Card,
     Input,
+    SearchBar,
+    Badge
 } from 'react-native-elements';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -27,8 +29,19 @@ const window = Dimensions.get('window');
 class List extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            search: '',
+            filtered : 0,
+        };
+    this.setFiltered.bind(this);
+    this.updateSearch.bind(this);
     }
-
+    updateSearch = (search) => {
+        this.setState({search});
+      };
+    setFiltered = (num)=>{
+        this.setState({filtered:num});
+    }
     componentDidMount() {
         this.props.setInboundLIst(inboundList)
     }
@@ -36,37 +49,66 @@ class List extends React.Component {
         return(
             <SafeAreaProvider>
                 <StatusBar barStyle="dark-content" />
-                <View style={styles.headerBeranda}>
-                    <View style={styles.berandaBar}>
-                        <View style={[styles.barSection,styles.breadcrumb]}>
-                            <Text style={styles.ccmText}>CCM Module</Text>
-                        </View>
-                    </View>
-                </View>
                 <ScrollView 
                     style={styles.body} 
                     showsVerticalScrollIndicator={false}
                 >
+                         <SearchBar
+              placeholder="Type Here..."
+              onChangeText={this.updateSearch}
+              value={this.state.search}
+              lightTheme={true}
+              inputStyle={{backgroundColor: '#fff'}}
+              placeholderTextColor="#2D2C2C"
+              searchIcon={() => (
+                <IconSearchMobile height="20" width="20" fill="#2D2C2C" />
+              )}
+              containerStyle={{
+                backgroundColor: 'transparent',
+                borderTopWidth: 0,
+                borderBottomWidth: 0,
+                paddingHorizontal: 20,
+                marginVertical: 5,
+              }}
+              inputContainerStyle={{
+                backgroundColor: 'white',
+                borderWidth: 1,
+                borderBottomWidth: 1,
+                borderColor: '#D5D5D5',
+              }}
+              leftIconContainerStyle={{backgroundColor: 'white'}}
+            />
                     <View style={styles.sectionContent}>
                         <Card containerStyle={styles.cardContainer}>
-                            <View style={styles.headingCard}>
-                                <Input 
-                                    containerStyle={{flex: 1}}
-                                    inputContainerStyle={styles.textInput} 
-                                    inputStyle={Mixins.containedInputDefaultStyle}
-                                    labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                                    label="Date"
-                                    placeholder="12/03/2021"
-                                />
-                                <Input
-                                    leftIcon={<IconSearchMobile height="20" width="20" fill="#ABABAB" style={{marginLeft: 5}} />}
-                                    containerStyle={{flex: 1}}
-                                    inputContainerStyle={styles.textInput}
-                                    inputStyle={[Mixins.containedInputDefaultStyle, {marginHorizontal: 0}]}
-                                    labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                                    label="Manifest"
-                                    placeholder="Vehicle"
-                                />
+                        <View style={styles.headingCard}>
+                        <Badge
+                    value="All"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.props.setFiltered(0)}
+                    badgeStyle={this.state.filtered === 0 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
+                          <Badge
+                    value="Unprogress"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.props.setFiltered(1)}
+                    badgeStyle={this.state.filtered === 1 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
+                          <Badge
+                    value="Progress"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.props.setFiltered(2)}
+                    badgeStyle={this.state.filtered === 2 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
+                          <Badge
+                    value="Complete"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.props.setFiltered(3)}
+                    badgeStyle={this.state.filtered === 3 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
                             </View>
                             {this.props.inboundList.map((data, i) => (
                                 <Inbound 
@@ -101,11 +143,14 @@ const styles = StyleSheet.create({
     },
     headingCard: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        marginBottom: 20,
     },
+    badgeSort: {
+        marginRight: 5,
+      },
     sectionContent: {
         marginHorizontal: 20,
-        marginBottom: 20,
+        marginBottom: 0,
     },
     headerBeranda: {
         flexDirection: 'column',
@@ -156,7 +201,8 @@ const styles = StyleSheet.create({
         borderWidth: 0,
         padding: 0,
         marginHorizontal: 0,
-        marginVertical: 20,
+        marginBottom:20,
+        marginTop:0,
         shadowColor: 'rgba(0,0,0, .2)',
         shadowOffset: {height: 0, width: 0},
         shadowOpacity: 0, //default is 1
@@ -164,6 +210,31 @@ const styles = StyleSheet.create({
         elevation: 0,
         backgroundColor: '#ffffff',
     },
+    badgeActive: {    
+        backgroundColor: '#F1811C',
+        borderWidth: 1,
+        borderColor: '#F1811C',
+        paddingHorizontal: 12,
+        height: 20,
+      
+        },
+        badgeActiveTint: {
+          ...Mixins.small3,
+          lineHeight: 12,
+          color: '#ffffff'
+        },
+        badgeInactive: {
+          backgroundColor: '#ffffff',
+          borderWidth: 1,
+          borderColor: '#121C78',
+          paddingHorizontal: 12,
+          height: 20,
+        },
+        badgeInactiveTint: {
+          ...Mixins.small3,
+          lineHeight: 12,
+          color: '#121C78'
+        },
 });
 
 const inboundList = [

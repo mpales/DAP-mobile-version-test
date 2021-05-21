@@ -43,6 +43,7 @@ import IconTask1Mobile from '../../../assets/icon/iconmonstr-task-1 1mobile.svg'
 import IconNavigation10Mobile from '../../../assets/icon/iconmonstr-navigation-10 1mobile.svg';
 import IconAward23Mobile from '../../../assets/icon/iconmonstr-award-23 1mobile.svg';
 import IconMenu6Mobile from '../../../assets/icon/iconmonstr-menu-6 1mobile.svg';
+import Intersect from '../../../assets/icon/Intersectmobile.svg';
 import { useIsDrawerOpen } from '@react-navigation/drawer';
 import Manifest from '../../../component/extend/ListItem-manifest';
 import OfflineMode from '../../../component/linked/offlinemode';
@@ -125,7 +126,10 @@ class Delivery extends React.Component {
           <ScrollView style={styles.body}>
             <OfflineMode position="top" />
             <View style={styles.headerBeranda}>
-              <View style={styles.headerNav}>
+              <View style={{position:'absolute',top:0,left:0,right:0,bottom:0, width:window.width, alignItems:'center',justifyContent:'center'}}>
+              <Intersect width={window.width + 2} height="316" fill="#121C78"/>
+              </View>
+              <View style={[styles.headerNav, {marginTop:39}]}>
                 <Button
                   type="clear"
                   containerStyle={styles.navSection}
@@ -146,9 +150,8 @@ class Delivery extends React.Component {
                 />
                 </View>
               </View>
-              <View style={styles.headerContainer}>
-                <View style={styles.headerNav} />
-                <View style={styles.sliderContainer}>
+            
+                <View style={[styles.headerNav,{marginTop:15}]}>
                   <Carousel
                     indicatorOffset={-25}
                     width={window.width / 1.2}
@@ -167,7 +170,6 @@ class Delivery extends React.Component {
                     </View>
                   </Carousel>
                 </View>
-              </View>
             </View>
             <View style={styles.navContainer}>
               <View style={styles.sectionContainer}>
@@ -283,14 +285,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: window.width,
     overflow: 'hidden',
-    height: window.width / 1.3,
+    height: 316,
   },
   headerNav: {
     alignSelf: 'center',
     width: window.width / 1.2,
     elevation: 2,
     flexDirection: 'row',
-    marginTop: window.width * 0.1,
+    marginTop: 30,
     zIndex: 10,
   },
   navSection: {},

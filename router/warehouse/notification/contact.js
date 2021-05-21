@@ -25,7 +25,7 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {AnyAction, Dispatch} from 'redux';
 import {connect, Provider} from 'react-redux';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import ListChat from '../../../component/extend/ListItem-chat';
+import ListContact from '../../../component/extend/ListItem-contact';
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import IconSpeech from '../../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
@@ -33,10 +33,8 @@ import {createStackNavigator} from '@react-navigation/stack';
 
 const window = Dimensions.get('window');
 
-class List extends React.Component<IProps, {}> {
-  keyboardDidShowListener: any;
-  keyboardDidHideListener: any;
-  constructor(props: IProps | Readonly<IProps>) {
+class Contact extends React.Component {
+  constructor(props) {
     super(props);
 
     const manifestList = [
@@ -66,11 +64,9 @@ class List extends React.Component<IProps, {}> {
       search: '',
     };
     this.updateSearch.bind(this);
-    this.navigateToSingle.bind(this);
+    this.navigateToContact.bind(this);
   }
-  navigateToSingle = () => {
-    this.props.setBottomBar(false);
-    this.props.navigation.navigate('Single');
+  navigateToContact = () => {
   }
   updateSearch = (search) => {
     this.setState({search});
@@ -82,49 +78,17 @@ class List extends React.Component<IProps, {}> {
     <SafeAreaProvider>
       <ScrollView style={[styles.body]}>
         <View style={[styles.contentContainer,{minHeight:window.height}]}>
-        <SearchBar
-              placeholder="Type Here..."
-              onChangeText={this.updateSearch}
-              value={search}
-              lightTheme={true}
-              inputStyle={{backgroundColor: '#fff'}}
-              placeholderTextColor="#2D2C2C"
-              searchIcon={() => (
-                <IconSearchMobile height="20" width="20" fill="#2D2C2C" />
-              )}
-              containerStyle={{
-                backgroundColor: 'transparent',
-                borderTopWidth: 0,
-                borderBottomWidth: 0,
-                paddingHorizontal: 25,
-                marginVertical: 5,
-              }}
-              inputContainerStyle={{
-                backgroundColor: 'white',
-                borderWidth: 1,
-                borderBottomWidth: 1,
-                borderColor: '#D5D5D5',
-              }}
-              leftIconContainerStyle={{backgroundColor: 'white'}}
-            />
+       
           <Card containerStyle={styles.cardContainer}>
             <Card.Title style={styles.headingCard}>
             Recent
             </Card.Title>
             {manifestList.map((u, i) => (
-              <ListChat key={i} index={i} item={u} toSingle={this.navigateToSingle} />
+              <ListContact key={i} index={i} item={u} toContact={this.navigateToContact} />
             ))}
           </Card>
         </View>
       </ScrollView>
-            <FAB 
-            onPress={()=>{
-              this.props.setBottomBar(false);
-              this.props.navigation.navigate('Contact');
-            }}
-            icon={()=><IconSpeech fill="#fff" height="24" width="24"/>}
-            color="#121C78"
-            placement="right" style={{elevation:10,}} buttonStyle={{borderRadius:100}}/>
     </SafeAreaProvider>
     );
   }
@@ -172,22 +136,8 @@ const styles = StyleSheet.create({
   },
 });
 
-interface IProps {
-  textfield: string;
-  value: string;
-  todos: {};
-  decrement: () => void;
-  reset: () => void;
-  onChange: (text: any) => void;
-  toggleDrawer: () => void;
-}
 
-interface dispatch {
-  type: string;
-  payload: {};
-}
-
-function mapStateToProps(state: {todos: {name: any}, userRole: any}) {
+function mapStateToProps(state) {
   return {
     todos: state.originReducer.todos,
     textfield: state.originReducer.todos.name,
@@ -197,11 +147,11 @@ function mapStateToProps(state: {todos: {name: any}, userRole: any}) {
   };
 }
 
-const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
+const mapDispatchToProps = (dispatch) => {
   return {
     decrement: () => dispatch({type: 'DECREMENT'}),
     reset: () => dispatch({type: 'RESET'}),
-    onChange: (text: any) => {
+    onChange: (text) => {
       return {type: 'todos', payload: text};
     },
     setBottomBar: (toggle) => {
@@ -211,4 +161,4 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(List);
+export default connect(mapStateToProps, mapDispatchToProps)(Contact);
