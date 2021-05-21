@@ -30,6 +30,7 @@ import {createCompatNavigatorFactory} from '@react-navigation/compat';
 import {createStackNavigator,Header} from '@react-navigation/stack';
 import List from './list';
 import Chat from './single';
+import Contact from './contact';
 import Mixins from '../../../mixins';
 
 const window = Dimensions.get('window');
@@ -76,6 +77,19 @@ class Notification extends React.Component {
           },
           headerTintColor: '#fff',
           headerTitle: 'Chat',
+        }),
+      },
+      Contact: {
+        screen: Contact,
+        navigationOptions:  ({ navigation }) => ({
+          headerStyle: {
+            backgroundColor: '#121C78',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTintColor: '#fff',
+          headerTitle: 'Contact',
         }),
       },
     },

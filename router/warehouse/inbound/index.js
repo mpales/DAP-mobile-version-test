@@ -59,37 +59,16 @@ class HomeNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
-            headerTitleAlign: 'center',
-            headerTitle: () => (
-                <Image
-                  source={require('../../../assets/dap_logo_hires1thumb.png')}
-                  style={{ width: 74, height: 38 }}
-                />
-            ),
-            headerLeft: () => (
-              <TouchableOpacity
-                style={{paddingHorizontal: 20, margin: 0}}
-                onPress={() => this.props.toggleDrawer(true)}
-              >
-                  <IconMenu6Mobile height="24" width="24" fill="#fff" />
-              </TouchableOpacity>
-            ),
-            headerRight: () => (
-              <View style={{display: 'flex', flexDirection: 'row'}}>
-                <TouchableOpacity
-                  style={{paddingHorizontal: 20, margin: 0}}
-                  onPress={() => {}}
-                >
-                    <IconBell2Mobile height="24" width="24" fill="#fff" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{paddingRight: 20, margin: 0}}
-                  onPress={() => {}}
-                >
-                    <IconUser40Mobile height="24" width="24" fill="#fff" />
-                </TouchableOpacity>
-              </View>
-            ),
+            headerTitleAlign: 'left',
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar('true')
+                  this.props.navigation.navigate('Home');
+                }
+              }
+              />);
+            },
           }}
         />
         <Stack.Screen

@@ -32,6 +32,8 @@ import List from './list';
 import Chat from './single';
 import Mixins from '../../../mixins';
 
+import Contact from './contact';
+
 const window = Dimensions.get('window');
 
 class Notification extends React.Component {
@@ -76,6 +78,19 @@ class Notification extends React.Component {
           },
           headerTintColor: '#fff',
           headerTitle: 'Chat',
+        }),
+      },
+      Contact: {
+        screen: Contact,
+        navigationOptions:  ({ navigation }) => ({
+          headerStyle: {
+            backgroundColor: '#121C78',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTintColor: '#fff',
+          headerTitle: 'Contact',
         }),
       },
     },

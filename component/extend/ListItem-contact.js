@@ -64,19 +64,14 @@ const theme = {
     containerStyle: styles.sectionContainer,
   },
 };
-const Manifest = ({item, index, toSingle}) => {
+const Manifest = ({item, index, toContact}) => {
   return (
     <ThemeProvider theme={theme}>
-      <ListItem key={index} onPress={toSingle}>
+      <ListItem key={index} onPress={toContact}>
         <Avatar size={50} containerStyle={styles.avatarContainer} overlayContainerStyle={styles.avatarOverlay} source={{uri: item.avatar_url}} />
         <ListItem.Content>
           <ListItem.Title>{item.name}</ListItem.Title>
-          <ListItem.Subtitle>{item.desc}</ListItem.Subtitle>
         </ListItem.Content>
-        <View style={styles.rightList}>
-          <Text style={styles.indicatorTime}>{item.last_timestamp}</Text>
-          <Badge value={item.unread} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15}} />
-        </View>
       </ListItem>
     </ThemeProvider>
   );

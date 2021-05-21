@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import {View, TouchableOpacity, PermissionsAndroid, Switch} from 'react-native';
-import {SearchBar, Badge, Divider, Text} from 'react-native-elements';
+import {View, TouchableOpacity, PermissionsAndroid, Switch, Dimensions} from 'react-native';
+import {SearchBar, Badge, Divider, Text, FAB} from 'react-native-elements';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import AddressList from '../../../component/extend/ListItem-map';
 import Map from '../../../component/map/map-address';
@@ -13,7 +13,9 @@ import RNLocation from 'react-native-location';
 import Util from '../../../component/map/interface/leafletPolygon';
 import Location from '../../../component/map/interface/geoCoordinate'
 import Mixins from '../../../mixins';
+import Delivery6 from '../../../assets/icon/iconmonstr-delivery-6mobile.svg';
 
+const screen = Dimensions.get('window');
 class ListMap extends Component {
   
   constructor(props) {
@@ -207,7 +209,7 @@ class ListMap extends Component {
     return (
       <View style={{flex: 1}}>
         <View style={styles.headerContainer}>
-          <View style={{height: 250}}>
+          <View style={{height: screen.height / 4}}>
             <Map trafficLayer={this.state.trafficButton}/>
           </View>
           <View
@@ -239,6 +241,13 @@ class ListMap extends Component {
           keyExtractor={(item, index) => `draggable-item-${index}`}
           onDragEnd={({data,from,to}) => this.translateDragToOrder(from,to)}
         />
+                <FAB 
+            onPress={()=>{
+              console.log('test');
+            }}
+            icon={()=><Delivery6 fill="#fff" height="24" width="24"/>}
+            color="#121C78"
+            placement="right" style={{elevation:10,}} buttonStyle={{borderRadius:100}}/>
       </View>
     );
   }
