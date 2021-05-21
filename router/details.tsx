@@ -6,7 +6,7 @@ import Warehouse from './warehouse/detail';
 import warehouseMenu from './warehouse/detail/menu';
 import WarehouseNavigator from './warehouse';
 import DeliveryNavigator from './delivery';
-import {createStackNavigator} from '@react-navigation/stack';
+import {createStackNavigator, Header} from '@react-navigation/stack';
 import {PermissionsAndroid} from 'react-native';
 import RNLocation from 'react-native-location';
 import noAccess from './error/no-access';
@@ -21,9 +21,17 @@ class Details extends React.Component {
     this.requestCameraPermission.bind(this);
     this.requestReadStoragePermission.bind(this);
     this.requestWriteStoragePermission.bind(this);
+    this.setWrapperofStack.bind(this);
     this.state = {
       cancel: false,
     };
+  }
+  setWrapperofStack = (index,key) => {
+    const {indexBottomBar} = this.props;
+    if(key === 'MenuWarehouse'){
+      this.props.setCurrentStackKey(key);
+      this.props.setCurrentStackIndex(index);
+    }
   }
   async requestLocationPermission() {
     let {locationPermission} = this.props;
@@ -208,7 +216,12 @@ class Details extends React.Component {
         screenOptions={{
           headerTintColor: 'white',
           headerStyle: {backgroundColor: 'tomato'},
-          headerShown: false,
+          header: (props) => {
+            let state = props.navigation.dangerouslyGetState();
+            let key =  state.routes[state.index].name;
+            let index = state.index;
+            this.setWrapperofStack(index,key);
+          },
         }}>
         <Stack.Screen
           name="Delivery"
@@ -274,8 +287,6 @@ function mapStateToProps(state) {
     locationPermission : state.originReducer.filters.locationPermission,
     readStoragePermission : state.originReducer.filters.readStoragePermission,
     writeStoragePermission : state.originReducer.filters.writeStoragePermission,
-    indexStack : state.originReducer.filters.indexStack,
-    keyStack : state.originReducer.filters.keyStack,
     indexBottomBar : state.originReducer.filters.indexBottomBar,
   };
 }

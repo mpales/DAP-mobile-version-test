@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import CheckMark from '../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
 import XMark from '../../../assets/icon/iconmonstr-x-mark-5 1mobile.svg';
 
+import OfflineMode from '../../../component/linked/offlinemode';
 class ImageConfirmation extends React.Component {
     constructor(props) {
         super(props);
@@ -26,6 +27,7 @@ class ImageConfirmation extends React.Component {
     render() {
         return (
             <View style={styles.container}>
+                   <OfflineMode/>
                 <View style={styles.preview}>
                     <Image style={styles.confirmPictureSize} source={{uri: this.props.imageConfirmationData}}  />
                 </View>

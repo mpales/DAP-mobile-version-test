@@ -29,6 +29,7 @@ import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
 import {createStackNavigator} from '@react-navigation/stack';
 
+import OfflineMode from '../../../component/linked/offlinemode';
 const window = Dimensions.get('window');
 
 class List extends React.Component<IProps, {}> {
@@ -79,6 +80,7 @@ class List extends React.Component<IProps, {}> {
     <SafeAreaProvider>
       <ScrollView style={styles.body}>
         <View style={styles.contentContainer}>
+          <OfflineMode/>
         <SearchBar
               placeholder="Type Here..."
               onChangeText={this.updateSearch}

@@ -98,7 +98,9 @@ class Acknowledge extends React.Component {
               containerStyle={{flex:1, marginRight: 20,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
-              onPress={()=>this.props.navigation.navigate('Manifest')}
+              onPress={()=>{
+                this.props.setBottomBar(false);
+                this.props.navigation.navigate('Manifest')}}
               title="Start Receiving"
             />
         </View>

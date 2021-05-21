@@ -32,6 +32,7 @@ import Geojson from './section/GeoJSON';
 import Mixins from '../../mixins';
 import Loading from '../loading/loading';
 
+import OfflineMode from '../linked/offlinemode';
 const screen = Dimensions.get('window');
 
 const ASPECT_RATIO = screen.width / screen.height;
@@ -758,6 +759,7 @@ class AnimatedMarkers extends React.Component {
     if((!this.props.isConnected && this.props.isActionQueue.length > 0) || (this.props.isConnected && this.props.stat.length === 0) ){
       return (
         <View style={styles.container}>
+          <OfflineMode/>
          <Loading />
         </View>
       );
@@ -766,6 +768,7 @@ class AnimatedMarkers extends React.Component {
     const {named,packages, Address} = this.props.dataPackage[index];
     return (
       <View style={styles.container}>
+         <OfflineMode/>
         {this.state.isLoading && <Loading />}
         <PanController
           style={styles.container}

@@ -110,10 +110,10 @@ class DeliveryNavigator extends React.Component {
       if(this.props.keyStack === 'Order' && this.props.indexBottomBar === 1){
         this.props.setBottomBar(true);
        }
-        if(this.props.keyStack === 'Map' && this.props.startDelivered === true && this.props.indexBottomBar === 1){
+        if(this.props.keyStack === 'Navigation' && this.props.startDelivered === true && this.props.indexBottomBar === 1){
         this.props.setBottomBar(false);
        } 
-       if(this.props.keyStack === 'Map' && this.props.startDelivered === false && this.props.indexBottomBar === 1){
+       if(this.props.keyStack === 'Navigation' && this.props.startDelivered === false && this.props.indexBottomBar === 1){
         this.props.setBottomBar(true);
        } 
        if(this.props.keyStack === 'List' && this.props.indexBottomBar === 0){

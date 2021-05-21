@@ -20,6 +20,7 @@ class ManualInput extends React.Component {
         if(this.state.inputCode === '') {
             return
         }
+        this.props.setBottomBar(false);
         this.props.navigation.navigate({
             name: 'Barcode',
             params: {
@@ -86,7 +87,10 @@ const mapStateToProps = (state) => {
   }
   
 const mapDispatchToProps = (dispatch) => {
-    return {};
+    return {
+        setBottomBar: (toggle) => dispatch({type: 'BottomBar', payload: toggle}),
+   
+    };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ManualInput);

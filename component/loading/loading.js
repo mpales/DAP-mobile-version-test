@@ -21,12 +21,12 @@ class Loading extends React.Component {
 const styles = StyleSheet.create({
     container: {
         ...StyleSheet.absoluteFillObject,
+        zIndex: 1,
         flex: 1,
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#FFF',
-        zIndex: 1
     },
 });
 

@@ -7,6 +7,8 @@ import IconVector from '../../../assets/icon/Vector.svg';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
 
+import OfflineMode from '../../../component/linked/offlinemode';
+
 class Packages extends React.Component {
   constructor(props) {
     super(props);
@@ -33,6 +35,8 @@ class Packages extends React.Component {
     const {named,packages,Address,list} = this.state.singleData;
     console.log(this.state.singleData);
     return (
+      <>
+      <OfflineMode/>
       <ScrollView style={{flex: 1, backgroundColor: 'white', paddingHorizontal: 10}}>
 
               <View style={styles.sectionHeadPackage}>
@@ -107,6 +111,7 @@ class Packages extends React.Component {
           />
         </View>
       </ScrollView>
+      </>
     );
   }
 }

@@ -13,6 +13,7 @@ import ImageViewer from 'react-native-image-zoom-viewer';
 // icons
 import TrashCan16Mobile from '../../../assets/icon/iconmonstr-trash-can-16mobile.svg';
 
+import OfflineMode from '../../../component/linked/offlinemode';
 const window = Dimensions.get("window");
 
 class EnlargeImage extends React.Component {
@@ -75,6 +76,7 @@ class EnlargeImage extends React.Component {
         return (
             <>
                 <View style={styles.container}>
+                <OfflineMode/>
                     <View style={styles.pictureContainer}>
                         {this.state.convertedPictureData.length > 0 &&
                             <ImageViewer

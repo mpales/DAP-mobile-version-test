@@ -33,6 +33,8 @@ import {createStackNavigator} from '@react-navigation/stack';
 import Contact from './list';
 import Mixins from '../../../mixins';
 
+import OfflineMode from '../../../component/linked/offlinemode';
+
 const window = Dimensions.get('window');
 
 class Chat extends React.Component {
@@ -91,6 +93,7 @@ class Chat extends React.Component {
     return ( <SafeAreaProvider>
       <ScrollView style={styles.body}>
         <View style={styles.contentContainer}>
+          <OfflineMode/>
           <Card containerStyle={styles.cardContainer}>
             <Card.Title style={styles.headingCard}>
             Recent

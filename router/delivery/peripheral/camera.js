@@ -14,6 +14,7 @@ import GalleryAttachment from '../../../assets/icon/iconmonstr-picture-10.svg';
 import FlashIcon from '../../../assets/icon/Flash.svg';
 import FlashActiveIcon from '../../../assets/icon/FlashActive.svg';
 
+import OfflineMode from '../../../component/linked/offlinemode';
 class Camera extends React.Component {
     constructor(props) {
         super(props);
@@ -80,6 +81,7 @@ class Camera extends React.Component {
 
         return (
             <View style={styles.container}>
+                <OfflineMode/>
                 <RNCamera
                     ref={ref => {
                         this.camera = ref;

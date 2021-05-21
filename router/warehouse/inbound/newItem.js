@@ -151,6 +151,7 @@ class Acknowledge extends React.Component {
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={()=>{
+                this.props.setBottomBar(false);
                 this.props.setFromBarcode(this.state.dataCode)  
                 this.props.navigation.navigate('Barcode')
               }}

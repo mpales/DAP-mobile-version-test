@@ -37,6 +37,7 @@ class ReportManifest extends React.Component {
     }
 
     handleSubmit = () => {
+        this.props.setBottomBar(false);
         this.props.navigation.goBack();
     }
 
@@ -177,7 +178,6 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
     return {
-        bottomBar: state.originReducer.filters.bottomBar,
         manifestList: state.originReducer.manifestList,
     };
 }

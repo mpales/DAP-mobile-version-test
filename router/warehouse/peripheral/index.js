@@ -7,7 +7,9 @@ import {
   Dimensions,
 } from 'react-native';
 import {
-Button
+Button,
+Input,
+Badge
 } from 'react-native-elements'
 import { Modalize } from 'react-native-modalize';
 import BarCode from '../../../component/camera/filter-barcode';
@@ -43,22 +45,28 @@ class Example extends React.Component {
             </View>
             <View style={styles.sectionDividier}>
               <View style={styles.dividerContent}>
-                <Text style={styles.labelPackage}>CBM</Text>
-                <Text style={styles.infoPackage}>0.18</Text>
-              </View>
-              <View style={styles.dividerContent}>
-                <Text style={styles.labelPackage}>KG</Text>
-                <Text style={styles.infoPackage}>10s</Text>
-              </View>
-              <View style={styles.dividerContent}>
                 <Text style={styles.labelPackage}>Description</Text>
                 <Text style={styles.infoPackage}>Chair</Text>
+              </View>
+              <View style={styles.dividerContent}>
+                <Text style={styles.labelPackage}>Color</Text>
+                <Text style={styles.infoPackage}>Red</Text>
               </View>
             </View>
             <View style={styles.sectionDividier}>
               <View style={styles.dividerContent}>
-                <Text style={styles.deliverTitle}>Deliver By</Text>
-                <Text style={styles.deliverText}>VAN 098234</Text>
+                <Text style={styles.deliverTitle}>Qty</Text>
+              </View>
+              <View style={styles.dividerInput}>
+              <Badge value="+" status="error" containerStyle={{paddingVertical:6}} />
+              <Input 
+                containerStyle={{flex: 1,paddingVertical:0}}
+                inputContainerStyle={styles.textInput} 
+                inputStyle={Mixins.containedInputDefaultStyle}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                placeholder="0"
+                />
+                <Badge value="-" status="error" containerStyle={{paddingVertical:6}} />
               </View>
             </View>
         </View>
@@ -76,7 +84,9 @@ class Example extends React.Component {
           containerStyle={{flex:1, marginTop: 10,}}
           buttonStyle={styles.navigationButton}
           titleStyle={styles.deliveryText}
-          onPress={() => this.props.navigation.navigate('newItem',{dataCode: this.state.dataCode})}
+          onPress={() => {
+            this.props.setBottomBar(false);
+            this.props.navigation.navigate('newItem',{dataCode: this.state.dataCode})}}
           title="Register New Item"
         />)}
         
@@ -86,14 +96,18 @@ class Example extends React.Component {
           containerStyle={{flex:1, marginTop: 10,marginRight: 5,}}
           buttonStyle={styles.navigationButton}
           titleStyle={styles.deliveryText}
-          onPress={() => this.props.navigation.navigate('ReportManifest')}
+          onPress={() => {
+            this.props.setBottomBar(true);
+            this.props.navigation.navigate('ReportManifest')}}
           title="Report Item"
         />
           <Button
           containerStyle={{flex:1, marginTop: 10,marginLeft:5,}}
           buttonStyle={styles.navigationButton}
           titleStyle={styles.deliveryText}
-          onPress={() => this.props.navigation.navigate('ManualInput')}
+          onPress={() => {
+            this.props.setBottomBar(true);
+            this.props.navigation.navigate('ManualInput')}}
           title="Input Manual"
         />
         </View>
@@ -123,6 +137,7 @@ class Example extends React.Component {
      ? this.props.barcodeScanned.push(this.props.barcodeScanned[this.props.barcodeScanned.length - 1] + 1)
      : this.props.barcodeScanned.push(0);
     // end
+    this.props.setBottomBar(false);
     this.props.navigation.navigate('itemDetail');
   }
 
@@ -154,6 +169,12 @@ class Example extends React.Component {
 const IMAGE_SIZE = 200;
 
 const styles = StyleSheet.create({
+  textInput: {
+    borderWidth: 1,
+    borderColor: '#D5D5D5',
+    borderRadius: 5,
+    maxHeight: 30,
+  },
   search: {
     borderColor: 'gray',
     borderWidth: StyleSheet.hairlineWidth,
@@ -238,6 +259,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginVertical: 8,
   },
+  dividerInput: {
+    flexDirection: 'row',
+    flex: 1,
+    marginVertical: 8,
+  },
   
   labelPackage: {
     ...Mixins.subtitle3,
@@ -296,6 +322,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setBarcodeScanner: (toggle) => {
       return dispatch({type: 'ScannerActive', payload: toggle});
+    },
+    setBottomBar: (toggle) => {
+      return dispatch({type: 'BottomBar', payload: toggle});
     },
   };
 };
