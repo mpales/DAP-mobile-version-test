@@ -291,11 +291,11 @@ function mapStateToProps(state) {
   };
 }
 
-const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
+const mapDispatchToProps = (dispatch) => {
   return {
     decrement: () => dispatch({type: 'DECREMENT'}),
     reset: () => dispatch({type: 'RESET'}),
-    onChange: (text: any) => {
+    onChange: (text) => {
       return {type: 'todos', payload: text};
     },
     setBottomBar: (toggle) => dispatch({type: 'BottomBar', payload: toggle}),
