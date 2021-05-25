@@ -1,19 +1,40 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-platform :ios, '10.0'
+platform :ios, '14.0'
+
+pod 'Firebase/Analytics'
+pod 'Firebase/Auth'
+pod 'Firebase/Firestore'
+pod 'Firebase/Core'
 
 target 'transportApp' do
-  config = use_native_modules!
+  
+  permissions_path = '../node_modules/react-native-permissions/ios'
 
+  config = use_native_modules!
+  
+  pod 'Permission-LocationAlways', :path => "#{permissions_path}/LocationAlways"
+  pod 'Permission-LocationWhenInUse', :path => "#{permissions_path}/LocationWhenInUse"
+ 
+  pod 'Permission-PhotoLibrary', :path => "#{permissions_path}/PhotoLibrary"
+  pod 'Permission-PhotoLibraryAddOnly', :path => "#{permissions_path}/PhotoLibraryAddOnly"
+   
+  pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
+  pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
+  
+  pod 'react-native-camera', path: '../node_modules/react-native-camera',subspecs:['BarcodeDetectorMLKit']
   use_react_native!(
     :path => config[:reactNativePath],
     # to enable hermes on iOS, change `false` to `true` and then install pods
     :hermes_enabled => false
   )
 
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
   target 'transportAppTests' do
     inherit! :complete
+	
     # Pods for testing
   end
 
