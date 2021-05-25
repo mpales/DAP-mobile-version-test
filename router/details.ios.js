@@ -8,6 +8,7 @@ import WarehouseNavigator from './warehouse';
 import DeliveryNavigator from './delivery';
 import {createStackNavigator, Header} from '@react-navigation/stack';
 import {Overlay} from 'react-native-elements';
+import {TouchableOpacity, View, Text} from 'react-native';
 import noAccess from './error/no-access';
 import {PERMISSIONS, request, check} from 'react-native-permissions';
 import { openSettings } from 'react-native-permissions'
