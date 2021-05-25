@@ -1,0 +1,12 @@
+{
+"icon":true,
+  "native":true,
+  "dimensions":true,
+  "svgProps": {
+    "width": "{props.width}",
+    "height": "{props.height}",
+  },
+   "replaceAttrValues": {
+    "#000": "{props.fill}"
+  }
+}
