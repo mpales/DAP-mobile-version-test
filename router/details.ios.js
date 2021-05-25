@@ -359,7 +359,7 @@ class Details extends React.Component {
               borderRadius: 5,}, {borderWidth: 1, borderColor: '#ABABAB'}]}
               onPress={() => this.handleConfirm(false)}
             >
-            <Text style={[styles.cancelText, {color: '#6C6B6B'}]}>No</Text>
+            <Text style={[ {color: '#6C6B6B'}]}>No</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[{   width: '40%',
@@ -370,7 +370,7 @@ class Details extends React.Component {
               borderRadius: 5,}, {backgroundColor: '#F07120'}]}
               onPress={() => this.handleConfirm(true)}
             >
-              <Text style={[styles.cancelText, {color: '#fff'}]}>Yes</Text>
+              <Text style={[ {color: '#fff'}]}>Yes</Text>
             </TouchableOpacity>
           </View>
       </Overlay></>
