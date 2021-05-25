@@ -5,6 +5,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Platform
 } from 'react-native';
 import SignatureCanvas from 'react-native-signature-canvas';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -31,7 +32,7 @@ class Signature extends React.Component {
   }
 
   signatureHandler = async (signature) => {
-    const cacheDir = RNFetchBlob.fs.dirs.DownloadDir;
+    const cacheDir = Platform.OS === 'ios' ? RNFetchBlob.fs.dirs.DocumentDir : RNFetchBlob.fs.dirs.DownloadDir;
     const fs = RNFetchBlob.fs;
     await fs.writeFile(`${cacheDir}/signature.png`, signature.replace('data:image/png;base64,', ''), 'base64')
     RNFetchBlob.fs.readFile(`${cacheDir}/signature.png`, 'base64')
