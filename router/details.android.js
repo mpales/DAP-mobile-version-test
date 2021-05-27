@@ -199,8 +199,10 @@ class Details extends React.Component {
   detailsRoute = () => {
     let Route = '';
     if (this.props.userRole.type === 'Warehouse') {
+      this.props.setBottomBar(false);
       Route = 'MenuWarehouse';
     } else if (this.props.userRole.type === 'Delivery') {
+      this.props.setBottomBar(true);
       Route = 'Delivery';
     } else {
       Route = 'Delivery';
