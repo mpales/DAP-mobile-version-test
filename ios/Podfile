@@ -29,8 +29,13 @@ target 'transportApp' do
     # to enable hermes on iOS, change `false` to `true` and then install pods
     :hermes_enabled => false
   )
+  # react-native-maps dependencies
+    rn_maps_path = '../node_modules/react-native-maps' # This path is likely to be `../node_modules/react-native-maps` in your own project.
 
-  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+    pod 'react-native-maps', path: rn_maps_path
+    pod 'react-native-google-maps', path: rn_maps_path  # Remove this line if you don't want to support GoogleMaps on iOS
+
+    pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
   target 'transportAppTests' do
     inherit! :complete

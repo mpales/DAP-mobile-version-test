@@ -10,7 +10,7 @@ import {createStackNavigator, Header} from '@react-navigation/stack';
 import {Overlay} from 'react-native-elements';
 import {TouchableOpacity, View, Text} from 'react-native';
 import noAccess from './error/no-access';
-import {PERMISSIONS, request, check} from 'react-native-permissions';
+import {PERMISSIONS, request, check, RESULTS} from 'react-native-permissions';
 import { openSettings } from 'react-native-permissions'
 const Stack = createStackNavigator();
 
@@ -103,9 +103,9 @@ class Details extends React.Component {
   
   };
   requestCameraPermission = async () => {
-    let {locationPermission} = this.props;
+    let {cameraPermission} = this.props;
     
-    if(locationPermission){
+    if(cameraPermission){
       check(PERMISSIONS.IOS.CAMERA)
       .then((result) => {
         switch (result) {
@@ -153,9 +153,9 @@ class Details extends React.Component {
     }
   }
   requestReadStoragePermission = async () => {
-    let {locationPermission} = this.props;
+    let {readStoragePermission} = this.props;
     
-    if(locationPermission){
+    if(readStoragePermission){
       check(PERMISSIONS.IOS.PHOTO_LIBRARY)
       .then((result) => {
         switch (result) {
@@ -204,9 +204,9 @@ class Details extends React.Component {
   }
   requestWriteStoragePermission = async () => {
     
-    let {locationPermission} = this.props;
+    let {writeStoragePermission} = this.props;
     
-    if(locationPermission){
+    if(writeStoragePermission){
       check(PERMISSIONS.IOS.PHOTO_LIBRARY_ADD_ONLY)
       .then((result) => {
         switch (result) {
@@ -300,8 +300,10 @@ class Details extends React.Component {
   detailsRoute = () => {
     let Route = '';
     if (this.props.userRole.type === 'Warehouse') {
+      this.props.setBottomBar(true);
       Route = 'MenuWarehouse';
     } else if (this.props.userRole.type === 'Delivery') {
+      this.props.setBottomBar(true);
       Route = 'Delivery';
     } else {
       Route = 'Delivery';

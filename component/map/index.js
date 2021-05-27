@@ -17,6 +17,7 @@ import {
   Animated as AnimatedMap,
   AnimatedRegion,
   Marker,
+  PROVIDER_GOOGLE 
 } from 'react-native-maps';
 
 import PriceMarker from './section/AnimatedPriceMarker';
@@ -785,7 +786,7 @@ class AnimatedMarkers extends React.Component {
           >
           <AnimatedMap
             showsTraffic={trafficLayer}
-            provider={this.props.provider}
+            provider={PROVIDER_GOOGLE}
             style={styles.map}
             region={region}
             onRegionChange={this.onRegionChange}

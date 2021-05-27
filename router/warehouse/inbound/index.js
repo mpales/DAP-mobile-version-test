@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, Text, TouchableOpacity, View} from 'react-native';
+import {Image, Text, TouchableOpacity, View, Platform} from 'react-native';
 import {createStackNavigator, HeaderBackButton, Header} from '@react-navigation/stack';
 import {connect} from 'react-redux';
 import {Button} from 'react-native-elements';
@@ -36,6 +36,8 @@ class HomeNavigator extends React.Component {
     return (
       <Stack.Navigator initialRouteName="List" screenOptions={{
         headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
+        headerBackTitleVisible:false,
+        headerLeftContainerStyle:  Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
         header: (props) => {
           let state = props.navigation.dangerouslyGetState();
           let key =  state.routes[state.index].name;
@@ -56,9 +58,20 @@ class HomeNavigator extends React.Component {
               elevation: 0,
               shadowOpacity: 0,
               borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
             },
             headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+            ...Platform.select({
+              ios: {
+                marginHorizontal: 20,
+              },
+            })
+          },
             headerTitleAlign: 'left',
             headerLeft: (props) => {
               return(
@@ -80,10 +93,21 @@ class HomeNavigator extends React.Component {
               elevation: 0,
               shadowOpacity: 0,
               borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
             },
             headerTintColor: '#fff',
             headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+            ...Platform.select({
+              ios: {
+                marginHorizontal: 20,
+              },
+            })
+            },
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
@@ -104,10 +128,21 @@ class HomeNavigator extends React.Component {
               elevation: 0,
               shadowOpacity: 0,
               borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
             },
             headerTransparent: true,
             headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+            ...Platform.select({
+              ios: {
+                marginHorizontal: 20,
+              },
+            })
+            },
             headerTitle: 'Back',
             headerRight: () => (
               <View style={{display: 'flex', flexDirection: 'row'}}>
@@ -132,10 +167,21 @@ class HomeNavigator extends React.Component {
               elevation: 0,
               shadowOpacity: 0,
               borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
             },
             headerTintColor: '#fff',
             headerTitle: 'Input Manual',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+            ...Platform.select({
+              ios: {
+                marginHorizontal: 20,
+              },
+            })  
+          },
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
@@ -155,10 +201,21 @@ class HomeNavigator extends React.Component {
               elevation: 0,
               shadowOpacity: 0,
               borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
             },
             headerTintColor: '#fff',
             headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+            ...Platform.select({
+              ios: {
+                marginHorizontal: 20,
+              },
+            })
+          },
           })}
         />
           <Stack.Screen
@@ -170,10 +227,21 @@ class HomeNavigator extends React.Component {
               elevation: 0,
               shadowOpacity: 0,
               borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
             },
             headerTintColor: '#fff',
             headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+            ...Platform.select({
+              ios: {
+                marginHorizontal: 20,
+              },
+            })
+          },
           })}
         />
           <Stack.Screen
@@ -185,10 +253,21 @@ class HomeNavigator extends React.Component {
               elevation: 0,
               shadowOpacity: 0,
               borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
             },
             headerTintColor: '#fff',
             headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+            ...Platform.select({
+              ios: {
+                marginHorizontal: 20,
+              },
+            })
+          },
           })}
         />
          <Stack.Screen
@@ -200,10 +279,21 @@ class HomeNavigator extends React.Component {
               elevation: 0,
               shadowOpacity: 0,
               borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
             },
             headerTintColor: '#fff',
             headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+            ...Platform.select({
+              ios: {
+                marginHorizontal: 20,
+              },
+            })
+          },
           })}
         />
       </Stack.Navigator>

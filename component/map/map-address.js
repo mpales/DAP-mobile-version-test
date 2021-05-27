@@ -14,6 +14,7 @@ import {
   AnimatedRegion,
   Marker,
   Polyline,
+  PROVIDER_GOOGLE
 } from 'react-native-maps';
 import Location from './interface/geoCoordinate'
 import GEO from './interface/geoConditional';
@@ -118,7 +119,7 @@ class AnimatedMarkers extends React.Component {
       <View style={styles.container}>
         <AnimatedMap
         showsTraffic={this.props.trafficLayer}
-          provider={this.props.provider}
+          provider={PROVIDER_GOOGLE}
           style={styles.map}
           region={region}
           onRegionChange={this.onRegionChange}>

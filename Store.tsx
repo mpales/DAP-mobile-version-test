@@ -13,12 +13,28 @@ import FilesystemStorage from 'redux-persist-filesystem-storage'
 import RNFetchBlob from 'rn-fetch-blob';
 import { createFilter, createBlacklistFilter } from 'redux-persist-transform-filter';
 
+import { Platform } from 'react-native';
+
 // These are all the config options, with their default values
 FilesystemStorage.config({
      storagePath: `${RNFetchBlob.fs.dirs.DocumentDir}/persistStore`,
      encoding: "utf8",
-     toFileName: (name: string) => name.split(":").join("-"),
-     fromFileName: (name: string) => name.split("-").join(":"),
+     toFileName: Platform.select({
+      ios : (name:string)=> {
+        let arr = name.split('/')
+        const dirs = RNFetchBlob.fs.dirs
+        let namewithpath = `${dirs.DocumentDir}/persistStore/${arr[arr.length - 1]}`
+        return namewithpath.split(":").join("-")},
+      android: (name:string)=> name.split(":").join("-"),
+    }),
+     fromFileName: Platform.select({
+      ios : (name:string)=> {
+        let arr = name.split('/')
+        const dirs = RNFetchBlob.fs.dirs
+        let namewithpath = `${dirs.DocumentDir}/persistStore/${arr[arr.length - 1]}`
+        return namewithpath.split("-").join(":")},
+      android: (name:string)=> name.split("-").join(":"),
+    }),
 });
 //import {Thread} from 'react-native-threads';
 
