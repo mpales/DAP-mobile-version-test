@@ -150,6 +150,8 @@ class Example extends React.Component {
           },
         })
         },
+        headerBackTitleVisible:false,
+        headerLeftContainerStyle:  Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
         headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
         header: (props) => {
           let state = props.navigation.dangerouslyGetState();
