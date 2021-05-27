@@ -5,7 +5,7 @@ import { CommonActions } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator,BottomTabBar } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator,DrawerContentScrollView,
-  DrawerItemList, } from '@react-navigation/drawer';
+  DrawerItemList,DrawerItem } from '@react-navigation/drawer';
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
 import Map from './address';
@@ -165,6 +165,10 @@ class DeliveryNavigator extends React.Component {
         <Text style={styles.drawerText}>Driver Name</Text>
         </View>
       <DrawerItemList {...props} />
+      <DrawerItem
+        label="Logout"
+        onPress={() => navigation.navigate('Home')}
+      />
     </DrawerContentScrollView> );
   }
   deliveryScreen = () => {
@@ -326,13 +330,6 @@ class DeliveryNavigator extends React.Component {
           options={{
             drawerIcon:({ focused, color, size })=>(
               <IconGear2Mobile height="20" width="17" fill="#2D2C2C"/>
-            ),
-          }}
-        />
-        <Drawer.Screen name="Log out" component={this.deliveryTab} 
-          options={{
-            drawerIcon:({ focused, color, size })=>(
-              <IconLogout2Mobile height="20" width="17" fill="#2D2C2C"/>
             ),
           }}
         />

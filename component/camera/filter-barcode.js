@@ -5,6 +5,7 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
+  Animated,
 } from 'react-native';
 import {Button} from 'react-native-elements';
 import Slider from '@react-native-community/slider';
@@ -86,6 +87,7 @@ class CameraScreen extends React.Component {
       canDetectFaces: false,
       canDetectText: false,
       canDetectBarcode: detectBarcode,
+      barCodeAnimated : new Animated.Value(0),
       faces: [],
       textBlocks: [],
       barcodes: [],
@@ -96,6 +98,7 @@ class CameraScreen extends React.Component {
     if(prevProps.detectBarcode !== this.props.detectBarcode){
      if(this.props.detectBarcode){
       this.setState({canDetectBarcode: true});
+      this.state.barCodeAnimated.setValue(0);
      } else {
       this.setState({canDetectBarcode: false});
      }
@@ -278,11 +281,23 @@ class CameraScreen extends React.Component {
         y: barcode.bounds.origin.y,
       }),
     );
-    this.setState({barcodes: filterBarcode});
     if(filterBarcode.length > 0){
-      this.props.setBarcodeScanner(false);
-    }
-    return this.props.renderBarcode(filterBarcode);
+      this.setState({barcodes: filterBarcode.slice(-1)});
+      Animated.sequence([
+        Animated.timing(this.state.barCodeAnimated, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(this.state.barCodeAnimated, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        })
+      ]).start(()=>  {this.props.setBarcodeScanner(false)})
+      
+    }  
+    return this.props.renderBarcode(filterBarcode.slice(-1));
   };
 
   renderBarcodes = () => (
@@ -291,9 +306,9 @@ class CameraScreen extends React.Component {
     </View>
   );
 
-  renderBarcode = ({bounds, data, type}) => (
+  renderBarcode = ({bounds, data, type}, index, barcodes) => (
     <React.Fragment key={data + bounds.origin.x}>
-      <View
+      <Animated.View
         style={[
           styles.text,
           {
@@ -301,9 +316,10 @@ class CameraScreen extends React.Component {
             left: bounds.origin.x,
             top: bounds.origin.y,
           },
+          {opacity: this.state.barCodeAnimated}
         ]}>
-        <Text style={[styles.textBlock]}>{`${data} ${type}`}</Text>
-      </View>
+        <Text style={[styles.textBarcode, {top:bounds.size.height, left:0,right:0,}]}>{data}</Text>
+      </Animated.View>
     </React.Fragment>
   );
 
@@ -481,6 +497,11 @@ const styles = StyleSheet.create({
     color: '#F00',
     position: 'absolute',
     textAlign: 'center',
+    backgroundColor: 'transparent',
+  },
+  textBarcode: {
+    color: '#F00',
+    position: 'absolute',
     backgroundColor: 'transparent',
   },
   rectangleContainer: {

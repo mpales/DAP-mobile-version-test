@@ -19,7 +19,6 @@ class Acknowledge extends React.Component {
 
 
   render(){
-    this.props.setBottomBar(false);
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: '#E5E5E5', paddingHorizontal: 22,}}>
           <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 100}}>
