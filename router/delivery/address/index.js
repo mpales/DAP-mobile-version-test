@@ -98,6 +98,8 @@ class AddressNavigator extends React.Component {
             {...props}/>
           );
         },
+        headerBackTitleVisible: false,
+    headerLeftContainerStyle: {paddingHorizontal: 15},
         }}>     
         <Stack.Screen
           name="List"
