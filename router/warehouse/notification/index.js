@@ -19,19 +19,21 @@ import {
   Card,
   SearchBar
 } from 'react-native-elements';
-import {Dimensions} from 'react-native';
+import {Dimensions, Platform} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {AnyAction, Dispatch} from 'redux';
 import {connect, Provider} from 'react-redux';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import ListChat from '../../../component/extend/ListItem-chat';
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
+import IconArrow66Mobile from '../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
 import {createStackNavigator,Header} from '@react-navigation/stack';
 import List from './list';
 import Chat from './single';
-import Contact from './contact';
 import Mixins from '../../../mixins';
+
+import Contact from './contact';
 
 const window = Dimensions.get('window');
 
@@ -61,6 +63,11 @@ class Notification extends React.Component {
             elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 0,
+            ...Platform.select({
+              android: {
+                height: 45,
+              },
+            })
           },
           headerTintColor: '#fff',
           headerTitle: 'Chat',
@@ -74,6 +81,11 @@ class Notification extends React.Component {
             elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 0,
+            ...Platform.select({
+              android: {
+                height: 45,
+              },
+            })
           },
           headerTintColor: '#fff',
           headerTitle: 'Chat',
@@ -87,6 +99,11 @@ class Notification extends React.Component {
             elevation: 0,
             shadowOpacity: 0,
             borderBottomWidth: 0,
+            ...Platform.select({
+              android: {
+                height: 45,
+              },
+            })
           },
           headerTintColor: '#fff',
           headerTitle: 'Contact',
@@ -97,6 +114,14 @@ class Notification extends React.Component {
       initialRouteName: 'List',
       headerMode: 'screen',
       defaultNavigationOptions: {
+        headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+        ...Platform.select({
+          ios: {
+            marginHorizontal: 20,
+          },
+        })
+        },
+        headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
         header: (props) => {
           let state = props.navigation.dangerouslyGetState();
           let key =  state.routes[state.index].name;

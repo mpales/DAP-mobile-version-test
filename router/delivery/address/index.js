@@ -1,5 +1,5 @@
 import React from 'react';
-import {TextInput, View, Text, useWindowDimensions} from 'react-native';
+import {TextInput, View, Text, useWindowDimensions, Platform} from 'react-native';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
 import {createStackNavigator, HeaderBackButton, Header} from '@react-navigation/stack';
 import {createMaterialTopTabNavigator, MaterialTopTabBar} from '@react-navigation/material-top-tabs';
@@ -108,10 +108,21 @@ class AddressNavigator extends React.Component {
               elevation: 0,
               shadowOpacity: 0,
               borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
             },
             headerTintColor: '#fff',
             headerTitle: 'Delivery Order',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+            ...Platform.select({
+              ios: {
+                marginHorizontal: 20,
+              },
+            })
+            },
             headerRight: () => (
               <Button
                 type="clear"
@@ -134,9 +145,20 @@ class AddressNavigator extends React.Component {
               elevation: 0,
               shadowOpacity: 0,
               borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
             },
             headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+            ...Platform.select({
+              ios: {
+                marginHorizontal: 20,
+              },
+            })
+            },
             headerTitle: 'Delivery Order',
             headerLeft: (props) => {
               return(
@@ -169,9 +191,20 @@ class AddressNavigator extends React.Component {
               elevation: 0,
               shadowOpacity: 0,
               borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
             },
             headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+            ...Platform.select({
+              ios: {
+                marginHorizontal: 20,
+              },
+            })
+            },
             headerTitle: 'Delivery Order',
             headerLeft: (props) => {
               return(
@@ -204,9 +237,20 @@ class AddressNavigator extends React.Component {
               elevation: 0,
               shadowOpacity: 0,
               borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
             },
             headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+            ...Platform.select({
+              ios: {
+                marginHorizontal: 20,
+              },
+            })
+            },
             headerTitle: 'Cancel Deliver',
             headerLeft: (props) => {
               return(
@@ -239,9 +283,20 @@ class AddressNavigator extends React.Component {
               elevation: 0,
               shadowOpacity: 0,
               borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
             },
             headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22},
+            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+            ...Platform.select({
+              ios: {
+                marginHorizontal: 20,
+              },
+            })
+            },
             headerTitle: 'Delivery Order',
             headerLeft: (props) => {
               return(

@@ -1,4 +1,5 @@
 import React from 'react';
+import {Platform} from 'react-native';
 import { Button } from 'react-native-elements';
 import Camera from '../peripheral/camera';
 import POD from './POD';
@@ -13,6 +14,7 @@ import {createCompatNavigatorFactory} from '@react-navigation/compat';
 import IconDelivery8Mobile from '../../../assets/icon/iconmonstr-delivery-8 1mobile.svg';
 import IconMenu11Mobile from '../../../assets/icon/iconmonstr-menu-11mobile.svg';
 
+import IconArrow66Mobile from '../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
 class Example extends React.Component {
   constructor(props) {
@@ -130,6 +132,25 @@ class Example extends React.Component {
       initialRouteName:"Order",
       headerMode: 'screen',
       defaultNavigationOptions: {
+        headerStyle: {
+          backgroundColor: '#121C78',
+          elevation: 0,
+          shadowOpacity: 0,
+          borderBottomWidth: 0,
+          ...Platform.select({
+            android: {
+              height: 45,
+            },
+          })
+        },
+        headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
+        ...Platform.select({
+          ios: {
+            marginHorizontal: 20,
+          },
+        })
+        },
+        headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
         header: (props) => {
           let state = props.navigation.dangerouslyGetState();
           let key =  state.routes[state.index].name;

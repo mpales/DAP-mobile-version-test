@@ -1,5 +1,5 @@
 import React from 'react';
-import {TextInput, View, Text, Dimensions,TouchableOpacity, BackHandler, InteractionManager} from 'react-native';
+import {TextInput, View, Text, Dimensions,TouchableOpacity, BackHandler, InteractionManager, Platform} from 'react-native';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
 import { CommonActions } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -21,6 +21,7 @@ import IconTime17Mobile from '../../assets/icon/iconmonstr-time-17 1mobile.svg';
 import IconLogout2Mobile from '../../assets/icon/iconmonstr-log-out-2 2mobile.svg';
 import Mixins from '../../mixins';
 import { ReactReduxContext } from 'react-redux'
+
 const screen = Dimensions.get('window');
 const Drawer = createDrawerNavigator();
 
@@ -288,7 +289,7 @@ class DeliveryNavigator extends React.Component {
           paddingVertical: 10,
         },
         style: {
-          height: 94,
+          height: Platform.OS === 'ios' ? 94 : 64,
           borderWidth: 0.5,
           borderBottomWidth: 1,
           backgroundColor: '#F5F5FB',

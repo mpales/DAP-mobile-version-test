@@ -199,7 +199,9 @@ class Details extends React.Component {
   detailsRoute = () => {
     let Route = '';
     if (this.props.userRole.type === 'Warehouse') {
-      this.props.setBottomBar(false);
+      if(this.props.keyStack === 'MenuWarehouse'){
+        this.props.setBottomBar(false);
+      }
       Route = 'MenuWarehouse';
     } else if (this.props.userRole.type === 'Delivery') {
       this.props.setBottomBar(true);
@@ -290,6 +292,8 @@ function mapStateToProps(state) {
     readStoragePermission : state.originReducer.filters.readStoragePermission,
     writeStoragePermission : state.originReducer.filters.writeStoragePermission,
     indexBottomBar : state.originReducer.filters.indexBottomBar,
+    keyStack : state.originReducer.filters.keyStack,
+    indexStack : state.originReducer.filters.indexStack,
   };
 }
 

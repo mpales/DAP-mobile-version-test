@@ -1,5 +1,5 @@
 import React from 'react';
-import {TextInput, View, Text, Dimensions,TouchableOpacity, BackHandler, InteractionManager} from 'react-native';
+import {TextInput, View, Text, Dimensions,TouchableOpacity, BackHandler, InteractionManager, Platform} from 'react-native';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
 import { CommonActions } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -103,7 +103,7 @@ class WarehouseNavigator extends React.Component {
         if(this._backHandlerRegisterToBottomBar !== null){
           this._backHandlerRegisterToBottomBar.remove();
         }
-      } else if(this.props.indexBottomBar === 0){
+      } else if(this.props.indexBottomBar === 0 && this.props.keyStack !== 'MenuWarehouse'){
         this.props.setBottomBar(true);
        }
         if(this.props.keyStack === 'List' && this.props.indexBottomBar === 1){
@@ -301,7 +301,7 @@ class WarehouseNavigator extends React.Component {
           justifyContent: 'space-evenly',
         },
         style: {
-          height: 94,
+          height: Platform.OS === 'ios' ? 94 : 64,
           borderWidth: 0.5,
           borderBottomWidth: 1,
           backgroundColor: '#F5F5FB',
