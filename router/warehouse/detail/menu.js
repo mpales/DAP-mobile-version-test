@@ -39,7 +39,8 @@ class Acknowledge extends React.Component {
                 titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
                 onPress={()=>{
                   this.props.setBottomBar(true);
-                  this.props.navigation.navigate('Warehouse')}}
+                  this.props.setWarehouseModule('INBOUND');
+                  this.props.navigation.navigate('Details')}}
                 buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
               />
                  
@@ -49,11 +50,12 @@ class Acknowledge extends React.Component {
                     <Outbound height="60" width="60" fill="#ABABAB" />
                 )}
                 iconContainerStyle={Mixins.rectDefaultButtonIconStyle}
-                title="OUTBOND"
+                title="OUTBOUND"
                 titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
                 onPress={()=>{
                   this.props.setBottomBar(true);
-                    this.props.navigation.navigate('Warehouse')}}
+                  this.props.setWarehouseModule('OUTBOUND');
+                    this.props.navigation.navigate('Details')}}
                     buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
                     />
                  
@@ -67,7 +69,8 @@ class Acknowledge extends React.Component {
                 titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
                 onPress={()=>{
                   this.props.setBottomBar(true);
-                    this.props.navigation.navigate('Warehouse')}}
+                  this.props.setWarehouseModule('WAREHOUSE');
+                    this.props.navigation.navigate('Details')}}
                     buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
                     />
         </View>
@@ -194,6 +197,9 @@ const mapDispatchToProps = (dispatch) => {
     setBottomBar: (toggle) => dispatch({type: 'BottomBar', payload: toggle}),
     setStartDelivered : (toggle) => {
       return dispatch({type: 'startDelivered', payload: toggle});
+    },
+    setWarehouseModule : (toggle) => {
+      return dispatch({type: 'warehouseModule', payload: toggle});
     }
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };

@@ -8,6 +8,8 @@ const initialState = {
   photoProofList: [],
   route: ROUTE,
   inboundList: [],
+  outboundTask: [],
+  outboundList: [],
   manifestList: [],
   // for prototype only
   completedInboundList: [],
@@ -37,6 +39,7 @@ const initialState = {
     isLoading: false,
     isGlobalLoading: false,
     isConnectedSelector: true,
+    warehouse_module: '',
   },
 };
 
@@ -108,6 +111,23 @@ export default function appReducer(state = initialState, action) {
           name: 'Nana',
         },
       };
+      case 'logout':
+        return {
+          ...state,
+          userRole: {
+            ...state.userRole,
+            type: false,
+          },
+        };
+        
+      case 'warehouseModule':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            warehouse_module: action.payload,
+          },
+        };
       case 'cameraPermission':
         return {
           ...state,
@@ -343,6 +363,16 @@ export default function appReducer(state = initialState, action) {
         return {
           ...state,
           inboundList: action.payload
+        }
+        case 'OutboundTask':
+        return {
+          ...state,
+          outboundTask: action.payload
+        }
+        case 'OutboundList':
+        return {
+          ...state,
+          outboundList: action.payload
         }
       case 'ManifestList':
         return {

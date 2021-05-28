@@ -43,6 +43,7 @@ import {enableScreens} from 'react-native-screens';
 import { useIsConnected, ReduxNetworkProvider, offlineActionCreators} from 'react-native-offline';
 import { PersistGate } from 'redux-persist/integration/react';
 import Checkmark from './assets/icon/iconmonstr-check-mark-8mobile.svg';
+import MenuWarehouse from './router/warehouse/detail/menu';
 
 enableScreens(false);
 class App extends React.Component<IProps, {}> {
@@ -55,6 +56,7 @@ class App extends React.Component<IProps, {}> {
       textTwo: 'Initial Two',
       keyboardState: 'closed',
       transitionTo: 0,
+      submit: false,
     };
     this._keyboardDidHide.bind(this);
     this._keyboardDidShow.bind(this);
@@ -70,6 +72,25 @@ class App extends React.Component<IProps, {}> {
     this.webWorker();
   }
 
+  componentDidMount(){
+    this.props.logout();
+  }
+  componentDidUpdate(prevProps, prevState, snapshot) { 
+    if(this.props.roletype !== prevProps.roletype){ 
+      if(this.state.submit === true){
+        if(this.props.roletype === 'Warehouse'){
+          this.props.navigation.navigate('MenuWarehouse');
+        } else {
+          this.props.navigation.navigate('Details');
+        }
+      }
+    } else {
+      if(this.state.submit === true){
+        this.setState({submit: false});
+        this.props.logout();
+      }
+    }
+  }
   webWorker() {}
   onChangeText(text: any) {
     this.setState({text});
@@ -100,7 +121,7 @@ class App extends React.Component<IProps, {}> {
   }
   onSubmitToBeranda(e: any) {
    this.props.login(this.state.textTwo);
-    this.props.navigation.navigate('Details');
+   this.setState({submit:true});
   }
   render() {
     return (
@@ -264,8 +285,10 @@ interface IProps {
   todos: {};
   textTwo: string;
   login: (text: any) => void;
+  logout: () => void;
   onChange: (text: any) => void;
   navigation: any;
+  roletype: string;
 }
 
 interface dispatch {
@@ -277,12 +300,14 @@ function mapStateToProps(state) {
     todos: state.originReducer.todos,
     textfield: state.originReducer.todos.name,
     value: state.originReducer.todos.name,
+    roletype: state.originReducer.userRole.type,
   };
 }
 
 const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
   return {
     login: (text: any) => dispatch({type: 'login', payload: text}),
+    logout: () => dispatch({type: 'logout'}),
     onChange: (text: any) => {
       return {type: 'todos', payload: text};
     },
@@ -354,6 +379,13 @@ const Root = (props) => {
           <Stack.Screen
             name="Details"
             component={Beranda}
+            options={{
+              title: 'Beranda app',
+            }}
+          />
+          <Stack.Screen
+            name="MenuWarehouse"
+            component={MenuWarehouse}
             options={{
               title: 'Beranda app',
             }}

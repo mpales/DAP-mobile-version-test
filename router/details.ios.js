@@ -2,9 +2,12 @@ import React from 'react';
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
 import Delivery from './delivery/detail';
-import Warehouse from './warehouse/detail';
-import warehouseMenu from './warehouse/detail/menu';
-import WarehouseNavigator from './warehouse';
+import Warehouse from './warehouse/detail/index-warehouse';
+import WarehouseIn from './warehouse/detail/index-inbound';
+import WarehouseOut from './warehouse/detail/index-outbound';
+import WarehouseInNavigator from './warehouse/index-inbound';
+import WarehouseOutNavigator from './warehouse/index-outbound';
+import WarehouseNavigator from './warehouse/index-warehouse';
 import DeliveryNavigator from './delivery';
 import {createStackNavigator, Header} from '@react-navigation/stack';
 import {Overlay} from 'react-native-elements';
@@ -46,7 +49,7 @@ class Details extends React.Component {
   }
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
-    if(key === 'MenuWarehouse'){
+    if(indexBottomBar === 0){
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }
@@ -301,7 +304,13 @@ class Details extends React.Component {
     let Route = '';
     if (this.props.userRole.type === 'Warehouse') {
       this.props.setBottomBar(true);
-      Route = 'MenuWarehouse';
+      if(this.props.warehouse_module === 'WAREHOUSE'){
+        Route = 'Warehouse';
+      } else if(this.props.warehouse_module ==='INBOUND') {
+        Route = 'WarehouseIn';
+      } else if(this.props.warehouse_module ==='OUTBOUND'){
+        Route = 'WarehouseOut';
+      }
     } else if (this.props.userRole.type === 'Delivery') {
       this.props.setBottomBar(true);
       Route = 'Delivery';
@@ -314,38 +323,48 @@ class Details extends React.Component {
   detailPage = () => {
     const {visible} = this.state;
     return (
-      <><Stack.Navigator
-        initialRouteName={this.detailsRoute()}
-        headerMode="screen"
-        screenOptions={{
-          headerTintColor: 'white',
-          headerStyle: { backgroundColor: 'tomato' },
-          header: (props) => {
-            let state = props.navigation.dangerouslyGetState();
-            let key = state.routes[state.index].name;
-            let index = state.index;
-            this.setWrapperofStack(index, key);
-          },
-        }}>
+      <> <Stack.Navigator
+      initialRouteName={this.detailsRoute()}
+      headerMode="screen"
+      screenOptions={{
+        headerTintColor: 'white',
+        headerStyle: {backgroundColor: 'tomato'},
+        header: (props) => {
+          let state = props.navigation.dangerouslyGetState();
+          let key =  state.routes[state.index].name;
+          let index = state.index;
+          this.setWrapperofStack(index,key);
+        },
+      }}>
+      <Stack.Screen
+        name="Delivery"
+        component={Delivery}
+        options={{
+          title: 'Beranda app',
+        }}
+      />
+      <Stack.Screen
+        name="Warehouse"
+        component={Warehouse}
+        options={{
+          title: 'Beranda app',
+        }}
+      />
         <Stack.Screen
-          name="Delivery"
-          component={Delivery}
-          options={{
-            title: 'Beranda app',
-          }} />
-        <Stack.Screen
-          name="Warehouse"
-          component={Warehouse}
-          options={{
-            title: 'Beranda app',
-          }} />
-        <Stack.Screen
-          name="MenuWarehouse"
-          component={warehouseMenu}
-          options={{
-            title: 'Beranda app',
-          }} />
-      </Stack.Navigator>
+        name="WarehouseIn"
+        component={WarehouseIn}
+        options={{
+          title: 'Beranda app',
+        }}
+      />
+          <Stack.Screen
+        name="WarehouseOut"
+        component={WarehouseOut}
+        options={{
+          title: 'Beranda app',
+        }}
+      />
+    </Stack.Navigator>
       <Overlay isVisible={visible} onBackdropPress={this.toggleOverlay} fullScreen={true}>
       <Text style={{ fontSize: 20,
     textAlign: 'center',}}>{this.state.overlayString}</Text>
@@ -382,7 +401,16 @@ class Details extends React.Component {
   render() {
     let Navigate;
     if (this.props.userRole.type === 'Warehouse') {
-      Navigate = <WarehouseNavigator component={this.detailPage} />;
+      if(this.props.warehouse_module === 'INBOUND'){
+
+        Navigate = <WarehouseInNavigator component={this.detailPage} />;
+      } else if(this.props.warehouse_module === 'OUTBOUND'){
+
+        Navigate = <WarehouseOutNavigator component={this.detailPage} />;
+      } else if(this.props.warehouse_module === 'WAREHOUSE'){
+
+        Navigate = <WarehouseNavigator component={this.detailPage} />;
+      }
     } else if (this.props.userRole.type === 'Delivery') {
       Navigate =  <DeliveryNavigator component={this.detailPage} />;
     } else {
@@ -419,6 +447,7 @@ function mapStateToProps(state) {
     readStoragePermission : state.originReducer.filters.readStoragePermission,
     writeStoragePermission : state.originReducer.filters.writeStoragePermission,
     indexBottomBar : state.originReducer.filters.indexBottomBar,
+    warehouse_module: state.originReducer.filters.warehouse_module,
   };
 }
 

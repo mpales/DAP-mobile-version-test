@@ -39,99 +39,77 @@ class Example extends React.Component {
     <View style={styles.sheetContainer}>
       <View style={styles.sectionSheetDetail}>
         <View style={styles.sheetPackages}>
-        <View style={{flexDirection: 'row',flex:1}}>
-            <View style={{width:80}}>
-          <Text style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
-          SKU
-          </Text>
-          </View>
-          <Text style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600',textAlign: 'right',flexShrink: 1,paddingHorizontal: 10}}>:</Text>
-          <Text style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
-          ISO00012345
-          </Text>
-          </View>
-    
-          <View style={{flexDirection: 'row',flex:1}}>
-            <View style={{width:80}}>
-            <Text style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
-            Location
-            </Text>
-          </View>
-          <Text style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600',textAlign: 'right',flexShrink: 1,paddingHorizontal: 10}}>:</Text>
-          <Text style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
-          JP2 C05-002
-          </Text>
-          </View>
-
-          <View style={{flexDirection: 'row',flex:1}}>
-            <View style={{width:80}}>
-       
-          </View>
-          <Text style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600',textAlign: 'right',flexShrink: 1,paddingHorizontal: 10}}></Text>
+            <View style={styles.sectionDividier}>
+              <View style={styles.dividerContent}>
+                <Text style={styles.labelPackage}>BARCODE NUMBER</Text>
+                <Text style={styles.infoPackage}>EBV 2BL - TL</Text>
+              </View>
+              <View style={styles.dividerContent}>
+                <Text style={styles.labelPackage}>SKU</Text>
+                <Text style={styles.infoPackage}>ISO00012345</Text>
+              </View>
+            </View>
+            <View style={styles.sectionDividier}>
+              <View style={styles.dividerContent}>
+                <Text style={styles.labelPackage}>Description</Text>
+                <Text style={styles.infoPackage}>ERGOBLOM V2 BLUE DESK TOP/SHELF</Text>
+              </View>
           
-          <Text style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>J R21-15</Text> 
-          <Text style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>J R21-01</Text> 
-          </View>
-
-          <View style={{flexDirection: 'row',flex:1}}>
-            <View style={{width:80}}>
-            <Text style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
-          Barcode
-          </Text>
-          </View>
-          <Text style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600',textAlign: 'right',flexShrink: 1,paddingHorizontal: 10}}>:</Text>
-          <Text style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
-          EBV 2BL - TL
-          </Text>
-          </View>
-
-          <View style={{flexDirection: 'row',flex:1}}>
-            <View style={{width:80}}>
-            <Text style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
-           Description
-           </Text>
-          </View>
-          <Text style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600',textAlign: 'right',flexShrink: 1,paddingHorizontal: 10}}>:</Text>
-          <Text style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
-          ERGOBLOM V2 BLUE DESK  (HTH-512W LARGE TABLE/SHELF )
-          </Text>
-          </View>
-
-
-          <View style={{flexDirection: 'row',flex:1}}>
-            <View style={{width:80}}>
-            <Text style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
-            Category
-            </Text>
-          </View>
-          <Text style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600',textAlign: 'right',flexShrink: 1,paddingHorizontal: 10}}>:</Text>
-          <Text style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
-          -
-          </Text>
-          </View>
-
-          <View style={{flexDirection: 'row',flex:1}}>
-            <View style={{width:80}}>
-            <Text style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
-            Pick By
-            </Text>
-          </View>
-          <Text style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600',textAlign: 'right',flexShrink: 1,paddingHorizontal: 10}}>:</Text>
-          <Text style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
-          Adam
-          </Text>
-          </View>
+            </View>
+            <View style={styles.sectionDividier}>
+              <View style={styles.dividerContent}>
+                <Text style={styles.labelPackage}>Stock Grade</Text>
+                <Text style={styles.infoPackage}>01</Text>
+              </View>
+              <View style={styles.dividerContent}>
+                <Text style={styles.labelPackage}>Packaging</Text>
+                <Text style={styles.infoPackage}>PC 1 of 6</Text>
+              </View>
+            </View>
+            <View style={styles.sectionDividier}>
+              <View style={styles.dividerContent}>
+                <Text style={styles.labelPackage}>Quanity to pick</Text>
+                <Text style={styles.infoPackage}>1.000</Text>
+              </View>
+              <View style={styles.dividerContent}>
+                <Text style={styles.labelPackage}>Whole Quantity</Text>
+                <Text style={styles.infoPackage}>1 Pallet</Text>
+              </View>
+            </View>
+            <View style={styles.sectionDividier}>
+              <View style={styles.dividerContent}>
+                <Text style={styles.deliverTitle}>Qty</Text>
+              </View>
+              <View style={styles.dividerInput}>
+              <Badge value="+" status="error" containerStyle={{paddingVertical:6}} />
+              <Input 
+                containerStyle={{flex: 1,paddingVertical:0}}
+                inputContainerStyle={styles.textInput} 
+                inputStyle={Mixins.containedInputDefaultStyle}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                placeholder="0"
+                />
+                <Badge value="-" status="error" containerStyle={{paddingVertical:6}} />
+              </View>
+            </View>
         </View>
         <View style={styles.buttonSheet}>
-       
-        <Button
+        {this.props.barcodeScanned.includes(this.state.dataCode) &&
+        (<Button
           containerStyle={{flex:1, marginTop: 10,}}
           buttonStyle={styles.navigationButton}
           titleStyle={styles.deliveryText}
           onPress={() => this.onSubmit()}
-          title="Scan Items"
-        />
-      
+          title="Confirm"
+        />)}
+        {this.props.barcodeScanned.includes(this.state.dataCode) === false &&
+        (<Button
+          containerStyle={{flex:1, marginTop: 10,}}
+          buttonStyle={styles.navigationButton}
+          titleStyle={styles.deliveryText}
+          onPress={() => this.onSubmit()}
+          title="Confirm"
+        />)}
         
         </View>
         <View style={styles.buttonSheet}>
@@ -171,7 +149,6 @@ class Example extends React.Component {
   };
 
   onSubmit = () => {
-    const { dataCode } = this.state;
     this.props.setBarcodeScanner(true);
     this.setState({
       dataCode: '0',
@@ -181,8 +158,11 @@ class Example extends React.Component {
      ? this.props.barcodeScanned.push(this.props.barcodeScanned[this.props.barcodeScanned.length - 1] + 1)
      : this.props.barcodeScanned.push(0);
     // end
-    this.props.setBottomBar(false);
-    this.props.navigation.navigate('Barcode',{dataCode: this.state.dataCode})
+    this.props.setBottomBar(false); 
+
+    this.props.navigation.navigate('List',{
+      confirm: true,
+    });
   }
 
   render() {
@@ -195,8 +175,8 @@ class Example extends React.Component {
             handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
             handlePosition={'inside'}
             disableScrollIfPossible={true}
-            modalHeight={300}
-            alwaysOpen={300}
+            modalHeight={500}
+            alwaysOpen={500}
             HeaderComponent={<this.renderHeader />}
           >
             <this.renderInner />
