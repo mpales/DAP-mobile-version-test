@@ -46,7 +46,7 @@ class Details extends React.Component {
     if (val) {
       if (this.props.userRole.type === 'Warehouse' && (!this.props.cameraPermission || !this.props.readStoragePermission || !this.props.writeStoragePermission)) {
         openSettings();
-      } else if (this.props.userRole.type === 'Delivery' && (!this.props.cameraPermission || !this.state.notificationpermission || !this.props.readStoragePermission || !this.props.writeStoragePermission)) {
+      } else if (this.props.userRole.type === 'Delivery' && (!this.props.locationPermission || !this.props.cameraPermission || !this.state.notificationpermission || !this.props.readStoragePermission || !this.props.writeStoragePermission)) {
         openSettings();
       }
       this.setState({visible: false});
@@ -91,12 +91,16 @@ class Details extends React.Component {
             this.props.setLocationPermission(false);
             break;
           case RESULTS.LIMITED:
+             this.props.setLocationPermission(false);
             break;
           case RESULTS.GRANTED:
             break;
           case RESULTS.BLOCKED:
+          if(!this.state.visible){
+               this.props.setLocationPermission(false);
             this.setState({overlayString:'In-App Delivery requires Location Permission to be granted, Tap `YES` to open App Setings'});
             this.setState({visible:true});
+          }
             break;
         }
       })
@@ -113,14 +117,17 @@ class Details extends React.Component {
             this.setState({cancel:true});
             break;
           case RESULTS.LIMITED:
-            this.props.setLocationPermission(true);
+            this.props.setLocationPermission(false);
             break;
           case RESULTS.GRANTED:
             this.props.setLocationPermission(true);
             break;
           case RESULTS.BLOCKED:
+          if(!this.state.visible){
+               this.props.setLocationPermission(false);
             this.setState({overlayString:'In-App Delivery requires Location Permission to be granted, Tap `YES` to open App Setings'});
             this.setState({visible:true});
+          }
             break;
         }
       });
@@ -152,6 +159,7 @@ class Details extends React.Component {
               overlayString:
                 'In-App Notifications requires Notification Center Settings, Tap `YES` to open App Setings',
                 visible: true,
+                notificationpermission: false,
             });
             break;
         }
@@ -180,6 +188,7 @@ class Details extends React.Component {
               overlayString:
               'In-App Notifications requires Notification Center Settings, Tap `YES` to open App Setings',
               visible: true,
+              notificationpermission: false,
             });
             break;
         }
@@ -206,8 +215,11 @@ class Details extends React.Component {
           case RESULTS.GRANTED:
             break;
           case RESULTS.BLOCKED:
+          if(!this.state.visible){
             this.setState({overlayString:'In-App Camera requires Camera Permission to be granted, Tap `YES` to open App Setings'});
             this.setState({visible:true});
+              this.props.setCameraPermission(false);
+          }
             break;
         }
       })
@@ -230,8 +242,12 @@ class Details extends React.Component {
             this.props.setCameraPermission(true);
             break;
           case RESULTS.BLOCKED:
+          if(!this.state.visible){
             this.setState({overlayString:'In-App Camera requires Camera Permission to be granted, Tap `YES` to open App Setings'});
             this.setState({visible:true});
+              this.props.setCameraPermission(false);
+          }
+
             break;
         }
       });
@@ -256,8 +272,12 @@ class Details extends React.Component {
           case RESULTS.GRANTED:
             break;
           case RESULTS.BLOCKED:
+          if(!this.state.visible){
             this.setState({overlayString:'In-App Documentation requires Photo Library Permission to be granted, Tap `YES` to open App Setings'});
             this.setState({visible:true});
+
+            this.props.setReadStoragePermission(false);
+          }
             break;
         }
       })
@@ -280,8 +300,12 @@ class Details extends React.Component {
             this.props.setReadStoragePermission(true);
             break;
           case RESULTS.BLOCKED:
+          if(!this.state.visible){
             this.setState({overlayString:'In-App Documentation requires Photo Library Permission to be granted, Tap `YES` to open App Setings'});
             this.setState({visible:true});
+
+            this.props.setReadStoragePermission(true);
+          }
             break;
         }
       });
@@ -307,8 +331,12 @@ class Details extends React.Component {
           case RESULTS.GRANTED:
             break;
           case RESULTS.BLOCKED:
+          if(!this.state.visible){
             this.setState({overlayString:'In-App Documentation requires Photo Library Write Permission to be granted, Tap `YES` to open App Setings'});
             this.setState({visible:true});
+
+            this.props.setWriteStoragePermission(false);
+          }
             break;
         }
       })
@@ -331,8 +359,12 @@ class Details extends React.Component {
             this.props.setWriteStoragePermission(true);
             break;
           case RESULTS.BLOCKED:
+          if(!this.state.visible){
             this.setState({overlayString:'In-App Documentation requires Photo Library Write Permission to be granted, Tap `YES` to open App Setings'});
             this.setState({visible:true});
+            
+            this.props.setWriteStoragePermission(false);
+          }
             break;
         }
       });
