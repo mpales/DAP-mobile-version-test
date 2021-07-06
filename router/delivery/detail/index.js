@@ -121,8 +121,8 @@ class Delivery extends React.Component {
     return (
       <>
         <StatusBar barStyle="dark-content" />
-        <SafeAreaView edges={['top'] } style={{backgroundColor: '#121C78'}}>
           <ScrollView style={styles.body}>
+              <SafeAreaView edges={['top'] } style={{backgroundColor: '#121C78'}}/>
             <OfflineMode position="top" />
             <View style={styles.headerBeranda}>
               <View style={{position:'absolute',top:0,left:0,right:0,bottom:0, width:window.width, alignItems:'center',justifyContent:'center'}}>
@@ -261,7 +261,6 @@ class Delivery extends React.Component {
               </Card>
             </View>
           </ScrollView>
-        </SafeAreaView>
       </>
     );
   }

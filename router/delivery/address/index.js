@@ -93,17 +93,12 @@ class AddressNavigator extends React.Component {
           let state = props.navigation.dangerouslyGetState();
           let key =  state.routes[state.index].name;
           let index = state.index;
+           const {options} = props.scene.descriptor;
           this.setWrapperofStack(index,key);
           return (
-            <SafeAreaView
-            edges={['top']}
-            style={{
-              backgroundColor: options.headerTransparent
-                ? 'transparent'
-                : '#121C78',
-            }}>
+       
             <Header {...props} />
-          </SafeAreaView>
+   
           );
         },
         headerBackTitleVisible:true,

@@ -136,7 +136,7 @@ class Notification extends React.Component {
     },
   );
   render() {
-    return <SafeAreaView edges={['top']} style={{backgroundColor: '#121C78'}}><this.StackSelector /></SafeAreaView>;
+    return <this.StackSelector />;
  
   }
 }

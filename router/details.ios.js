@@ -465,6 +465,7 @@ class Details extends React.Component {
   }
 
   render() {
+      const {visible} = this.state;
     let Navigate;
     if (this.props.userRole.type === 'Warehouse') {
       if(this.props.warehouse_module === 'INBOUND'){
