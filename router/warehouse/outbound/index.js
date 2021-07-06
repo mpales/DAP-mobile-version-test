@@ -74,7 +74,7 @@ class HomeNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitle='Back',
+            headerTitle:'Back',
             headerTitleAlign: 'left',
             headerLeft: (props) => {
               return(

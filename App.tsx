@@ -284,7 +284,8 @@ interface IProps {
   textfield: string;
   value: string;
   todos: {};
-  textTwo: string;
+  password: string;
+  email: string;
   login: (text: any) => void;
   logout: () => void;
   onChange: (text: any) => void;
