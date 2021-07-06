@@ -10,7 +10,6 @@
 
 import React from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
   ScrollView,
   View,
@@ -30,7 +29,7 @@ import {
   Button,
 } from 'react-native-elements';
 import {Dimensions} from 'react-native';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {createStackNavigator} from '@react-navigation/stack';
 import {CommonActions} from '@react-navigation/native';
 import {AnyAction, Dispatch} from 'redux';
@@ -122,7 +121,7 @@ class Delivery extends React.Component {
     return (
       <>
         <StatusBar barStyle="dark-content" />
-        <SafeAreaProvider>
+        <SafeAreaView edges={['top'] } style={{backgroundColor: '#121C78'}}>
           <ScrollView style={styles.body}>
             <OfflineMode position="top" />
             <View style={styles.headerBeranda}>
@@ -262,7 +261,7 @@ class Delivery extends React.Component {
               </Card>
             </View>
           </ScrollView>
-        </SafeAreaProvider>
+        </SafeAreaView>
       </>
     );
   }

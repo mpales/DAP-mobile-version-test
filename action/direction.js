@@ -103,8 +103,59 @@ export const getDirectionsAPI = (orders) => {
 };
 
 
+export const getDeliveryDirections = (destinationCoords, coords) => {
+  const thunk = (dispatch, getState) => {
+       let destinationuuid = uuidv5(Geohash.encode(destinationCoords.latitude,destinationCoords.longitude, 9), MY_NAMESPACE); // ⇨ '630eb68f-e0fa-5ecc-887a-7c7a62614681' 
+       fetch(
+          'https://maps.googleapis.com/maps/api/directions/json?' +
+            'origin=' +
+            coords.latitude +
+            ',' +
+            coords.longitude +
+            '&destination=' +
+            destinationCoords.latitude +
+            ',' +
+            destinationCoords.longitude +
+            '&key=AIzaSyCPhiV06uZ7rSLq2hOfeu_OXgVZ0PXVooQ',
+        )
+          .then((res) => {
+            if (res.status >= 400) {
+              throw new Error('Bad response from server');
+            }
+            return res.json();
+          })
+          .then((directions) => {
+            let destinationData = {
+              destinationCoords,
+              destinationid : destinationuuid,
+              statAPI: {
+                distanceAPI: directions.routes[0].legs[0].distance.value,
+                durationAPI: directions.routes[0].legs[0].duration.value,
+              },
+              steps: polyUtil.decode(
+                directions.routes[0].overview_polyline.points,
+              ),
+            };
+            dispatch({
+              type: 'DeliveryDestinationData',
+              payload: destinationData,
+            });
+          })
+          .catch((errors) => {
+            errors.forEach((error) => console.error(error));
+          });
+  };
+  thunk.interceptInOffline = true;
 
-export const getDirectionsAPIWithTraffic = (orders) => {
+  thunk.meta = {
+    retry: true,
+    name: 'getDeliveryDirections',
+    args: [destinationCoords],
+  };
+  return thunk;
+};
+
+export const getDirectionsAPIWithTraffic = (orders,coords) => {
     let geohash = Array.from({length:orders.length}).map((num,index)=>{
         return Geohash.encode(orders[index].lat, orders[index].lng, 6);
     });
@@ -116,15 +167,15 @@ export const getDirectionsAPIWithTraffic = (orders) => {
     var markers = [];
     var steps = [];
     var statsAPI = [];
-    
+
     const urls = Array.from({length:orders.length}).map((element,index) => {
         let origin, destination;
-        if(index === orders.length - 1){
-        origin = orders[orders.length - 2];
-        destination = orders[index];
-        }else {
-        origin = orders[index];
-        destination = orders[index + 1];
+        if(index === 0){
+          origin = coords;
+          destination = orders[index];
+        } else {
+          origin = orders[index - 1];
+          destination = orders[index];
         }
         let string = 'origin='+origin.lat+','+origin.lng+'&destination='+destination.lat+','+destination.lng+'&departure_time=now&key=AIzaSyCPhiV06uZ7rSLq2hOfeu_OXgVZ0PXVooQ';
         return 'https://maps.googleapis.com/maps/api/directions/json?' + string;
@@ -146,11 +197,8 @@ export const getDirectionsAPIWithTraffic = (orders) => {
                 data.forEach((directions,index, arr) => {
                     if(directions.routes[0].hasOwnProperty('legs')){
                         statsAPI.push({distanceAPI: directions.routes[0].legs[0].distance.value, durationAPI: directions.routes[0].legs[0].duration.value, duration_in_trafficAPI: directions.routes[0].legs[0].duration_in_traffic.value});
-                      if(index === arr.length -1){
+                        
                         markers.push([directions.routes[0].legs[0].end_location.lat,directions.routes[0].legs[0].end_location.lng]);
-                      } else {
-                        markers.push([directions.routes[0].legs[0].start_location.lat,directions.routes[0].legs[0].start_location.lng]);
-                      }
                       
                       // if driver can add waypoint in their apps for stopover and other things!
                         //  if(directions.routes[0].legs[0].hasOwnProperty('via_waypoint') && directions.routes[0].legs[0].via_waypoint.length > 0){
@@ -160,7 +208,7 @@ export const getDirectionsAPIWithTraffic = (orders) => {
                         ///}
                 
                         
-                        if(index < arr.length -1 && directions.routes[0].legs[0].hasOwnProperty('steps') && directions.routes[0].legs[0].steps.length > 0)
+                        if(directions.routes[0].legs[0].hasOwnProperty('steps') && directions.routes[0].legs[0].steps.length > 0)
                             directions.routes[0].legs[0].steps.forEach(element => {
                                 steps.push([element.start_location.lat,element.start_location.lng]);
                                 let decode = polyUtil.decode(element.polyline.points);

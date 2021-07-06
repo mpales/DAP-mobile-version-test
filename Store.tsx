@@ -97,8 +97,9 @@ const networkMiddleware = createNetworkMiddleware({
   });
 
 const rootPersistConfig  = {
-    key: 'root',
-    storage: AsyncStorage,
+  key: 'originReducer',
+  storage: AsyncStorage,
+  blacklist: ['filters'],
   }
 
 // you want to remove some keys before you save

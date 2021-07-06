@@ -5,13 +5,15 @@ import {
   Dimensions,
   Animated,
   TouchableOpacity,
-  Switch
+  Switch,
+  NativeModules,
+  AppState,
+  Platform,
 } from 'react-native';
-import {Input} from 'react-native-elements';
+import {Input, Avatar} from 'react-native-elements';
 import {Text, Button} from 'react-native-elements';
 import PanController from './pan-controller';
-import { Modalize } from 'react-native-modalize';
-
+import { bindActionCreators } from 'redux'
 import {
   ProviderPropType,
   Animated as AnimatedMap,
@@ -19,21 +21,36 @@ import {
   Marker,
   PROVIDER_GOOGLE 
 } from 'react-native-maps';
-
-import PriceMarker from './section/AnimatedPriceMarker';
-
+import {getDeliveryDirections} from '../../action/direction';
+import {reverseGeoCoding} from '../../action/geolocation';
 import BottomSheet from 'reanimated-bottom-sheet';
+import Geolocation from 'react-native-geolocation-service';
+import IconDelivery2Mobile from '../../assets/icon/iconmonstr-delivery-2mobile.svg';
 import IconEllipse from '../../assets/icon/Ellipse 9.svg';
 import IconSpeech26 from '../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
+import IconDelivery13 from '../../assets/icon/iconmonstr-delivery-13.svg';
+import IconDelivery6 from '../../assets/icon/iconmonstr-delivery-6mobile.svg';
 import XMarkIcon from '../../assets/icon/iconmonstr-x-mark-1 1mobile.svg';
 import {connect} from 'react-redux';
 import Util from './interface/leafletPolygon';
 import Location from './interface/geoCoordinate'
+import Distance from './interface/spatialIterative';
+import Geojsonhistory from './section/GeoJSONHistory';
 import Geojson from './section/GeoJSON';
 import Mixins from '../../mixins';
 import Loading from '../loading/loading';
-
+import {default as Reanimated} from 'react-native-reanimated';
 import OfflineMode from '../linked/offlinemode';
+import BackgroundGeolocation from '@darron1217/react-native-background-geolocation';
+import ReactNativeForegroundService from '@supersami/rn-foreground-service';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import {showLocation} from './link';
+import Popup from './link/components/Popup';
+import {
+  SafeAreaView,
+  SafeAreaInsetsContext,
+} from 'react-native-safe-area-context';
+const {RNFusedLocation} = NativeModules;
 const screen = Dimensions.get('window');
 
 const ASPECT_RATIO = screen.width / screen.height;
@@ -234,6 +251,12 @@ function getMarkerState(panX, panY, scrollY, i, index) {
 }
 
 class AnimatedMarkers extends React.Component {
+  _appState = React.createRef();
+  locatorID = null;
+  static Beacon = null;
+  callbackNode = new Reanimated.Value(1);
+  fadeAnimButton = new Animated.Value(1);
+  fadeAnim = new Animated.Value(0);
   constructor(props) {
     super(props);
     const panX = new Animated.Value(0);
@@ -264,33 +287,26 @@ class AnimatedMarkers extends React.Component {
       outputRange: [0, -100],
       extrapolate: 'clamp',
     });
+    const {steps, markers, dataPackage} = this.props;
 
-    const {steps,markers} = this.props;
+    // route coords are from backend, markers are from google
+    const route = Array.from({length: dataPackage.length}).map((num, index) => {
+      return {
+        id: index,
+        ammount: index * 10,
+        coordinate: {latitude: dataPackage[index].coords.lat, longitude: dataPackage[index].coords.lng},
+      };
+    });
 
-    let data = [...markers];
-    const route = Array.from({length:markers.length}).map((num,index)=>{
-        return {id: index, ammount: index*10, coordinate: {latitude:markers[index][0],longitude:markers[index][1]}};
-      });
-
-    const index = 0;
+    const index =  this.props.route.params?.index !== undefined ? this.props.route.params?.index : this.props.currentDeliveringAddress ? this.props.currentDeliveringAddress: 0;
     const animations = route.map((m, i) =>
       getMarkerState(panX, panY, scrollY, i, index),
     );
-    
-    const LatLngs =  Array.from({length: steps.length}).map((num, index) => {
-      let latLng = new Location(steps[index][0],steps[index][1]);
-      return latLng.location();
-    });
-    const marker = Array.from({length:markers.length}).map((num,index)=>{
-      let latLng = new Location(markers[index][0],markers[index][1]);
-    return  latLng.location(); 
-    });
-    const Polygon = new Util();
-    let LayerGroup = Polygon.setLayersGroup(LatLngs,marker);
-    //console.log(Polygon.setLatLng(this.props.orders));
-   // Polygon.translateToOrder(Polygon.setLatLng(this.props.orders));
-    const GeoJSON = LayerGroup.toGeoJSON();
-  
+    const latLng = {
+      latitude: this.props.currentPositionData.coords.lat,
+      longitude: this.props.currentPositionData.coords.lng,
+    };
+
     this.state = {
       index: index,
       panX,
@@ -315,7 +331,7 @@ class AnimatedMarkers extends React.Component {
       bottomPan: new Animated.Value(0),
       bottomSheet: React.createRef(),
       toggleContainer: false,
-      GeoJSON,
+      GeoJSON: null,
       trafficLayer: false,
       trafficButton : false,
       isShowSeeDetails: true,
@@ -323,8 +339,16 @@ class AnimatedMarkers extends React.Component {
       modalPosition: 'initial',
       fadeAnim: new Animated.Value(0),
       isLoading: true,
+      currentCoords: latLng,
       updateAnimated: false,
       updateToRender: false,
+      updateToRenderMap: false,
+      history_polyline: null,
+      camera_option: null,
+      panned_view: false,
+      isThirdPartyNavigational: false,
+      startForegroundService: false,
+      ApplicationNavigational: null,
     };
     this.onPressedTraffic.bind(this);
     this.updateAnimatedToIndex.bind(this);
@@ -336,7 +360,32 @@ class AnimatedMarkers extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState){
    
-    if( nextState.index !== this.props.index && (nextState.isShowSeeDetails === this.state.isShowSeeDetails && nextState.toggleContainer === this.state.toggleContainer && nextState.trafficButton === this.state.trafficButton && nextState.trafficLayer === this.state.trafficLayer && nextProps.keyStack === this.props.keyStack && nextState.modalPosition === this.state.modalPosition && nextProps.isActionQueue === this.props.isActionQueue && nextProps.isConnected === this.props.isConnected && nextProps.stat === this.props.stat && nextState.isLoading === this.state.isLoading && nextProps.route.params?.index  === this.props.route.params?.index && nextState.updateAnimated === this.state.updateAnimated && nextState.updateToRender === this.state.updateToRender && nextProps.startDelivered === this.props.startDelivered) ){
+    if( nextState.index !== this.props.index && (
+      nextState.isShowSeeDetails === this.state.isShowSeeDetails &&   
+      nextState.isShowCancelOrder === this.state.isShowCancelOrder && 
+      nextState.toggleContainer === this.state.toggleContainer && 
+      nextState.trafficButton === this.state.trafficButton && 
+      nextState.trafficLayer === this.state.trafficLayer && 
+      nextProps.keyStack === this.props.keyStack && 
+      nextState.modalPosition === this.state.modalPosition && 
+      nextProps.isActionQueue === this.props.isActionQueue && 
+      nextProps.isConnected === this.props.isConnected && 
+      nextProps.stat === this.props.stat && 
+      nextState.isLoading === this.state.isLoading && 
+      nextProps.route.params?.index  === this.props.route.params?.index && 
+      nextState.updateAnimated === this.state.updateAnimated && 
+      nextState.updateToRender === this.state.updateToRender && 
+      nextProps.startDelivered === this.props.startDelivered &&     
+      nextState.currentCoords === this.state.currentCoords &&
+      nextState.camera_option === this.state.camera_option &&
+      nextState.panned_view === this.state.panned_view &&  nextProps.deliveryDestinationData.destinationid ===
+      this.props.deliveryDestinationData.destinationid &&
+      nextState.updateToRenderMap === this.state.updateToRenderMap && 
+      nextState.isThirdPartyNavigational ===
+        this.state.isThirdPartyNavigational &&
+      nextState.startForegroundService === this.state.startForegroundService &&
+      nextState.ApplicationNavigational === this.state.ApplicationNavigational
+   ) ){
       return false;
     }
 
@@ -352,6 +401,41 @@ class AnimatedMarkers extends React.Component {
         this.setState({toggleContainer: false});
       }
     }
+    
+    if (
+      this.props.deliveryDestinationData.destinationid !==
+      prevProps.deliveryDestinationData.destinationid
+    ) {
+      this.getDeliveryDirection();
+    } else {
+      if (
+        this.state.GeoJSON === null &&
+        this.props.currentDeliveringAddress === null
+      ) {
+        this.getDeliveryDirection();
+      } else if (
+        this.state.GeoJSON === null &&
+        this.props.currentDeliveringAddress !== null &&
+        this.props.startDelivered !== true
+      ) {
+        // persistance
+        if (
+          this.props.deliveryDestinationData.destinationid !== null &&
+          this.props.currentDeliveringAddress !== this.state.index
+        ) {
+          this.props.setStartDelivered(true);
+          this.updateAnimatedToIndex(this.props.currentDeliveringAddress);
+          this.setState({index: this.props.currentDeliveringAddress});
+        } else if (
+          this.props.deliveryDestinationData.destinationid !== null &&
+          this.props.currentDeliveringAddress === this.state.index
+        ) {
+          this.props.setStartDelivered(true);
+        }
+        this.getDeliveryDirection();
+      }
+    }
+    
     if(this.props.route.params?.index !== undefined && prevProps.route.params?.index !== this.props.route.params?.index) {
       this.updateAnimatedToIndex(this.props.route.params?.index ?? 0);
       this.setState({index: this.props.route.params?.index ?? 0})
@@ -361,6 +445,37 @@ class AnimatedMarkers extends React.Component {
     }
     if(prevState.updateToRender !== this.state.updateToRender && this.state.updateToRender === true){
       this.setState({updateToRender:false});
+    }
+    if (
+      prevState.updateToRenderMap !== this.state.updateToRenderMap &&
+      this.state.updateToRenderMap === true
+    ) {
+      let {index, currentCoords} = this.state;
+      let {markers, currentPositionData, dataPackage} = this.props;
+
+      const route = Array.from({length: dataPackage.length}).map((num, index) => {
+        return {
+          id: index,
+          ammount: index * 10,
+          coordinate: {
+            latitude: dataPackage[index].coords.lat,
+            longitude: dataPackage[index].coords.lng,
+          },
+        };
+      });
+
+      let destination = new Location(markers[index][0], markers[index][1]);
+
+      if (AnimatedMarkers.Beacon instanceof Distance === false) {
+        AnimatedMarkers.Beacon = new Distance(destination);
+      } else if (
+        AnimatedMarkers.Beacon.checkDestination(destination) === false
+      ) {
+        AnimatedMarkers.Beacon = new Distance(destination);
+      }
+      this.props.getDeliveryDirections(route[index].coordinate, currentCoords);
+      this.props.reverseGeoCoding(currentCoords);
+      this.setState({updateToRenderMap: false, route: route});
     }
     if(prevState.isLoading !== this.state.isLoading){
       if(this.props.isConnected){
@@ -409,22 +524,426 @@ class AnimatedMarkers extends React.Component {
         duration: 0,
       })
       .start();
+      if (this.props.deliveryDestinationData.destinationid === null) {
+        this.setState({updateToRenderMap: true});
+      }
+      //first load
+      if (
+        this.props.currentDeliveringAddress !== this.state.index &&
+        this.props.currentDeliveringAddress === null
+      ) {
+        let {index} = this.state;
+        let {markers} = this.props;
+        let destination = new Location(markers[index][0], markers[index][1]);
+        if (AnimatedMarkers.Beacon instanceof Distance === false) {
+          this.setState({updateToRenderMap: true});
+          AnimatedMarkers.Beacon = new Distance(destination);
+        } else if (
+          AnimatedMarkers.Beacon.checkDestination(destination) === false
+        ) {
+          this.setState({updateToRenderMap: true});
+          AnimatedMarkers.Beacon = new Distance(destination);
+        }
+      }
+
+      AppState.addEventListener('change', (state) =>
+      AnimatedMarkers._handlebackgroundgeolocation(
+        state,
+        this.props.currentPositionData,
+        this.props.deliveryDestinationData,
+        this.props.startDelivered,
+        this.state.isThirdPartyNavigational,
+        this.state.startForegroundService,
+      ),
+    );
+
+    this.locatorID = Geolocation.watchPosition(
+      ({coords}) => {
+        const {
+          currentPositionData,
+          deliveryDestinationData,
+          startDelivered,
+        } = this.props;
+        const {camera_option, panned_view} = this.state;
+        let latLng = {
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        };
+
+        let {markers} = this.props;
+        let destination = new Location(markers[index][0], markers[index][1]);
+
+        if (AnimatedMarkers.Beacon instanceof Distance === false) {
+          AnimatedMarkers.Beacon = new Distance(destination);
+        } else if (
+          AnimatedMarkers.Beacon.checkDestination(destination) === false
+        ) {
+          AnimatedMarkers.Beacon = new Distance(destination);
+        }
+        if (
+          startDelivered &&
+          currentPositionData !== null &&
+          deliveryDestinationData !== null
+        ) {
+          AnimatedMarkers.Beacon.locator(latLng);
+          let camera =
+            this.props.deliveryDestinationData.steps.length > 0
+              ? AnimatedMarkers.Beacon.camera(
+                  ASPECT_RATIO,
+                  latLng,
+                  this.props.deliveryDestinationData.steps,
+                  camera_option,
+                )
+              : AnimatedMarkers.Beacon.camera(ASPECT_RATIO, latLng);
+          if (panned_view === false) {
+            region
+              .spring({
+                latitudeDelta: camera.latitudeDelta,
+                longitudeDelta: camera.longitudeDelta,
+                latitude: camera.latitude,
+                longitude: camera.longitude,
+                useNativeDriver: false,
+              })
+              .start();
+          }
+          this.setState({
+            history_polyline: AnimatedMarkers.Beacon.view_history(),
+          });
+        } else {
+          if (deliveryDestinationData !== null) {
+            let camera =
+              this.props.deliveryDestinationData.steps.length > 0
+                ? AnimatedMarkers.Beacon.camera(
+                    ASPECT_RATIO,
+                    latLng,
+                    this.props.deliveryDestinationData.steps,
+                    camera_option === null ? 'bottom-pad' : camera_option ,
+                  )
+                : AnimatedMarkers.Beacon.camera(ASPECT_RATIO, latLng,null,'bottom-pad');
+            if (panned_view === false) {
+              region
+                .spring({
+                  latitudeDelta: camera.latitudeDelta,
+                  longitudeDelta: camera.longitudeDelta,
+                  latitude: camera.latitude,
+                  longitude: camera.longitude,
+                  useNativeDriver: false,
+                })
+                .start();
+            }
+          }
+          //lloop
+          // if(deliveryDestinationData.destinationid !== null && AnimatedMarkers.Beacon.checkDestinationID(this.props.deliveryDestinationData.destinationid, latLng) === false){
+          //   this.setState({
+          //     updateToRender: true,
+          //  });
+          // }
+        }
+
+        this.setState({
+          currentCoords: latLng,
+        });
+      },
+      () => {
+        // error
+      },
+      {
+        timeout: 300,
+        maximumAge: 50,
+        enableHighAccuracy: true,
+        useSignificantChanges: false,
+        distanceFilter: 0,
+      },
+    );
   }
+  componentWillUnmount() {
+    Geolocation.clearWatch(this.locatorID);
+    this.props.setStartDelivered(false);
+  }
+  static _handlebackgroundgeolocation = async (
+    nextAppState,
+    currentPositionData,
+    deliveryDestinationData,
+    startDelivered,
+    isThirdPartyNavigational,
+    startForegroundService,
+  ) => {
+    if (nextAppState === 'active' && startForegroundService) {
+      await RNFusedLocation.stopObserving();
+      await RNFusedLocation.startObserving({
+        timeout: 300,
+        maximumAge: 50,
+        enableHighAccuracy: true,
+        useSignificantChanges: false,
+        distanceFilter: 0,
+      });
+      if (Platform.OS === 'android') {
+        await ReactNativeForegroundService.stopService();
+        await ReactNativeForegroundService.stopServiceAll();
+        await ReactNativeForegroundService.stop();
+      } else {
+        PushNotificationIOS.cancelLocalNotifications();
+        PushNotificationIOS.removeAllDeliveredNotifications();
+      }
+      BackgroundGeolocation.removeAllListeners();
+      BackgroundGeolocation.stop();
+    } else if (
+      nextAppState !== 'active' &&
+      startDelivered &&
+      currentPositionData !== null &&
+      deliveryDestinationData !== null &&
+      startForegroundService
+    ) {
+      //disable application location
+      await RNFusedLocation.stopObserving();
+      BackgroundGeolocation.configure({
+        desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
+        stationaryRadius: 0,
+        distanceFilter: 0,
+        startForeground: true,
+        notificationTitle: 'Background tracking',
+        notificationText: 'enabled',
+        debug: false,
+        startOnBoot: false,
+        stopOnTerminate: true,
+        locationProvider: BackgroundGeolocation.ACTIVITY_PROVIDER,
+        interval: 1000,
+        fastestInterval: 100,
+        activitiesInterval: 100,
+        stopOnStillActivity: false,
+      });
+
+      BackgroundGeolocation.on('location', async (location) => {
+        // handle your locations here
+        // to perform long running operation
+        // you need to create background task
+        BackgroundGeolocation.startTask((taskKey) => {
+          // execute long running task
+          // IMPORTANT: task has to be ended by endTask
+          const L = require('./interface/shim-leaflet');
+          let latLng = {
+            latitude: location.latitude,
+            longitude: location.longitude,
+          };
+          AnimatedMarkers.Beacon.locator(latLng);
+          if (
+            L.latLng(
+              deliveryDestinationData.steps[
+                deliveryDestinationData.steps.length - 1
+              ][0],
+              deliveryDestinationData.steps[
+                deliveryDestinationData.steps.length - 1
+              ][1],
+            ).distanceTo(L.latLng(location.latitude, location.longitude)) < 1000
+          ) {
+            if (Platform.OS === 'android') {
+              ReactNativeForegroundService.update({
+                id: 144,
+                title: 'CCM Transport Service',
+                message: 'your are arrived !',
+                mainOnPress: async () => {
+                  await ReactNativeForegroundService.stopService();
+                  await ReactNativeForegroundService.stopServiceAll();
+                  await ReactNativeForegroundService.stop();
+                },
+              });
+            } else {
+              PushNotificationIOS.addNotificationRequest({
+                id: new Date().toString(),
+                body: 'your are arrived !',
+                title: 'CCM Transport Service',
+                silent: false,
+                category: 'DELIVERY_NOTIFICATION',
+                userInfo: {},
+              });
+            }
+          } else {
+            if (Platform.OS === 'android') {
+              ReactNativeForegroundService.update({
+                id: 144,
+                title: 'CCM Transport Service',
+                message:
+                  'your are calculated to distant about ' +
+                  L.latLng(
+                    deliveryDestinationData.steps[
+                      deliveryDestinationData.steps.length - 1
+                    ][0],
+                    deliveryDestinationData.steps[
+                      deliveryDestinationData.steps.length - 1
+                    ][1],
+                  ).distanceTo(
+                    L.latLng(location.latitude, location.longitude),
+                  ) +
+                  'meters',
+                mainOnPress: async () => {
+                  await ReactNativeForegroundService.stopService();
+                  await ReactNativeForegroundService.stopServiceAll();
+                  await ReactNativeForegroundService.stop();
+                },
+              });
+            } else {
+              PushNotificationIOS.cancelLocalNotifications();
+              PushNotificationIOS.removeAllDeliveredNotifications();
+              PushNotificationIOS.addNotificationRequest({
+                id: new Date().toString(),
+                body:
+                  'your are calculated to distant about ' +
+                  L.latLng(
+                    deliveryDestinationData.steps[
+                      deliveryDestinationData.steps.length - 1
+                    ][0],
+                    deliveryDestinationData.steps[
+                      deliveryDestinationData.steps.length - 1
+                    ][1],
+                  ).distanceTo(
+                    L.latLng(location.latitude, location.longitude),
+                  ) +
+                  'meters',
+                title: 'CCM Transport Service',
+                silent: true,
+                category: 'DELIVERY_NOTIFICATION',
+                userInfo: {},
+              });
+            }
+          }
+          BackgroundGeolocation.endTask(taskKey);
+        });
+      });
+
+      BackgroundGeolocation.on('foreground', async () => {
+        if (Platform.OS === 'android') {
+          ReactNativeForegroundService.update({
+            id: 144,
+            title: 'CCM Transport Service',
+            message: 'your are already in App',
+            mainOnPress: async () => {
+              await ReactNativeForegroundService.stopService();
+              await ReactNativeForegroundService.stopServiceAll();
+              await ReactNativeForegroundService.stop();
+            },
+          });
+        } else {
+          PushNotificationIOS.cancelLocalNotifications();
+          PushNotificationIOS.removeAllDeliveredNotifications();
+        }
+        BackgroundGeolocation.removeAllListeners();
+        BackgroundGeolocation.stop();
+      });
+
+      BackgroundGeolocation.checkStatus((status) => {
+        // you don't need to check status before start (this is just the example)
+        if (!status.isRunning) {
+          if (Platform.OS === 'android') {
+            ReactNativeForegroundService.start({
+              id: 144,
+              title: 'CCM Transport Service',
+              message: 'you are using navigational maps to destination!',
+              mainOnPress: async () => {
+                await ReactNativeForegroundService.stopService();
+                await ReactNativeForegroundService.stopServiceAll();
+                await ReactNativeForegroundService.stop();
+              },
+            });
+          } else {
+            PushNotificationIOS.addNotificationRequest({
+              id: new Date().toString(),
+              body: 'you are using navigational maps to destination!',
+              title: 'CCM Transport Service',
+              silent: false,
+              category: 'DELIVERY_NOTIFICATION',
+              userInfo: {},
+            });
+          }
+          BackgroundGeolocation.start(); //triggers start on start event
+        }
+      });
+    }
+  };
+
+  getDeliveryDirection = async () => {
+    const {
+      steps,
+      markers,
+      currentPositionData,
+      deliveryDestinationData,
+      startDelivered,
+    } = this.props;
+    const {index, ApplicationNavigational} = this.state;
+    let LatLngs = [];
+    let marker = [];
+    let latLng;
+
+    // push next location marker
+    latLng = new Location(markers[index][0], markers[index][1]);
+    marker.push(latLng.location());
+
+    // push current location marker
+    latLng = new Location(
+      currentPositionData.coords.lat,
+      currentPositionData.coords.lng,
+    );
+    marker.push(latLng.location());
+
+    // push polyline steps
+    LatLngs = Array.from({length: deliveryDestinationData.steps.length}).map(
+      (num, index) => {
+        let latLng = new Location(
+          deliveryDestinationData.steps[index][0],
+          deliveryDestinationData.steps[index][1],
+        );
+        return latLng.location();
+      },
+    );
+
+    const Polygon = new Util();
+    let LayerGroup = Polygon.setLayersGroup(LatLngs, marker);
+    const GeoJSON = LayerGroup.toGeoJSON();
+
+    if (ApplicationNavigational !== null) {
+      showLocation({
+        latitude:
+          deliveryDestinationData.steps[
+            deliveryDestinationData.steps.length - 1
+          ][0],
+        longitude:
+          deliveryDestinationData.steps[
+            deliveryDestinationData.steps.length - 1
+          ][1],
+        sourceLatitude: -8.0870631, // optionally specify starting location for directions
+        sourceLongitude: -34.8941619, // not optional if sourceLatitude is specified
+        title: 'The White House', // optional
+        googleForceLatLon: false, // optionally force GoogleMaps to use the latlon for the query instead of the title
+        googlePlaceId: 'ChIJGVtI4by3t4kRr51d_Qm_x58', // optionally specify the google-place-id
+        alwaysIncludeGoogle: true, // optional, true will always add Google Maps to iOS and open in Safari, even if app is not installed (default: false)
+        dialogTitle: 'This is the dialog Title', // optional (default: 'Open in Maps')
+        dialogMessage: 'This is the amazing dialog Message', // optional (default: 'What app would you like to use?')
+        cancelText: 'This is the cancel button text', // optional (default: 'Cancel')
+        appsWhiteList: ['google-maps'], // optionally you can set which apps to show (default: will show all supported apps installed on device)
+        naverCallerName: 'com.example.myapp', // to link into Naver Map You should provide your appname which is the bundle ID in iOS and applicationId in android.
+        app: ApplicationNavigational, // optionally specify specific app to use
+      });
+      this.setState({startForegroundService: true, GeoJSON: GeoJSON});
+    } else {
+      this.setState({
+        GeoJSON: GeoJSON,
+      });
+    }
+    
+  };
   onLihatRincian = ({toggle, bottomBar}) => {
-    const {carousel} = this.state;
+    const {carousel, index} = this.state;
     Animated.timing(carousel, {
       toValue: 0,
       duration: 200,
       useNativeDriver: false,
     }).start();
     this.props.setStartDelivered(true);
-    this.setState({...this.state, toggleContainer: toggle});
+    this.fadeAnim.setValue(0);
+    this.fadeAnimButton.setValue(1);
+    this.props.setCurrentDeliveringAddress(index);
+    this.setState({...this.state, isThirdPartyNavigational: true, toggleContainer: toggle});
     this.props.setBottomBar(bottomBar);
-    if(toggle) {
-      this.modalizeRef.current?.open();
-    } else {
-      this.modalizeRef.current?.close();
-    }
+
   };
   onLihatDetail = () => {
     const {index} = this.state;
@@ -448,31 +967,55 @@ class AnimatedMarkers extends React.Component {
   };
   onSeeDetails = (bool,indexTo) => {
     const {route, panX, panY, scrollY, animations, isShowSeeDetails, index} = this.state;
-    if(indexTo){
-      const {xPos} = animations[indexTo];
-      if(indexTo !== index){
-        Animated.timing(panX, {
-          toValue: xPos,
-          duration: 200,
-          useNativeDriver: false,
-        }).start();
+        if(indexTo !== undefined && indexTo !== index){
+          const {markers} = this.props;
+          if (indexTo > -1) {
+            let destination = new Location(
+              markers[indexTo][0],
+              markers[indexTo][1],
+            );
+      
+            if (AnimatedMarkers.Beacon instanceof Distance === false) {
+              AnimatedMarkers.Beacon = new Distance(destination);
+            } else if (
+              AnimatedMarkers.Beacon.checkDestination(destination) === false
+            ) {
+              AnimatedMarkers.Beacon = new Distance(destination);
+            }
+            this.updateAnimatedToIndex(indexTo);
+        }
+        if(!isShowSeeDetails){
+          this.setState({
+            ...this.state,
+            isShowSeeDetails: bool,
+            index: indexTo,
+            updateToRender:true,
+            updateToRenderMap: true,
+            //canMoveHorizontal: bool ? false : true
+          });
+        } else {
+          this.setState({
+            ...this.state,
+            index: indexTo,
+            updateToRender:true,
+            updateToRenderMap: true,
+            //canMoveHorizontal: bool ? false : true
+          });
+        }
+      } else {
+  
+        bool
+        ? this.setState({
+            isShowSeeDetails: bool,
+            updateToRender: true,
+          })
+        : this.setState({
+            ...this.state,
+            isShowSeeDetails: bool,
+            updateToRender: true,
+          });
+      
       }
-      if(!isShowSeeDetails){
-        this.setState({
-          ...this.state,
-          isShowSeeDetails: bool,
-          updateToRender:true,
-          //canMoveHorizontal: bool ? false : true
-        });
-      }
-    } else {
-      this.setState({
-        ...this.state,
-        isShowSeeDetails: bool,
-        updateToRender:true,
-        //canMoveHorizontal: bool ? false : true
-      });
-    }
   }
   onPressedTraffic = (value) => {
     const {trafficButton,trafficLayer} = this.state;
@@ -520,12 +1063,7 @@ class AnimatedMarkers extends React.Component {
     const {coordinate} = route[index];
     const newIndex = Math.floor((-1 * value + SNAP_WIDTH / 2) / SNAP_WIDTH);
     if (index !== newIndex && newIndex < route.length && newIndex >= 0) {
-    this.setState({index: newIndex});
-    this.setState({trafficLayer: false});
-    const {center} = animations[newIndex];
-    if(center.__getValue() > 0){
-      console.log('index updated in map');
-    }
+    
     } else {
       if (newIndex > route.length || newIndex < 0) {
         let {translateX, isNotIndex, center, xPos} = animations[index];
@@ -537,7 +1075,27 @@ class AnimatedMarkers extends React.Component {
       }
     }
   };
-
+  toggleCamera = () => {
+    const {camera_option, panned_view} = this.state;
+    if (panned_view === true) {
+      this.setState({
+        panned_view: false,
+      });
+    } else {
+      this.setState({
+        camera_option: camera_option === null ? 'boxer' : null,
+      });
+    }
+    //trigger native module to reset init
+    RNFusedLocation.stopObserving();
+    RNFusedLocation.startObserving({
+      timeout: 300,
+      maximumAge: 50,
+      enableHighAccuracy: true,
+      useSignificantChanges: false,
+      distanceFilter: 0,
+    });
+  };
   onPanYChange = ({value}) => {
     const {
       canMoveHorizontal,
@@ -554,9 +1112,9 @@ class AnimatedMarkers extends React.Component {
     
   };
 
-  onRegionChange(/* region */) {
-    // this.state.region.setValue(region);
-  }
+  onRegionChange = (region) => {
+ 
+  };
   renderInner = () => {
     const {route, index} = this.state;
     let marker = route[index];
@@ -564,6 +1122,7 @@ class AnimatedMarkers extends React.Component {
     const {named,packages, Address, list} = this.props.dataPackage[index];
     return (
       <View style={styles.sheetContainer}>
+          <SafeAreaView edges={['bottom']} style={{backgroundColor: '#fff'}}>
         <View style={styles.sectionSheetDetail}>
           <View style={styles.detailContent}>
             <Text style={styles.orderTitle}>{named}</Text>
@@ -611,17 +1170,26 @@ class AnimatedMarkers extends React.Component {
               );
             }}
           />
-          {this.state.modalPosition === 'initial' &&
-            <Button
-              buttonStyle={styles.navigationButton}
-              titleStyle={styles.deliveryText}
-              onPress={this.onCompleteDelivery}
-              title="Complete Delivery"
-            />
-          }
+           <Animated.View
+              style={{
+                marginHorizontal: 10,
+                transform: [{scale: this.fadeAnimButton}],
+              }}>
+              <Button
+                buttonStyle={styles.navigationButton}
+                titleStyle={styles.deliveryText}
+                onPress={this.onCompleteDelivery}
+                title="Complete Delivery"
+              />
+            </Animated.View>
         </View>
-        {this.state.modalPosition === 'top' &&
-          <Animated.View style={{opacity: this.state.fadeAnim}}>
+        <Animated.View
+            style={{
+              borderTopWidth: 1,
+              borderTopColor: '#D5D5D5',
+              opacity: this.fadeAnim,
+              transform: [{scale: this.fadeAnim}],
+            }}>
             <View style={styles.sectionPackage}>
           <Text style={styles.titlePackage}>Package Detail</Text>
           <View style={styles.sectionDividier}>
@@ -659,8 +1227,7 @@ class AnimatedMarkers extends React.Component {
                   type="outline"
                   titleStyle={{color: '#F1811C', ...Mixins.subtitle3, lineHeight: 21}}
                   onPress={() => {
-                    this.onLihatRincian({toggle: false, bottomBar: true});
-                    this.handleCancelOrder({showCancel: true, bottomBar: false});
+                    this.handleCancelOrder({showCancel: true});
                   }}
                 />
 
@@ -681,55 +1248,71 @@ class AnimatedMarkers extends React.Component {
               </View>
             </View>
           </Animated.View>
-        }
+          </SafeAreaView>
       </View>
     );
   };
+  
   renderHeader = () => (
     <View style={styles.header}>
-      <View style={styles.panelHeader}>
-        {/* <View style={styles.panelHandle} /> */}
-      </View>
+    <View style={styles.panelHeader}>
+      <View style={styles.panelHandle} />
     </View>
+  </View>
   );
 
   fadeAnimation = (position) => {
-    if(position === 'top') {
-      this.setState({
-        ...this.state,
-        modalPosition: position,
-      })
-      Animated.timing(this.state.fadeAnim, {
-        toValue: 1,
-        duration: 0,
-        useNativeDriver: true,
-      }).start();
+    if (position < 0.3) {
+      Animated.sequence([
+        Animated.timing(this.fadeAnim, {
+          toValue: 1,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+        Animated.timing(this.fadeAnimButton, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+      ]).start();
     } else {
-      this.setState({
-        ...this.state,
-        modalPosition: position,
-        fadeAnim: new Animated.Value(0),
-      })
+      Animated.sequence([
+        Animated.timing(this.fadeAnim, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+        Animated.timing(this.fadeAnimButton, {
+          toValue: 1,
+          duration: 0,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
-  }
-
-  handleCancelOrder = async ({showCancel, bottomBar, action, currentOrderId}) => {
+  };
+  handleCancelOrder = ({showCancel}) => {
     this.setState({
-      ...this.state,
       isShowCancelOrder: showCancel,
     });
-    await this.props.setBottomBar(bottomBar);
-    this.modalizeRef.current.open();
-    if(action) {
-      this.onLihatRincian({toggle: false, bottomBar: true});
-      this.props.navigation.navigate({
-        name: 'Cancel',
-        params: {
-          orderId: currentOrderId
-        }
+  };
+  handleCancelOrderAction = ({action, currentOrderId}) => {
+    const {index} = this.state;
+    if (action) {
+      this.setState({toggleContainer: false});
+      this.props.setStartDelivered(false);
+      this.props.setCurrentDeliveringAddress(null);
+      this.props.resetDeliveryDestinationData();
+      this.props.setBottomBar(true);
+      this.props.navigation.navigate('Home', {
+        screen: 'List',
       });
+    } else {
+      this.onLihatRincian({toggle: true, bottomBar: false});
     }
-  }
+    this.setState({
+      isShowCancelOrder: false,
+    });
+  };
   render() {
     const {
       panX,
@@ -749,6 +1332,11 @@ class AnimatedMarkers extends React.Component {
       trafficLayer,
       trafficButton,
     } = this.state;
+    const {
+      startDelivered,
+      currentPositionData,
+      deliveryDestinationData,
+    } = this.props;
     if(this.props.keyStack === 'Map'){
       if(toggleContainer){
         this.props.setBottomBar(false);
@@ -756,7 +1344,6 @@ class AnimatedMarkers extends React.Component {
         this.props.setBottomBar(true);
         }
     }
-    console.log(this.props.isActionQueue);
     if((!this.props.isConnected && this.props.isActionQueue.length > 0) || (this.props.isConnected && this.props.stat.length === 0) ){
       return (
         <View style={styles.container}>
@@ -768,60 +1355,225 @@ class AnimatedMarkers extends React.Component {
     const {current,eta,to,distance,hour} = this.props.stat[index];
     const {named,packages, Address} = this.props.dataPackage[index];
     return (
-      <View style={styles.container}>
-         <OfflineMode/>
+      <View style={StyleSheet.absoluteFillObject}>
+      <OfflineMode/>
         {this.state.isLoading && <Loading />}
-        <PanController
-          style={styles.container}
-          vertical={false}
-          horizontal={canMoveHorizontal}
-          xMode="snap"
-          snapSpacingX={ITEM_WIDTH}
-          yBounds={[-1 * screen.height, 0]}
-          xBounds={[-screen.width * (route.length - 1), 0]}
-          panY={panY}
-          panX={panX}
-          onStartShouldSetPanResponder={this.onStartShouldSetPanResponder}
-          // onMoveShouldSetPanResponder={this.onMoveShouldSetPanResponder}
-          >
-          <AnimatedMap
-            showsTraffic={trafficLayer}
-            provider={PROVIDER_GOOGLE}
-            style={styles.map}
-            region={region}
-            onRegionChange={this.onRegionChange}
-            onMapReady={() => this.setState({isLoading: false})}
-            >
-            <Geojson geojson={GeoJSON} strokeWidth={3}/>
-          </AnimatedMap>
-          {toggleContainer
-            ? (
-              <Modalize 
-                ref={this.modalizeRef}
-                handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
-                handlePosition={'inside'}
-                disableScrollIfPossible={true}
-                modalHeight={520}
-                alwaysOpen={300}
-                HeaderComponent={<this.renderHeader />}
-                onPositionChange={(position) => this.fadeAnimation(position)}
-              >
-                <this.renderInner />
-              </Modalize>
-            ) 
-            : (
+        <AnimatedMap
+          showsTraffic={trafficButton}
+          provider={PROVIDER_GOOGLE}
+          style={styles.map}
+          region={region}
+          onRegionChange={(regionToAnimate, {isGesture}) => {
+            if (isGesture || this.state.panned_view) {
+              region.setValue(regionToAnimate);
+            }
+          }}
+          onRegionChangeComplete={(regionToAnimate, {isGesture}) => {
+            if (isGesture) {
+              region.stopAnimation();
+              this.setState({panned_view: true});
+            }
+            if (!this.props.startDelivered) {
+              region.stopAnimation();
+            }
+          }}
+          onMapReady={() => this.setState({isLoading: false})}
+          scrollEnabled={Platform.OS === 'ios' ? true : true}>
+          {GeoJSON !== null && (
+            <Geojson
+              geojson={GeoJSON}
+              strokeWidth={3}
+              strokeColor={'#2A3386'}
+              maptype="delivery"
+            />
+          )}
+
+          {this.state.history_polyline !== null && (
+            <Geojsonhistory
+              geojson={this.state.history_polyline}
+              strokeWidth={6}
+              strokeColor={'#F1811C'}
+            />
+          )}
+        </AnimatedMap>
+
+        {startDelivered &&
+          currentPositionData !== null &&
+          deliveryDestinationData !== null &&
+          this.state.isThirdPartyNavigational &&
+          this.state.ApplicationNavigational === null && (
+            <Popup
+              isVisible={this.state.isThirdPartyNavigational}
+              onCancelPressed={() =>
+                this.setState({isThirdPartyNavigational: false})
+              }
+              onAppPressed={({app}) =>
+                this.setState({
+                  isThirdPartyNavigational: false,
+                  startForegroundService: true,
+                  ApplicationNavigational: app,
+                })
+              }
+              onBackButtonPressed={() =>
+                this.setState({isThirdPartyNavigational: false})
+              }
+              modalProps={{
+                // you can put all react-native-modal props inside.
+                animationIn: 'slideInUp',
+              }}
+              appsWhiteList={
+                [
+                  /* Array of apps (apple-maps, google-maps, etc...) that you want
+                        to show in the popup, if is undefined or an empty array it will show all supported apps installed on device.*/
+                ]
+              }
+              appTitles={
+                {
+                  /* Optional: you can override app titles. */
+                }
+              }
+              options={{
+                latitude:
+                  route[
+                    this.props.currentDeliveringAddress !== null
+                      ? this.props.currentDeliveringAddress
+                      : index
+                  ].coordinate.latitude,
+                longitude:
+                  route[
+                    this.props.currentDeliveringAddress !== null
+                      ? this.props.currentDeliveringAddress
+                      : index
+                  ].coordinate.longitude,
+                sourceLatitude: -8.0870631, // optionally specify starting location for directions
+                sourceLongitude: -34.8941619, // not optional if sourceLatitude is specified
+                title: 'The White House', // optional
+                googleForceLatLon: false, // optionally force GoogleMaps to use the latlon for the query instead of the title
+                googlePlaceId: 'ChIJGVtI4by3t4kRr51d_Qm_x58', // optionally specify the google-place-id
+                alwaysIncludeGoogle: true, // optional, true will always add Google Maps to iOS and open in Safari, even if app is not installed (default: false)
+                dialogTitle: 'Selected Maps app', // optional (default: 'Open in Maps')
+                dialogMessage:
+                  'Your location would be tracked on background service', // optional (default: 'What app would you like to use?')
+                cancelText: 'Cancel', // optional (default: 'Cancel')
+                appsWhiteList: ['google-maps'], // optionally you can set which apps to show (default: will show all supported apps installed on device)
+                naverCallerName: 'com.example.myapp', // to link into Naver Map You should provide your appname which is the bundle ID in iOS and applicationId in android.
+                // appTitles: { 'google-maps': 'My custom Google Maps title' } // optionally you can override default app titles
+                // app: 'uber'  // optionally specify specific app to use
+              }}
+              style={
+                {
+                  /* Optional: you can override default style by passing your values. */
+                }
+              }
+            />
+          )}
+        <View
+          style={{
+            alignSelf: 'flex-end',
+            marginHorizontal: 15,
+            marginVertical: 10,
+          }}>
+          <Avatar
+            size={40}
+            ImageComponent={() => {
+              return this.state.camera_option ? (
+                <IconDelivery6
+                  height="20"
+                  width="20"
+                  fill={this.state.panned_view ? '#000' : '#fff'}
+                />
+              ) : (
+                <IconDelivery13
+                  height="20"
+                  width="20"
+                  fill={this.state.panned_view ? '#000' : '#fff'}
+                />
+              );
+            }}
+            imageProps={{
+              containerStyle: {
+                ...Mixins.buttonAvatarDefaultIconStyle,
+                paddingTop: 11,
+              },
+            }}
+            overlayContainerStyle={{
+              ...Mixins.buttonAvatarDefaultOverlayStyle,
+              backgroundColor: this.state.panned_view
+                ? '#ffffff'
+                : this.state.camera_option
+                ? '#121C78'
+                : '#cccccc',
+              borderRadius: 50,
+            }}
+            onPress={this.toggleCamera}
+            activeOpacity={0.7}
+            containerStyle={Mixins.buttonAvatarDefaultContainerStyle}
+          />
+        </View>
+       
+     
+          {toggleContainer &&
+          !this.state.isShowCancelOrder &&
+          startDelivered &&
+          currentPositionData !== null &&
+          deliveryDestinationData !== null
+           && (
+              <View
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                minHeight: 130,
+              }}>
+              {() => {}}
+              <Reanimated.Code
+                exec={() =>
+                  Reanimated.onChange(
+                    this.callbackNode,
+                    Reanimated.block([
+                      Reanimated.call([this.callbackNode], ([callback]) =>
+                        this.fadeAnimation(callback),
+                      ),
+                    ]),
+                  )
+                }
+              />
+                <SafeAreaInsetsContext.Consumer>
+                {(insets) => {
+                  let snapArray = [550, 300, 130];
+
+               
+                  return (
+                    <BottomSheet
+                      ref={this.state.bottomSheet}
+                      initialSnap={0}
+                      snapPoints={snapArray}
+                      enabledBottomClamp={true}
+                      enabledContentTapInteraction={false}
+                      renderContent={this.renderInner}
+                      renderHeader={this.renderHeader}
+                      callbackNode={this.callbackNode}
+                      enabledInnerScrolling={false}
+                      enabledBottomInitialAnimation={true}
+                    />
+                  );
+                }}
+              </SafeAreaInsetsContext.Consumer>
+    
+            
+            </View>
+            ) }
+            { !toggleContainer &&
+          !this.state.isShowCancelOrder && (
               <Animated.View style={[styles.itemContainer]}>
-                {this.state.isShowSeeDetails && Object.keys(animations).length > 0 && 
-                <View style={[styles.itemLegend,{flexDirection:'row'}]}>
-                  <View style={styles.itemDivider} />
-               { Object.keys(animations).sort().map(key => {
-                const element = animations[key];
-                const {current,eta,to,distance,hour} = this.props.stat[key];
-                const {named,packages, Address} = this.props.dataPackage[key];
-                return (
-                    <Animated.View key={key} style={[styles.itemHead,{ opacity: element.selectedHead ,transform: [
-                        { translateX: element.headtranslateX }
-                     ]}]}>
+                {this.state.isShowSeeDetails && Object.keys(animations).length > 0 && (
+              <View
+              style={[
+                styles.itemLegend,
+                {flexDirection: 'row', elevation: 4, zIndex: 4},
+              ]}>
+                   <Animated.View style={styles.itemHead}>
                       <TouchableOpacity
                         style={styles.closeButton}
                         onPress={() => this.onSeeDetails(false)}
@@ -890,10 +1642,27 @@ class AnimatedMarkers extends React.Component {
                             onPress={() => this.onLihatRincian({ toggle: true, bottomBar: false })} />
                         </View>
                     </Animated.View>
-                );
-              })}
-                  </View>
-                }
+                    </View>
+               )}
+                 <PanController
+          style={{
+            flexDirection: 'column',
+            flexShrink: 1,
+            zIndex: 1,
+            elevation: 1,
+          }}
+          vertical={false}
+          horizontal={canMoveHorizontal}
+          xMode="snap"
+          snapSpacingX={ITEM_WIDTH}
+          yBounds={[-1 * screen.height, 0]}
+          xBounds={[-screen.width * (route.length - 1), 0]}
+          panY={panY}
+          panX={panX}
+          onStartShouldSetPanResponder={this.onStartShouldSetPanResponder}
+          // onMoveShouldSetPanResponder={this.onMoveShouldSetPanResponder}
+          >
+                 <View style={styles.itemDivider} />
                 <View style={styles.itemContent}>
                   <TouchableOpacity style={styles.buttonHistory}>
                     <Text style={styles.buttonText}>
@@ -968,10 +1737,9 @@ class AnimatedMarkers extends React.Component {
                     );
                   })}
                 </View>
+                </PanController>
               </Animated.View>
-            )
-          }
-        </PanController>
+            )}
         {this.state.isShowCancelOrder &&
           <View style={styles.overlayContainer}>
             <View style={styles.cancelOrderSheet}>
@@ -981,14 +1749,17 @@ class AnimatedMarkers extends React.Component {
               <View style={styles.cancelButtonContainer}>
                 <TouchableOpacity 
                   style={[styles.cancelButton, {borderWidth: 1, borderColor: '#ABABAB'}]}
-                  onPress={() => this.handleCancelOrder({showCancel: false, bottomBar: false, action: false})}
-                >
+                  onPress={() => this.handleCancelOrderAction({action: false})}>
                   <Text style={[styles.cancelText, {color: '#6C6B6B'}]}>No</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
                   style={[styles.cancelButton, {backgroundColor: '#F07120'}]}
-                  onPress={() => this.handleCancelOrder({showCancel: false, bottomBar: true, action: true, currentOrderId: index})}
-                >
+                  onPress={() =>
+                    this.handleCancelOrderAction({
+                      action: true,
+                      currentOrderId: index,
+                    })
+                  }>
                   <Text style={[styles.cancelText, {color: '#fff'}]}>Yes</Text>
                 </TouchableOpacity>
               </View>
@@ -1013,6 +1784,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   sheetContainer: {
+    backgroundColor: '#FFFFFF',
+    height: '100%',
   },
   itemContainer: {
     backgroundColor: 'transparent',
@@ -1020,7 +1793,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     // top: screen.height - ITEM_PREVIEW_HEIGHT - 64,
-    marginTop: screen.height - ITEM_PREVIEW_HEIGHT - 440, // 270
     // paddingTop: !ANDROID ? 0 : screen.height - ITEM_PREVIEW_HEIGHT - 64,
   },
   itemWrapper : {
@@ -1091,10 +1863,10 @@ const styles = StyleSheet.create({
   itemDivider: {
     height: 30,
     width: screen.width,
-    backgroundColor:'white',
-    position:'absolute',
-    bottom:-1,
-    left:0,
+    backgroundColor: 'white',
+    position: 'absolute',
+    top: -30,
+    left: 0,
   },
   itemHead: {
     width: screen.width - ITEM_SPACING * 4,
@@ -1231,12 +2003,13 @@ lineHeight: 12,
   },
   panelHeader: {
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 11,
   },
   panelHandle: {
     width: 120,
-    height: 7,
+    height: 4,
     backgroundColor: '#C4C4C4',
-    marginBottom: 10,
   },
   orderTitle: {
     ...Mixins.subtitle3,
@@ -1402,6 +2175,10 @@ function mapStateToProps(state) {
     keyStack : state.originReducer.filters.keyStack,
     isActionQueue : state.network.actionQueue,
     dataPackage: state.originReducer.route.dataPackage,
+    currentPositionData: state.originReducer.currentPositionData,
+    deliveryDestinationData: state.originReducer.deliveryDestinationData,
+    route_id: state.originReducer.route.id,
+    currentDeliveringAddress: state.originReducer.currentDeliveringAddress,
   };
 }
 
@@ -1412,8 +2189,17 @@ const mapDispatchToProps = (dispatch) => {
     },
     setStartDelivered : (toggle) => {
       return dispatch({type: 'startDelivered', payload: toggle});
-    }
-    //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
+    },
+    setCurrentDeliveringAddress: (data) => {
+      return dispatch({type: 'CurrentDeliveringAddress', payload: data});
+    },
+    setRouteData: (data) => {
+      return dispatch({type: 'RouteData', payload: data});
+    },
+    resetDeliveryDestinationData: () => {
+      return dispatch({type: 'DeliveryDestinationData', payload: null});
+    },
+    ...bindActionCreators({getDeliveryDirections, reverseGeoCoding}, dispatch),
   };
 };
 

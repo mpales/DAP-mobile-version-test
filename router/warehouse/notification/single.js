@@ -32,6 +32,7 @@ import {createCompatNavigatorFactory} from '@react-navigation/compat';
 import {createStackNavigator} from '@react-navigation/stack';
 import Contact from './list';
 import Mixins from '../../../mixins';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 const window = Dimensions.get('window');
 
@@ -87,7 +88,7 @@ class Chat extends React.Component {
   render() {
     var image = {uri: 'https://reactnative.dev/img/tiny_logo.png'};
     const {manifestList,search} = this.state;
-    return ( <SafeAreaProvider>
+    return ( <>
       <ScrollView style={styles.body}>
         <View style={styles.contentContainer}>
           <Card containerStyle={styles.cardContainer}>
@@ -100,6 +101,7 @@ class Chat extends React.Component {
           </Card>
         </View>
       </ScrollView>
+      <SafeAreaView edges={[ 'bottom']} style={{backgroundColor: '#F5F5FB'}}>
       <SearchBar
               placeholder="Type Here..."
               onChangeText={this.updateSearch}
@@ -161,7 +163,8 @@ class Chat extends React.Component {
               leftIconContainerStyle={{backgroundColor: 'transparent'}}
               rightIconContainerStyle={{backgroundColor: 'transparent'}}
             />
-    </SafeAreaProvider>);
+            </SafeAreaView>
+    </>);
   }
 }
 

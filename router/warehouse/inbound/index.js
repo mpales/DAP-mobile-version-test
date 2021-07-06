@@ -17,7 +17,7 @@ import ReceivingDetail from './receivingDetail';
 import itemDetail from './itemDetail';
 import newItem from './newItem';
 import Mixins from '../../../mixins';
-
+import {SafeAreaView} from 'react-native-safe-area-context';
 const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
   constructor(props) {
@@ -44,8 +44,15 @@ class HomeNavigator extends React.Component {
           let index = state.index;
           this.setWrapperofStack(index,key);
           return (
-            <Header
-            {...props}/>
+            <SafeAreaView
+            edges={['top']}
+            style={{
+              backgroundColor: options.headerTransparent
+                ? 'transparent'
+                : '#121C78',
+            }}>
+            <Header {...props} />
+          </SafeAreaView>
           );
         },
         }}>     
@@ -65,13 +72,8 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-            ...Platform.select({
-              ios: {
-                marginHorizontal: 20,
-              },
-            })
-          },
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
             headerTitleAlign: 'left',
             headerLeft: (props) => {
               return(
@@ -101,13 +103,8 @@ class HomeNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-            ...Platform.select({
-              ios: {
-                marginHorizontal: 20,
-              },
-            })
-            },
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
@@ -136,13 +133,8 @@ class HomeNavigator extends React.Component {
             },
             headerTransparent: true,
             headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-            ...Platform.select({
-              ios: {
-                marginHorizontal: 20,
-              },
-            })
-            },
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
             headerTitle: 'Back',
             headerRight: () => (
               <View style={{display: 'flex', flexDirection: 'row'}}>
@@ -174,14 +166,9 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Input Manual',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-            ...Platform.select({
-              ios: {
-                marginHorizontal: 20,
-              },
-            })  
-          },
+            headerTitle: 'Back',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
@@ -209,13 +196,8 @@ class HomeNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-            ...Platform.select({
-              ios: {
-                marginHorizontal: 20,
-              },
-            })
-          },
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
           })}
         />
           <Stack.Screen
@@ -235,13 +217,8 @@ class HomeNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-            ...Platform.select({
-              ios: {
-                marginHorizontal: 20,
-              },
-            })
-          },
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
           })}
         />
           <Stack.Screen
@@ -261,13 +238,8 @@ class HomeNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-            ...Platform.select({
-              ios: {
-                marginHorizontal: 20,
-              },
-            })
-          },
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
           })}
         />
          <Stack.Screen
@@ -286,14 +258,8 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-            ...Platform.select({
-              ios: {
-                marginHorizontal: 20,
-              },
-            })
-          },
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
           })}
         />
       </Stack.Navigator>

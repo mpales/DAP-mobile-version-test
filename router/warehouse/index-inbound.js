@@ -18,6 +18,7 @@ import IconGear2Mobile from '../../assets/icon/iconmonstr-gear-2mobile.svg';
 import IconBell2Mobile from '../../assets/icon/iconmonstr-bell-2mobile.svg';
 import IconTime17Mobile from '../../assets/icon/iconmonstr-time-17 1mobile.svg';  
 import IconLogout2Mobile from '../../assets/icon/iconmonstr-log-out-2 2mobile.svg';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import Mixins from '../../mixins';
 import { ReactReduxContext } from 'react-redux'
 
@@ -161,6 +162,7 @@ class WarehouseNavigator extends React.Component {
       paddingTop: 0,
    }}
   {...props} >
+         <SafeAreaView  edges={[ 'top']} style={{backgroundColor:'#F1811C'}}>
       <View style={styles.drawerHead}>
         <Avatar
         size={43}
@@ -174,6 +176,7 @@ class WarehouseNavigator extends React.Component {
         </Avatar>
         <Text style={styles.drawerText}>Driver Name</Text>
         </View>
+        </SafeAreaView>
       <DrawerItemList {...props} />
       <DrawerItem
         label="Logout"

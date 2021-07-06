@@ -32,7 +32,7 @@ import {createStackNavigator,Header} from '@react-navigation/stack';
 import List from './list';
 import Chat from './single';
 import Mixins from '../../../mixins';
-
+import {SafeAreaView} from 'react-native-safe-area-context';
 import Contact from './contact';
 
 const window = Dimensions.get('window');
@@ -140,7 +140,7 @@ class Notification extends React.Component {
     },
   );
   render() {
-    return <this.StackSelector />;
+    return <SafeAreaView edges={['top']} style={{backgroundColor: '#121C78'}}><this.StackSelector /></SafeAreaView>;
   }
 }
 

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, TouchableOpacity, PermissionsAndroid, Switch, Dimensions} from 'react-native';
+import {View, TouchableOpacity, PermissionsAndroid, Switch, Dimensions, NativeModules} from 'react-native';
 import {SearchBar, Badge, Divider, Text, FAB} from 'react-native-elements';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import AddressList from '../../../component/extend/ListItem-map';
@@ -8,82 +8,23 @@ import {connect} from 'react-redux';
 import { bindActionCreators } from 'redux'
 import {setDataOrder} from '../../../action/index';
 import {getDirectionsAPI,setDirections,setRouteStats,getDirectionsAPIWithTraffic} from '../../../action/direction';
-import {setGeoLocation} from '../../../action/geolocation';
-import RNLocation from 'react-native-location';
+import {setGeoLocation, reverseGeoCoding} from '../../../action/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import Util from '../../../component/map/interface/leafletPolygon';
 import Location from '../../../component/map/interface/geoCoordinate'
 import Mixins from '../../../mixins';
 import Delivery6 from '../../../assets/icon/iconmonstr-delivery-6mobile.svg';
-
+const {RNFusedLocation} = NativeModules;
 const screen = Dimensions.get('window');
 class ListMap extends Component {
   
   constructor(props) {
     super(props);
 
-    RNLocation.configure({
-      distanceFilter: 0, // Meters
-      desiredAccuracy: {
-        ios: "best",
-        android: "balancedPowerAccuracy"
-      },
-      // Android only
-      androidProvider: "standard",
-      interval: 5000, // Milliseconds
-      fastestInterval: 10000, // Milliseconds
-      maxWaitTime: 5000, // Milliseconds
-      // iOS Only
-      activityType: "other",
-      allowsBackgroundLocationUpdates: false,
-      headingFilter: 1, // Degrees
-      headingOrientation: "portrait",
-      pausesLocationUpdatesAutomatically: false,
-      showsBackgroundLocationIndicator: false,
-  })
-    if(this.props.isTraffic){
-      this.props.getDirectionsAPIWithTraffic([{lat: 1.3143394,lng:103.7038231},{lat:1.3287109, lng:103.8476682},{lat:1.2895404, lng:103.8081271},{lat:1.3250369, lng:103.6973209},{lat:1.3691909, lng:103.8436772},{lat:1.330895, lng:103.8375949},{lat: 1.3911178, lng:103.7664461}]);
-    } else {
-
-      this.props.getDirectionsAPI([{lat: 1.3143394,lng:103.7038231},{lat: 1.3911178, lng:103.7664461},{lat:1.3287109, lng:103.8476682},{lat:1.2895404, lng:103.8081271},{lat:1.3250369, lng:103.6973209},{lat:1.3691909, lng:103.8436772},{lat:1.330895, lng:103.8375949}]);
-    }
-   
-    const namedOrder = [
-      {named: 'Ginny',packages:15,Address:'Chang i 26th, Singapore', list: [
-        {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323344567553' },
-        {package:'6',weight:'64.00 Kg',CBM:'0.50', id: '#323344342342' },
-        {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323312312312' },
-        {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323344897815'},
-      ]},
-      {named: 'Tho',packages:4,Address:'639 Balestier Rd, Singapura 329922', list: [
-        {package:'1',weight:'23.00 Kg',CBM:'0.18' , id: '#12544457577'},
-        {package:'3',weight:'64.00 Kg',CBM:'0.50' , id: '#67785464564'},
-      ]},
-      {named: 'West',packages:4,Address:'2 Orchard Turn, Singapura 238801', list: [
-        {package:'1',weight:'23.00 Kg',CBM:'0.18' , id: '#988786767666'},
-        {package:'3',weight:'64.00 Kg',CBM:'0.50' , id: '#455645645688'},
-      ]},
-      {named: 'Go',packages:1,Address:'221A Boon Lay Pl, Singapura 641221', list: [
-        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#768565463455'},
-      ]},
-      {named: 'Dolittle',packages:5,Address:'16 Ang Mo Kio Central 3, Singapore 567748', list: [
-        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#879755465377'},
-        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#345344234677'},
-        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#345345436435'},
-        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#213125432423'},
-        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#856756534555'},
-      ]},
-      {named: 'Cumberbatch',packages:1,Address:'510 Thomson Rd, Singapura 298135', list: [
-        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#323344897815'},
-      ]},
-      {named: 'Bram',packages:1,Address:'27 Woodlands Link, #01-01 Chang Cheng HQ, Singapura 738732', list: [
-        {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#456456456542'},
-      ]},
-    ];
-    this.props.setDataOrder(namedOrder);
+  
     this.state = {
       search: '',
       data : [],
-      namedOrder,
       trafficButton: false,
     };
     this.onPressedTraffic.bind(this);
@@ -126,18 +67,34 @@ class ListMap extends Component {
     }
    
     let {locationPermission} = this.props;
-    if (locationPermission && prevProps.route_id !== this.props.route_id) {
-      RNLocation.configure({ distanceFilter: 0 });
-      RNLocation.getLatestLocation({ timeout: 600 })
-        .then(latestLocation => {
-          this.props.setGeoLocation({timestamp: latestLocation.timestamp,lat: latestLocation.latitude, lng: latestLocation.longitude});
-        })
+    if (locationPermission && (prevProps.route_id !== this.props.route_id || this.props.currentPositionData === null)) {
+        let watchID = Geolocation.watchPosition(
+        ({coords}) => {
+          let latLng = {
+            lat: coords.latitude,
+            lng: coords.longitude,
+          };
+          this.props.reverseGeoCoding(coords);
+          this.props.setGeoLocation(latLng);
+          Geolocation.clearWatch(watchID);
+          RNFusedLocation.stopObserving();
+        },
+        () => {},
+        {
+          timeout: 300,
+          maximumAge: 50,
+          enableHighAccuracy: true,
+          useSignificantChanges: false,
+          distanceFilter: 0,
+        },
+      );
     }
 
     if(!this.props.steps){
       if(this.props.isTraffic){
+        let {coords} = this.props.currentPositionData;
         let orders = this.translateOrdersTraffic();
-        this.props.getDirectionsAPIWithTraffic(orders);  
+        this.props.getDirectionsAPIWithTraffic(orders, coords);  
       } else {
         let orders = this.translateOrders();
         this.props.getDirectionsAPI(orders);  
@@ -171,22 +128,20 @@ class ListMap extends Component {
     this.setState({data: Array.from({length: this.props.statAPI.length}).map((element,index)=>{
       let statSingleOffline = this.props.stat[index];
       let statSingleAPI = this.props.statAPI[index];
-      let namedData = this.props.dataPackage.length > 0 ? this.props.dataPackage[index] : this.state.namedOrder[index];
+      let namedData = this.props.dataPackage[index] ;
       return {...statSingleOffline,...statSingleAPI,...namedData};
     })})
   }
 
   translateDragToOrder = (from,to) => {
-    let {markers} = this.props;
+    let {markers, dataPackage} = this.props;
     let changed = markers.splice(from,1);
     markers.splice(to,0,changed[0]);
 
     //demo purpose only
-    let {namedOrder} = this.state;
-    let changedNamed = namedOrder.splice(from,1);
-    namedOrder.splice(to,0,changedNamed[0]);
-    this.props.setDataOrder(namedOrder);
-    this.setState({namedOrder:namedOrder});
+    let changedNamed = dataPackage.splice(from,1);
+    dataPackage.splice(to,0,changedNamed[0]);
+    this.props.setDataOrder(dataPackage);
     //demo purpose only
 
 
@@ -281,6 +236,7 @@ function mapStateToProps(state) {
     dataPackage: state.originReducer.route.dataPackage,
     isConnected : state.network.isConnected,
     isActionQueue: state.network.actionQueue,
+    currentPositionData: state.originReducer.currentPositionData,
   };
 }
 
@@ -298,7 +254,7 @@ const mapDispatchToProps = (dispatch) => {
       return dispatch({type: 'startDelivered', payload: toggle});
     },
  
-    ...bindActionCreators({ setDataOrder,getDirectionsAPI,setDirections,setGeoLocation,setRouteStats, getDirectionsAPIWithTraffic}, dispatch),
+    ...bindActionCreators({ setDataOrder,getDirectionsAPI,setDirections,setGeoLocation,setRouteStats, getDirectionsAPIWithTraffic, reverseGeoCoding}, dispatch),
   };
 };
 

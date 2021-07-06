@@ -40,8 +40,10 @@ class Example extends React.Component {
       <View style={styles.sectionSheetDetail}>
         <View style={styles.sheetPackages}>
             <View style={[styles.sectionDividier, {alignItems: 'center', justifyContent: 'space-between'}]}>
-                <Text style={styles.barcodeText}>{this.state.dataCode}</Text>
-                <Text style={styles.barcodeDesc}>1/5</Text>
+            <View style={styles.dividerContent}>
+                <Text style={styles.labelPackage}>Barcode Number</Text>
+                <Text style={[styles.infoPackage,this.props.barcodeScanned.includes(this.state.dataCode) ? {backgroundColor:'green'} : this.state.dataCode !== '0' ? {backgroundColor:'red'} : {backgroundColor:'transparent'}]}>{this.state.dataCode}</Text>
+              </View>
             </View>
             <View style={styles.sectionDividier}>
               <View style={styles.dividerContent}>
@@ -79,7 +81,7 @@ class Example extends React.Component {
           onPress={() => this.onSubmit()}
           title="Confirm"
         />)}
-        {this.props.barcodeScanned.includes(this.state.dataCode) === false &&
+        {this.props.barcodeScanned.includes(this.state.dataCode) === false  && this.state.dataCode !== '0' &&
         (<Button
           containerStyle={{flex:1, marginTop: 10,}}
           buttonStyle={styles.navigationButton}
@@ -145,7 +147,6 @@ class Example extends React.Component {
     const { dataCode } = this.state;
     return (
       <View style={styles.container}>
-        {parseInt(dataCode) !== 0 && 
           <Modalize 
             ref={this.modalizeRef}
             handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
@@ -157,7 +158,6 @@ class Example extends React.Component {
           >
             <this.renderInner />
           </Modalize>
-        }
         <TouchableWithoutFeedback onPress={() => {}}>
           <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} />
         </TouchableWithoutFeedback>

@@ -11,26 +11,30 @@ import WarehouseNavigator from './warehouse/index-warehouse';
 import DeliveryNavigator from './delivery';
 import {createStackNavigator, Header} from '@react-navigation/stack';
 import {Overlay} from 'react-native-elements';
-import {TouchableOpacity, View, Text} from 'react-native';
+import {TouchableOpacity, View, Text, AppState} from 'react-native';
 import noAccess from './error/no-access';
-import {PERMISSIONS, request, check, RESULTS} from 'react-native-permissions';
+import {PERMISSIONS, request, check, RESULTS, checkNotifications,requestNotifications} from 'react-native-permissions';
 import { openSettings } from 'react-native-permissions'
 const Stack = createStackNavigator();
 
 class Details extends React.Component {
+  _appState = React.createRef();
   constructor(props) {
     super(props);
     this.detailsRoute.bind(this);
     this.detailPage.bind(this);
     this.requestLocationPermission.bind(this);
     this.requestCameraPermission.bind(this);
+    this._requestNotifications.bind(this);
     this.requestReadStoragePermission.bind(this);
     this.requestWriteStoragePermission.bind(this);
     this.setWrapperofStack.bind(this);
+    this._appState.current =  AppState.currentState;
     this.state = {
       cancel: false,
       visible: false,
       overlayString: '',
+      notificationpermission: false,
     };
   }
   
@@ -39,14 +43,18 @@ class Details extends React.Component {
     this.setState({visible:!visible});
   };
   handleConfirm = (val) => {
-    if(val){
-      openSettings(); 
-      this.setState({visible:false});
+    if (val) {
+      if (this.props.userRole.type === 'Warehouse' && (!this.props.cameraPermission || !this.props.readStoragePermission || !this.props.writeStoragePermission)) {
+        openSettings();
+      } else if (this.props.userRole.type === 'Delivery' && (!this.props.cameraPermission || !this.state.notificationpermission || !this.props.readStoragePermission || !this.props.writeStoragePermission)) {
+        openSettings();
+      }
+      this.setState({visible: false});
     } else {
-      this.setState({visible:false});
-      this.setState({cancel:true});
+      this.setState({visible: false});
+      this.setState({cancel: true});
     }
-  }
+  };
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
     if(indexBottomBar === 0){
@@ -54,6 +62,20 @@ class Details extends React.Component {
       this.props.setCurrentStackIndex(index);
     }
   }
+  overlayDidUpdate = async (nextAppState)=> {
+    if (
+      this._appState.current.match(/inactive|background/) &&
+      nextAppState === "active"
+    ) {
+      if(this.state.visible !== false){
+        this.setState({visible: false});
+      }
+    } else if( this._appState.current.match(/active/) &&
+    (nextAppState === "background" || nextAppState === 'inactive')) {
+    }
+    this._appState.current =  nextAppState;
+  }
+
   async requestLocationPermission() {
     let {locationPermission} = this.props;
     
@@ -105,6 +127,66 @@ class Details extends React.Component {
     }
   
   };
+
+  _requestNotifications = async () => {
+    let {notificationpermission} = this.state;
+
+    if (notificationpermission) {
+
+      checkNotifications().then(({status, settings}) => {
+        // …
+        switch (status) {
+          case RESULTS.UNAVAILABLE:
+            this.setState({cancel: true});
+            break;
+          case RESULTS.DENIED:
+            this.setState({cancel: true, notificationpermission: true});
+            break;
+          case RESULTS.LIMITED:
+            break;
+          case RESULTS.GRANTED:
+            break;
+          case RESULTS.BLOCKED:
+            if(!this.state.visible)
+            this.setState({
+              overlayString:
+                'In-App Notifications requires Notification Center Settings, Tap `YES` to open App Setings',
+                visible: true,
+            });
+            break;
+        }
+      }).catch((error) => {
+        // …
+      });
+   
+    } else {
+      requestNotifications(['alert', 'sound', 'provisional','lockScreen','notificationCenter']).then(({status, settings}) => {
+        switch (status) {
+          case RESULTS.UNAVAILABLE:
+            this.setState({cancel: true});
+            break;
+          case RESULTS.DENIED:
+            this.setState({cancel: true});
+            break;
+          case RESULTS.LIMITED:
+            this.setState({notificationpermission: true});
+            break;
+          case RESULTS.GRANTED:
+            this.setState({notificationpermission: true});
+            break;
+          case RESULTS.BLOCKED:
+            if(!this.state.visible)
+            this.setState({
+              overlayString:
+              'In-App Notifications requires Notification Center Settings, Tap `YES` to open App Setings',
+              visible: true,
+            });
+            break;
+        }
+      });
+    }
+  };
+
   requestCameraPermission = async () => {
     let {cameraPermission} = this.props;
     
@@ -262,6 +344,8 @@ class Details extends React.Component {
         this.props.navigation.navigate('Home');
       } else {
         this.requestCameraPermission();
+        this.requestReadStoragePermission();
+        this.requestWriteStoragePermission();  
       }
     } else if (this.props.userRole.type === 'Delivery') {
       if(this.state.cancel === true){
@@ -269,12 +353,18 @@ class Details extends React.Component {
       } else {
       this.requestLocationPermission();
       this.requestCameraPermission();
+      this._requestNotifications();
       this.requestReadStoragePermission();
       this.requestWriteStoragePermission();
       }
     } else {
       // 
     }
+    AppState.addEventListener('change', this.overlayDidUpdate);
+  }
+
+  componentWillUnmount(){
+    AppState.removeEventListener("change", this.overlayDidUpdate);
   }
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.props.userRole.type === 'Warehouse') {
@@ -282,12 +372,18 @@ class Details extends React.Component {
         this.props.navigation.navigate('Home');
       } else if(!this.props.cameraPermission){
         this.requestCameraPermission();
+      } else if(!this.props.readStoragePermission){
+        this.requestReadStoragePermission();
+      } else if(!this.props.writeStoragePermission){
+        this.requestWriteStoragePermission();
       } 
     } else if (this.props.userRole.type === 'Delivery') {
       if(prevState.cancel !== this.state.cancel && this.state.cancel === true){
         this.props.navigation.navigate('Home');
       } else if(!this.props.cameraPermission){
         this.requestCameraPermission();
+      } else if(!this.state.notificationpermission){
+        this._requestNotifications();
       } else if (!this.props.locationPermission) {
         this.requestLocationPermission();
       } else if(!this.props.readStoragePermission){
@@ -323,7 +419,7 @@ class Details extends React.Component {
   detailPage = () => {
     const {visible} = this.state;
     return (
-      <> <Stack.Navigator
+      <Stack.Navigator
       initialRouteName={this.detailsRoute()}
       headerMode="screen"
       screenOptions={{
@@ -365,36 +461,6 @@ class Details extends React.Component {
         }}
       />
     </Stack.Navigator>
-      <Overlay isVisible={visible} onBackdropPress={this.toggleOverlay} fullScreen={true}>
-      <Text style={{ fontSize: 20,
-    textAlign: 'center',}}>{this.state.overlayString}</Text>
-          <View style={{  width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',}}>
-            <TouchableOpacity 
-              style={[{   width: '40%',
-              height: 40,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: 5,}, {borderWidth: 1, borderColor: '#ABABAB'}]}
-              onPress={() => this.handleConfirm(false)}
-            >
-            <Text style={[ {color: '#6C6B6B'}]}>No</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[{   width: '40%',
-              height: 40,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: 5,}, {backgroundColor: '#F07120'}]}
-              onPress={() => this.handleConfirm(true)}
-            >
-              <Text style={[ {color: '#fff'}]}>Yes</Text>
-            </TouchableOpacity>
-          </View>
-      </Overlay></>
     );
   }
 
@@ -403,16 +469,206 @@ class Details extends React.Component {
     if (this.props.userRole.type === 'Warehouse') {
       if(this.props.warehouse_module === 'INBOUND'){
 
-        Navigate = <WarehouseInNavigator component={this.detailPage} />;
+        Navigate = <><WarehouseInNavigator component={this.detailPage} />
+         <Overlay
+          isVisible={visible}
+          onBackdropPress={this.toggleOverlay}
+          fullScreen={true} 
+          overlayStyle={{justifyContent: 'center', alignItems: 'center'}}
+          >
+          <Text style={{fontSize: 20, textAlign: 'center', marginVertical: 40,}}>
+            {this.state.overlayString}
+          </Text>
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+            }}>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {borderWidth: 1, borderColor: '#ABABAB'},
+              ]}
+              onPress={() => this.handleConfirm(false)}>
+              <Text style={[{color: '#6C6B6B'}]}>No</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {backgroundColor: '#F07120'},
+              ]}
+              onPress={() => this.handleConfirm(true)}>
+              <Text style={[{color: '#fff'}]}>Yes</Text>
+            </TouchableOpacity>
+          </View>
+        </Overlay></>;
       } else if(this.props.warehouse_module === 'OUTBOUND'){
 
-        Navigate = <WarehouseOutNavigator component={this.detailPage} />;
+        Navigate = <><WarehouseOutNavigator component={this.detailPage} />
+         <Overlay
+          isVisible={visible}
+          onBackdropPress={this.toggleOverlay}
+          fullScreen={true} 
+          overlayStyle={{justifyContent: 'center', alignItems: 'center'}}
+          >
+          <Text style={{fontSize: 20, textAlign: 'center', marginVertical: 40,}}>
+            {this.state.overlayString}
+          </Text>
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+            }}>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {borderWidth: 1, borderColor: '#ABABAB'},
+              ]}
+              onPress={() => this.handleConfirm(false)}>
+              <Text style={[{color: '#6C6B6B'}]}>No</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {backgroundColor: '#F07120'},
+              ]}
+              onPress={() => this.handleConfirm(true)}>
+              <Text style={[{color: '#fff'}]}>Yes</Text>
+            </TouchableOpacity>
+          </View>
+        </Overlay></>;
       } else if(this.props.warehouse_module === 'WAREHOUSE'){
 
-        Navigate = <WarehouseNavigator component={this.detailPage} />;
+        Navigate = <><WarehouseNavigator component={this.detailPage} />
+         <Overlay
+          isVisible={visible}
+          onBackdropPress={this.toggleOverlay}
+          fullScreen={true} 
+          overlayStyle={{justifyContent: 'center', alignItems: 'center'}}
+          >
+          <Text style={{fontSize: 20, textAlign: 'center', marginVertical: 40,}}>
+            {this.state.overlayString}
+          </Text>
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+            }}>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {borderWidth: 1, borderColor: '#ABABAB'},
+              ]}
+              onPress={() => this.handleConfirm(false)}>
+              <Text style={[{color: '#6C6B6B'}]}>No</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {backgroundColor: '#F07120'},
+              ]}
+              onPress={() => this.handleConfirm(true)}>
+              <Text style={[{color: '#fff'}]}>Yes</Text>
+            </TouchableOpacity>
+          </View>
+        </Overlay>
+        </>;
       }
     } else if (this.props.userRole.type === 'Delivery') {
-      Navigate =  <DeliveryNavigator component={this.detailPage} />;
+      Navigate =  <><DeliveryNavigator component={this.detailPage} />
+        <Overlay
+          isVisible={visible}
+          onBackdropPress={this.toggleOverlay}
+          fullScreen={true} 
+          overlayStyle={{justifyContent: 'center', alignItems: 'center'}}
+          >
+          <Text style={{fontSize: 20, textAlign: 'center', marginVertical: 40,}}>
+            {this.state.overlayString}
+          </Text>
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+            }}>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {borderWidth: 1, borderColor: '#ABABAB'},
+              ]}
+              onPress={() => this.handleConfirm(false)}>
+              <Text style={[{color: '#6C6B6B'}]}>No</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {backgroundColor: '#F07120'},
+              ]}
+              onPress={() => this.handleConfirm(true)}>
+              <Text style={[{color: '#fff'}]}>Yes</Text>
+            </TouchableOpacity>
+          </View>
+        </Overlay>
+      </>;
     } else {
       Navigate = <Stack.Navigator
         initialRouteName="Home"

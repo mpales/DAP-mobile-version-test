@@ -9,24 +9,31 @@ import WarehouseInNavigator from './warehouse/index-inbound';
 import WarehouseOutNavigator from './warehouse/index-outbound';
 import WarehouseNavigator from './warehouse/index-warehouse';
 import DeliveryNavigator from './delivery';
+import {Overlay} from 'react-native-elements';
 import {createStackNavigator, Header} from '@react-navigation/stack';
-import {PermissionsAndroid} from 'react-native';
-import RNLocation from 'react-native-location';
+import {TouchableOpacity, View, Text, AppState, Platform} from 'react-native';
 import noAccess from './error/no-access';
+import {PERMISSIONS, request, check, RESULTS,openSettings} from 'react-native-permissions';
 const Stack = createStackNavigator();
 
 class Details extends React.Component {
+  _appState = React.createRef();
   constructor(props) {
     super(props);
     this.detailsRoute.bind(this);
     this.detailPage.bind(this);
     this.requestLocationPermission.bind(this);
+    this.requestBackgroundLocationPermission.bind(this);
     this.requestCameraPermission.bind(this);
     this.requestReadStoragePermission.bind(this);
     this.requestWriteStoragePermission.bind(this);
     this.setWrapperofStack.bind(this);
+    this.overlayDidUpdate.bind(this);
+    this._appState.current =  AppState.currentState;
     this.state = {
       cancel: false,
+      overlayString: '',
+      visible: false,
     };
   }
   setWrapperofStack = (index,key) => {
@@ -36,123 +43,350 @@ class Details extends React.Component {
       this.props.setCurrentStackIndex(index);
     }
   }
-  async requestLocationPermission() {
-    let {locationPermission} = this.props;
-    if (locationPermission) {
-     await RNLocation.checkPermission({
-        ios: 'whenInUse', // or 'always'
-        android: {
-          detail: 'coarse' // or 'fine'
-        }
-      }).then(granted => {
-        if (granted) {
-          this.props.setLocationPermission(true);
-        } else {
-
-          this.props.setLocationPermission(false);
-        }
-      });
+  toggleOverlay = () => {
+    const {visible} = this.state;
+    this.setState({visible: !visible});
+  };
+  overlayDidUpdate = async (nextAppState)=> {
+    if (
+      this._appState.current.match(/inactive|background/) &&
+      nextAppState === "active"
+    ) {
+      if(this.state.visible !== false){
+        this.setState({visible: false});
+      }
+    } else if( this._appState.current.match(/active/) &&
+    (nextAppState === "background" || nextAppState === 'inactive')) {
+    }
+    this._appState.current =  nextAppState;
+  }
+  handleConfirm = (val) => {
+    if (val) {
+      if (this.props.userRole.type === 'Warehouse' && !this.props.cameraPermission) {
+        openSettings();
+      } else if (this.props.userRole.type === 'Delivery' && (!this.props.cameraPermission || !this.props.locationPermission || !this.props.callPhonePermission || (!this.props.backgroundlocationPermission && Platform.Version >= 29) || !this.props.readStoragePermission || !this.props.writeStoragePermission)) {
+        openSettings();
+      }
+      this.setState({visible: false});
     } else {
-           await RNLocation.requestPermission({
-              ios: 'whenInUse', // or 'always'
-              android: {
-                detail: 'coarse', // or 'fine'
-                rationale: {
-                  title: "We need to access your location",
-                  message: "We use your location to show where you are on the map",
-                  buttonPositive: "OK",
-                  buttonNegative: "Cancel"
-                }
-              }
-          }).then(granted => {
-            if (granted) {
-              this.props.setLocationPermission(true);
-            } else {
-              this.props.setLocationPermission(false);
-              this.setState({cancel:true});
-            }
-          });
-     
+      this.setState({visible: false});
+      this.setState({cancel: true});
     }
   };
-  requestCameraPermission = async () => {
-    let {type} = this.props.userRole;
-    let msg = '';
-    if(type === 'Warehouse'){
-      msg = "Warehouse module needs access to your camera " +
-      "so you can take Barcode Scan.";
-    } else if(type === 'Delivery') {
-      msg = "Driver App needs access to your camera " +
-      "so you can take Proof of Delivery pictures.";
-    }
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        {
-          title: "App Camera Permission",
-          message: msg,
-          buttonNeutral: "Ask Me Later",
-          buttonNegative: "Cancel",
-          buttonPositive: "OK"
+  async requestLocationPermission() {
+    let {locationPermission} = this.props;
+    if(locationPermission){
+      check( PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION)
+      .then((result) => {
+        switch (result) {
+          case RESULTS.UNAVAILABLE:
+            this.setState({cancel:true});
+            break;
+          case RESULTS.DENIED:
+            this.setState({cancel:true});
+            this.props.setLocationPermission(false);
+            break;
+          case RESULTS.LIMITED:
+            break;
+          case RESULTS.GRANTED:
+            break;
+          case RESULTS.BLOCKED:
+            if(!this.state.visible)
+            this.setState({
+              overlayString:
+                'In-App Delivery requires Location Permission to be granted, Tap `YES` to open App Setings',
+                visible: true,
+            });
+            break;
         }
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        this.props.setCameraPermission(true);
-      } else {
-        this.props.setCameraPermission(false);
-        this.setState({cancel:true});
-      }
-    } catch (err) {
-      console.warn(err);
+      })
+      .catch((error) => {
+        // …
+      });
+    } else {
+      request( PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION).then((result) => {
+        switch (result) {
+          case RESULTS.UNAVAILABLE:
+            this.setState({cancel:true});
+            break;
+          case RESULTS.DENIED:
+            this.setState({cancel:true});
+            break;
+          case RESULTS.LIMITED:
+            this.props.setLocationPermission(true);
+            break;
+          case RESULTS.GRANTED:
+            this.props.setLocationPermission(true);
+            break;
+          case RESULTS.BLOCKED:
+            if(!this.state.visible)
+            this.setState({
+              overlayString:
+                'In-App Delivery requires Location Permission to be granted, Tap `YES` to open App Setings',
+                visible: true, 
+            });
+            break;
+        }
+      });
+    }
+  
+  };
+  async requestBackgroundLocationPermission() {
+    let {backgroundlocationPermission} = this.props;
+    if(backgroundlocationPermission){
+      check(PERMISSIONS.ANDROID.ACCESS_BACKGROUND_LOCATION)
+      .then((result) => {
+        switch (result) {
+          case RESULTS.UNAVAILABLE:
+            this.setState({cancel:true});
+            break;
+          case RESULTS.DENIED:
+            this.setState({cancel:true});
+            this.props.setbackgroundLocationPermission(false);
+            break;
+          case RESULTS.LIMITED:
+            break;
+          case RESULTS.GRANTED:
+            break;
+          case RESULTS.BLOCKED:
+            if(!this.state.visible)
+            this.setState({
+              overlayString:
+                'In-App Delivery requires Background Location Permission to be granted, Tap `YES` to open App Setings',
+                visible: true, 
+            });
+            break;
+        }
+      })
+      .catch((error) => {
+        // …
+      });
+    } else {
+      request(PERMISSIONS.ANDROID.ACCESS_BACKGROUND_LOCATION).then((result) => {
+        switch (result) {
+          case RESULTS.UNAVAILABLE:
+          this.setState({cancel:true});
+            break;
+          case RESULTS.DENIED:
+            if(!this.state.visible)
+            this.setState({
+              overlayString:
+                'In-App Delivery requires Background Location Permission to be granted, Tap `YES` to open App Setings',
+                visible: true, 
+            });
+            break;
+          case RESULTS.LIMITED:
+            this.props.setbackgroundLocationPermission(true);
+            break;
+          case RESULTS.GRANTED:
+            this.props.setbackgroundLocationPermission(true);
+            break;
+          case RESULTS.BLOCKED:
+            if(!this.state.visible){
+              this.setState({
+                overlayString:
+                  'In-App Delivery requires Background Location Permission to be granted, Tap `YES` to open App Setings',
+                  visible: true,
+              });
+            }
+            break;
+        }
+      });
+    }
+  
+  };
+  requestCameraPermission = async () => {
+    let {cameraPermission} = this.props;
+    if(cameraPermission){
+      check(PERMISSIONS.ANDROID.CAMERA)
+      .then((result) => {
+        switch (result) {
+          case RESULTS.UNAVAILABLE:
+            this.setState({cancel:true});
+            break;
+          case RESULTS.DENIED:
+            this.setState({cancel:true});
+            this.props.setCameraPermission(false);
+            break;
+          case RESULTS.LIMITED:
+            break;
+          case RESULTS.GRANTED:
+            break;
+          case RESULTS.BLOCKED:
+            if(!this.state.visible)
+            this.setState({
+              overlayString:
+                'In-App Camera requires Camera Permission to be granted, Tap `YES` to open App Setings',
+                visible: true, 
+            });
+            break;
+        }
+      })
+      .catch((error) => {
+        // …
+      });
+    } else {
+      request(PERMISSIONS.ANDROID.CAMERA).then((result) => {
+        switch (result) {
+          case RESULTS.UNAVAILABLE:
+            this.setState({cancel:true});
+            break;
+          case RESULTS.DENIED:
+            this.setState({cancel:true});
+            break;
+          case RESULTS.LIMITED:
+            this.props.setCameraPermission(true);
+            break;
+          case RESULTS.GRANTED:
+            this.props.setCameraPermission(true);
+            break;
+          case RESULTS.BLOCKED:
+            if(!this.state.visible)
+            this.setState({
+              overlayString:
+                'In-App Camera requires Camera Permission to be granted, Tap `YES` to open App Setings',
+                visible: true, 
+            });
+            break;
+        }
+      });
     }
   }
   requestReadStoragePermission = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        {
-          title: "App Read Storage Permission",
-          message:
-          "Driver module needs read access to your External Storage " +
-          "so you can Manage Proof of Delivery Photo",
-          buttonNeutral: "Ask Me Later",
-          buttonNegative: "Cancel",
-          buttonPositive: "OK"
+   
+    let {readStoragePermission} = this.props;
+
+    if (readStoragePermission) {
+      check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE)
+        .then((result) => {
+          switch (result) {
+            case RESULTS.UNAVAILABLE:
+              this.setState({cancel: true});
+              break;
+            case RESULTS.DENIED:
+              this.setState({cancel: true});
+              this.props.setReadStoragePermission(false);
+              break;
+            case RESULTS.LIMITED:
+              break;
+            case RESULTS.GRANTED:
+              break;
+            case RESULTS.BLOCKED:
+              if(!this.state.visible)
+              this.setState({
+                overlayString:
+                'In-App Camera requires Read Storage Permission to be granted, Tap `YES` to open App Setings',
+                visible: true,
+              });
+              break;
+          }
+        })
+        .catch((error) => {
+          // …
+        });
+    } else {
+  
+      request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE, {
+        title: "App Read Storage Permission",
+        message:
+        "Driver module needs read access to your External Storage " +
+        "so you can Manage Proof of Delivery Photo",
+        buttonNeutral: "Ask Me Later",
+        buttonNegative: "Cancel",
+        buttonPositive: "OK"
+      }).then((result) => {
+        switch (result) {
+          case RESULTS.UNAVAILABLE:
+            this.setState({cancel: true});
+            break;
+          case RESULTS.DENIED:
+            this.setState({cancel: true});
+            break;
+          case RESULTS.LIMITED:
+            this.props.setReadStoragePermission(true);
+            break;
+          case RESULTS.GRANTED:
+            this.props.setReadStoragePermission(true);
+            break;
+          case RESULTS.BLOCKED:
+            if(!this.state.visible)
+            this.setState({
+              overlayString:
+              'In-App Camera requires Read Storage Permission to be granted, Tap `YES` to open App Setings',
+              visible: true, 
+            });
+            break;
         }
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        this.props.setReadStoragePermission(true);
-      } else {
-        this.props.setReadStoragePermission(false);
-        this.setState({cancel:true});
-      }
-    } catch (err) {
-      console.warn(err);
+      });
     }
   }
   requestWriteStoragePermission = async () => {
     
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        {
-          title: "App Write Storage Permission",
-          message:
-          "Driver module needs write access to your External Storage " +
-          "so you can save Signature and Photo Proof",
-          buttonNeutral: "Ask Me Later",
-          buttonNegative: "Cancel",
-          buttonPositive: "OK"
+
+    let {writeStoragePermission} = this.props;
+
+    if (writeStoragePermission) {
+      check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE)
+        .then((result) => {
+          switch (result) {
+            case RESULTS.UNAVAILABLE:
+              this.setState({cancel: true});
+              break;
+            case RESULTS.DENIED:
+              this.setState({cancel: true});
+              this.props.setWriteStoragePermission(false);
+              break;
+            case RESULTS.LIMITED:
+              break;
+            case RESULTS.GRANTED:
+              break;
+            case RESULTS.BLOCKED:
+              if(!this.state.visible)
+              this.setState({
+                overlayString:
+                'In-App Camera requires Write Storage Permission to be granted, Tap `YES` to open App Setings',
+                visible: true, 
+              });
+              break;
+          }
+        })
+        .catch((error) => {
+          // …
+        });
+    } else {
+  
+      request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,   {
+        title: "App Write Storage Permission",
+        message:
+        "Driver module needs write access to your External Storage " +
+        "so you can save Signature and Photo Proof",
+        buttonNeutral: "Ask Me Later",
+        buttonNegative: "Cancel",
+        buttonPositive: "OK"
+      }).then((result) => {
+        switch (result) {
+          case RESULTS.UNAVAILABLE:
+            this.setState({cancel: true});
+            break;
+          case RESULTS.DENIED:
+            this.setState({cancel: true});
+            break;
+          case RESULTS.LIMITED:
+            this.props.setWriteStoragePermission(true);
+            break;
+          case RESULTS.GRANTED:
+            this.props.setWriteStoragePermission(true);
+            break;
+          case RESULTS.BLOCKED:
+            if(!this.state.visible)
+            this.setState({
+              overlayString:
+              'In-App Camera requires Write Storage Permission to be granted, Tap `YES` to open App Setings',
+              visible: true, 
+            });
+            break;
         }
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        this.props.setWriteStoragePermission(true);
-      } else {
-        this.props.setWriteStoragePermission(false);
-        this.setState({cancel:true});
-      }
-    } catch (err) {
-      console.warn(err);
+      });
     }
   }
   componentDidMount() {
@@ -161,12 +395,17 @@ class Details extends React.Component {
         this.props.navigation.navigate('Home');
       } else {
         this.requestCameraPermission();
+        this.requestReadStoragePermission();
+        this.requestWriteStoragePermission();
       }
     } else if (this.props.userRole.type === 'Delivery') {
       if(this.state.cancel === true){
         this.props.navigation.navigate('Home');
       } else {
       this.requestLocationPermission();
+      if(Platform.Version >= 29) {
+        this.requestBackgroundLocationPermission();
+      }
       this.requestCameraPermission();
       this.requestReadStoragePermission();
       this.requestWriteStoragePermission();
@@ -174,6 +413,10 @@ class Details extends React.Component {
     } else {
       // 
     }
+    AppState.addEventListener('change', this.overlayDidUpdate);
+  }
+  componentWillUnmount(){
+    AppState.removeEventListener("change", this.overlayDidUpdate);
   }
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.props.userRole.type === 'Warehouse') {
@@ -181,13 +424,19 @@ class Details extends React.Component {
         this.props.navigation.navigate('Home');
       } else if(!this.props.cameraPermission){
         this.requestCameraPermission();
+      }  else if(!this.props.readStoragePermission){
+        this.requestReadStoragePermission();
+      } else if(!this.props.writeStoragePermission){
+        this.requestWriteStoragePermission();
       } 
     } else if (this.props.userRole.type === 'Delivery') {
       if(prevState.cancel !== this.state.cancel && this.state.cancel === true){
         this.props.navigation.navigate('Home');
       } else if(!this.props.cameraPermission){
         this.requestCameraPermission();
-      } else if (!this.props.locationPermission) {
+      } else if(!this.props.backgroundlocationPermission && Platform.Version >= 29) {
+        this.requestBackgroundLocationPermission();
+      }  else if (!this.props.locationPermission) {
         this.requestLocationPermission();
       } else if(!this.props.readStoragePermission){
         this.requestReadStoragePermission();
@@ -268,19 +517,211 @@ class Details extends React.Component {
 
   render() {
     let Navigate;
+    const {visible} = this.state;
     if (this.props.userRole.type === 'Warehouse') {
       if(this.props.warehouse_module === 'INBOUND'){
 
-        Navigate = <WarehouseInNavigator component={this.detailPage} />;
+        Navigate = <><WarehouseInNavigator component={this.detailPage} />
+         <Overlay
+          isVisible={visible}
+          onBackdropPress={this.toggleOverlay}
+          fullScreen={true} 
+          overlayStyle={{justifyContent: 'center', alignItems: 'center'}}
+          >
+          <Text style={{fontSize: 20, textAlign: 'center', color: '#000000', marginVertical: 40,}}>
+            {this.state.overlayString}
+          </Text>
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+            }}>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {borderWidth: 1, borderColor: '#ABABAB'},
+              ]}
+              onPress={() => this.handleConfirm(false)}>
+              <Text style={[{color: '#6C6B6B'}]}>No</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {backgroundColor: '#F07120'},
+              ]}
+              onPress={() => this.handleConfirm(true)}>
+              <Text style={[{color: '#fff'}]}>Yes</Text>
+            </TouchableOpacity>
+          </View>
+        </Overlay>
+        </>;
       } else if(this.props.warehouse_module === 'OUTBOUND'){
 
-        Navigate = <WarehouseOutNavigator component={this.detailPage} />;
+        Navigate = <><WarehouseOutNavigator component={this.detailPage} />
+         <Overlay
+          isVisible={visible}
+          onBackdropPress={this.toggleOverlay}
+          fullScreen={true} 
+          overlayStyle={{justifyContent: 'center', alignItems: 'center'}}
+          >
+          <Text style={{fontSize: 20, textAlign: 'center', color: '#000000', marginVertical: 40,}}>
+            {this.state.overlayString}
+          </Text>
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+            }}>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {borderWidth: 1, borderColor: '#ABABAB'},
+              ]}
+              onPress={() => this.handleConfirm(false)}>
+              <Text style={[{color: '#6C6B6B'}]}>No</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {backgroundColor: '#F07120'},
+              ]}
+              onPress={() => this.handleConfirm(true)}>
+              <Text style={[{color: '#fff'}]}>Yes</Text>
+            </TouchableOpacity>
+          </View>
+        </Overlay>
+        </>;
       } else if(this.props.warehouse_module === 'WAREHOUSE'){
 
-        Navigate = <WarehouseNavigator component={this.detailPage} />;
+        Navigate = <><WarehouseNavigator component={this.detailPage} />
+         <Overlay
+          isVisible={visible}
+          onBackdropPress={this.toggleOverlay}
+          fullScreen={true} 
+          overlayStyle={{justifyContent: 'center', alignItems: 'center'}}
+          >
+          <Text style={{fontSize: 20, textAlign: 'center', color: '#000000', marginVertical: 40,}}>
+            {this.state.overlayString}
+          </Text>
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+            }}>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {borderWidth: 1, borderColor: '#ABABAB'},
+              ]}
+              onPress={() => this.handleConfirm(false)}>
+              <Text style={[{color: '#6C6B6B'}]}>No</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {backgroundColor: '#F07120'},
+              ]}
+              onPress={() => this.handleConfirm(true)}>
+              <Text style={[{color: '#fff'}]}>Yes</Text>
+            </TouchableOpacity>
+          </View>
+        </Overlay>
+        </>;
       }
     } else if (this.props.userRole.type === 'Delivery') {
-      Navigate =  <DeliveryNavigator component={this.detailPage} />;
+      Navigate =  <><DeliveryNavigator component={this.detailPage} />
+       <Overlay
+          isVisible={visible}
+          onBackdropPress={this.toggleOverlay}
+          fullScreen={true} 
+          overlayStyle={{justifyContent: 'center', alignItems: 'center'}}
+          >
+          <Text style={{fontSize: 20, textAlign: 'center', color: '#000000', marginVertical: 40,}}>
+            {this.state.overlayString}
+          </Text>
+          <View
+            style={{
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+            }}>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {borderWidth: 1, borderColor: '#ABABAB'},
+              ]}
+              onPress={() => this.handleConfirm(false)}>
+              <Text style={[{color: '#6C6B6B'}]}>No</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                {
+                  width: '40%',
+                  height: 40,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                },
+                {backgroundColor: '#F07120'},
+              ]}
+              onPress={() => this.handleConfirm(true)}>
+              <Text style={[{color: '#fff'}]}>Yes</Text>
+            </TouchableOpacity>
+          </View>
+        </Overlay></>;
     } else {
       Navigate = <Stack.Navigator
         initialRouteName="Home"
@@ -313,6 +754,7 @@ function mapStateToProps(state) {
     userRole: state.originReducer.userRole,
     cameraPermission : state.originReducer.filters.cameraPermission,
     locationPermission : state.originReducer.filters.locationPermission,
+    backgroundlocationPermission : state.originReducer.filters.backgroundlocationPermission,
     readStoragePermission : state.originReducer.filters.readStoragePermission,
     writeStoragePermission : state.originReducer.filters.writeStoragePermission,
     indexBottomBar : state.originReducer.filters.indexBottomBar,
@@ -330,6 +772,7 @@ const mapDispatchToProps = (dispatch) => {
     setBottomBar: (toggle) => dispatch({type: 'BottomBar', payload: toggle}),
     setCameraPermission: (bool)=> dispatch({type: 'cameraPermission', payload: bool}),
     setLocationPermission: (bool)=> dispatch({type: 'locationPermission', payload: bool}),
+    setbackgroundLocationPermission: (bool)=> dispatch({type: 'backgroundlocationPermission', payload: bool}),
     setReadStoragePermission: (bool)=> dispatch({type: 'readStoragePermission', payload: bool}),
     setWriteStoragePermission: (bool)=> dispatch({type: 'writeStoragePermission', payload: bool}),
     setIndexBottom: (num) => {

@@ -18,6 +18,7 @@ import Package from '../package';
 import Order from '../order/index';
 import Cancel from '../order/cancelOrder';
 import Mixins from '../../../mixins';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 const Stack = createStackNavigator();
 
@@ -94,11 +95,18 @@ class AddressNavigator extends React.Component {
           let index = state.index;
           this.setWrapperofStack(index,key);
           return (
-            <Header
-            {...props}/>
+            <SafeAreaView
+            edges={['top']}
+            style={{
+              backgroundColor: options.headerTransparent
+                ? 'transparent'
+                : '#121C78',
+            }}>
+            <Header {...props} />
+          </SafeAreaView>
           );
         },
-        headerBackTitleVisible:false,
+        headerBackTitleVisible:true,
         headerLeftContainerStyle:  Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
         }}>     
         <Stack.Screen
@@ -118,13 +126,8 @@ class AddressNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitle: 'Delivery Order',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-            ...Platform.select({
-              ios: {
-                marginHorizontal: 20,
-              },
-            })
-            },
+            headerBackTitle: 'Back',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22, alignSelf: 'center'},
             headerRight: () => (
               <Button
                 type="clear"
@@ -154,14 +157,9 @@ class AddressNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-            ...Platform.select({
-              ios: {
-                marginHorizontal: 20,
-              },
-            })
-            },
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22, alignSelf: 'center'},
             headerTitle: 'Delivery Order',
+            headerBackTitle: 'Back',
             headerLeft: (props) => {
               return(
               <HeaderBackButton  {...props} onPress={()=>{
@@ -200,14 +198,9 @@ class AddressNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-            ...Platform.select({
-              ios: {
-                marginHorizontal: 20,
-              },
-            })
-            },
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22, alignSelf: 'center'},
             headerTitle: 'Delivery Order',
+            headerBackTitle: 'Back',
             headerLeft: (props) => {
               return(
               <HeaderBackButton  {...props} onPress={()=>{
@@ -246,14 +239,9 @@ class AddressNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-            ...Platform.select({
-              ios: {
-                marginHorizontal: 20,
-              },
-            })
-            },
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22, alignSelf: 'center'},
             headerTitle: 'Cancel Deliver',
+            headerBackTitle: 'Back',
             headerLeft: (props) => {
               return(
               <HeaderBackButton  {...props} onPress={()=>{
@@ -292,14 +280,9 @@ class AddressNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-            ...Platform.select({
-              ios: {
-                marginHorizontal: 20,
-              },
-            })
-            },
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22, alignSelf: 'center'},
             headerTitle: 'Delivery Order',
+            headerBackTitle: 'Back',
             headerLeft: (props) => {
               return(
               <HeaderBackButton  {...props} onPress={()=>{

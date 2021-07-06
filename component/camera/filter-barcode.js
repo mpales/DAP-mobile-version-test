@@ -286,12 +286,12 @@ class CameraScreen extends React.Component {
       Animated.sequence([
         Animated.timing(this.state.barCodeAnimated, {
           toValue: 1,
-          duration: 1000,
+          duration: 200,
           useNativeDriver: true,
         }),
         Animated.timing(this.state.barCodeAnimated, {
           toValue: 0,
-          duration: 500,
+          duration: 1500,
           useNativeDriver: true,
         })
       ]).start(()=>  {this.props.setBarcodeScanner(false)})

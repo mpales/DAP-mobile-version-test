@@ -34,6 +34,8 @@
 		B87B0F5102C04D95B8F6684F /* Poppins-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C26D85297F2544E3B958FF8E /* Poppins-SemiBoldItalic.ttf */; };
 		F477809D6B4746A2B73DCCF1 /* Poppins-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 63B06032EAB94EBEAB31670F /* Poppins-Black.ttf */; };
 		F860EC35E3E9458BA69FE4F4 /* Poppins-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8696B557AAEC4A05B496F799 /* Poppins-LightItalic.ttf */; };
+		03459DB4699A4B9FB7C1A7E3 /* log-android.html in Resources */ = {isa = PBXBuildFile; fileRef = 628D1CFA28CA4AE6A0F6E47B /* log-android.html */; };
+		57913B12490B4A92BAA9646A /* log-ios.html in Resources */ = {isa = PBXBuildFile; fileRef = F7998D45293C426CAEBD0C52 /* log-ios.html */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,6 +102,8 @@
 		EE93887A7A90421D876796EB /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
 		F2D7FFCDC4414695980A7004 /* FontAwesome5_Solid.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Solid.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Solid.ttf"; sourceTree = "<group>"; };
 		F516929C80CD4D75BF467E69 /* AntDesign.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = AntDesign.ttf; path = "../node_modules/react-native-vector-icons/Fonts/AntDesign.ttf"; sourceTree = "<group>"; };
+		628D1CFA28CA4AE6A0F6E47B /* log-android.html */ = {isa = PBXFileReference; name = "log-android.html"; path = "../assets/html/log-android.html"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		F7998D45293C426CAEBD0C52 /* log-ios.html */ = {isa = PBXFileReference; name = "log-ios.html"; path = "../assets/html/log-ios.html"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,6 +180,8 @@
 				C26D85297F2544E3B958FF8E /* Poppins-SemiBoldItalic.ttf */,
 				EE14FD51B5A740938EFC63D1 /* Poppins-Thin.ttf */,
 				8618366153864A55B89BEEE7 /* Poppins-ThinItalic.ttf */,
+				628D1CFA28CA4AE6A0F6E47B /* log-android.html */,
+				F7998D45293C426CAEBD0C52 /* log-ios.html */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -364,6 +370,8 @@
 				B87B0F5102C04D95B8F6684F /* Poppins-SemiBoldItalic.ttf in Resources */,
 				276DF36333E74EB7AA8A0989 /* Poppins-Thin.ttf in Resources */,
 				82E7774D81644E68AA810F0A /* Poppins-ThinItalic.ttf in Resources */,
+				03459DB4699A4B9FB7C1A7E3 /* log-android.html in Resources */,
+				57913B12490B4A92BAA9646A /* log-ios.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
