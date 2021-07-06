@@ -1,5 +1,5 @@
 import {IS_UNICODE} from './lang';
-import {STRUCT, USER, ROUTE} from './default';
+import {STRUCT, USER, ROUTE, DESTINATION} from './default';
 import { offlineActionTypes } from 'react-native-offline';
 
 const initialState = {
@@ -12,8 +12,11 @@ const initialState = {
   outboundList: [],
   manifestList: [],
   // for prototype only
+  currentPositionData: null,
   completedInboundList: [],
   barcodeScanned: [],
+  currentDeliveringAddress: null,
+  deliveryDestinationData: DESTINATION,
   // end
   filters: {
     status: IS_UNICODE,
@@ -35,6 +38,7 @@ const initialState = {
     locationPermission: false,
     cameraPermission: false,
     readStoragePermission: false,
+    backgroundlocationPermission: false,
     writeStoragePermission: false,
     isLoading: false,
     isGlobalLoading: false,
@@ -144,6 +148,14 @@ export default function appReducer(state = initialState, action) {
               locationPermission: action.payload,
             },
           };
+          case 'backgroundlocationPermission':
+            return {
+              ...state,
+              filters: {
+                ...state.filters,
+                backgroundlocationPermission: action.payload,
+              },
+            };
           case 'readStoragePermission':
             return {
               ...state,
@@ -349,7 +361,11 @@ export default function appReducer(state = initialState, action) {
             steps : state.route.routes.hasOwnProperty(action.payload.uuid) ? state.route.routes[action.payload.uuid] : false, 
             markers : action.payload.orders,
             stat :  state.route.stats.hasOwnProperty(action.payload.uuid) ? state.route.stats[action.payload.uuid] : [],
-          }
+          },
+          deliveryDestinationData: {
+            ...initialState.deliveryDestinationData,
+          },
+          currentDeliveringAddress: initialState.currentDeliveringAddress,
         };
       case 'Loading':
         return {
@@ -393,6 +409,51 @@ export default function appReducer(state = initialState, action) {
               action.payload,
             ],
           };
+          case 'CurrentPositionData':
+            return {
+              ...state,
+              currentPositionData: action.payload,
+            };
+          case 'DeliveryDestinationData':
+            if (action.payload === null) {
+              return {
+                ...state,
+                deliveryDestinationData: initialState.deliveryDestinationData,
+              };
+            } else {
+              let statIndex = state.route.dataPackage.findIndex(
+                (o) =>
+                  o.coords.lat === action.payload.destinationCoords.latitude &&
+                  o.coords.lng === action.payload.destinationCoords.longitude,
+              );
+             // state.route.statAPI[statIndex] = action.payload.statAPI;
+              return {
+                ...state,
+                deliveryDestinationData: {
+                  ...action.payload,
+                },
+                route: {
+                  ...state.route,
+                  steps: {
+                    ...state.route.steps,
+                  //  [action.payload.destinationid]: action.payload.steps,
+                  },
+                  statsAPI: {
+                    ...state.route.statsAPI,
+                    [state.route.id]: {
+                      ...state.route.statsAPI[state.route.id],
+                     // [statIndex]: action.payload.statAPI,
+                    },
+                  },
+                  //statAPI: [...state.route.statAPI],
+                },
+              };
+            }
+          case 'CurrentDeliveringAddress':
+            return {
+              ...state,
+              currentDeliveringAddress: action.payload,
+            };
       // end
       // Do something here based on the different types of actions
     default:

@@ -13,7 +13,7 @@ import {createCompatNavigatorFactory} from '@react-navigation/compat';
 // icons
 import IconDelivery8Mobile from '../../../assets/icon/iconmonstr-delivery-8 1mobile.svg';
 import IconMenu11Mobile from '../../../assets/icon/iconmonstr-menu-11mobile.svg';
-
+import Mixins from '../../../mixins';
 import IconArrow66Mobile from '../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
 class Example extends React.Component {
@@ -143,14 +143,9 @@ class Example extends React.Component {
             },
           })
         },
-        headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-        ...Platform.select({
-          ios: {
-            marginHorizontal: 20,
-          },
-        })
-        },
-        headerBackTitleVisible:false,
+        headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22, alignSelf: 'center'},
+        headerBackTitleVisible:true,
+        headerBackTitle: 'Back',
         headerLeftContainerStyle:  Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
         headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
         header: (props) => {

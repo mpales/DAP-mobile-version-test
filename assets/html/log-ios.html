@@ -1,0 +1,17 @@
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/browser-signature@1.0.4/dist/browser-signature.umd.js" ></script>
+        <script>
+            const signature = browserSignature();
+            let postMessage = window.parent.postMessage;
+            if(window.ReactNativeWebView) {
+                postMessage = window.ReactNativeWebView.postMessage;
+            }
+            if(window.top.ReactNativeWebView){
+              postMessage = window.top.ReactNativeWebView.postMessage;
+            }
+          postMessage(signature);
+        </script>
+    </head>
+    <body></body>
+</html>

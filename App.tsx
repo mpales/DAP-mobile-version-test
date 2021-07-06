@@ -33,7 +33,7 @@ import Signature from './Browser';
 import {NavigationContainer, TabRouter  } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import Mixins from './mixins';
-import {Input} from './input';
+import {LoginInput} from './input';
 import {FadeInView} from './animated';
 import {AnyAction, Dispatch} from 'redux';
 import {connect, Provider, shallowEqual, useSelector ,useDispatch} from 'react-redux';
@@ -52,8 +52,8 @@ class App extends React.Component<IProps, {}> {
   constructor(props: IProps | Readonly<IProps>){
     super(props);
     this.state = {
-      text: 'Initial Placeholder',
-      textTwo: 'Initial Two',
+      email: '',
+      password: '',
       keyboardState: 'closed',
       transitionTo: 0,
       submit: false,
@@ -75,20 +75,17 @@ class App extends React.Component<IProps, {}> {
   componentDidMount(){
     this.props.logout();
   }
+
   componentDidUpdate(prevProps, prevState, snapshot) { 
-    if(this.props.roletype !== prevProps.roletype){ 
-      if(this.state.submit === true){
+    if(prevState.submit !== this.state.submit && this.state.submit === true){ 
         if(this.props.roletype === 'Warehouse'){
           this.props.navigation.navigate('MenuWarehouse');
         } else {
           this.props.navigation.navigate('Details');
         }
-      }
-    } else {
-      if(this.state.submit === true){
+    } else if(prevState.submit === this.state.submit && this.state.submit === true) {
         this.setState({submit: false});
         this.props.logout();
-      }
     }
   }
   webWorker() {}
@@ -111,23 +108,23 @@ class App extends React.Component<IProps, {}> {
   };
 
   onChangeTextTwo(text: any) {
-    this.setState({textTwo: text});
+    this.setState({email: text});
   }
   onSubmited(e: any) {
-    this.setState({textTwo: e.nativeEvent.text});
+    this.setState({email: e.nativeEvent.text});
 
-    const {textTwo} = this.state;
-    this.props.login(textTwo);
+    const {email} = this.state;
+    this.props.login(email);
   }
   onSubmitToBeranda(e: any) {
-   this.props.login(this.state.textTwo);
+   this.props.login(this.state.email);
    this.setState({submit:true});
   }
   render() {
     return (
-      <SafeAreaProvider>
+      <>
         <StatusBar barStyle="dark-content" />
-        <Signature />
+        <Signature deviceSignature={this.props.deviceSignature} />
         <View style={styles.body}>
           <View style={styles.sectionContainerIMG}>
             <Image
@@ -139,17 +136,21 @@ class App extends React.Component<IProps, {}> {
           <FadeInView
             transition={this.state.transitionTo}
             style={styles.sectionContainerKeyboard}>
-            <Input
+            <LoginInput
               label="Email"
+              value={this.state.email}
               placeholder="Masukan Email / Username"
               onChangeText={this.onChangeTextTwo.bind(this)}
               onSubmitEditing={this.onSubmited.bind(this)}
+              secureTextEntry={false}
             />
-            <Input
+            <LoginInput
               label="Password"
+              value={this.state.password}
               placeholder="password"
               onChangeText={this.onChangeTextTwo.bind(this)}
               onSubmitEditing={this.onSubmited.bind(this)}
+              secureTextEntry={true}
             />
             <View>
               <Text style={styles.buttonTextForgot}>Forgot password?</Text>
@@ -164,7 +165,7 @@ class App extends React.Component<IProps, {}> {
             </TouchableOpacity>
           </View>
         </View>
-      </SafeAreaProvider>
+      </>
     );
   }
 }
@@ -283,10 +284,12 @@ interface IProps {
   textfield: string;
   value: string;
   todos: {};
-  textTwo: string;
+  password: string;
+  email: string;
   login: (text: any) => void;
   logout: () => void;
   onChange: (text: any) => void;
+  deviceSignature: (text: string) => void;
   navigation: any;
   roletype: string;
 }
@@ -310,6 +313,9 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
     logout: () => dispatch({type: 'logout'}),
     onChange: (text: any) => {
       return {type: 'todos', payload: text};
+    },
+    deviceSignature: (text: string) => {
+      return dispatch({type: 'DeviceSignature', payload: text});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
@@ -345,8 +351,10 @@ const NavigationWrapper = (props)=> {
     }, [isConnected]); // Only re-run the effect if count changes
 
 return  (
+  <SafeAreaProvider>
 <NavigationContainer
 onStateChange={filterLoading} {...props} />
+    </SafeAreaProvider>
 );
 }
 

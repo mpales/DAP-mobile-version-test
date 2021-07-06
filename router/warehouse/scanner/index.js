@@ -123,14 +123,14 @@ class Example extends React.Component {
           </View>
         </View>
         <View style={styles.buttonSheet}>
-       
-        <Button
+        {this.props.barcodeScanned.includes(this.state.dataCode) && this.state.dataCode !== '0' && 
+        (<Button
           containerStyle={{flex:1, marginTop: 10,}}
           buttonStyle={styles.navigationButton}
           titleStyle={styles.deliveryText}
           onPress={() => this.onSubmit()}
           title="Scan Items"
-        />
+        />) }
       
         
         </View>
@@ -189,7 +189,6 @@ class Example extends React.Component {
     const { dataCode } = this.state;
     return (
       <View style={styles.container}>
-        {parseInt(dataCode) !== 0 && 
           <Modalize 
             ref={this.modalizeRef}
             handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
@@ -201,7 +200,6 @@ class Example extends React.Component {
           >
             <this.renderInner />
           </Modalize>
-        }
         <TouchableWithoutFeedback onPress={() => {}}>
           <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} />
         </TouchableWithoutFeedback>

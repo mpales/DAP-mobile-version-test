@@ -6,5 +6,8 @@ module.exports = {
       },
     },
   },
-  assets: ['./assets/fonts'],
+  assets: ['./assets/fonts','./assets/html'],
+  assetExts: [
+    ".ttf", ".html",
+  ]
 };

@@ -6,6 +6,7 @@ import {
   Animated,
   TouchableOpacity,
   Text,
+  NativeModules,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {
@@ -20,8 +21,10 @@ import Location from './interface/geoCoordinate'
 import GEO from './interface/geoConditional';
 import Geojson from './section/GeoJSON';
 import Util from './interface/leafletPolygon';
+import Distance from './interface/spatialIterative';
 import {connect} from 'react-redux';
-
+import Geolocation from 'react-native-geolocation-service';
+const {RNFusedLocation} = NativeModules;
 const screen = Dimensions.get('window');
 
 //camera aspect
@@ -32,8 +35,8 @@ const LATITUDE = 1.3287109;
 const LONGITUDE = 103.8476682;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
-class AnimatedMarkers extends React.Component {
-  
+class MapAddress extends React.Component {
+  static Beacon = null;
   constructor(props) {
     super(props);
     const COORDINATES = this.props.steps;
@@ -61,6 +64,7 @@ class AnimatedMarkers extends React.Component {
     
     //let ChangeOrder = Polygon.translateToOrder([marker[1],marker[2],marker[0]]);
     //console.log(LayerGroup);
+    
      this.state = {
       markers,
       index: index,
@@ -76,7 +80,47 @@ class AnimatedMarkers extends React.Component {
   }
 
 
+  componentDidMount() {
+    const {region} = this.state;
+    const {markers,steps} = this.props;
+    if(this.props.route_id !== 0){
+      let destination = new Location(markers[0][0], markers[0][1]);
+      if (MapAddress.Beacon instanceof Distance === false) {
+        MapAddress.Beacon = new Distance(destination);
+      } else if (
+        MapAddress.Beacon.checkDestination(destination) === false
+      ) {
+        MapAddress.Beacon = new Distance(destination);
+      }
+      let watchID = Geolocation.watchPosition(
+        ({coords}) => {
+    
+          let camera = MapAddress.Beacon.bound(ASPECT_RATIO,coords, steps);
+          region
+          .spring({
+            latitudeDelta: camera.latitudeDelta,
+            longitudeDelta: camera.longitudeDelta,
+            latitude: camera.latitude,
+            longitude: camera.longitude,
+            useNativeDriver: false,
+          })
+          .start();
+          Geolocation.clearWatch(watchID);
+          RNFusedLocation.stopObserving();
+        },
+        () => {},
+        {
+          timeout: 300,
+          maximumAge: 50,
+          enableHighAccuracy: true,
+          useSignificantChanges: false,
+          distanceFilter: 0,
+        },
+      );
+    }
+  
 
+  }
   componentDidUpdate(prevProps, prevState, snapshot) {
     if(prevProps.route_id !== this.props.route_id){
       const COORDINATES = this.props.steps;
@@ -97,6 +141,41 @@ class AnimatedMarkers extends React.Component {
         //console.log(Polygon.setLatLng(this.props.orders));
        // Polygon.translateToOrder(Polygon.setLatLng(this.props.orders));
         const GeoJSON = LayerGroup.toGeoJSON();
+        let destination = new Location(markers[0][0], markers[0][1]);
+        if (MapAddress.Beacon instanceof Distance === false) {
+          MapAddress.Beacon = new Distance(destination);
+        } else if (
+          MapAddress.Beacon.checkDestination(destination) === false
+        ) {
+          MapAddress.Beacon = new Distance(destination);
+        }
+        let watchID = Geolocation.watchPosition(
+          ({coords}) => {
+      
+            let camera = MapAddress.Beacon.bound(ASPECT_RATIO,coords, COORDINATES);
+            console.log('test');
+            this.state.region
+            .spring({
+              latitudeDelta: camera.latitudeDelta,
+              longitudeDelta: camera.longitudeDelta,
+              latitude: camera.latitude,
+              longitude: camera.longitude,
+              useNativeDriver: false,
+            })
+            .start();
+            Geolocation.clearWatch(watchID);
+            RNFusedLocation.stopObserving();
+          },
+          () => {},
+          {
+            timeout: 300,
+            maximumAge: 50,
+            enableHighAccuracy: true,
+            useSignificantChanges: false,
+            distanceFilter: 0,
+          },
+        );
+    
       this.setState({
         GeoJSON
       });
@@ -131,7 +210,7 @@ class AnimatedMarkers extends React.Component {
   }
 }
 
-AnimatedMarkers.propTypes = {
+MapAddress.propTypes = {
   provider: ProviderPropType,
 };
 
@@ -155,4 +234,4 @@ function mapStateToProps(state) {
 }
 
 
-export default connect(mapStateToProps, null, null, { pure: true })(AnimatedMarkers);
+export default connect(mapStateToProps, null, null, { pure: true })(MapAddress);

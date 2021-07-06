@@ -1,12 +1,14 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-platform :ios, '14.0'
+platform :ios, '11.0'
 
 pod 'Firebase/Analytics'
 pod 'Firebase/Auth'
 pod 'Firebase/Firestore'
 pod 'Firebase/Core'
+pod 'Firebase/MLVision'
+pod 'Firebase/MLVisionBarcodeModel' 
 
 target 'transportApp' do
   
@@ -22,6 +24,7 @@ target 'transportApp' do
    
   pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
   pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
+  pod 'Permission-Notifications', :path => "#{permissions_path}/Notifications"
   
   pod 'react-native-camera', path: '../node_modules/react-native-camera',subspecs:['BarcodeDetectorMLKit']
   use_react_native!(
@@ -43,7 +46,7 @@ target 'transportApp' do
     # Pods for testing
   end
 
-  # Enables Flipper.
+ # Enables Flipper.
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
   # you should disable the next line.

@@ -22,6 +22,7 @@ import {
 import {Dimensions, Platform} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {AnyAction, Dispatch} from 'redux';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {connect, Provider} from 'react-redux';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import ListChat from '../../../component/extend/ListItem-chat';
@@ -114,15 +115,10 @@ class Notification extends React.Component {
       initialRouteName: 'List',
       headerMode: 'screen',
       defaultNavigationOptions: {
-        headerTitleStyle: {...Mixins.h6,fontWeight: '400',lineHeight: 22,
-        ...Platform.select({
-          ios: {
-            marginHorizontal: 20,
-          },
-        })
-        },
+        headerBackTitleVisible:true,
+        headerBackTitle: 'Back',
+        headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22, alignSelf: 'center'},
         headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
-        headerBackTitleVisible:false,
         headerLeftContainerStyle:  Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
         header: (props) => {
           let state = props.navigation.dangerouslyGetState();
@@ -141,6 +137,7 @@ class Notification extends React.Component {
   );
   render() {
     return <this.StackSelector />;
+ 
   }
 }
 
