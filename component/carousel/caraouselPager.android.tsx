@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ViewPagerAndroid} from 'react-native';
+import ViewPagerAndroid from 'react-native-pager-view';
 type Props = {
   width: number;
   height: number;
