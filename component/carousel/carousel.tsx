@@ -2,7 +2,7 @@ import React, {Component, Children} from 'react';
 import {Dimensions, Text, View} from 'react-native';
 // @ts-ignore
 import TimerMixin from 'react-timer-mixin';
-import CarouselPager from './caraouselPager.d';
+import CarouselPager from './caraouselPager.android';
 import styles from './styles/carousel';
 type Props = {
   hideIndicators: boolean;
@@ -107,7 +107,7 @@ export default class Carousel extends Component {
     this.setState({
       activePage,
     });
-    this.pager.scrollToPage(activePage);
+    this.pager !== null ? this.pager.scrollToPage(activePage) : null;
   }
 
   _resetPager() {
