@@ -1,8 +1,12 @@
 import React from 'react';
-import {Text, Button,Image, Input} from 'react-native-elements';
+import {Text, Button,Image, Input, Avatar} from 'react-native-elements';
 import {View} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
+
+import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
+import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
+
 
 class Acknowledge extends React.Component {
   constructor(props) {
@@ -94,11 +98,44 @@ class Acknowledge extends React.Component {
                 placeholder="DSP"
             />
          </View>
+         <View style={{alignItems: 'center',justifyContent: 'center'}}>
+
+         <Avatar
+                size={79}
+                ImageComponent={() => (
+                  <>
+                    <IconPhoto5 height="40" width="40" fill="#fff" />
+                    {this.props.photoProofPostpone !== null && (
+                      <Checkmark
+                        height="20"
+                        width="20"
+                        fill="#fff"
+                        style={styles.checkmark}
+                      />
+                    )}
+                  </>
+                )}
+                imageProps={{
+                  containerStyle: {
+                    alignItems: 'center',
+                    paddingTop: 18,
+                    paddingBottom: 21,
+                  },
+                }}
+                overlayContainerStyle={{
+                  backgroundColor: this.props.photoProofPostpone !== null
+                    ? '#17B055'
+                    : '#F07120',
+                  flex: 2,
+                  borderRadius: 5,
+                }}/>
+         </View>
          <Button
               containerStyle={{flex:1, marginRight: 20,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={()=>{
+                this.props.addPhotoProofPostpone( null );
                 this.props.setBottomBar(false);
                 this.props.navigation.navigate('Manifest')}}
               title="Start Receiving"
@@ -219,6 +256,7 @@ function mapStateToProps(state) {
     userRole: state.originReducer.userRole,
     isPhotoProofSubmitted: state.originReducer.filters.isPhotoProofSubmitted,
     isSignatureSubmitted: state.originReducer.filters.isSignatureSubmitted,
+    photoProofPostpone: state.originReducer.photoProofPostpone,
   };
 }
 
@@ -233,7 +271,8 @@ const mapDispatchToProps = (dispatch) => {
     setBottomBar: (toggle) => dispatch({type: 'BottomBar', payload: toggle}),
     setStartDelivered : (toggle) => {
       return dispatch({type: 'startDelivered', payload: toggle});
-    }
+    },
+    addPhotoProofPostpone: (uri) => dispatch({type: 'PhotoProofPostpone', payload: uri}),
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };
