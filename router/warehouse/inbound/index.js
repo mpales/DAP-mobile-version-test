@@ -17,6 +17,7 @@ import ReceivingDetail from './receivingDetail';
 import itemDetail from './itemDetail';
 import newItem from './newItem';
 import Mixins from '../../../mixins';
+import SingleCamera from '../peripheral/cameraSingle';
 import {SafeAreaView} from 'react-native-safe-area-context';
 const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
@@ -239,6 +240,26 @@ class HomeNavigator extends React.Component {
          <Stack.Screen
           name="newItem"
           component={newItem}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+          })}
+        />
+          <Stack.Screen
+          name="SingleCamera"
+          component={SingleCamera}
           options={() => ({
             headerStyle: {
               backgroundColor: '#121C78',

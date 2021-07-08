@@ -5,6 +5,7 @@ import { offlineActionTypes } from 'react-native-offline';
 const initialState = {
   todos: STRUCT,
   userRole: USER,
+  photoProofPostpone: null,
   photoProofList: [],
   route: ROUTE,
   inboundList: [],
@@ -210,6 +211,11 @@ export default function appReducer(state = initialState, action) {
         ...state,
         photoProofList: action.payload,
       };
+      case 'PhotoProofPostpone':
+        return {
+          ...state,
+          photoProofPostpone: action.payload,
+        };
     case 'PhotoProof':
       return {
         ...state,
