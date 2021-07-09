@@ -62,7 +62,7 @@ class CameraSingle extends React.Component {
             this.props.addPhotoProofPostpone( null );
         }
         this.setState({pictureData: null});
-        this.props.navigation.navigate('Cancel');
+        this.props.navigation.goBack();
     }
 
 

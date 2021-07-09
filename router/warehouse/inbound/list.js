@@ -23,7 +23,8 @@ import Inbound from '../../../component/extend/ListItem-inbound';
 import Mixins from '../../../mixins';
 //icon
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
-
+import moment from 'moment';
+import { element } from 'prop-types';
 const window = Dimensions.get('window');
 
 class List extends React.Component {
@@ -33,6 +34,8 @@ class List extends React.Component {
             search: '',
             filtered : 0,
         };
+
+    this.updateASN.bind(this);
     this.setFiltered.bind(this);
     this.updateSearch.bind(this);
     }
@@ -42,8 +45,48 @@ class List extends React.Component {
     setFiltered = (num)=>{
         this.setState({filtered:num});
     }
+    updateASN = ()=>{
+        const {activeASN,completeASN} = this.props;
+        return Array.from({length: ASN.length}).map((num, index) => {
+            console.log(activeASN);
+            console.log(completeASN);
+            return {
+                ...ASN[index],
+                status: completeASN.includes(ASN[index].number) ? 'complete' : activeASN.includes(ASN[index].number) ? 'progress': 'unprogress',
+            };
+          });
+    }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+
+        let filtered = prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
+        if(filtered === 0) {
+            this.updateASN(ASN).sort((a,b)=>{
+                return   a.timestamp <   b.timestamp ? 1 : -1;  
+            })
+            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.number.indexOf(this.state.search) > -1));
+        } else if(filtered === 1){
+            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'unprogres').filter((element)=> element.number.indexOf(this.state.search) > -1));
+        } else if(filtered === 2){
+            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'progress').filter((element)=> element.number.indexOf(this.state.search)> -1));
+        }else if(filtered === 3){
+            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'complete').filter((element)=> element.number.indexOf(this.state.search) > -1));
+        }
+    }
     componentDidMount() {
-        this.props.setInboundLIst(inboundList)
+
+        const {filtered} = this.state;
+        if(filtered === 0) {
+            this.updateASN(ASN).sort((a,b)=>{
+                return   a.timestamp <   b.timestamp ? 1 : -1;  
+            })
+            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.number.indexOf(this.state.search) > -1));
+        } else if(filtered === 1){
+            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'unprogres').filter((element)=> element.number.indexOf(this.state.search) > -1));
+        } else if(filtered === 2){
+            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'progress').filter((element)=> element.number.indexOf(this.state.search) > -1));
+        }else if(filtered === 3){
+            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'complete').filter((element)=> element.number.indexOf(this.state.search) > -1));
+        }
     }
     render() {
         return(
@@ -84,46 +127,73 @@ class List extends React.Component {
                         <Badge
                     value="All"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.props.setFiltered(0)}
+                    onPress={()=> this.setFiltered(0)}
                     badgeStyle={this.state.filtered === 0 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
                     value="Unprogress"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.props.setFiltered(1)}
+                    onPress={()=> this.setFiltered(1)}
                     badgeStyle={this.state.filtered === 1 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
                     value="Progress"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.props.setFiltered(2)}
+                    onPress={()=> this.setFiltered(2)}
                     badgeStyle={this.state.filtered === 2 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
                     value="Complete"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.props.setFiltered(3)}
+                    onPress={()=> this.setFiltered(3)}
                     badgeStyle={this.state.filtered === 3 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                             </View>
-                            {this.props.inboundList.map((data, i) => (
+                            {this.props.inboundList.map((data, i, arr) => {
+                                let printdate = i === 0 || moment.unix(data.timestamp).isSame(moment.unix(arr[i -1].timestamp), 'day') === false
+                                return (
+                                <>
+                                {printdate && 
+                                <View style={{paddingVertical: 10}}><Text style={{...Mixins.small1,fontWeight: '300',lineHeight: 18}}>{moment.unix(data.timestamp).calendar(null, {
+                                    sameDay: '[Today] , D MMMM YYYY',
+                                    nextDay: '[Tomorrow] , D MMMM YYYY',
+                                    nextWeek: 'dddd , D MMMM YYYY',
+                                    lastDay: '[Yesterday] , D MMMM YYYY',
+                                    lastWeek: '[Last] dddd , D MMMM YYYY',
+                                    sameElse: 'D MMMM YYYY'
+                                })}</Text></View>
+                                }
                                 <Inbound 
                                     key={i} 
                                     index={i} 
                                     item={data} 
                                     ToManifest={()=>{
                                         this.props.setBottomBar(true);
-                                        this.props.navigation.navigate('ReceivingDetail');
+                                        if(data.status !== 'unprogress') {
+                                           this.props.setCurrentASN(data.number);
+                                            this.props.navigation.navigate(   {
+                                                name: 'Manifest',
+                                                params: {
+                                                  number: data.number,
+                                                },
+                                              });
+                                        } else {
+                                            this.props.navigation.navigate(   {
+                                                name: 'ReceivingDetail',
+                                                params: {
+                                                  number: data.number,
+                                                },
+                                              });
+                                        }
                                     }}
-                                    // for prototype only
-                                    completedInboundList={this.props.completedInboundList}
-                                    // end
+                               
                                 />
-                            ))}
+                                </>
+                            )})}
                         </Card>
                     </View>
                 </ScrollView>
@@ -236,76 +306,38 @@ const styles = StyleSheet.create({
           color: '#121C78'
         },
 });
-
-const inboundList = [
-    {
-        code: 'WHUS00018789719',
-        total_package: 50,
-        date: '12/03/2021',
-        CBM: 20.10,
-        weight: 115,
-        status: 'onProgress'
-    },
-    {
-        code: 'WHUS00018789720',
-        total_package: 20,
-        date: '12/03/2021',
-        CBM: 10.10,
-        weight: 70
-    },
-    {
-        code: 'WHUS00018789721',
-        total_package: 30,
-        date: '12/03/2021',
-        CBM: 15.10,
-        weight: 90,
-        status: 'onProgress',
-    },
-    {
-        code: 'WHUS00018789722',
-        total_package: 50,
-        date: '12/03/2021',
-        CBM: 20.10,
-        weight: 115,
-    },
-    {
-        code: 'WHUS00018789723',
-        total_package: 20,
-        date: '12/03/2021',
-        CBM: 10.10,
-        weight: 90
-    },
-    {
-        code: 'WHUS00018789724',
-        total_package: 30,
-        date: '12/03/2021',
-        CBM: 15.10,
-        weight: 70
-    },
-    {
-        code: 'WHUS00018789725',
-        total_package: 50,
-        date: '12/03/2021',
-        CBM: 20.10,
-        weight: 115
-    },
+const ASN = [
+    {'number':'PO00001234','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+    {'number':'PO00001222','timestamp':moment().subtract(4, 'days').unix(),'transport':'DSP','status':'complete','desc':'Roboto', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+    {'number':'PO00001221','timestamp':moment().subtract(3, 'days').unix(),'transport':'DSP','status':'unprogres','desc':'Poopie', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+    {'number':'PO00001225','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+    {'number':'PO00001223','timestamp':moment().unix(),'transport':'DSP','status':'unprogres','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+    {'number':'PO00001224','timestamp':moment().unix(),'transport':'DSP','status':'unprogres','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+    {'number':'PO00001235','timestamp':moment().unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+    {'number':'PO00001236','timestamp':moment().unix(),'transport':'DSP','status':'unprogres','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+    {'number':'PO00001237','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+    {'number':'PO00001238','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
 ];
 
 function mapStateToProps(state) {
     return {
+        activeASN : state.originReducer.filters.activeASN,
+        completeASN : state.originReducer.filters.completeASN,
         inboundList: state.originReducer.inboundList,
         completedInboundList: state.originReducer.completedInboundList,
     };
   }
   
 const mapDispatchToProps = (dispatch) => {
-    return {
-      
+    return { 
     setInboundLIst: (data) => {
             return dispatch({type: 'InboundList', payload: data});
         },
       setBottomBar: (toggle) => {
         return dispatch({type: 'BottomBar', payload: toggle});
+      },
+      setCurrentASN : (data)=> {
+        return dispatch({type:'setASN', payload: data});
       },
       //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
     };

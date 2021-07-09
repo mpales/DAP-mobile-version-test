@@ -19,6 +19,7 @@ const styles = {
   sectionContainer: {
     marginHorizontal: 14,
     paddingVertical: 12,
+    flexGrow: 1,
   },
   titleText: {
     color: '#6C6B6B',
@@ -43,7 +44,21 @@ const styles = {
 
     elevation: 5,
   },
- 
+  labelContainer : {
+    flexShrink: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    marginHorizontal: 0,
+    padding:3,
+    alignSelf: 'stretch',
+  },
+  labelText: {
+    ...Mixins.small1,
+    fontWeight: '400',
+    lineHeight: 18,
+    color:'#ABABAB',
+    alignSelf: 'flex-end',
+  },
   leftList: {
     backgroundColor: 'grey',
     flexShrink: 1,
@@ -51,6 +66,12 @@ const styles = {
     borderRadius: 5,
     alignSelf: 'stretch',
   },
+  descText: {
+    ...Mixins.small1,
+    fontWeight: '400',
+    lineHeight: 18,
+    color:'#ABABAB'
+  }
 };
 const theme = {
   ListItem: {
@@ -73,8 +94,27 @@ const theme = {
   ListItemContent: {
     containerStyle: styles.sectionContainer,
   },
+  ListItemChevron: {
+    containerStyle: {
+      flexShrink: 1,
+    },
+  }
 };
 const Manifest = ({item, index, isActive, ToManifest}) => {
+  let status = 'grey';
+  switch (item.status) {
+    case 'complete':
+      status = 'green';
+      break;
+      case 'progress':
+        status = 'orange';
+        break;
+        case 'unprogress':
+          status = 'grey';
+          break;
+    default:
+      break;
+  }
   return (
     <ThemeProvider theme={theme}>
       <ListItem
@@ -82,26 +122,32 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         Component={TouchableScale}
         friction={90} //
         tension={100} // These props are passed to the parent component (here TouchableScale)
-        activeScale={0.95}>
-        <View style={styles.leftList}>
+        activeScale={0.95}
+        pad={0}>
+        <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
         <ListItem.Content style={styles.sectionContainer}>
         <ListItem.Title style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
-        PO Number
+        ASN Number
         </ListItem.Title>
         <ListItem.Subtitle style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
-        {item.code}
+        {item.number}
         </ListItem.Subtitle>
+        <Text style={styles.descText}>{item.desc}</Text>
         </ListItem.Content>
+        <View style={styles.labelContainer}>
+        <Badge value={item.status} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 10,}} containerStyle={{alignSelf: 'flex-start',}} />
+        <Text style={styles.labelText}>{item.transport}</Text>
+        </View>
         <ListItem.Chevron
-            size={26}
+            size={16}
             color="#2D2C2C"
             Component={(props)=>(
               <Button
                 {...props}
                 type="clear"
                 icon={
-                  <IconArrow66Mobile height="16" width="26" fill="#2D2C2C"/>
+                  <IconArrow66Mobile height="26" width="26" fill="#2D2C2C"/>
                 }
               />)}
             onPress={ToManifest}

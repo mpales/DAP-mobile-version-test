@@ -22,17 +22,32 @@ class Example extends React.Component {
     super(props);
     this.state = {
       dataCode: '0',
+      qty: 0,
+      dataItem: null,
     };
     this.renderBarcode.bind(this);
     this.modalizeRef = React.createRef();
   }
 
-  componentDidUpdate(prevProps, prevStates) {
-    if(prevProps.route !== this.props.route) {
-      this.setState({
-        dataCode: this.props.route.params.inputCode,
-      });
+  static getDerivedStateFromProps(props,state){
+    const {manifestList, currentASN, navigation} = props;
+    const {dataCode, dataItem} = state;
+    if(dataCode === '0'){
+      const {routes, index} = navigation.dangerouslyGetState();
+      if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined) {
+        return {...state, dataCode: routes[index].params.inputCode};
+      }
+      return {...state};
+    } else if (dataCode !== 0 && dataItem === null && manifestList.some((element) => element.code === dataCode)) {
+      let item = manifestList.find((element)=>element.code === dataCode);
+      return {...state, dataItem: item, qty: item.scanned}
     }
+    
+    return {...state};
+  }
+
+  componentDidUpdate(prevProps, prevStates) {
+   
   }
 
   renderInner = () => (
@@ -42,47 +57,55 @@ class Example extends React.Component {
             <View style={[styles.sectionDividier, {alignItems: 'center', justifyContent: 'space-between'}]}>
             <View style={styles.dividerContent}>
                 <Text style={styles.labelPackage}>Barcode Number</Text>
-                <Text style={[styles.infoPackage,this.props.barcodeScanned.includes(this.state.dataCode) ? {backgroundColor:'green'} : this.state.dataCode !== '0' ? {backgroundColor:'red'} : {backgroundColor:'transparent'}]}>{this.state.dataCode}</Text>
+                <Text style={[styles.infoPackage, this.dataItem !== null && this.dataItem !== undefined ? {backgroundColor:'green'} : this.state.dataCode !== '0' ? {backgroundColor:'red'} : {backgroundColor:'transparent'}]}>{this.state.dataCode}</Text>
               </View>
             </View>
             <View style={styles.sectionDividier}>
               <View style={styles.dividerContent}>
                 <Text style={styles.labelPackage}>Description</Text>
-                <Text style={styles.infoPackage}>Chair</Text>
+                <Text style={styles.infoPackage}>{this.state.dataItem !== null ? this.state.dataItem.name : null}</Text>
               </View>
               <View style={styles.dividerContent}>
                 <Text style={styles.labelPackage}>Color</Text>
-                <Text style={styles.infoPackage}>Red</Text>
+                <Text style={styles.infoPackage}>{this.state.dataItem !== null ? this.state.dataItem.color : null}</Text>
               </View>
             </View>
+            {this.state.dataItem !== null && (<>
             <View style={styles.sectionDividier}>
               <View style={styles.dividerContent}>
                 <Text style={styles.deliverTitle}>Qty</Text>
               </View>
               <View style={styles.dividerInput}>
-              <Badge value="+" status="error" containerStyle={{paddingVertical:6}} />
+              <Badge value="+" status="error" onPress={()=>{
+                const {qty,dataItem} = this.state;
+                this.setState({qty:  qty < dataItem.total_package ? qty+1: qty});
+              }} containerStyle={{paddingVertical:6}} />
               <Input 
                 containerStyle={{flex: 1,paddingVertical:0}}
                 inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="0"
+                placeholder={''+this.state.qty}
+                disabled={true}
                 />
-                <Badge value="-" status="error" containerStyle={{paddingVertical:6}} />
+                <Badge value="-" status="error" onPress={()=>{
+                const {qty,dataItem} = this.state;
+                this.setState({qty: dataItem.total_package > qty && qty > 0 ? qty-1 : qty});
+              }}  containerStyle={{paddingVertical:6}} />
               </View>
             </View>
+            </>)}
+            
         </View>
         <View style={styles.buttonSheet}>
-        {this.props.barcodeScanned.includes(this.state.dataCode) &&
+        {this.state.dataItem !== null ?
         (<Button
           containerStyle={{flex:1, marginTop: 10,}}
           buttonStyle={styles.navigationButton}
           titleStyle={styles.deliveryText}
           onPress={() => this.onSubmit()}
           title="Confirm"
-        />)}
-        {this.props.barcodeScanned.includes(this.state.dataCode) === false  && this.state.dataCode !== '0' &&
-        (<Button
+        />) : this.state.dataCode !== '0' ? (<Button
           containerStyle={{flex:1, marginTop: 10,}}
           buttonStyle={styles.navigationButton}
           titleStyle={styles.deliveryText}
@@ -90,7 +113,7 @@ class Example extends React.Component {
             this.props.setBottomBar(false);
             this.props.navigation.navigate('newItem',{dataCode: this.state.dataCode})}}
           title="Register New Item"
-        />)}
+        />) :null}
         
         </View>
         <View style={styles.buttonSheet}>
@@ -128,19 +151,23 @@ class Example extends React.Component {
       this.setState({dataCode: barcode[0].data});
     }
   };
-
+  makeScannedItem = (dataCode, qty) => {
+    return Array.from({length: qty}).map((num, index) => {
+      return dataCode;
+    });
+  };
   onSubmit = () => {
+    const {dataCode,qty} = this.state;
     this.props.setBarcodeScanner(true);
     this.setState({
       dataCode: '0',
     });
     // for prototype only
-    (this.props.barcodeScanned.length > 0)
-     ? this.props.barcodeScanned.push(this.props.barcodeScanned[this.props.barcodeScanned.length - 1] + 1)
-     : this.props.barcodeScanned.push(0);
-    // end
+    let arr = this.makeScannedItem(dataCode,qty);
+    console.log(arr);
+    this.props.setItemScanned(arr);
     this.props.setBottomBar(false);
-    this.props.navigation.navigate('itemDetail');
+    this.props.navigation.navigate('Manifest');
   }
 
   render() {
@@ -310,8 +337,9 @@ function mapStateToProps(state) {
     ManifestCompleted: state.originReducer.filters.manifestCompleted,
     detectBarcode: state.originReducer.filters.isBarcodeScan,
     // for prototype only
-    barcodeScanned: state.originReducer.barcodeScanned,
+    barcodeScanned: state.originReducer.filters.barcodeScanned,
     // end
+    manifestList: state.originReducer.manifestList,
   };
 }
 
@@ -322,6 +350,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setBarcodeScanner: (toggle) => {
       return dispatch({type: 'ScannerActive', payload: toggle});
+    },
+    setItemScanned : (item) => {
+      return dispatch({type: 'BarcodeScanned', payload: item});
     },
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});

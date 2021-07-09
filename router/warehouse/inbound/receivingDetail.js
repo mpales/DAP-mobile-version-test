@@ -3,7 +3,7 @@ import {Text, Button,Image, Input, Avatar} from 'react-native-elements';
 import {View} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
-
+import moment from 'moment';
 import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 
@@ -11,15 +11,57 @@ import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg'
 class Acknowledge extends React.Component {
   constructor(props) {
     super(props);
+    const {routes, index} = this.props.navigation.dangerouslyGetState();
     this.state = {
       bottomSheet: false,
       isShowSignature: false,
+      receivingNumber: routes[index].params.number,
+      data : null,
     };
+  }
+  static getDerivedStateFromProps(props,state){
+    const {inboundList} = props;
+    const {receivingNumber} = state;
+    if(receivingNumber === undefined){
+      return {...state};
+    }
+    if(state.data === null){
+      return {...state, data: inboundList.find((element)=> element.number === receivingNumber)};
+    }
+    return {...state};
+  }
+  shouldComponentUpdate(nextProps, nextState) {
+    if(this.props.keyStack !== nextProps.keyStack){
+      if(nextProps.keyStack === 'ReceivingDetail'){
+        this.props.setBottomBar(true);
+        return true;
+      }
+    }
+    return true;
+  }
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if(prevState.data !== this.state.data){
+      if(this.state.data === undefined) {
+        this.props.addPhotoProofPostpone(null);
+        this.props.navigation.goBack();
+      } else {
+        //
+      }
+    }
+    if(prevState.receivingNumber !== this.state.receivingNumber){
+      this.props.addPhotoProofPostpone(null);
+      if(this.props.receivingNumber === undefined){
+        this.props.navigation.goBack();
+      }
+    }
+  }
+  componentDidMount(){
   }
 
 
 
   render(){
+    const {data} = this.state;
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -31,7 +73,8 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                placeholder={data.transport}
+                disabled={true}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -43,7 +86,8 @@ class Acknowledge extends React.Component {
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                placeholder={data.rcpt}
+                disabled={true}
             />
             <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, alignItems: 'center',marginRight: 10}}>
                    <Text>N</Text>
@@ -58,7 +102,8 @@ class Acknowledge extends React.Component {
                inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                placeholder={data.ref}
+                disabled={true}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -70,7 +115,8 @@ class Acknowledge extends React.Component {
                inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                placeholder={data.number}
+                disabled={true}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -82,7 +128,8 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                placeholder={data.status}
+                disabled={true}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -95,12 +142,15 @@ class Acknowledge extends React.Component {
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                placeholder={moment.unix(data.timestamp).format('DD/MM/YYYY')}
+                disabled={true}
             />
          </View>
-         <View style={{alignItems: 'center',justifyContent: 'center'}}>
-
+         <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
          <Avatar
+          onPress={()=>{
+            this.props.setBottomBar(false);
+            this.props.navigation.navigate('SingleCamera')}}
                 size={79}
                 ImageComponent={() => (
                   <>
@@ -137,8 +187,16 @@ class Acknowledge extends React.Component {
               onPress={()=>{
                 this.props.addPhotoProofPostpone( null );
                 this.props.setBottomBar(false);
-                this.props.navigation.navigate('Manifest')}}
+                this.props.setActiveASN(this.state.receivingNumber);
+                this.props.setCurrentASN(this.state.receivingNumber);
+                this.props.navigation.navigate(  {
+                  name: 'Manifest',
+                  params: {
+                    number: data.number,
+                  },
+                })}}
               title="Start Receiving"
+              disabled={this.props.photoProofPostpone === null ? true : false}
             />
         </View>
     );
@@ -244,8 +302,8 @@ const styles = {
   },
   checkmark: {
     position: 'absolute', 
-    bottom: 62, 
-    right: 16
+    bottom: 5, 
+    right: 5
   },
 };
 function mapStateToProps(state) {
@@ -257,6 +315,8 @@ function mapStateToProps(state) {
     isPhotoProofSubmitted: state.originReducer.filters.isPhotoProofSubmitted,
     isSignatureSubmitted: state.originReducer.filters.isSignatureSubmitted,
     photoProofPostpone: state.originReducer.photoProofPostpone,
+    inboundList: state.originReducer.inboundList,
+    keyStack: state.originReducer.filters.keyStack,
   };
 }
 
@@ -271,6 +331,12 @@ const mapDispatchToProps = (dispatch) => {
     setBottomBar: (toggle) => dispatch({type: 'BottomBar', payload: toggle}),
     setStartDelivered : (toggle) => {
       return dispatch({type: 'startDelivered', payload: toggle});
+    },
+    setCurrentASN : (data)=> {
+      return dispatch({type:'setASN', payload: data});
+    },
+    setActiveASN : (data)=> {
+      return dispatch({type:'addActiveASN', payload: data});
     },
     addPhotoProofPostpone: (uri) => dispatch({type: 'PhotoProofPostpone', payload: uri}),
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
