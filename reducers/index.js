@@ -45,9 +45,12 @@ const initialState = {
     isConnectedSelector: true,
     warehouse_module: '',
     currentASN : null,
+    currentManifest : null,
     activeASN : [],
     completeASN :[],
     barcodeScanned: [],
+    ReportedASN: [],
+    ReportedManifest: null,
   },
 };
 
@@ -266,12 +269,20 @@ export default function appReducer(state = initialState, action) {
           currentASN: action.payload,
         },
       }
+      case 'setCurrentManifest':
+      return {
+        ...state,
+        filters:{
+          ...state.filters,
+          currentManifest: action.payload,
+        },
+      }
     case 'addActiveASN':
       return {
         ...state,
         filters: {
           ...state.filters,
-          completeASN : [
+          activeASN : [
             ...state.filters.activeASN,
             action.payload,
           ],
@@ -282,8 +293,8 @@ export default function appReducer(state = initialState, action) {
         ...state,
         filters: {
           ...state.filters,
-          activeASN : [
-            ...state.filters.activeASN,
+          completeASN : [
+            ...state.filters.completeASN,
             action.payload,
           ],
         },
@@ -444,6 +455,25 @@ export default function appReducer(state = initialState, action) {
             barcodeScanned: action.payload,
           },
         };
+        case 'ReportedManifest':
+          return {
+            ...state,
+            filters: {
+              ...state.filters,
+              ReportedManifest: action.payload,
+            },
+          };
+          case 'ReportedASN':
+            return {
+              ...state,
+              filters: {
+                ...state.filters,
+                ReportedASN: [
+                  ...state.filters.ReportedASN,
+                  action.payload,
+                ],
+              },
+            };
         case 'fromBarcode':
           return {
             ...state,

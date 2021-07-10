@@ -14,9 +14,11 @@ import List from './list';
 import ManualInput from './manualInput';
 import ReportManifest from './reportManifest';
 import ReceivingDetail from './receivingDetail';
-import itemDetail from './containerDetail';
+import containerDetail from './containerDetail';
+import itemReportDetail from './itemReportDetails';
 import newItem from './newItem';
 import Mixins from '../../../mixins';
+import itemDetail from './itemDetails';
 import SingleCamera from '../peripheral/cameraSingle';
 import {SafeAreaView} from 'react-native-safe-area-context';
 const Stack = createStackNavigator();
@@ -105,6 +107,66 @@ class HomeNavigator extends React.Component {
                 <HeaderBackButton  {...props} onPress={()=>{
                   this.props.setBottomBar('true')
                   this.props.navigation.navigate('List');
+                }
+              }
+              />);
+            },
+          })}
+        />
+        <Stack.Screen
+          name="ItemDetail"
+          component={itemDetail}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'Back',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar('false')
+                  this.props.navigation.navigate('Manifest');
+                }
+              }
+              />);
+            },
+          })}
+        />
+         <Stack.Screen
+          name="ItemReportDetail"
+          component={itemReportDetail}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'Back',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar('false')
+                  this.props.navigation.goBack();
                 }
               }
               />);
@@ -218,7 +280,7 @@ class HomeNavigator extends React.Component {
         />
           <Stack.Screen
           name="containerDetail"
-          component={itemDetail}
+          component={containerDetail}
           options={() => ({
             headerStyle: {
               backgroundColor: '#121C78',

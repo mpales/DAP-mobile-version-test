@@ -24,7 +24,7 @@ class ManualInput extends React.Component {
         this.props.navigation.navigate({
             name: 'Barcode',
             params: {
-                inputCode: this.state.inputCode,
+                manualCode: this.state.inputCode,
             }
         });
     }

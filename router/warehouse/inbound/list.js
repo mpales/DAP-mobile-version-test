@@ -33,6 +33,7 @@ class List extends React.Component {
         this.state = {
             search: '',
             filtered : 0,
+            renderGoBack : false,
         };
 
     this.updateASN.bind(this);
@@ -46,46 +47,58 @@ class List extends React.Component {
         this.setState({filtered:num});
     }
     updateASN = ()=>{
-        const {activeASN,completeASN} = this.props;
+        const {activeASN,completeASN, ReportedASN} = this.props;
+        this.setState({renderGoBack: false});
         return Array.from({length: ASN.length}).map((num, index) => {
-            console.log(activeASN);
-            console.log(completeASN);
             return {
                 ...ASN[index],
-                status: completeASN.includes(ASN[index].number) ? 'complete' : activeASN.includes(ASN[index].number) ? 'progress': 'unprogress',
+                status: completeASN.includes(ASN[index].number) ? 'complete' : ReportedASN.includes(ASN[index].number) ? 'reported' : activeASN.includes(ASN[index].number) ? 'progress': 'pending',
             };
           });
     }
+    
+    shouldComponentUpdate(nextProps, nextState) {
+        if(this.props.keyStack !== nextProps.keyStack){
+        if(nextProps.keyStack === 'List'){
+            this.setState({renderGoBack : true});
+            return true;
+        }
+        }
+        return true;
+    }
     componentDidUpdate(prevProps, prevState, snapshot) {
-
-        let filtered = prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
+        let filtered = prevState.renderGoBack !== this.state.renderGoBack || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
         if(filtered === 0) {
-            this.updateASN(ASN).sort((a,b)=>{
+            this.props.setInboundLIst(this.updateASN(ASN).sort((a,b)=>{
                 return   a.timestamp <   b.timestamp ? 1 : -1;  
-            })
-            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.number.indexOf(this.state.search) > -1));
+            }).filter((element)=> element.number.indexOf(this.state.search) > -1));
         } else if(filtered === 1){
-            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'unprogres').filter((element)=> element.number.indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'pending').filter((element)=> element.number.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
             this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'progress').filter((element)=> element.number.indexOf(this.state.search)> -1));
         }else if(filtered === 3){
             this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'complete').filter((element)=> element.number.indexOf(this.state.search) > -1));
+        }else if(filtered === 4){
+            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'reported').filter((element)=> element.number.indexOf(this.state.search) > -1));
         }
+        
     }
     componentDidMount() {
 
         const {filtered} = this.state;
         if(filtered === 0) {
-            this.updateASN(ASN).sort((a,b)=>{
+            this.props.setInboundLIst(
+                this.updateASN(ASN).sort((a,b)=>{
                 return   a.timestamp <   b.timestamp ? 1 : -1;  
-            })
-            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.number.indexOf(this.state.search) > -1));
+            }).filter((element)=> element.number.indexOf(this.state.search) > -1));
         } else if(filtered === 1){
-            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'unprogres').filter((element)=> element.number.indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'pending').filter((element)=> element.number.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
             this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'progress').filter((element)=> element.number.indexOf(this.state.search) > -1));
         }else if(filtered === 3){
             this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'complete').filter((element)=> element.number.indexOf(this.state.search) > -1));
+        }else if(filtered === 4){
+            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'reported').filter((element)=> element.number.indexOf(this.state.search) > -1));
         }
     }
     render() {
@@ -131,8 +144,15 @@ class List extends React.Component {
                     badgeStyle={this.state.filtered === 0 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
+                      <Badge
+                    value="Reported"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(4)}
+                    badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
                           <Badge
-                    value="Unprogress"
+                    value="Pending"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(1)}
                     badgeStyle={this.state.filtered === 1 ? styles.badgeActive : styles.badgeInactive }
@@ -172,8 +192,8 @@ class List extends React.Component {
                                     index={i} 
                                     item={data} 
                                     ToManifest={()=>{
-                                        this.props.setBottomBar(true);
-                                        if(data.status !== 'unprogress') {
+                                        this.props.setBottomBar(false);
+                                        if(data.status !== 'pending') {
                                            this.props.setCurrentASN(data.number);
                                             this.props.navigation.navigate(   {
                                                 name: 'Manifest',
@@ -309,22 +329,24 @@ const styles = StyleSheet.create({
 const ASN = [
     {'number':'PO00001234','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
     {'number':'PO00001222','timestamp':moment().subtract(4, 'days').unix(),'transport':'DSP','status':'complete','desc':'Roboto', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
-    {'number':'PO00001221','timestamp':moment().subtract(3, 'days').unix(),'transport':'DSP','status':'unprogres','desc':'Poopie', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+    {'number':'PO00001221','timestamp':moment().subtract(3, 'days').unix(),'transport':'DSP','status':'pending','desc':'Poopie', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
     {'number':'PO00001225','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
-    {'number':'PO00001223','timestamp':moment().unix(),'transport':'DSP','status':'unprogres','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
-    {'number':'PO00001224','timestamp':moment().unix(),'transport':'DSP','status':'unprogres','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+    {'number':'PO00001223','timestamp':moment().unix(),'transport':'DSP','status':'pending','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+    {'number':'PO00001224','timestamp':moment().unix(),'transport':'DSP','status':'pending','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
     {'number':'PO00001235','timestamp':moment().unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
-    {'number':'PO00001236','timestamp':moment().unix(),'transport':'DSP','status':'unprogres','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+    {'number':'PO00001236','timestamp':moment().unix(),'transport':'DSP','status':'pending','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
     {'number':'PO00001237','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
     {'number':'PO00001238','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
 ];
 
 function mapStateToProps(state) {
     return {
+        ReportedASN: state.originReducer.filters.ReportedASN,
         activeASN : state.originReducer.filters.activeASN,
         completeASN : state.originReducer.filters.completeASN,
         inboundList: state.originReducer.inboundList,
         completedInboundList: state.originReducer.completedInboundList,
+        keyStack: state.originReducer.filters.keyStack,
     };
   }
   

@@ -1,6 +1,8 @@
 import React from 'react';
 import {
+  Animated,
   StyleSheet,
+  Easing,
   Text,
   TouchableWithoutFeedback,
   View,
@@ -9,121 +11,336 @@ import {
 import {
 Button,
 Input,
-Badge
+Badge, 
+Divider
 } from 'react-native-elements'
 import { Modalize } from 'react-native-modalize';
 import BarCode from '../../../component/camera/filter-barcode';
+import CheckmarkIcon from '../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
+import XMarkIcon from '../../../assets/icon/iconmonstr-x-mark-7mobile.svg';
 import Mixins from '../../../mixins';
+import moment from 'moment';
 import {connect} from 'react-redux';
 const screen = Dimensions.get('screen');
 
 class Example extends React.Component {
+  animatedValue = new Animated.Value(0);
   constructor(props) {
     super(props);
     this.state = {
       dataCode: '0',
       qty: 0,
       dataItem: null,
+      
     };
+    this.handleResetAnimation.bind(this);
+    this.handleZoomInAnimation.bind(this);
     this.renderBarcode.bind(this);
     this.modalizeRef = React.createRef();
   }
 
   static getDerivedStateFromProps(props,state){
-    const {manifestList, currentASN, navigation} = props;
+    const {manifestList, currentASN, navigation, setBarcodeScanner, detectBarcode} = props;
     const {dataCode, dataItem} = state;
+    const {routes, index} = navigation.dangerouslyGetState();
     if(dataCode === '0'){
-      const {routes, index} = navigation.dangerouslyGetState();
       if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined) {
+        setBarcodeScanner(true);
         return {...state, dataCode: routes[index].params.inputCode};
+      } else if(routes[index].params !== undefined && routes[index].params.manualCode !== undefined) {
+        setBarcodeScanner(false);
+        return {...state, dataCode: routes[index].params.manualCode};
       }
       return {...state};
-    } else if (dataCode !== 0 && dataItem === null && manifestList.some((element) => element.code === dataCode)) {
-      let item = manifestList.find((element)=>element.code === dataCode);
-      return {...state, dataItem: item, qty: item.scanned}
+    } else if (routes[index].params !== undefined && routes[index].params.manualCode !== undefined && routes[index].params.manualCode !== dataCode) {
+      setBarcodeScanner(false);
+      return {...state, dataCode: routes[index].params.manualCode};   
     }
-    
     return {...state};
   }
-
-  componentDidUpdate(prevProps, prevStates) {
-   
+  shouldComponentUpdate(nextProps, nextState) {
+    if(this.props.keyStack !== nextProps.keyStack){
+      if(nextProps.keyStack === 'Barcode' && this.props.keyStack === 'newItem'){
+        if (nextState.dataCode !== '0' && nextState.dataItem === null && nextProps.manifestList.some((element) => element.code === nextState.dataCode)) {
+          let item = nextProps.manifestList.find((element)=>element.code === nextState.dataCode);
+          console.log('trigger');
+          this.setState({dataItem: item, qty : item.scanned});
+        }
+        return true;
+      }
+    }
+    return true;
   }
+  componentDidUpdate(prevProps, prevState) {
+    const {manifestList,detectBarcode, currentASN, navigation, setBarcodeScanner} = this.props;
+    const {dataCode, dataItem} = this.state;
+    
+    if(prevProps.detectBarcode !== detectBarcode){
+      if(detectBarcode) {
+        this.handleResetAnimation();
+      } else {
+        this.handleZoomInAnimation();
+      }
+    }
+    if (prevState.dataCode !== dataCode && dataCode !== 0 && dataItem === null && manifestList.some((element) => element.code === dataCode)) {
+      let item = manifestList.find((element)=>element.code === dataCode);
+      this.setState({dataItem: item, qty : item.scanned});
+    }
+  }
+  handleResetAnimation = () => {
+    Animated.timing(this.animatedValue, {
+      toValue: 0,
+      duration: 0,
+    }).reset();
+  };
+  handleZoomInAnimation = () => {
+    console.log('test 2')
+    Animated.timing(this.animatedValue, {
+      toValue: 1,
+      duration: 300,
+      easing: Easing.ease,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  renderModal = () => {
+    const {dataItem, dataCode, qty} = this.state;
+    return (
+      <View style={styles.modalOverlay}>
+        <Animated.View
+          style={
+            dataItem !== null
+              ? [
+                  styles.modalContainerAll,
+                  {
+                    transform: [
+                      {
+                        scaleX: this.animatedValue.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, 1],
+                        }),
+                      },
+                      {
+                        scaleY: this.animatedValue.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, 1],
+                        }),
+                      },
+                    ],
+                  },
+                ]
+              : [
+                  styles.modalContainerSmall,
+                  {
+                    transform: [
+                      {
+                        scaleX: this.animatedValue.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, 1],
+                        }),
+                      },
+                      {
+                        scaleY: this.animatedValue.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, 1],
+                        }),
+                      },
+                    ],
+                  },
+                ]
+          }>
+          <View style={[styles.sectionSheetDetail, {marginHorizontal: 0, marginTop:0}]}>
+            <View style={styles.modalHeader}>
+              {dataItem === null ? (
+                <XMarkIcon height="24" width="24" fill="#E03B3B" />
+              ) : (
+                <CheckmarkIcon height="24" width="24" fill="#17B055" />
+              )}
+              {dataItem !== null ? (
+                <Text style={styles.modalHeaderText}>
+                Success Scan Item                
+                </Text>
+              ) : (
+                <Text style={[styles.modalHeaderText, {color: '#E03B3B'}]}>
+                  Item Not Found
+                </Text>
+              )}
+            </View>
+            <Divider color="#D5D5D5" />
+            {dataItem !== null ? (
+              <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
+               <View
+                      style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelPackage}>SKU</Text>
+                        <Text style={styles.infoPackage}>
+                          {dataItem.sku}
+                        </Text>
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelPackage}>Barcode</Text>
+                        <Text style={styles.infoPackage}>
+                          {dataItem.code}
+                        </Text>
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelPackage}>Descript</Text>
+                        <Text style={styles.infoPackage}>
+                          {dataItem.name}
+                        </Text>
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelPackage}>EXP Date</Text>
+                        <Text style={styles.infoPackage}>
+                          {moment.unix(dataItem.timestamp).format('DD/MM/YY')}
+                        </Text>
+                      </View>
+                     
+                    </View>
+                    {qty < dataItem.total_package && (
+                        <View style={[styles.sectionDividier,{flexDirection:'row',marginTop:15}]}>
+                          <View style={[styles.dividerContent,{marginRight: 35}]}>
+                            <Text style={styles.qtyTitle}>Qty</Text>
+                          </View>
+                          <View style={styles.dividerInput}>
+                          <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
+                            const {qty,dataItem} = this.state;
+                            this.setState({qty:  qty < dataItem.total_package ? qty+1: qty});
+                          }}  
+                          containerStyle={{flexShrink:1, marginVertical: 5}}
+                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
+                          />
+                          <Input 
+                            containerStyle={{flex: 1,paddingVertical:0}}
+                            inputContainerStyle={styles.textInput} 
+                            inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.h4,fontWeight: '600',lineHeight: 27,color:'#424141'}]}
+                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            placeholder={''+this.state.qty}
+                            disabled={true}
+                            />
+                           <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
+                           const {qty,dataItem} = this.state;
+                            this.setState({qty: dataItem.total_package > qty && qty > 0 ? qty-1 : qty});
+                          }}  
+                          containerStyle={{flexShrink:1, marginVertical: 5}}
+                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
+                          />
+                          </View>
+                        </View>
+                      )}
+              </View>
+            ) : (
+              <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
+               <View
+                      style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelNotFound}>SKU</Text>
+                        <Text style={styles.infoNotFound}>
+                          
+                        </Text>
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelNotFound}>Barcode</Text>
+                        <Text style={styles.infoNotFound}>
+                          {dataCode}
+                        </Text>
+                      </View>
+                </View>
+              </View>
+            )}
+            <View style={styles.buttonSheetContainer}>
+              {((dataItem !== null && qty < dataItem.total_package) ||  (dataCode !== '0' && dataItem === null)) && (
+                <View style={styles.buttonSheet}>
+                  {dataItem !== null && qty < dataItem.total_package ? (
+                    <Button
+                      containerStyle={{flex: 1, marginTop: 10}}
+                      buttonStyle={styles.navigationButton}
+                      titleStyle={styles.deliveryText}
+                      onPress={() => this.onSubmit()}
+                      title="Confirm"
+                    />
+                  ) : ( <Button
+                    containerStyle={{flex: 1, marginTop: 10}}
+                    buttonStyle={styles.navigationButton}
+                    titleStyle={styles.deliveryText}
+                    onPress={() => {
+                      this.props.setBottomBar(false);
+                      this.props.navigation.navigate('newItem',{dataCode: dataCode})}}
+                    title="Regis New Product"
+                  />)}
+                </View>
+              )}
+              <View style={styles.buttonSheet}>
+                {(dataItem !== null && qty < dataItem.total_package) ||  (dataCode !== '0' && dataItem === null) ? (
+                  <>
+                    <Button
+                      containerStyle={{flex: 1, marginTop: 10, marginRight: 5}}
+                      buttonStyle={styles.cancelButton}
+                      titleStyle={styles.backText}
+                      onPress={()=>this.props.navigation.goBack()}
+                      title="Back"
+                    />
+                    <Button
+                      containerStyle={{flex: 1, marginTop: 10, marginLeft: 5}}
+                      buttonStyle={styles.cancelButton}
+                      titleStyle={styles.reportText}
+                      onPress={() => {
+                        this.props.setBottomBar(true);
+                        this.props.navigation.navigate({
+                          name: 'ReportManifest',
+                          params: {
+                              dataCode: dataCode,
+                          }
+                        })}}
+                      title="Report"
+                    />
+                  </>
+                ) : (
+                  <Button
+                    containerStyle={{flex: 1, marginTop: 10, marginRight: 5}}
+                    buttonStyle={styles.navigationButton}
+                    titleStyle={styles.deliverText}
+                    onPress={()=>this.props.navigation.goBack()}
+                    title="Back To List"
+                  />
+                )}
+              </View>
+            </View>
+          </View>
+        </Animated.View>
+      </View>
+    );
+  };
 
   renderInner = () => (
     <View style={styles.sheetContainer}>
       <View style={styles.sectionSheetDetail}>
         <View style={styles.sheetPackages}>
-            <View style={[styles.sectionDividier, {alignItems: 'center', justifyContent: 'space-between'}]}>
-            <View style={styles.dividerContent}>
-                <Text style={styles.labelPackage}>Barcode Number</Text>
-                <Text style={[styles.infoPackage, this.dataItem !== null && this.dataItem !== undefined ? {backgroundColor:'green'} : this.state.dataCode !== '0' ? {backgroundColor:'red'} : {backgroundColor:'transparent'}]}>{this.state.dataCode}</Text>
-              </View>
+            <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>SKU</Text>
+                  <Text style={styles.infoNotFound}>{ this.state.dataItem !== null ? this.state.dataItem.sku : null}</Text>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Barcode</Text>
+                  <Text style={styles.infoNotFound}>{this.state.dataCode}</Text>
+                </View>
             </View>
-            <View style={styles.sectionDividier}>
-              <View style={styles.dividerContent}>
-                <Text style={styles.labelPackage}>Description</Text>
-                <Text style={styles.infoPackage}>{this.state.dataItem !== null ? this.state.dataItem.name : null}</Text>
-              </View>
-              <View style={styles.dividerContent}>
-                <Text style={styles.labelPackage}>Color</Text>
-                <Text style={styles.infoPackage}>{this.state.dataItem !== null ? this.state.dataItem.color : null}</Text>
-              </View>
-            </View>
-            {this.state.dataItem !== null && (<>
-            <View style={styles.sectionDividier}>
-              <View style={styles.dividerContent}>
-                <Text style={styles.deliverTitle}>Qty</Text>
-              </View>
-              <View style={styles.dividerInput}>
-              <Badge value="+" status="error" onPress={()=>{
-                const {qty,dataItem} = this.state;
-                this.setState({qty:  qty < dataItem.total_package ? qty+1: qty});
-              }} containerStyle={{paddingVertical:6}} />
-              <Input 
-                containerStyle={{flex: 1,paddingVertical:0}}
-                inputContainerStyle={styles.textInput} 
-                inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={''+this.state.qty}
-                disabled={true}
-                />
-                <Badge value="-" status="error" onPress={()=>{
-                const {qty,dataItem} = this.state;
-                this.setState({qty: dataItem.total_package > qty && qty > 0 ? qty-1 : qty});
-              }}  containerStyle={{paddingVertical:6}} />
-              </View>
-            </View>
-            </>)}
             
         </View>
-        <View style={styles.buttonSheet}>
-        {this.state.dataItem !== null ?
-        (<Button
-          containerStyle={{flex:1, marginTop: 10,}}
-          buttonStyle={styles.navigationButton}
-          titleStyle={styles.deliveryText}
-          onPress={() => this.onSubmit()}
-          title="Confirm"
-        />) : this.state.dataCode !== '0' ? (<Button
-          containerStyle={{flex:1, marginTop: 10,}}
-          buttonStyle={styles.navigationButton}
-          titleStyle={styles.deliveryText}
-          onPress={() => {
-            this.props.setBottomBar(false);
-            this.props.navigation.navigate('newItem',{dataCode: this.state.dataCode})}}
-          title="Register New Item"
-        />) :null}
-        
-        </View>
-        <View style={styles.buttonSheet}>
+        <View style={[styles.buttonSheet,{marginVertical:40}]}>
         <Button
           containerStyle={{flex:1, marginTop: 10,marginRight: 5,}}
-          buttonStyle={styles.navigationButton}
-          titleStyle={styles.deliveryText}
+          buttonStyle={styles.cancelButton}
+                      titleStyle={[styles.reportText,{color:'#F07120'}]}
           onPress={() => {
             this.props.setBottomBar(true);
-            this.props.navigation.navigate('ReportManifest')}}
+            this.props.navigation.navigate({
+              name: 'ReportManifest',
+              params: {
+                  dataCode: this.state.dataCode,
+              }
+            })}}
           title="Report Item"
         />
           <Button
@@ -171,20 +388,23 @@ class Example extends React.Component {
   }
 
   render() {
-    const { dataCode } = this.state;
+    const { dataItem,dataCode } = this.state;
+    const {detectBarcode} = this.props;
     return (
       <View style={styles.container}>
-          <Modalize 
-            ref={this.modalizeRef}
-            handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
-            handlePosition={'inside'}
-            disableScrollIfPossible={true}
-            modalHeight={350}
-            alwaysOpen={350}
-            HeaderComponent={<this.renderHeader />}
-          >
-            <this.renderInner />
-          </Modalize>
+        {detectBarcode === false ? (
+          <this.renderModal/>
+        ) : (          <Modalize 
+          ref={this.modalizeRef}
+          handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
+          handlePosition={'inside'}
+          disableScrollIfPossible={true}
+          modalHeight={200}
+          alwaysOpen={200}
+          HeaderComponent={<this.renderHeader />}
+        >
+          <this.renderInner />
+        </Modalize>)}
         <TouchableWithoutFeedback onPress={() => {}}>
           <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} />
         </TouchableWithoutFeedback>
@@ -200,7 +420,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#D5D5D5',
     borderRadius: 5,
-    maxHeight: 30,
+    maxHeight: 40,
+  },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
   },
   search: {
     borderColor: 'gray',
@@ -279,29 +510,46 @@ const styles = StyleSheet.create({
     maxWidth: '20%',
   },
   sectionDividier: {
-    flexDirection: 'row',
+    flexDirection: 'column',
   },
   dividerContent: {
-    flexDirection: 'column',
-    flex: 1,
-    marginVertical: 8,
+    flexDirection: 'row',
+    flexShrink: 1,
+    marginVertical: 3,
   },
   dividerInput: {
     flexDirection: 'row',
     flex: 1,
     marginVertical: 8,
   },
-  
+   
+  labelNotFound: {
+    minWidth: 110,
+    ...Mixins.h6,
+    color: '#2D2C2C',
+    fontWeight: '500',
+    lineHeight: 24,
+  },
+  infoNotFound: {
+    paddingHorizontal: 10,
+    ...Mixins.h6,
+    fontWeight: '400',
+    lineHeight: 24,
+    color: '#424141',
+  },
   labelPackage: {
-    ...Mixins.subtitle3,
-    color: '#000000',
-    fontWeight: '700'
+    minWidth: 100,
+    ...Mixins.small1,
+    color: '#2D2C2C',
+    fontWeight: '500',
+    lineHeight: 18,
   },
   infoPackage: {
-    ...Mixins.subtitle3,
+    paddingHorizontal: 10,
+    ...Mixins.small1,
+    color: '#424141',
     fontWeight: '400',
-    lineHeight: 21,
-    color: '#ABABAB',
+    lineHeight: 18,
   },
   
   navigationButton: {
@@ -317,6 +565,11 @@ const styles = StyleSheet.create({
   sheetPackages: {
     flexShrink: 1,
   },
+  buttonSheetContainer: {
+    flexDirection: 'column',
+    marginHorizontal: 20,
+    marginBottom: 20,
+  },
   buttonSheet: {
     flexGrow: 1,
     flexDirection:'row',
@@ -326,9 +579,58 @@ const styles = StyleSheet.create({
     lineHeight: 27,
     fontWeight: '700',
   },
+  qtyTitle : {
+    ...Mixins.h3,
+    fontWeight: '600',
+    lineHeight: 36,
+    color: '#424141'
+  },
   deliverText: {
     fontSize: 20,
     lineHeight: 40,
+  },
+  modalContainerAll: {
+    flexGrow: 1,
+    backgroundColor: 'white',
+    width: (screen.width * 90) / 100,
+    minHeight: (screen.height * 50) / 100,
+    maxHeight: (screen.height * 50) / 100,
+    borderRadius: 10,
+  },
+  modalContainerSmall: {
+    flexGrow: 1,
+    backgroundColor: 'white',
+    width: (screen.width * 90) / 100,
+    minHeight: (screen.height * 36) / 100,
+    maxHeight: (screen.height * 36) / 100,
+    borderRadius: 10,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  modalHeaderText: {
+    color: '#17B055',
+    marginLeft: 10,
+  },
+  cancelButton: {
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    borderColor: '#6C6B6B',
+    borderRadius: 5,
+  },
+  cancelText: {
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#6C6B6B',
+  },
+  reportText: {
+    color: '#E03B3B',
+  },
+  backText: {
+    color: '#F1811C',
   },
 });
 
@@ -340,6 +642,7 @@ function mapStateToProps(state) {
     barcodeScanned: state.originReducer.filters.barcodeScanned,
     // end
     manifestList: state.originReducer.manifestList,
+    keyStack: state.originReducer.filters.keyStack,
   };
 }
 

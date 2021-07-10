@@ -21,7 +21,7 @@ class Acknowledge extends React.Component {
 
   render(){
     return (
-        <View style={{flex: 1, flexDirection:'column', backgroundColor: '#E5E5E5', paddingHorizontal: 22,}}>
+        <View style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
           <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 100}}>
           <Image
               source={require('../../../assets/dap_logo_hires1thumb.png')}

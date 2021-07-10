@@ -21,7 +21,7 @@ class Acknowledge extends React.Component {
 
   render(){
     return (
-        <View style={{flex: 1, flexDirection:'column', backgroundColor: '#E5E5E5', paddingHorizontal: 22,}}>
+        <View style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
           <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 100}}>
           <Image
               source={require('../../../assets/dap_logo_hires1thumb.png')}
@@ -41,15 +41,18 @@ class Acknowledge extends React.Component {
                     },
                   }}
                   title="BARCODE"
-                  overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
+                  overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle, this.props.currentASN === null ? {backgroundColor: 'grey'} : null]}
                   onPress={() => {
+                    if(this.props.currentASN !== null){
                     this.props.setBottomBar(false);
-                    this.props.navigation.navigate('Inbound',{screen:'Barcode'})}}
+                    this.props.navigation.navigate('Inbound',{screen:'Barcode'})
+                  }
+                  }}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
-                  titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}]}
-                />
+                  titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}, this.props.currentASN === null ? {color: '#6C6B6B'} : null]}
+                  />
               </View>
               <View style={styles.sectionContainer}>
                 <Avatar
@@ -63,14 +66,17 @@ class Acknowledge extends React.Component {
                     },
                   }}
                   title="PURCHASE ORDER"
-                  overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
+                  overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle, this.props.currentASN === null ? {backgroundColor: 'grey'} : null]}
                   onPress={() => {
-                    this.props.setBottomBar(false);
-                    this.props.navigation.navigate('Inbound',{screen:'Manifest'})}}
+                    if(this.props.currentASN !== null){
+                      this.props.setBottomBar(false);
+                      this.props.navigation.navigate('Inbound',{screen:'Manifest'})
+                    }
+                  }}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
-                  titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}]}
+                  titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}, this.props.currentASN === null ? {color: '#6C6B6B'} : null]}
                 />
               </View>
           </View>
@@ -233,6 +239,7 @@ function mapStateToProps(state) {
     userRole: state.originReducer.userRole,
     isPhotoProofSubmitted: state.originReducer.filters.isPhotoProofSubmitted,
     isSignatureSubmitted: state.originReducer.filters.isSignatureSubmitted,
+    currentASN : state.originReducer.filters.currentASN,
   };
 }
 

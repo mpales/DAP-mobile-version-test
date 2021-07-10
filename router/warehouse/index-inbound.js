@@ -92,6 +92,46 @@ class WarehouseNavigator extends React.Component {
       "hardwareBackPress",
       ()=>{
          this._refreshFromBackHandle();
+         if (this.props.keyStack === 'Manifest' && this.props.indexBottomBar === 1) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'List'})
+          return true;
+          } else if (this.props.keyStack === 'ReceivingDetail' && this.props.indexBottomBar === 1) {
+            this.navigationRef.current.navigate('Inbound', {screen: 'List'})
+            return true;
+            } else if(prevProps.keyStack === 'Manifest' && this.props.keyStack === 'Barcode' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'})
+            return true;    
+          } else if(prevProps.keyStack === 'WarehouseIn' && this.props.keyStack === 'Barcode' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Home', {screen: 'WarehouseIn'})
+            return true;    
+          } else if(this.props.keyStack === 'Barcode' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'})
+            return true;    
+          } else if(this.props.keyStack === 'ReportManifest' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'})
+            return true;
+          } else if(this.props.keyStack === 'ItemDetail' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'})
+            return true;    
+          } else if(this.props.keyStack === 'ItemReportDetail' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Inbound', {screen: 'ItemDetail'})
+            return true;    
+          } else if(this.props.keyStack === 'ManualInput' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'})
+            return true;    
+          } else if(this.props.keyStack === 'containerDetail' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'})
+            return true;    
+          }  else if(this.props.keyStack === 'newItem' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'})
+            return true;    
+          }  else if(prevProps.keyStack === 'ReceivingDetail' && this.props.keyStack === 'SingleCamera' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Inbound', {screen: 'ReceivingDetail'})
+            return true;    
+          }else if(prevProps.keyStack === 'ReportManifest' && this.props.keyStack === 'SingleCamera' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Inbound', {screen: 'ReportManifest'})
+            return true;    
+          }
          return false;
        }
     );
@@ -111,7 +151,7 @@ class WarehouseNavigator extends React.Component {
         this.props.setBottomBar(true);
        } 
        if(this.props.keyStack === 'ReceivingDetail' && this.props.indexBottomBar === 1){
-        this.props.setBottomBar(true);
+        this.props.setBottomBar(false);
        } 
        if(this.props.keyStack === 'Manifest' && this.props.indexBottomBar === 1){
         this.props.setBottomBar(false);
@@ -126,7 +166,7 @@ class WarehouseNavigator extends React.Component {
          this.props.setBottomBar(false);
         }
         if(this.props.keyStack === 'ReportManifest' && this.props.indexBottomBar === 1){
-          this.props.setBottomBar(true);
+          this.props.setBottomBar(false);
          }
          if(this.props.keyStack === 'ManualInput' && this.props.indexBottomBar === 1){
           this.props.setBottomBar(true);

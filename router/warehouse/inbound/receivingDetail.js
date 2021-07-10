@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, Button,Image, Input, Avatar} from 'react-native-elements';
+import {Text, Button, Input, Avatar, Image} from 'react-native-elements';
 import {View} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
@@ -62,6 +62,16 @@ class Acknowledge extends React.Component {
 
   render(){
     const {data} = this.state;
+    const {userRole} = this.props;
+    if(userRole === 'default'){
+      return (  
+        <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white', justifyContent: 'center',alignItems: 'center'}}>
+      <Image
+        source={require('../../../assets/group_mobile.png')}
+        style={{ width: 280, height: 236 }}
+      />
+      </View>)
+    }
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -71,7 +81,7 @@ class Acknowledge extends React.Component {
              <Input 
                 containerStyle={{flex: 1,paddingVertical:0}}
                 inputContainerStyle={styles.textInput} 
-                inputStyle={Mixins.containedInputDefaultStyle}
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 placeholder={data.transport}
                 disabled={true}
@@ -84,7 +94,7 @@ class Acknowledge extends React.Component {
              <Input 
               containerStyle={{flex: 1,paddingVertical:0}}
               inputContainerStyle={styles.textInput} 
-                inputStyle={Mixins.containedInputDefaultStyle}
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 placeholder={data.rcpt}
                 disabled={true}
@@ -100,7 +110,7 @@ class Acknowledge extends React.Component {
              <Input 
                containerStyle={{flex: 1,paddingVertical:0}}
                inputContainerStyle={styles.textInput} 
-                inputStyle={Mixins.containedInputDefaultStyle}
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 placeholder={data.ref}
                 disabled={true}
@@ -113,7 +123,7 @@ class Acknowledge extends React.Component {
              <Input 
                containerStyle={{flex: 1,paddingVertical:0}}
                inputContainerStyle={styles.textInput} 
-                inputStyle={Mixins.containedInputDefaultStyle}
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 placeholder={data.number}
                 disabled={true}
@@ -125,11 +135,11 @@ class Acknowledge extends React.Component {
              </View>
              <Input 
                 containerStyle={{flex: 1,paddingVertical:0}}
-                inputContainerStyle={styles.textInput} 
-                inputStyle={Mixins.containedInputDefaultStyle}
+                inputContainerStyle={[styles.textInput,{backgroundColor:'#F8B511'}]} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21,textTransform: 'uppercase', color:'#fff'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.status}
-                disabled={true}
+                value={data.status}
+                disabled={false}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -140,7 +150,7 @@ class Acknowledge extends React.Component {
              <Input 
               containerStyle={{flex: 1,paddingVertical:0}}
               inputContainerStyle={styles.textInput} 
-                inputStyle={Mixins.containedInputDefaultStyle}
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 placeholder={moment.unix(data.timestamp).format('DD/MM/YYYY')}
                 disabled={true}
@@ -179,6 +189,7 @@ class Acknowledge extends React.Component {
                   flex: 2,
                   borderRadius: 5,
                 }}/>
+                <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Photo Proof Container</Text>
          </View>
          <Button
               containerStyle={{flex:1, marginRight: 20,}}
@@ -189,6 +200,9 @@ class Acknowledge extends React.Component {
                 this.props.setBottomBar(false);
                 this.props.setActiveASN(this.state.receivingNumber);
                 this.props.setCurrentASN(this.state.receivingNumber);
+                this.props.setReportedManifest(null);
+                this.props.setItemScanned([]);
+                this.props.setManifestList([]);
                 this.props.navigation.navigate(  {
                   name: 'Manifest',
                   params: {
@@ -215,8 +229,9 @@ const styles = {
     marginVertical: 10,
   },
   deliveryText: {
-    ...Mixins.subtitle3,
-    lineHeight: 21,
+    ...Mixins.h6,
+    lineHeight: 27,
+    fontWeight:'600',
     color: '#ffffff',
   },
   navigationButton: {
@@ -311,7 +326,7 @@ function mapStateToProps(state) {
     todos: state.originReducer.todos,
     textfield: state.originReducer.todos.name,
     value: state.originReducer.todos.name,
-    userRole: state.originReducer.userRole,
+    userRole: state.originReducer.userRole.role,
     isPhotoProofSubmitted: state.originReducer.filters.isPhotoProofSubmitted,
     isSignatureSubmitted: state.originReducer.filters.isSignatureSubmitted,
     photoProofPostpone: state.originReducer.photoProofPostpone,
@@ -339,7 +354,17 @@ const mapDispatchToProps = (dispatch) => {
       return dispatch({type:'addActiveASN', payload: data});
     },
     addPhotoProofPostpone: (uri) => dispatch({type: 'PhotoProofPostpone', payload: uri}),
-    //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
+    //prototype only
+    setManifestList: (data) => {
+      return dispatch({type: 'ManifestList', payload: data});
+    },
+    setItemScanned : (item) => {
+      return dispatch({type: 'BarcodeScanned', payload: item});
+    },
+    setReportedManifest: (data) => {
+      return dispatch({type:'ReportedManifest', payload: data});
+    },
+    //end
   };
 };
 

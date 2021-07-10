@@ -21,6 +21,7 @@ class Acknowledge extends React.Component {
       class : '',
       country : '',
       cLot : '',
+      update: false,
     };
     this.submitItem.bind(this);
   }
@@ -30,7 +31,9 @@ class Acknowledge extends React.Component {
     if(dataCode === '0'){
       const {routes, index} = navigation.dangerouslyGetState();
       if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-        return {...state, dataCode: routes[index].params.dataCode};
+        return {...state, dataCode: routes[index].params.dataCode, update:false};
+      } else if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined){
+        return {...state, dataCode: routes[index].params.dataCode, update: true};
       }
       return {...state};
     } 
@@ -39,17 +42,30 @@ class Acknowledge extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot){
-    const {routes, index} = this.props.navigation.dangerouslyGetState();
-    const dataCode = routes[index].params.dataCode
-    if(prevState.dataCode !== dataCode){
-      this.setState({dataCode:dataCode});
-    }
+    
   }
   submitItem = ()=>{
     const {manifestList} = this.props;
-    const {dataCode, batch,lot,expDate,mfgDate,size,color,classcode,country,cLot} = this.state;
-
-    let manifest = Array.from({length: manifestList.length + 1}).map((num, index, arr) => {
+    const {update,dataCode, batch,lot,expDate,mfgDate,size,color,classcode,country,cLot} = this.state;
+    let manifest = []
+    if(update){
+      manifest = Array.from({length: manifestList.length}).map((num, index, arr) => {
+        
+      return {
+        ...manifestList[index],
+          code: dataCode,
+          total_package: 2,
+          name: batch+lot,
+          color:color,
+          category: cLot,
+          timestamp: moment().unix(),
+          scanned: 0,
+          CBM: 20.10,
+          weight: 115,
+      };
+    });
+    } else {
+      manifest = Array.from({length: manifestList.length + 1}).map((num, index, arr) => {
         if(index === arr.length - 1)
         return {
           code: dataCode,
@@ -61,18 +77,24 @@ class Acknowledge extends React.Component {
           scanned: 0,
           CBM: 20.10,
           weight: 115,
-          status: 'onProgress',
         };
       return manifestList[index];
     });
+    }
+
     this.props.setManifestList(manifest)
     this.props.setBottomBar(false);
-    this.props.navigation.navigate({
-      name: 'Barcode',
-      params: {
-          inputCode: dataCode,
-      }
-    });
+    if(update){
+      this.props.navigation.navigate('Manifest');
+    }else {
+
+      this.props.navigation.navigate({
+        name: 'Barcode',
+        params: {
+            inputCode: dataCode,
+        }
+      });
+    }
   }
   onChangeTextBatch = (text)=> {
     this.setState({batch: text});
@@ -410,6 +432,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setManifestList: (data) => {
       return dispatch({type: 'ManifestList', payload: data});
+    },
+    setBarcodeScanner: (toggle) => {
+      return dispatch({type: 'ScannerActive', payload: toggle});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };

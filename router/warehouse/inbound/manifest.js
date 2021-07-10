@@ -18,7 +18,7 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import {Avatar, Card, Overlay, Button, SearchBar} from 'react-native-elements';
+import {Avatar, Card, Overlay, Button, SearchBar, Badge} from 'react-native-elements';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect, Provider} from 'react-redux';
@@ -33,29 +33,24 @@ class Warehouse extends React.Component{
 
   constructor(props) {
     super(props);
-    const {routes, index} = this.props.navigation.dangerouslyGetState();
+
     this.state = {
       inboundCode: this.props.route.params?.code ?? '',
       _visibleOverlay : false,
-      receivingNumber: routes[index].params.number,
+      receivingNumber: null,
       search: '',
+      filtered : 0,
       _manifest: [],
     };
     this.toggleOverlay.bind(this);
-    
+    this.setFiltered.bind(this);
     this.updateSearch.bind(this);
   }
   static getDerivedStateFromProps(props,state){
-    const {manifestList, currentASN,barcodeScanned} = props;
-    const {receivingNumber, _manifest, search} = state;
-    if(receivingNumber === undefined){
-      if(currentASN !== null) {
-        return {...state, receivingNumber: currentASN};
-      }
-      return {...state};
-    }
+    const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest} = props;
+    const {receivingNumber, _manifest, search, filtered} = state;
     if(manifestList.length === 0 && search === ''){
-      let manifest = manifestDummy.filter((element)=>element.name.indexOf(this.state.search) > -1);
+      let manifest = manifestDummy.filter((element)=>element.name.indexOf(search) > -1);
       props.setManifestList(manifest);
       return {...state, _manifest : manifest};
     } else if(manifestList.length > 0 && barcodeScanned.length > 0) {
@@ -65,33 +60,76 @@ class Warehouse extends React.Component{
             scanned: barcodeScanned.includes(manifestList[index].code) ? barcodeScanned.length : 0,
         };
       });
-      console.log('test 2')
       props.setItemScanned([]);
       props.setManifestList(manifest);
       return {...state,_manifest : manifest};
-    } else if(manifestList.length > 0 && _manifest.length === 0  && search === '' ) {
+    } else if(manifestList.length > 0 && ReportedManifest !== null ) {
+      let manifest = Array.from({length: manifestList.length}).map((num, index) => {
+        return {
+            ...manifestList[index],
+            scanned: ReportedManifest === manifestList[index].code ? -1 : manifestList[index].scanned,
+        };
+      });
+      props.setReportedManifest(null);
+      props.setManifestList(manifest);
+      return {...state, _manifest: manifest}
+    } else if(manifestList.length > 0 && _manifest.length === 0  && search === '' && filtered === 0 ) {
       return {...state, _manifest: manifestList}
     }
     return {...state};
   }
+  shouldComponentUpdate(nextProps, nextState) {
+    if(this.props.keyStack !== nextProps.keyStack){
+      if(nextProps.keyStack === 'Manifest'){
+        return true;
+      }
+    }
+    return true;
+  }
   componentDidUpdate(prevProps, prevState, snapshot) {
     const {manifestList} = this.props;
+    
     if(prevState.receivingNumber !== this.state.receivingNumber){
-      if(this.props.receivingNumber === undefined){
+      if(this.props.receivingNumber === null){
         this.props.navigation.goBack();
       } else {
-       this.setState({_manifest: []});
+        this.setState({_manifest: []});
        this.props.setManifestList([]);
       }
     } 
-    if(prevState.search !== this.state.search) {
-      this.setState({_manifest: manifestList.filter((element)=>element.name.indexOf(this.state.search) > -1)});
-    }
-  }
-  componentDidMount() {
+    let filtered = prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
+   
+    if(filtered === 0) {
+      this.setState({_manifest: manifestList.filter((element)=> element.name.indexOf(this.state.search) > -1)});
+      } else if(filtered === 1){
+        console.log('test');
+        this.setState({_manifest: manifestList.filter((element)=> element.scanned === -1).filter((element)=> element.name.indexOf(this.state.search) > -1)});
+      } else if(filtered === 2){
+        this.setState({_manifest: manifestList.filter((element)=>  element.scanned === 0).filter((element)=> element.name.indexOf(this.state.search) > -1)});
+      }else if(filtered === 3){
+        this.setState({_manifest: manifestList.filter((element)=>  element.scanned < element.total_package && element.scanned > 0).filter((element)=> element.name.indexOf(this.state.search) > -1)});
+      }else if(filtered === 4){
+        this.setState({_manifest: manifestList.filter((element)=>  element.scanned === element.total_package).filter((element)=> element.name.indexOf(this.state.search) > -1)});
+      } 
    
   }
-
+  componentDidMount() {
+    const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest} = this.props;
+    const {receivingNumber, _manifest, search} = this.state;
+    if(receivingNumber === null){
+      const {routes, index} = navigation.dangerouslyGetState();
+      if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
+        this.setState({receivingNumber: routes[index].params.number})
+      } else if(currentASN !== null) {
+        this.setState({receivingNumber: currentASN})
+      } else {
+        navigation.popToTop();
+      }
+    }
+  }
+  setFiltered = (num)=>{
+    this.setState({filtered:num});
+}
   toggleOverlay =()=> {
     const {_visibleOverlay} = this.state;
     this.setState({_visibleOverlay: !_visibleOverlay})
@@ -115,13 +153,54 @@ class Warehouse extends React.Component{
     this.setState({search});
   };
   render() {
-    const {_visibleOverlay, _manifest} = this.state;
+    const {_visibleOverlay, _manifest,receivingNumber} = this.state;
+    const {inboundList} = this.props;
+    let currentASN = inboundList.find((element) => element.number === receivingNumber);
     return (
       <>
         <StatusBar barStyle="dark-content" /> 
         <SafeAreaProvider>
           <ScrollView style={styles.body}>
-            <View style={styles.sectionContent}>
+            <View style={[styles.sectionContent,{marginTop: 20}]}>
+            <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{receivingNumber}</Text>
+            <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{currentASN !== undefined ? currentASN.transport : null}</Text>
+           <View style={{flexDirection:'row',marginVertical: 10}}>
+            <Badge
+                    value="All"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(0)}
+                    badgeStyle={this.state.filtered === 0 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
+                      <Badge
+                    value="Reported"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(1)}
+                    badgeStyle={this.state.filtered === 1 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
+                          <Badge
+                    value="Pending"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(2)}
+                    badgeStyle={this.state.filtered === 2 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
+                          <Badge
+                    value="Progress"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(3)}
+                    badgeStyle={this.state.filtered === 3 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
+                          <Badge
+                    value="Completed"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(4)}
+                    badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
+            </View>
             <SearchBar
               placeholder="Type Here..."
               onChangeText={this.updateSearch}
@@ -153,6 +232,8 @@ class Warehouse extends React.Component{
                     key={i} 
                     index={i} 
                     item={u} 
+                    navigation={this.props.navigation}
+                    currentManifest={this.props.setCurrentManifest}
                     // for prototype only
                     // end
                   />
@@ -177,42 +258,14 @@ class Warehouse extends React.Component{
               </TouchableOpacity>
             </View>
           </Overlay>
-          <View style={styles.buttonSticky}>
-            <Avatar
-              size={75}
-              ImageComponent={() => (
-                <IconBarcodeMobile height="40" width="37" fill="#fff" />
-              )}
-              imageProps={{
-                containerStyle: {
-                  ...Mixins.buttonAvatarDefaultIconStyle,
-                },
-              }}
-              overlayContainerStyle={styles.barcodeButton}
-              onPress={() => {
-                this.props.setBottomBar(false);
-                this.props.setBarcodeScanner(true);
-                this.props.navigation.navigate('Barcode')}}
-              activeOpacity={0.7}
-              containerStyle={Mixins.buttonAvatarDefaultContainerStyle}
-            />
-          </View>
+         
           <View style={styles.bottomTabContainer}>
             <Button
-              containerStyle={{flex:0.4, marginLeft: 20}}
-              buttonStyle={styles.reportButton}
-              titleStyle={[styles.deliveryText, {color: '#6C6B6B'}]}
-              onPress={() => {
-                this.props.setBottomBar(true);
-                this.props.navigation.navigate('ReportManifest')}}
-              title="Report"
-            />
-            <Button
-              containerStyle={{flex:0.4, marginRight: 20,}}
+              containerStyle={{flex:1}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.toggleOverlay}
-              title="Complete Receive"
+              title="Complete all Receiving"
             />
           </View>
         </SafeAreaProvider>
@@ -225,6 +278,34 @@ const styles = StyleSheet.create({
   scrollView: {
     backgroundColor: 'white',
   },
+  badgeSort: {
+    marginRight: 5,
+  },
+  badgeActive: {    
+    backgroundColor: '#F1811C',
+    borderWidth: 1,
+    borderColor: '#F1811C',
+    paddingHorizontal: 12,
+    height: 20,
+  
+    },
+    badgeActiveTint: {
+      ...Mixins.small3,
+      lineHeight: 12,
+      color: '#ffffff'
+    },
+    badgeInactive: {
+      backgroundColor: '#ffffff',
+      borderWidth: 1,
+      borderColor: '#121C78',
+      paddingHorizontal: 12,
+      height: 20,
+    },
+    badgeInactiveTint: {
+      ...Mixins.small3,
+      lineHeight: 12,
+      color: '#121C78'
+    },
   code: {
     fontSize: 20,
     color: '#424141',
@@ -320,6 +401,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   bottomTabContainer: {
+    paddingHorizontal: 16,
     backgroundColor: '#FFF',
     display: 'flex',
     flexDirection: 'row',
@@ -340,124 +422,135 @@ const manifestDummy = [
   {
     code: '13140026927104',
     total_package: 2,
-    name: 'DETANGLING BRUSH -NEW YORKER',
-    color:'blue',
+    name: 'Bear Brand Milk',
+    color:'white',
     category: '[N-BR1B]',
     timestamp: moment().unix(),
     scanned: 1,
     CBM: 20.10,
     weight: 115,
     status: 'onProgress',
+    sku: '221314123'
   },
   {
     code: '13140026927105',
     total_package: 5,
-    name: 'DETANGLING BRUSH -NEW YORKER',
-    category: '[N-BR1B]',
+    name: 'Lotte Milkis',
+    category: '',
     color:'blue',
     timestamp: moment().unix(),
     scanned: 0,
     CBM: 10.10,
-    weight: 70
+    weight: 70,
+    sku: '412321412'
   },
   {
     code: '13140026927106',
     total_package: 5,
-    name: 'DETANGLING BRUSH -NEW YORKER',
-    category: '[N-BR1B]',
-    color:'yellow',
+    name: 'LG TwinWash',
+    category: '[A-CCR1]',
+    color:'grey',
     timestamp: moment().unix(),
     scanned: 0,
     CBM: 15.10,
     weight: 90,
+    sku: '1241231231'
   },
   {
     code: '13140026927107',
     total_package: 5,
-    name: 'DETANGLING BRUSH -NEW YORKER',
-    category: '[N-BR1B]',
-    color:'yellow',
+    name: 'Midea U Inverter',
+    category: '[A-DD1B]',
+    color:'white',
     timestamp: moment().unix(),
     scanned: 0,
     CBM: 20.10,
     weight: 115,
+    sku : '12454634545'
   },
   {
     code: '13140026927108',
     total_package: 5,
-    name: 'DETANGLING BRUSH -NEW YORKER',
-    category: '[N-BR1B]',
-    color:'yellow',
+    name: 'TEODORES',
+    category: '[G-CCD1]',
+    color:'white',
     timestamp: moment().unix(),
     scanned: 0,
     CBM: 10.10,
-    weight: 90
+    weight: 90,
+    sku: '430344390'
   },
   {
     code: '13140026927109',
     total_package: 5,
-    name: 'DETANGLING BRUSH -NEW YORKER',
-    category: '[N-BR1B]',
-    color:'yellow',
+    name: 'FIXA 7.2V',
+    category: '[A-CCR1]',
+    color:'black',
     timestamp: moment().unix(),
     scanned: 0,
     CBM: 15.10,
-    weight: 70
+    weight: 70,
+    sku: '430958095'
   },
   {
     code: '13140026927110',
     total_package: 5,
-    name: 'DETANGLING BRUSH -NEW YORKER',
-    category: '[N-BR1B]',
-    color:'blue',
-    timestamp: moment().unix(),
-    scanned: 0,
-    CBM: 20.10,
-    weight: 115
-  },
-  {
-    code: '13140026927111',
-    total_package: 5,
-    name: 'DETANGLING BRUSH -NEW YORKER',
-    category: '[N-BR1B]',
-    color:'red',
-    timestamp: moment().unix(),
-    scanned: 0,
-    CBM: 20.10,
-    weight: 115
-  },
-  {
-    code: '13140026927112',
-    total_package: 5,
-    name: 'DETANGLING BRUSH -NEW YORKER',
-    category: '[N-BR1B]',
-    color:'red',
-    timestamp: moment().unix(),
-    scanned: 0,
-    CBM: 20.10,
-    weight: 115
-  },
-  {
-    code: '13140026927113',
-    total_package: 5,
-    name: 'DETANGLING BRUSH -NEW YORKER',
-    category: '[N-BR1B]',
+    name: 'Hock Stove Gas',
+    category: '[D-RR1B]',
     color:'black',
     timestamp: moment().unix(),
     scanned: 0,
     CBM: 20.10,
-    weight: 115
+    weight: 115,
+    sku: '430950345'
+  },
+  {
+    code: '13140026927111',
+    total_package: 5,
+    name: 'Philips Bulb E27',
+    category: '[D-BB1B]',
+    color:'white',
+    timestamp: moment().unix(),
+    scanned: 0,
+    CBM: 20.10,
+    weight: 115,
+    sku: '250345345'
+  },
+  {
+    code: '13140026927112',
+    total_package: 5,
+    name: 'bosch gws 5-100',
+    category: '[A-DD1B]',
+    color:'blue',
+    timestamp: moment().unix(),
+    scanned: 0,
+    CBM: 20.10,
+    weight: 115,
+    sku: '4309583049'
+  },
+  {
+    code: '13140026927113',
+    total_package: 5,
+    name: 'Bosch Xenon H11',
+    category: '[D-BR1B]',
+    color:'blue',
+    timestamp: moment().unix(),
+    scanned: 0,
+    CBM: 20.10,
+    weight: 115,
+    sku: '3405934095'
   },
   {
     code: '13140026927114',
     total_package: 5,
-    color:'blue',
-    name: 'DETANGLING BRUSH -NEW YORKER',
-    category: '[N-BR1B]',
+    color:'black',
+    name: '4 Way Terminal',
+    category: '[D-CC2B]',
     timestamp: moment().unix(),
     scanned: 0,
     CBM: 20.10,
-    weight: 115
+    weight: 115,
+    sku: '4059304034'
   },
 ];
 
@@ -469,10 +562,13 @@ function mapStateToProps(state) {
     userRole: state.originReducer.userRole,
     ManifestCompleted: state.originReducer.filters.manifestCompleted,
     manifestList: state.originReducer.manifestList,
+    inboundList: state.originReducer.inboundList,
     // for prototype only
     barcodeScanned: state.originReducer.filters.barcodeScanned,
     completedInboundList: state.originReducer.completedInboundList,
     currentASN : state.originReducer.filters.currentASN,
+    ReportedManifest : state.originReducer.filters.ReportedManifest,
+    keyStack: state.originReducer.filters.keyStack,
     // end
   };
 }
@@ -505,6 +601,12 @@ const mapDispatchToProps = (dispatch) => {
     setItemScanned : (item) => {
       return dispatch({type: 'BarcodeScanned', payload: item});
     },
+    setReportedManifest: (data) => {
+      return dispatch({type:'ReportedManifest', payload: data});
+    },
+    setCurrentManifest: (data) => {
+      return dispatch({type:'setCurrentManifest', payload: data});
+    }
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };
