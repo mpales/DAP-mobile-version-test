@@ -62,7 +62,7 @@ class Details extends React.Component {
   }
   handleConfirm = (val) => {
     if (val) {
-      if (this.props.userRole.type === 'Warehouse' && !this.props.cameraPermission) {
+      if (this.props.userRole.type === 'Warehouse' && (!this.props.cameraPermission  || !this.props.readStoragePermission || !this.props.writeStoragePermission)) {
         openSettings();
       } else if (this.props.userRole.type === 'Delivery' && (!this.props.cameraPermission || !this.props.locationPermission || !this.props.callPhonePermission || (!this.props.backgroundlocationPermission && Platform.Version >= 29) || !this.props.readStoragePermission || !this.props.writeStoragePermission)) {
         openSettings();

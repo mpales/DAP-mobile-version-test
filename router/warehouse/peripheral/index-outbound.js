@@ -324,7 +324,7 @@ function mapStateToProps(state) {
     ManifestCompleted: state.originReducer.filters.manifestCompleted,
     detectBarcode: state.originReducer.filters.isBarcodeScan,
     // for prototype only
-    barcodeScanned: state.originReducer.barcodeScanned,
+    barcodeScanned: state.originReducer.filters.barcodeScanned,
     // end
   };
 }

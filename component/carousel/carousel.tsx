@@ -2,7 +2,7 @@ import React, {Component, Children} from 'react';
 import {Dimensions, Text, View} from 'react-native';
 // @ts-ignore
 import TimerMixin from 'react-timer-mixin';
-import CarouselPager from './caraouselPager.android';
+import CarouselPager from './caraouselPager';
 import styles from './styles/carousel';
 type Props = {
   hideIndicators: boolean;

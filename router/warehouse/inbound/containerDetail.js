@@ -122,8 +122,8 @@ class Acknowledge extends React.Component {
               titleStyle={styles.deliveryText}
               onPress={()=>{
                 this.props.setBottomBar(false);
-                this.props.navigation.navigate('Manifest')}}
-              title="Add"
+                this.props.navigation.navigate('List')}}
+              title="Submit"
             />
         </View>
     );

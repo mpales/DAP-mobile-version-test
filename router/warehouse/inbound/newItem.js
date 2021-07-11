@@ -2,25 +2,42 @@ import React from 'react';
 import {Text, Button,Image, Input} from 'react-native-elements';
 import {View} from 'react-native';
 import {connect} from 'react-redux';
+import moment from 'moment';
 import Mixins from '../../../mixins';
 
 class Acknowledge extends React.Component {
   constructor(props) {
     super(props);
-    const {routes, index} = this.props.navigation.dangerouslyGetState();
-    const dataCode = routes[index].params.dataCode
- 
     this.state = {
-      dataCode: dataCode,
+      dataCode: '0',
       bottomSheet: false,
       isShowSignature: false,
+      batch: '',
+      lot :'',
+      expDate: '',
+      mfgDate: '',
+      size: '',
+      color : '',
+      class : '',
+      country : '',
+      cLot : '',
     };
+    this.submitItem.bind(this);
   }
-  componentDidMount(){
-    const {routes, index} = this.props.navigation.dangerouslyGetState();
-    const dataCode = routes[index].params.dataCode
-    this.setState({dataCode:dataCode});
+  static getDerivedStateFromProps(props,state){
+    const {navigation} = props;
+    const {dataCode} = state;
+    if(dataCode === '0'){
+      const {routes, index} = navigation.dangerouslyGetState();
+      if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
+        return {...state, dataCode: routes[index].params.dataCode};
+      }
+      return {...state};
+    } 
+    
+    return {...state};
   }
+
   componentDidUpdate(prevProps, prevState, snapshot){
     const {routes, index} = this.props.navigation.dangerouslyGetState();
     const dataCode = routes[index].params.dataCode
@@ -28,8 +45,92 @@ class Acknowledge extends React.Component {
       this.setState({dataCode:dataCode});
     }
   }
+  submitItem = ()=>{
+    const {manifestList} = this.props;
+    const {dataCode, batch,lot,expDate,mfgDate,size,color,classcode,country,cLot} = this.state;
 
+    let manifest = Array.from({length: manifestList.length + 1}).map((num, index, arr) => {
+        if(index === arr.length - 1)
+        return {
+          code: dataCode,
+          total_package: 2,
+          name: batch+lot,
+          color:color,
+          category: cLot,
+          timestamp: moment().unix(),
+          scanned: 0,
+          CBM: 20.10,
+          weight: 115,
+          status: 'onProgress',
+        };
+      return manifestList[index];
+    });
+    this.props.setManifestList(manifest)
+    this.props.setBottomBar(false);
+    this.props.navigation.navigate({
+      name: 'Barcode',
+      params: {
+          inputCode: dataCode,
+      }
+    });
+  }
+  onChangeTextBatch = (text)=> {
+    this.setState({batch: text});
+  }
+  onSubmitedBatch = (e) => {
+    this.setState({batch: e.nativeEvent.text});
+  }
+
+  onChangeTextLot = (text)=> {
+    this.setState({lot: text});
+  }
+  onSubmitedLot = (e) => {
+    this.setState({lot: e.nativeEvent.text});
+  }
+  onChangeTextexpdate = (text)=> {
+    this.setState({expDate: text});
+  }
+  onSubmitedexpdate = (e) => {
+    this.setState({expDate: e.nativeEvent.text});
+  }
+  onChangeTextmfgdate = (text)=> {
+    this.setState({mfgDate: text});
+  }
+  onSubmitedmfgdate = (e) => {
+    this.setState({mfgDate: e.nativeEvent.text});
+  }
+  onChangeTextsize = (text)=> {
+    this.setState({size: text});
+  }
+  onSubmitedsize = (e) => {
+    this.setState({size: e.nativeEvent.text});
+  }
+  onChangeTextcolor = (text)=> {
+    this.setState({color: text});
+  }
+  onSubmitedcolor = (e) => {
+    this.setState({color: e.nativeEvent.text});
+  }
+  onChangeTextclasscode = (text)=> {
+    this.setState({classcode: text});
+  }
+  onSubmitedclasscode = (e) => {
+    this.setState({classcode: e.nativeEvent.text});
+  }
+  onChangeTextcountry = (text)=> {
+    this.setState({country: text});
+  }
+  onSubmitedcountry = (e) => {
+    this.setState({country: e.nativeEvent.text});
+  }
+  onChangeTextclot = (text)=> {
+    this.setState({cLot: text});
+  }
+  onSubmitedclot = (e) => {
+    this.setState({cLot: e.nativeEvent.text});
+  }
   render(){
+    const {batch,lot,expDate,mfgDate,size,color,classcode,country,cLot} = this.state;
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -41,7 +142,9 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                onChangeText={this.onChangeTextBatch.bind(this)}
+                onSubmitEditing={this.onSubmitedBatch.bind(this)}
+                value={batch}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -53,7 +156,9 @@ class Acknowledge extends React.Component {
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                onChangeText={this.onChangeTextLot.bind(this)}
+                onSubmitEditing={this.onSubmitedLot.bind(this)}
+                value={lot}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -65,7 +170,9 @@ class Acknowledge extends React.Component {
                inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                onChangeText={this.onChangeTextexpdate.bind(this)}
+                onSubmitEditing={this.onSubmitedexpdate.bind(this)}
+                value={expDate}
             />
              <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, alignItems: 'center',marginRight: 10}}>
                    <Text>dd-MM-yyyy</Text>
@@ -80,7 +187,9 @@ class Acknowledge extends React.Component {
                inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                onChangeText={this.onChangeTextmfgdate.bind(this)}
+                onSubmitEditing={this.onSubmitedmfgdate.bind(this)}
+                value={mfgDate}
             />
                 <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, alignItems: 'center',marginRight: 10}}>
                    <Text>dd-MM-yyyy</Text>
@@ -95,7 +204,9 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                onChangeText={this.onChangeTextsize.bind(this)}
+                onSubmitEditing={this.onSubmitedsize.bind(this)}
+                value={size}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -107,7 +218,9 @@ class Acknowledge extends React.Component {
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                onChangeText={this.onChangeTextcolor.bind(this)}
+                onSubmitEditing={this.onSubmitedcolor.bind(this)}
+                value={color}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -119,7 +232,9 @@ class Acknowledge extends React.Component {
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                onChangeText={this.onChangeTextclasscode.bind(this)}
+                onSubmitEditing={this.onSubmitedclasscode.bind(this)}
+                value={classcode}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -131,7 +246,9 @@ class Acknowledge extends React.Component {
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                onChangeText={this.onChangeTextcountry.bind(this)}
+                onSubmitEditing={this.onSubmitedcountry.bind(this)}
+                value={country}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -143,19 +260,18 @@ class Acknowledge extends React.Component {
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="DSP"
+                onChangeText={this.onChangeTextclot.bind(this)}
+                onSubmitEditing={this.onSubmitedclot.bind(this)}
+                value={cLot}
             />
          </View>
          <Button
               containerStyle={{flex:1, marginRight: 20,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
-              onPress={()=>{
-                this.props.setBottomBar(false);
-                this.props.setFromBarcode(this.state.dataCode)  
-                this.props.navigation.navigate('Barcode')
-              }}
+              onPress={this.submitItem}
               title="Add"
+              disabled={ batch && lot && expDate && mfgDate && size && color && classcode && country && cLot ? false : true }
             />
         </View>
     );
@@ -273,6 +389,7 @@ function mapStateToProps(state) {
     userRole: state.originReducer.userRole,
     isPhotoProofSubmitted: state.originReducer.filters.isPhotoProofSubmitted,
     isSignatureSubmitted: state.originReducer.filters.isSignatureSubmitted,
+    manifestList: state.originReducer.manifestList,
   };
 }
 
@@ -290,6 +407,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setFromBarcode: (dataCode) => {
       return dispatch({type: 'fromBarcode', payload: dataCode});
+    },
+    setManifestList: (data) => {
+      return dispatch({type: 'ManifestList', payload: data});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };

@@ -25,7 +25,7 @@ import {connect, Provider} from 'react-redux';
 import Mixins from '../../../mixins';
 import InboundDetail from '../../../component/extend/ListItem-inbound-detail';
 import IconBarcodeMobile from '../../../assets/icon/iconmonstr-barcode-3 2mobile.svg';
-
+import moment from 'moment';
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 const window = Dimensions.get('window');
 
@@ -33,26 +33,63 @@ class Warehouse extends React.Component{
 
   constructor(props) {
     super(props);
+    const {routes, index} = this.props.navigation.dangerouslyGetState();
     this.state = {
       inboundCode: this.props.route.params?.code ?? '',
       _visibleOverlay : false,
+      receivingNumber: routes[index].params.number,
       search: '',
+      _manifest: [],
     };
     this.toggleOverlay.bind(this);
     
     this.updateSearch.bind(this);
   }
-
-  componentDidMount() {
-    this.props.setManifestList(manifestList);
-    // for prototype only
-    this.props.navigation.addListener(
-      'focus',
-      payload => {
-        this.forceUpdate();
+  static getDerivedStateFromProps(props,state){
+    const {manifestList, currentASN,barcodeScanned} = props;
+    const {receivingNumber, _manifest, search} = state;
+    if(receivingNumber === undefined){
+      if(currentASN !== null) {
+        return {...state, receivingNumber: currentASN};
       }
-    );
-    // end
+      return {...state};
+    }
+    if(manifestList.length === 0 && search === ''){
+      let manifest = manifestDummy.filter((element)=>element.name.indexOf(this.state.search) > -1);
+      props.setManifestList(manifest);
+      return {...state, _manifest : manifest};
+    } else if(manifestList.length > 0 && barcodeScanned.length > 0) {
+      let manifest = Array.from({length: manifestList.length}).map((num, index) => {
+        return {
+            ...manifestList[index],
+            scanned: barcodeScanned.includes(manifestList[index].code) ? barcodeScanned.length : 0,
+        };
+      });
+      console.log('test 2')
+      props.setItemScanned([]);
+      props.setManifestList(manifest);
+      return {...state,_manifest : manifest};
+    } else if(manifestList.length > 0 && _manifest.length === 0  && search === '' ) {
+      return {...state, _manifest: manifestList}
+    }
+    return {...state};
+  }
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const {manifestList} = this.props;
+    if(prevState.receivingNumber !== this.state.receivingNumber){
+      if(this.props.receivingNumber === undefined){
+        this.props.navigation.goBack();
+      } else {
+       this.setState({_manifest: []});
+       this.props.setManifestList([]);
+      }
+    } 
+    if(prevState.search !== this.state.search) {
+      this.setState({_manifest: manifestList.filter((element)=>element.name.indexOf(this.state.search) > -1)});
+    }
+  }
+  componentDidMount() {
+   
   }
 
   toggleOverlay =()=> {
@@ -61,13 +98,16 @@ class Warehouse extends React.Component{
   }
 
   handleConfirm = ({action}) => {
+    const {currentASN} = this.props;
     this.toggleOverlay();
     if(action) {
-      this.props.navigation.popToTop();
       this.props.setBottomBar(true);
       // for prototype only
+      this.props.addCompleteASN(currentASN);
       this.props.completedInboundList.push(this.state.inboundCode);
       // end
+
+      this.props.navigation.navigate('containerDetail');
     }
   }
 
@@ -75,7 +115,7 @@ class Warehouse extends React.Component{
     this.setState({search});
   };
   render() {
-    const {_visibleOverlay} = this.state;
+    const {_visibleOverlay, _manifest} = this.state;
     return (
       <>
         <StatusBar barStyle="dark-content" /> 
@@ -108,13 +148,12 @@ class Warehouse extends React.Component{
               leftIconContainerStyle={{backgroundColor: 'white'}}
             />
               <Card containerStyle={styles.cardContainer}>
-                {this.props.manifestList.map((u, i) => (
+                {_manifest.map((u, i) => (
                   <InboundDetail 
                     key={i} 
                     index={i} 
                     item={u} 
                     // for prototype only
-                    barcodeScanned={this.props.barcodeScanned} 
                     // end
                   />
                 ))}
@@ -297,10 +336,14 @@ const styles = StyleSheet.create({
   }
 });
 
-const manifestList = [
+const manifestDummy = [
   {
     code: '13140026927104',
     total_package: 2,
+    name: 'DETANGLING BRUSH -NEW YORKER',
+    color:'blue',
+    category: '[N-BR1B]',
+    timestamp: moment().unix(),
     scanned: 1,
     CBM: 20.10,
     weight: 115,
@@ -309,6 +352,10 @@ const manifestList = [
   {
     code: '13140026927105',
     total_package: 5,
+    name: 'DETANGLING BRUSH -NEW YORKER',
+    category: '[N-BR1B]',
+    color:'blue',
+    timestamp: moment().unix(),
     scanned: 0,
     CBM: 10.10,
     weight: 70
@@ -316,6 +363,10 @@ const manifestList = [
   {
     code: '13140026927106',
     total_package: 5,
+    name: 'DETANGLING BRUSH -NEW YORKER',
+    category: '[N-BR1B]',
+    color:'yellow',
+    timestamp: moment().unix(),
     scanned: 0,
     CBM: 15.10,
     weight: 90,
@@ -323,6 +374,10 @@ const manifestList = [
   {
     code: '13140026927107',
     total_package: 5,
+    name: 'DETANGLING BRUSH -NEW YORKER',
+    category: '[N-BR1B]',
+    color:'yellow',
+    timestamp: moment().unix(),
     scanned: 0,
     CBM: 20.10,
     weight: 115,
@@ -330,6 +385,10 @@ const manifestList = [
   {
     code: '13140026927108',
     total_package: 5,
+    name: 'DETANGLING BRUSH -NEW YORKER',
+    category: '[N-BR1B]',
+    color:'yellow',
+    timestamp: moment().unix(),
     scanned: 0,
     CBM: 10.10,
     weight: 90
@@ -337,6 +396,10 @@ const manifestList = [
   {
     code: '13140026927109',
     total_package: 5,
+    name: 'DETANGLING BRUSH -NEW YORKER',
+    category: '[N-BR1B]',
+    color:'yellow',
+    timestamp: moment().unix(),
     scanned: 0,
     CBM: 15.10,
     weight: 70
@@ -344,6 +407,10 @@ const manifestList = [
   {
     code: '13140026927110',
     total_package: 5,
+    name: 'DETANGLING BRUSH -NEW YORKER',
+    category: '[N-BR1B]',
+    color:'blue',
+    timestamp: moment().unix(),
     scanned: 0,
     CBM: 20.10,
     weight: 115
@@ -351,6 +418,10 @@ const manifestList = [
   {
     code: '13140026927111',
     total_package: 5,
+    name: 'DETANGLING BRUSH -NEW YORKER',
+    category: '[N-BR1B]',
+    color:'red',
+    timestamp: moment().unix(),
     scanned: 0,
     CBM: 20.10,
     weight: 115
@@ -358,6 +429,10 @@ const manifestList = [
   {
     code: '13140026927112',
     total_package: 5,
+    name: 'DETANGLING BRUSH -NEW YORKER',
+    category: '[N-BR1B]',
+    color:'red',
+    timestamp: moment().unix(),
     scanned: 0,
     CBM: 20.10,
     weight: 115
@@ -365,6 +440,10 @@ const manifestList = [
   {
     code: '13140026927113',
     total_package: 5,
+    name: 'DETANGLING BRUSH -NEW YORKER',
+    category: '[N-BR1B]',
+    color:'black',
+    timestamp: moment().unix(),
     scanned: 0,
     CBM: 20.10,
     weight: 115
@@ -372,6 +451,10 @@ const manifestList = [
   {
     code: '13140026927114',
     total_package: 5,
+    color:'blue',
+    name: 'DETANGLING BRUSH -NEW YORKER',
+    category: '[N-BR1B]',
+    timestamp: moment().unix(),
     scanned: 0,
     CBM: 20.10,
     weight: 115
@@ -387,8 +470,9 @@ function mapStateToProps(state) {
     ManifestCompleted: state.originReducer.filters.manifestCompleted,
     manifestList: state.originReducer.manifestList,
     // for prototype only
-    barcodeScanned: state.originReducer.barcodeScanned,
+    barcodeScanned: state.originReducer.filters.barcodeScanned,
     completedInboundList: state.originReducer.completedInboundList,
+    currentASN : state.originReducer.filters.currentASN,
     // end
   };
 }
@@ -414,7 +498,13 @@ const mapDispatchToProps = (dispatch) => {
     },
     setManifestList: (data) => {
       return dispatch({type: 'ManifestList', payload: data});
-    }
+    },
+    addCompleteASN : (data)=>{
+      return dispatch({type:'addCompleteASN', payload: data})
+    },
+    setItemScanned : (item) => {
+      return dispatch({type: 'BarcodeScanned', payload: item});
+    },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };

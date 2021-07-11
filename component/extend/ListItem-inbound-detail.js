@@ -13,10 +13,12 @@ import TouchableScale from 'react-native-touchable-scale'; // https://github.com
 import IconCursor20Mobile from '../../assets/icon/iconmonstr-cursor-20 1mobile.svg';
 import IconTime2Mobile from '../../assets/icon/iconmonstr-time-2 1mobile.svg';
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
+import moment from 'moment';
 import Mixins from '../../mixins';
 
 const styles = {
   sectionContainer: {
+    flexGrow: 1,
     marginHorizontal: 14,
     paddingVertical: 10,
   },
@@ -47,10 +49,32 @@ const styles = {
     flexDirection: 'column',
     flexShrink: 1,
     marginHorizontal: 10,
-    alignItems: 'flex-start',
+    marginVertical: 10,
+    alignSelf: 'stretch',
   },
-  inboundDate: {
-    color: '#D5D5D5',
+  containerUser: {
+    flex: 1,
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end'
+  },
+  inboundUser: {
+    ...Mixins.subtitle3,
+    color:'#D5D5D5',
+    fontWeight: '400',
+    lineHeight: 18,
+    alignSelf: 'flex-end',
+  },
+  containerPackage: {
+    flex: 1,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start'
+  },
+  inboundPackage: {
+    ...Mixins.subtitle3,
+    color:'#D5D5D5',
+    fontWeight: '600',
+    lineHeight: 21,
+  alignSelf: 'flex-end',
   },
   inboundText: {
 ...Mixins.small1,
@@ -90,23 +114,14 @@ const theme = {
 };
 const Manifest = ({item, index, drag, isActive}) => {
   let status = 'grey';
-
-  switch (item.status) {
-    case 'warning':
-      status = "red";
-      break;
-    case 'error':
-      status = "orange";
-      break;
-    case 'complete':
-      status = "green";
-      break;
-    case 'pending':
-      status = "grey";
-      break;
-    default:
-      status = "grey";
-      break;
+  if(item.scanned < item.total_package) {
+    if(item.scanned === 0) {
+      status = 'grey';
+    } else {
+      status = 'orange'
+    }
+  } else {
+    status = 'green';
   }
   return (
     <ThemeProvider theme={theme}>
@@ -115,22 +130,32 @@ const Manifest = ({item, index, drag, isActive}) => {
         Component={TouchableScale}
         friction={90} //
         tension={100} // These props are passed to the parent component (here TouchableScale)
-        activeScale={0.95}>
+        activeScale={0.95}
+        pad={0}>
         <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
         <ListItem.Content style={styles.sectionContainer}>
-        <ListItem.Title style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
+          <Text style={{...Mixins.subtitle3,fontWeight: '600',lineHeight: 21,color:'#6C6B6B'}}>
+            {item.category}
+          </Text>
+        <ListItem.Title style={{...Mixins.subtitle3,lineHeight: 21,color: '#6C6B6B', fontWeight: '600'}}>
         {item.name}
         </ListItem.Title>
-        <ListItem.Subtitle style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
-         {item.subtitle}
+        <ListItem.Subtitle style={{...Mixins.small3, lineHeight: 18, color: '#D5D5D5', fontWeight: '400'}}>
+         {moment.unix(item.timestamp).format('DD-MMM-Y')}
         </ListItem.Subtitle>
-        <Text style={styles.inboundText}>BLK lorem ipsum</Text>
         </ListItem.Content>
         <View style={styles.rightList}>
-          <Text style={styles.inboundDate}>
-            20/20
+          <View style={styles.containerPackage}>
+          <Text style={styles.inboundPackage}>
+            {item.total_package + ' box'}
           </Text>
+          </View>
+          <View style={styles.containerUser}>
+          <Text style={styles.inboundUser}>
+          Checked by : Adam
+          </Text>
+          </View>
         </View>
       </ListItem>
     </ThemeProvider>

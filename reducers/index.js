@@ -15,7 +15,6 @@ const initialState = {
   // for prototype only
   currentPositionData: null,
   completedInboundList: [],
-  barcodeScanned: [],
   currentDeliveringAddress: null,
   deliveryDestinationData: DESTINATION,
   // end
@@ -45,6 +44,10 @@ const initialState = {
     isGlobalLoading: false,
     isConnectedSelector: true,
     warehouse_module: '',
+    currentASN : null,
+    activeASN : [],
+    completeASN :[],
+    barcodeScanned: [],
   },
 };
 
@@ -111,8 +114,9 @@ export default function appReducer(state = initialState, action) {
       return {
         ...state,
         userRole: {
-          type: action.payload === 'demo' ? 'Warehouse' : 'Delivery',
+          type: action.payload === 'demo' ? 'Warehouse' : action.payload === 'supervisor' ? 'Warehouse' : 'Delivery',
           id: 0,
+          role: action.payload === 'supervisor' ? 'SPV': 'default' ,
           name: 'Nana',
         },
       };
@@ -254,6 +258,36 @@ export default function appReducer(state = initialState, action) {
               isDrawer: action.payload,
             },
     };
+    case 'setASN':
+      return {
+        ...state,
+        filters:{
+          ...state.filters,
+          currentASN: action.payload,
+        },
+      }
+    case 'addActiveASN':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          completeASN : [
+            ...state.filters.activeASN,
+            action.payload,
+          ],
+        },
+      }
+      case 'addCompleteASN':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          activeASN : [
+            ...state.filters.activeASN,
+            action.payload,
+          ],
+        },
+      }
     case 'filtered_sort':
       return {
         ...state,
@@ -405,7 +439,10 @@ export default function appReducer(state = initialState, action) {
       case 'BarcodeScanned':
         return {
           ...state,
-          barcodeScanned: action.payload,
+          filters: {
+            ...state.filters,
+            barcodeScanned: action.payload,
+          },
         };
         case 'fromBarcode':
           return {

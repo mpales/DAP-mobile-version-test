@@ -79,13 +79,12 @@ class App extends React.Component<IProps, {}> {
   componentDidUpdate(prevProps, prevState, snapshot) { 
     if(prevState.submit !== this.state.submit && this.state.submit === true){ 
         if(this.props.roletype === 'Warehouse'){
+          this.setState({submit: false});
           this.props.navigation.navigate('MenuWarehouse');
         } else {
+          this.setState({submit: false});
           this.props.navigation.navigate('Details');
         }
-    } else if(prevState.submit === this.state.submit && this.state.submit === true) {
-        this.setState({submit: false});
-        this.props.logout();
     }
   }
   webWorker() {}

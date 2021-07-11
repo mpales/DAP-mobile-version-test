@@ -14,7 +14,7 @@ import List from './list';
 import ManualInput from './manualInput';
 import ReportManifest from './reportManifest';
 import ReceivingDetail from './receivingDetail';
-import itemDetail from './itemDetail';
+import itemDetail from './containerDetail';
 import newItem from './newItem';
 import Mixins from '../../../mixins';
 import SingleCamera from '../peripheral/cameraSingle';
@@ -217,7 +217,7 @@ class HomeNavigator extends React.Component {
           })}
         />
           <Stack.Screen
-          name="itemDetail"
+          name="containerDetail"
           component={itemDetail}
           options={() => ({
             headerStyle: {
