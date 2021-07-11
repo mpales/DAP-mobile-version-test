@@ -10,14 +10,6 @@
       "sha1": "14e5685922c5a5c5a7cdf23d5e84b78b521460aa"
     },
     {
-      "path": "assets/fonts/Poppins-Bold.ttf",
-      "sha1": "b9b65c039a1f10a5cb5e0726c6e7e18e98a8e517"
-    },
-    {
-      "path": "assets/fonts/Poppins-BoldItalic.ttf",
-      "sha1": "5b2f8f7c4bbd52b6a1948c9781b45b17d31430ea"
-    },
-    {
       "path": "assets/fonts/Poppins-ExtraBold.ttf",
       "sha1": "66815173c5954271fac6b3ef51076f186577ad6f"
     },
@@ -32,10 +24,6 @@
     {
       "path": "assets/fonts/Poppins-ExtraLightItalic.ttf",
       "sha1": "26d368932f85fcdef67fd9eafb640fbc49c7fe3e"
-    },
-    {
-      "path": "assets/fonts/Poppins-Italic.ttf",
-      "sha1": "597eeb5ac2ce09c6f57ee14457a91be9e4a826cd"
     },
     {
       "path": "assets/fonts/Poppins-Light.ttf",
@@ -54,10 +42,6 @@
       "sha1": "5633a4f50fb7cf79131b957beff9114b0997bdac"
     },
     {
-      "path": "assets/fonts/Poppins-Regular.ttf",
-      "sha1": "01d319c533f62ea29f03b5df8adfd4d93d2d2a38"
-    },
-    {
       "path": "assets/fonts/Poppins-SemiBold.ttf",
       "sha1": "20b39c8b480c946b084d6aa09f12bf10b2ec5aa6"
     },
@@ -74,12 +58,28 @@
       "sha1": "0ae5e70e426adb3104852afb7a83a89bf3699260"
     },
     {
+      "path": "assets/fonts/Poppins.ttf",
+      "sha1": "01d319c533f62ea29f03b5df8adfd4d93d2d2a38"
+    },
+    {
+      "path": "assets/fonts/Poppins_bold.ttf",
+      "sha1": "b9b65c039a1f10a5cb5e0726c6e7e18e98a8e517"
+    },
+    {
+      "path": "assets/fonts/Poppins_bold_italic.ttf",
+      "sha1": "5b2f8f7c4bbd52b6a1948c9781b45b17d31430ea"
+    },
+    {
+      "path": "assets/fonts/Poppins_italic.ttf",
+      "sha1": "597eeb5ac2ce09c6f57ee14457a91be9e4a826cd"
+    },
+    {
       "path": "assets/html/log-android.html",
-      "sha1": "48551355e88f06a07ded9c1da8fe6c3c1c6363f0"
+      "sha1": "70873dc839c08b5768917067b607c7eb93a66b1f"
     },
     {
       "path": "assets/html/log-ios.html",
-      "sha1": "e5d37c82a14f0d82595d34f82328432a75e98c51"
+      "sha1": "e4fbd77c73dfe5c22e8fc684ea13b733361a908c"
     }
   ]
 }

@@ -393,7 +393,7 @@ class CameraScreen extends React.Component {
             </View>
           </View>
         </View>
-        
+{/*         
         <View
           style={{
             flexShrink: 1,
@@ -411,7 +411,7 @@ class CameraScreen extends React.Component {
                 this.props.navigation.navigate('ManualInput')}}
               title="Manual Input"
             />
-        </View>
+        </View> */}
         {!!canDetectFaces && this.renderFaces()}
         {!!canDetectFaces && this.renderLandmarks()}
         {!!canDetectText && this.renderTextBlocks()}

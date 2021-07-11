@@ -49,6 +49,7 @@ const styles = {
     flexDirection: 'column',
     justifyContent: 'space-evenly',
     marginHorizontal: 0,
+    marginVertical: 10,
     padding:3,
     alignSelf: 'stretch',
   },
@@ -94,11 +95,8 @@ const theme = {
   ListItemContent: {
     containerStyle: styles.sectionContainer,
   },
-  ListItemChevron: {
-    containerStyle: {
-      flexShrink: 1,
-    },
-  }
+ 
+
 };
 const Manifest = ({item, index, isActive, ToManifest}) => {
   let status = 'grey';
@@ -109,9 +107,12 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
       case 'progress':
         status = 'orange';
         break;
-        case 'unprogress':
+        case 'pending':
           status = 'grey';
           break;
+          case 'reported':
+            status = 'red';
+            break;
     default:
       break;
   }
@@ -127,21 +128,22 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
         <ListItem.Content style={styles.sectionContainer}>
-        <ListItem.Title style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
+        <ListItem.Title style={{...Mixins.body3,lineHeight: 18,color: '#ABABAB', fontWeight: '600'}}>
         ASN Number
         </ListItem.Title>
-        <ListItem.Subtitle style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
+        <ListItem.Subtitle style={{...Mixins.body1, lineHeight: 21, color: '#424141', fontWeight: '600'}}>
         {item.number}
         </ListItem.Subtitle>
         <Text style={styles.descText}>{item.desc}</Text>
         </ListItem.Content>
         <View style={styles.labelContainer}>
-        <Badge value={item.status} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 10,}} containerStyle={{alignSelf: 'flex-start',}} />
-        <Text style={styles.labelText}>{item.transport}</Text>
-        </View>
+        <Badge value={item.status} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />
+        <View style={{alignSelf:'flex-end',flexDirection: 'column'}}>
+           
         <ListItem.Chevron
             size={16}
             color="#2D2C2C"
+            containerStyle={{alignContent:'flex-end',justifyContent:'flex-end',alignItems:'flex-end',flexShrink:1,padding:0,margin:0}}
             Component={(props)=>(
               <Button
                 {...props}
@@ -152,6 +154,10 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
               />)}
             onPress={ToManifest}
           />
+          </View>
+        <Text style={[styles.labelText,{marginHorizontal: 20}]}>{item.transport}</Text>
+        </View>
+        
       </ListItem>
     </ThemeProvider>
   );

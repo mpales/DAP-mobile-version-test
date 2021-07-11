@@ -9,7 +9,7 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 24,
     lineHeight: 48,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     h2:{
     fontFamily: fontName,
@@ -17,7 +17,7 @@ export default StyleSheet.create({
     fontWeight: '600',
     fontSize: 24,
     lineHeight: 48,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     h3:{
     fontFamily: fontName,
@@ -25,7 +25,7 @@ export default StyleSheet.create({
     fontWeight: 'normal',
     fontSize: 24,
     lineHeight: 48,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     h4:{
     fontFamily: fontName,
@@ -33,7 +33,7 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 18,
     lineHeight: 36,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     h5:{
     fontFamily: fontName,
@@ -49,7 +49,7 @@ export default StyleSheet.create({
     fontWeight: 'normal',
     fontSize: 18,
     lineHeight: 36,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     subtitle1:{
     fontFamily: fontName,
@@ -57,7 +57,7 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
     lineHeight: 28,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     subtitle2:{
     fontFamily: fontName,
@@ -65,7 +65,7 @@ export default StyleSheet.create({
     fontWeight: '500',
     fontSize: 14,
     lineHeight: 28,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     subtitle3:{
     fontFamily: fontName,
@@ -73,7 +73,7 @@ export default StyleSheet.create({
     fontWeight: '600',
     fontSize: 14,
     lineHeight: 28,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     body1:{
     fontFamily: fontName,
@@ -81,7 +81,7 @@ export default StyleSheet.create({
     fontWeight: 'normal',
     fontSize: 14,
     lineHeight: 28,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     body2:{
     fontFamily: fontName,
@@ -89,7 +89,7 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 12,
     lineHeight: 24,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     body3:{
     fontFamily: fontName,
@@ -97,7 +97,7 @@ export default StyleSheet.create({
     fontWeight: '600',
     fontSize: 12,
     lineHeight: 24,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     small1:{
     fontFamily: fontName,
@@ -105,7 +105,7 @@ export default StyleSheet.create({
     fontWeight: 'normal',
     fontSize: 12,
     lineHeight: 24,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     small2:{
     fontFamily: fontName,
@@ -113,7 +113,7 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 10,
     lineHeight: 20,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     small3:{
     fontFamily: fontName,
@@ -121,7 +121,7 @@ export default StyleSheet.create({
     fontWeight: '600',
     fontSize: 10,
     lineHeight: 20,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     button:{
     fontFamily: fontName,
@@ -129,7 +129,7 @@ export default StyleSheet.create({
     fontWeight: 'normal',
     fontSize: 10,
     lineHeight: 20,
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     },
     verticalBarExpand: {
         width:screen.width * 0.6,

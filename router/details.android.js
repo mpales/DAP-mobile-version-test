@@ -91,12 +91,14 @@ class Details extends React.Component {
           case RESULTS.GRANTED:
             break;
           case RESULTS.BLOCKED:
-            if(!this.state.visible)
-            this.setState({
-              overlayString:
-                'In-App Delivery requires Location Permission to be granted, Tap `YES` to open App Setings',
-                visible: true,
-            });
+            if(!this.state.visible){
+              this.props.setLocationPermission(false);
+              this.setState({
+                overlayString:
+                  'In-App Delivery requires Location Permission to be granted, Tap `YES` to open App Setings',
+                  visible: true,
+              });
+            }
             break;
         }
       })
@@ -119,12 +121,14 @@ class Details extends React.Component {
             this.props.setLocationPermission(true);
             break;
           case RESULTS.BLOCKED:
-            if(!this.state.visible)
-            this.setState({
-              overlayString:
-                'In-App Delivery requires Location Permission to be granted, Tap `YES` to open App Setings',
-                visible: true, 
-            });
+            if(!this.state.visible){
+              this.props.setLocationPermission(false);
+              this.setState({
+                overlayString:
+                  'In-App Delivery requires Location Permission to be granted, Tap `YES` to open App Setings',
+                  visible: true, 
+              });
+            }
             break;
         }
       });
@@ -149,12 +153,14 @@ class Details extends React.Component {
           case RESULTS.GRANTED:
             break;
           case RESULTS.BLOCKED:
-            if(!this.state.visible)
-            this.setState({
-              overlayString:
-                'In-App Delivery requires Background Location Permission to be granted, Tap `YES` to open App Setings',
-                visible: true, 
-            });
+            if(!this.state.visible){
+              this.props.setbackgroundLocationPermission(false);
+              this.setState({
+                overlayString:
+                  'In-App Delivery requires Background Location Permission to be granted, Tap `YES` to open App Setings',
+                  visible: true, 
+              });
+            }
             break;
         }
       })
@@ -183,6 +189,7 @@ class Details extends React.Component {
             break;
           case RESULTS.BLOCKED:
             if(!this.state.visible){
+              this.props.setbackgroundLocationPermission(false);
               this.setState({
                 overlayString:
                   'In-App Delivery requires Background Location Permission to be granted, Tap `YES` to open App Setings',
@@ -213,12 +220,14 @@ class Details extends React.Component {
           case RESULTS.GRANTED:
             break;
           case RESULTS.BLOCKED:
-            if(!this.state.visible)
-            this.setState({
-              overlayString:
-                'In-App Camera requires Camera Permission to be granted, Tap `YES` to open App Setings',
-                visible: true, 
-            });
+            if(!this.state.visible){
+              this.props.setCameraPermission(false);
+              this.setState({
+                overlayString:
+                  'In-App Camera requires Camera Permission to be granted, Tap `YES` to open App Setings',
+                  visible: true, 
+              });
+            }
             break;
         }
       })
@@ -241,12 +250,14 @@ class Details extends React.Component {
             this.props.setCameraPermission(true);
             break;
           case RESULTS.BLOCKED:
-            if(!this.state.visible)
-            this.setState({
-              overlayString:
-                'In-App Camera requires Camera Permission to be granted, Tap `YES` to open App Setings',
-                visible: true, 
-            });
+            if(!this.state.visible){
+              this.props.setCameraPermission(false);
+              this.setState({
+                overlayString:
+                  'In-App Camera requires Camera Permission to be granted, Tap `YES` to open App Setings',
+                  visible: true, 
+              });
+            }
             break;
         }
       });
@@ -272,12 +283,14 @@ class Details extends React.Component {
             case RESULTS.GRANTED:
               break;
             case RESULTS.BLOCKED:
-              if(!this.state.visible)
-              this.setState({
-                overlayString:
-                'In-App Camera requires Read Storage Permission to be granted, Tap `YES` to open App Setings',
-                visible: true,
-              });
+              if(!this.state.visible){
+                this.props.setReadStoragePermission(false);
+                this.setState({
+                  overlayString:
+                  'In-App Camera requires Read Storage Permission to be granted, Tap `YES` to open App Setings',
+                  visible: true,
+                });
+              }
               break;
           }
         })
@@ -309,12 +322,14 @@ class Details extends React.Component {
             this.props.setReadStoragePermission(true);
             break;
           case RESULTS.BLOCKED:
-            if(!this.state.visible)
+            if(!this.state.visible) {
+              this.props.setReadStoragePermission(false);
             this.setState({
               overlayString:
               'In-App Camera requires Read Storage Permission to be granted, Tap `YES` to open App Setings',
               visible: true, 
-            });
+            }); 
+            }
             break;
         }
       });
@@ -341,12 +356,14 @@ class Details extends React.Component {
             case RESULTS.GRANTED:
               break;
             case RESULTS.BLOCKED:
-              if(!this.state.visible)
-              this.setState({
-                overlayString:
-                'In-App Camera requires Write Storage Permission to be granted, Tap `YES` to open App Setings',
-                visible: true, 
-              });
+              if(!this.state.visible) {
+                this.props.setWriteStoragePermission(false);
+                this.setState({
+                  overlayString:
+                  'In-App Camera requires Write Storage Permission to be granted, Tap `YES` to open App Setings',
+                  visible: true, 
+                });
+              }
               break;
           }
         })
@@ -378,12 +395,14 @@ class Details extends React.Component {
             this.props.setWriteStoragePermission(true);
             break;
           case RESULTS.BLOCKED:
-            if(!this.state.visible)
-            this.setState({
-              overlayString:
-              'In-App Camera requires Write Storage Permission to be granted, Tap `YES` to open App Setings',
-              visible: true, 
-            });
+            if(!this.state.visible){
+              this.props.setWriteStoragePermission(false);
+              this.setState({
+                overlayString:
+                'In-App Camera requires Write Storage Permission to be granted, Tap `YES` to open App Setings',
+                visible: true, 
+              });
+            }
             break;
         }
       });

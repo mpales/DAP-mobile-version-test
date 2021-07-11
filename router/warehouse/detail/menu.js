@@ -21,7 +21,7 @@ class Acknowledge extends React.Component {
   render(){
     this.props.setBottomBar(false);
     return (
-        <View style={{flex: 1, flexDirection:'column', backgroundColor: '#E5E5E5', paddingHorizontal: 22,}}>
+        <View style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
           <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 100}}>
           <Image
               source={require('../../../assets/dap_logo_hires1thumb.png')}
@@ -56,7 +56,7 @@ class Acknowledge extends React.Component {
                   this.props.setBottomBar(true);
                   this.props.setWarehouseModule('OUTBOUND');
                     this.props.navigation.navigate('Details')}}
-                    buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
+                    buttonStyle={{backgroundColor: 'grey',paddingVertical:15, paddingHorizontal: 35}}
                     />
                  
           <Button
@@ -71,7 +71,7 @@ class Acknowledge extends React.Component {
                   this.props.setBottomBar(true);
                   this.props.setWarehouseModule('WAREHOUSE');
                     this.props.navigation.navigate('Details')}}
-                    buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
+                    buttonStyle={{backgroundColor: 'grey',paddingVertical:15, paddingHorizontal: 35}}
                     />
         </View>
     );
