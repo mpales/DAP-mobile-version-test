@@ -12,28 +12,27 @@ class Acknowledge extends React.Component {
       dataCode: '0',
       bottomSheet: false,
       isShowSignature: false,
-      batch: '',
-      lot :'',
       expDate: '',
       mfgDate: '',
       size: '',
       color : '',
       class : '',
       country : '',
-      cLot : '',
-      update: false,
+      height : '',
+      weight: '',
+      barcode : '',
+      sku: '',
     };
     this.submitItem.bind(this);
   }
   static getDerivedStateFromProps(props,state){
-    const {navigation} = props;
+    const {navigation, manifestList} = props;
     const {dataCode} = state;
     if(dataCode === '0'){
       const {routes, index} = navigation.dangerouslyGetState();
-      if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-        return {...state, dataCode: routes[index].params.dataCode, update:false};
-      } else if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined){
-        return {...state, dataCode: routes[index].params.dataCode, update: true};
+       if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined){
+        let manifest = manifestList.find((element)=>element.code === routes[index].params.inputCode);
+        return {...state, dataCode: routes[index].params.dataCode, barcode: manifest.code, sku : manifest.sku};
       }
       return {...state};
     } 
@@ -46,68 +45,28 @@ class Acknowledge extends React.Component {
   }
   submitItem = ()=>{
     const {manifestList} = this.props;
-    const {update,dataCode, batch,lot,expDate,mfgDate,size,color,classcode,country,cLot} = this.state;
+    const {dataCode, barcode, sku, expDate,mfgDate,size,color,classcode,country,height, weight} = this.state;
     let manifest = []
-    if(update){
+    
       manifest = Array.from({length: manifestList.length}).map((num, index, arr) => {
-        
-      return {
-        ...manifestList[index],
-          code: dataCode,
-          total_package: 2,
-          name: batch+lot,
-          color:color,
-          category: cLot,
-          timestamp: moment().unix(),
-          scanned: 0,
-          CBM: 20.10,
-          weight: 115,
-      };
-    });
-    } else {
-      manifest = Array.from({length: manifestList.length + 1}).map((num, index, arr) => {
-        if(index === arr.length - 1)
+      if(barcode === manifestList[index].code){
         return {
-          code: dataCode,
-          total_package: 2,
-          name: batch+lot,
-          color:color,
-          category: cLot,
-          timestamp: moment().unix(),
-          scanned: 0,
-          CBM: 20.10,
-          weight: 115,
+          ...manifestList[index],
+            code: dataCode,
+            color:color,
+            timestamp: moment().unix(),
+            scanned: 0,
+            weight: weight,
+            category: 'test',
         };
-      return manifestList[index];
+      } else {
+      return manifestList[index];  
+      }
     });
-    }
 
     this.props.setManifestList(manifest)
     this.props.setBottomBar(false);
-    if(update){
-      this.props.navigation.navigate('Manifest');
-    }else {
-
-      this.props.navigation.navigate({
-        name: 'Barcode',
-        params: {
-            inputCode: dataCode,
-        }
-      });
-    }
-  }
-  onChangeTextBatch = (text)=> {
-    this.setState({batch: text});
-  }
-  onSubmitedBatch = (e) => {
-    this.setState({batch: e.nativeEvent.text});
-  }
-
-  onChangeTextLot = (text)=> {
-    this.setState({lot: text});
-  }
-  onSubmitedLot = (e) => {
-    this.setState({lot: e.nativeEvent.text});
+    this.props.navigation.navigate('Manifest');
   }
   onChangeTextexpdate = (text)=> {
     this.setState({expDate: text});
@@ -145,42 +104,46 @@ class Acknowledge extends React.Component {
   onSubmitedcountry = (e) => {
     this.setState({country: e.nativeEvent.text});
   }
-  onChangeTextclot = (text)=> {
-    this.setState({cLot: text});
+  onChangeTextheight = (text)=> {
+    this.setState({height: text});
   }
-  onSubmitedclot = (e) => {
-    this.setState({cLot: e.nativeEvent.text});
+  onSubmitedheight = (e) => {
+    this.setState({height: e.nativeEvent.text});
+  }
+  onChangeTextweight = (text)=> {
+    this.setState({weight: text});
+  }
+  onSubmitedweight = (e) => {
+    this.setState({weight: e.nativeEvent.text});
   }
   render(){
-    const {batch,lot,expDate,mfgDate,size,color,classcode,country,cLot} = this.state;
+    const {barcode, sku, expDate,mfgDate,size,color,classcode,country,height, weight} = this.state;
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
          <View style={{flexDirection:'row', flexShrink:1}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-             <Text>Batch#</Text>
+             <Text>SKU</Text>
              </View>
              <Input 
                 containerStyle={{flex: 1,paddingVertical:0}}
                 inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                onChangeText={this.onChangeTextBatch.bind(this)}
-                onSubmitEditing={this.onSubmitedBatch.bind(this)}
-                value={batch}
+                disabled={true}
+                value={barcode}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-               <Text>Lot#</Text>
+               <Text>Barcode</Text>
              </View>
              <Input 
               containerStyle={{flex: 1,paddingVertical:0}}
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                onChangeText={this.onChangeTextLot.bind(this)}
-                onSubmitEditing={this.onSubmitedLot.bind(this)}
-                value={lot}
+                disabled={true}
+                value={sku}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -275,25 +238,39 @@ class Acknowledge extends React.Component {
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
           <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-          <Text>C.Lot#</Text>
+          <Text>Height</Text>
            </View>
              <Input 
               containerStyle={{flex: 1,paddingVertical:0}}
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                onChangeText={this.onChangeTextclot.bind(this)}
-                onSubmitEditing={this.onSubmitedclot.bind(this)}
-                value={cLot}
+                onChangeText={this.onChangeTextheight.bind(this)}
+                onSubmitEditing={this.onSubmitedheight.bind(this)}
+                value={height}
+            />
+         </View>
+         <View style={{flexDirection:'row', flexShrink:1}}>
+          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+          <Text>Weight</Text>
+           </View>
+             <Input 
+              containerStyle={{flex: 1,paddingVertical:0}}
+              inputContainerStyle={styles.textInput} 
+                inputStyle={Mixins.containedInputDefaultStyle}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                onChangeText={this.onChangeTextweight.bind(this)}
+                onSubmitEditing={this.onSubmitedweight.bind(this)}
+                value={weight}
             />
          </View>
          <Button
-              containerStyle={{flex:1, marginRight: 20,}}
+              containerStyle={{flex:1, marginRight: 0,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.submitItem}
-              title="Add"
-              disabled={ batch && lot && expDate && mfgDate && size && color && classcode && country && cLot ? false : true }
+              title="Save Attribute"
+              disabled={ barcode && sku && expDate && mfgDate && size && color && classcode && country && height && weight ? false : true }
             />
         </View>
     );

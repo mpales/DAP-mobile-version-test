@@ -41,6 +41,7 @@ class Warehouse extends React.Component{
       search: '',
       filtered : 0,
       _manifest: [],
+      updated: false,
     };
     this.toggleOverlay.bind(this);
     this.setFiltered.bind(this);
@@ -80,7 +81,10 @@ class Warehouse extends React.Component{
   }
   shouldComponentUpdate(nextProps, nextState) {
     if(this.props.keyStack !== nextProps.keyStack){
-      if(nextProps.keyStack === 'Manifest'){
+      if(nextProps.keyStack === 'Manifest' && this.props.keyStack ==='newItem'){
+        this.setState({updated: true});
+        return true;
+      } else if(nextProps.keyStack === 'Manifest'){
         return true;
       }
     }
@@ -97,19 +101,18 @@ class Warehouse extends React.Component{
        this.props.setManifestList([]);
       }
     } 
-    let filtered = prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
+    let filtered = prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.updated !== this.state.updated ? this.state.filtered : null;
    
     if(filtered === 0) {
-      this.setState({_manifest: manifestList.filter((element)=> element.name.indexOf(this.state.search) > -1)});
+      this.setState({_manifest: manifestList.filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       } else if(filtered === 1){
-        console.log('test');
-        this.setState({_manifest: manifestList.filter((element)=> element.scanned === -1).filter((element)=> element.name.indexOf(this.state.search) > -1)});
+        this.setState({_manifest: manifestList.filter((element)=> element.scanned === -1).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       } else if(filtered === 2){
-        this.setState({_manifest: manifestList.filter((element)=>  element.scanned === 0).filter((element)=> element.name.indexOf(this.state.search) > -1)});
+        this.setState({_manifest: manifestList.filter((element)=>  element.scanned === 0).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       }else if(filtered === 3){
-        this.setState({_manifest: manifestList.filter((element)=>  element.scanned < element.total_package && element.scanned > 0).filter((element)=> element.name.indexOf(this.state.search) > -1)});
+        this.setState({_manifest: manifestList.filter((element)=>  element.scanned < element.total_package && element.scanned > 0).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       }else if(filtered === 4){
-        this.setState({_manifest: manifestList.filter((element)=>  element.scanned === element.total_package).filter((element)=> element.name.indexOf(this.state.search) > -1)});
+        this.setState({_manifest: manifestList.filter((element)=>  element.scanned === element.total_package).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       } 
    
   }

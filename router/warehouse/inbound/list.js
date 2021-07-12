@@ -109,6 +109,7 @@ class List extends React.Component {
                     style={styles.body} 
                     showsVerticalScrollIndicator={false}
                 >
+                        <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141', paddingHorizontal: 20, marginTop: 15}}>Search</Text>
                          <SearchBar
               placeholder="Type Here..."
               onChangeText={this.updateSearch}
