@@ -288,7 +288,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
             <Button
               containerStyle={{flexShrink:1, paddingVertical: 4, paddingHorizontal: 0}}
               buttonStyle={[styles.navigationButton, {backgroundColor: '#fff', borderWidth: 1, borderColor: '#D5D5D5'}]}
-              titleStyle={[styles.deliveryText,{color:'#F1811C',paddingHorizontal: 10}]}
+              titleStyle={[styles.deliveryText,{color:'#E03B3B',paddingHorizontal: 10}]}
               onPress={()=>{
                 navigation.navigate({
                   name: 'ReportManifest',

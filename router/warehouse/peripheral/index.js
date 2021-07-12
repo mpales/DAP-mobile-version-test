@@ -264,22 +264,16 @@ class Example extends React.Component {
                     buttonStyle={styles.navigationButton}
                     titleStyle={styles.deliveryText}
                     onPress={() => {
-                      this.props.setBottomBar(false);
-                      this.props.navigation.navigate('newItem',{dataCode: dataCode})}}
-                    title="Regis New Product"
+                      this.props.setBottomBar(true);
+                      this.props.navigation.navigate('ManualInput') 
+                    }}
+                    title="Input Manual"
                   />)}
                 </View>
               )}
               <View style={styles.buttonSheet}>
                 {(dataItem !== null && qty < dataItem.total_package) ||  (dataCode !== '0' && dataItem === null) ? (
                   <>
-                    <Button
-                      containerStyle={{flex: 1, marginTop: 10, marginRight: 5}}
-                      buttonStyle={styles.cancelButton}
-                      titleStyle={styles.backText}
-                      onPress={()=>this.props.navigation.goBack()}
-                      title="Back"
-                    />
                     <Button
                       containerStyle={{flex: 1, marginTop: 10, marginLeft: 5}}
                       buttonStyle={styles.cancelButton}
@@ -292,7 +286,14 @@ class Example extends React.Component {
                               dataCode: dataCode,
                           }
                         })}}
-                      title="Report"
+                      title="Report Item"
+                    />
+                    <Button
+                      containerStyle={{flex: 1, marginTop: 10, marginRight: 5}}
+                      buttonStyle={styles.cancelButton}
+                      titleStyle={styles.backText}
+                      onPress={()=>this.props.navigation.goBack()}
+                      title="Back"
                     />
                   </>
                 ) : (
@@ -332,7 +333,7 @@ class Example extends React.Component {
         <Button
           containerStyle={{flex:1, marginTop: 10,marginRight: 5,}}
           buttonStyle={styles.cancelButton}
-                      titleStyle={[styles.reportText,{color:'#F07120'}]}
+                      titleStyle={styles.reportText}
           onPress={() => {
             this.props.setBottomBar(true);
             this.props.navigation.navigate({

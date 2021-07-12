@@ -29,7 +29,7 @@ class Acknowledge extends React.Component {
             />
           </View>
           <View style={{flexDirection: 'row', flexShrink:1}}>
-          <View style={styles.sectionContainer}>
+          {/* <View style={styles.sectionContainer}>
                 <Avatar
                   size={140}
                   ImageComponent={() => (
@@ -53,7 +53,7 @@ class Acknowledge extends React.Component {
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
                   titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}, this.props.currentASN === null ? {color: '#6C6B6B'} : null]}
                   />
-              </View>
+              </View> */}
               <View style={styles.sectionContainer}>
                 <Avatar
                   size={140}
@@ -65,7 +65,7 @@ class Acknowledge extends React.Component {
                      ...Mixins.buttonFloatedAvatarDefaultIconStyle
                     },
                   }}
-                  title="PURCHASE ORDER"
+                  title="INBOUND"
                   overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle, this.props.currentASN === null ? {backgroundColor: 'grey'} : null]}
                   onPress={() => {
                     if(this.props.currentASN !== null){
@@ -77,6 +77,26 @@ class Acknowledge extends React.Component {
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
                   titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}, this.props.currentASN === null ? {color: '#6C6B6B'} : null]}
+                />
+              </View>
+              <View style={styles.sectionContainer}>
+                <Avatar
+                  size={140}
+                  ImageComponent={() => (
+                    <Transfer height="70" width="70" fill="#6C6B6B" />
+                  )}
+                  imageProps={{
+                    containerStyle: {
+                     ...Mixins.buttonFloatedAvatarDefaultIconStyle
+                    },
+                  }}
+                  title="TRANSFER"
+                  overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
+                  onPress={() => console.log('Works!')}
+                  activeOpacity={0.7}
+                  containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
+                  placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
+                  titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}]}
                 />
               </View>
           </View>
@@ -102,26 +122,7 @@ class Acknowledge extends React.Component {
                   titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}]}
                 />
               </View>
-              <View style={styles.sectionContainer}>
-                <Avatar
-                  size={140}
-                  ImageComponent={() => (
-                    <Transfer height="70" width="70" fill="#6C6B6B" />
-                  )}
-                  imageProps={{
-                    containerStyle: {
-                     ...Mixins.buttonFloatedAvatarDefaultIconStyle
-                    },
-                  }}
-                  title="TRANSFER"
-                  overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
-                  onPress={() => console.log('Works!')}
-                  activeOpacity={0.7}
-                  containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
-                  placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
-                  titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}]}
-                />
-              </View>
+              <View style={styles.sectionContainer}></View>
           </View>
           
         </View>
