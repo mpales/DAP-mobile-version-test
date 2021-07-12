@@ -155,9 +155,7 @@ class Delivery extends React.Component {
                     indicatorOffset={-25}
                     width={window.width / 1.2}
                     height={window.width / 3}
-                    onScroll={() => console.log('on scroll view')}
-                    onScrollBegin={() => console.log('scroll begin')}
-                    onPageChange={(page) => console.log('scroll change', page)}>
+              >
                     <View style={{backgroundColor: '#F07120'}}>
                       <Text>Page 1</Text>
                     </View>

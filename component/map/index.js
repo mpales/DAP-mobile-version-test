@@ -9,6 +9,7 @@ import {
   NativeModules,
   AppState,
   Platform,
+  ActivityIndicator
 } from 'react-native';
 import {Input, Avatar} from 'react-native-elements';
 import {Text, Button} from 'react-native-elements';
@@ -70,7 +71,7 @@ const BREAKPOINT1 = 246;
 const BREAKPOINT2 = 350;
 const ONE = new Animated.Value(1);
 
-function getMarkerState(panX, panY, scrollY, i, index) {
+function getMarkerState(panX, panY, scrollY, i) {
   const xLeft = -SNAP_WIDTH * i + SNAP_WIDTH;
   const xRight = -SNAP_WIDTH * i - SNAP_WIDTH;
   const xHeadLeft = -SNAP_WIDTH * i + SNAP_WIDTH * 0.95;
@@ -298,9 +299,8 @@ class AnimatedMarkers extends React.Component {
       };
     });
 
-    const index =  this.props.route.params?.index !== undefined ? this.props.route.params?.index : this.props.currentDeliveringAddress ? this.props.currentDeliveringAddress: 0;
-    const animations = route.map((m, i) =>
-      getMarkerState(panX, panY, scrollY, i, index),
+   const animations = route.map((m, i) =>
+      getMarkerState(panX, panY, scrollY, i),
     );
     const latLng = {
       latitude: this.props.currentPositionData.coords.lat,
@@ -308,7 +308,7 @@ class AnimatedMarkers extends React.Component {
     };
 
     this.state = {
-      index: index,
+      index: null,
       panX,
       panY,
       animations,
@@ -349,6 +349,7 @@ class AnimatedMarkers extends React.Component {
       isThirdPartyNavigational: false,
       startForegroundService: false,
       ApplicationNavigational: null,
+      loadingLayer: false,
     };
     this.onPressedTraffic.bind(this);
     this.updateAnimatedToIndex.bind(this);
@@ -357,7 +358,74 @@ class AnimatedMarkers extends React.Component {
     this.onCompleteDelivery.bind(this);
   }
  
+  static getDerivedStateFromProps(props,state){
+    const {navigation, currentDeliveringAddress, markers, dataPackage} = props;
+    const {index, currentCoords, route, updateToRenderMap} = state;
 
+    if(index === null && currentDeliveringAddress === null) {
+      let params = props.route.params;
+      if(params !== undefined && params.index !== undefined) {
+        //from list
+        let destination = new Location(markers[params.index][0], markers[params.index][1]);
+
+        if (AnimatedMarkers.Beacon instanceof Distance === false) {
+          AnimatedMarkers.Beacon = new Distance(destination);
+        } else if (
+          AnimatedMarkers.Beacon.checkDestination(destination) === false
+        ) {
+          AnimatedMarkers.Beacon = new Distance(destination);
+        }
+        props.getDeliveryDirections(route[params.index].coordinate, currentCoords);
+        props.reverseGeoCoding(currentCoords);
+        
+        return {...state, index: params.index,  loadingLayer: true};
+      } else {
+        //from drawer
+        let destination = new Location(markers[0][0], markers[0][1]);
+
+        if (AnimatedMarkers.Beacon instanceof Distance === false) {
+          AnimatedMarkers.Beacon = new Distance(destination);
+        } else if (
+          AnimatedMarkers.Beacon.checkDestination(destination) === false
+        ) {
+          AnimatedMarkers.Beacon = new Distance(destination);
+        }
+        props.getDeliveryDirections(route[0].coordinate, currentCoords);
+        props.reverseGeoCoding(currentCoords);
+        return {...state, index: 0,  loadingLayer: true};
+      }
+    } else if(currentDeliveringAddress !== null && index === null) {
+      // when persistance delivery
+      let destination = new Location(markers[currentDeliveringAddress][0], markers[currentDeliveringAddress][1]);
+
+      if (AnimatedMarkers.Beacon instanceof Distance === false) {
+        AnimatedMarkers.Beacon = new Distance(destination);
+      } else if (
+        AnimatedMarkers.Beacon.checkDestination(destination) === false
+      ) {
+        AnimatedMarkers.Beacon = new Distance(destination);
+      }
+      props.getDeliveryDirections(route[currentDeliveringAddress].coordinate, currentCoords);
+      props.reverseGeoCoding(currentCoords);
+      return {...state, index:currentDeliveringAddress,  loadingLayer: true};
+    } else if(currentDeliveringAddress === null && index !== null && updateToRenderMap === true){
+      // when switch between item cards
+      let destination = new Location(markers[index][0], markers[index][1]);
+
+      if (AnimatedMarkers.Beacon instanceof Distance === false) {
+        AnimatedMarkers.Beacon = new Distance(destination);
+      } else if (
+        AnimatedMarkers.Beacon.checkDestination(destination) === false
+      ) {
+        AnimatedMarkers.Beacon = new Distance(destination);
+      }
+      props.getDeliveryDirections(route[index].coordinate, currentCoords);
+      props.reverseGeoCoding(currentCoords);
+      return {...state,updateToRenderMap: false, route: route, loadingLayer: true}
+    }
+   
+    return {...state};
+  }
   shouldComponentUpdate(nextProps, nextState){
    
     if( nextState.index !== this.props.index && (
@@ -378,13 +446,14 @@ class AnimatedMarkers extends React.Component {
       nextProps.startDelivered === this.props.startDelivered &&     
       nextState.currentCoords === this.state.currentCoords &&
       nextState.camera_option === this.state.camera_option &&
-      nextState.panned_view === this.state.panned_view &&  nextProps.deliveryDestinationData.destinationid ===
-      this.props.deliveryDestinationData.destinationid &&
+      nextState.panned_view === this.state.panned_view &&  
+      nextProps.destinationid === this.props.destinationid &&
       nextState.updateToRenderMap === this.state.updateToRenderMap && 
       nextState.isThirdPartyNavigational ===
         this.state.isThirdPartyNavigational &&
       nextState.startForegroundService === this.state.startForegroundService &&
-      nextState.ApplicationNavigational === this.state.ApplicationNavigational
+      nextState.ApplicationNavigational === this.state.ApplicationNavigational &&
+      nextState.loadingLayer === this.state.loadingLayer
    ) ){
       return false;
     }
@@ -394,7 +463,6 @@ class AnimatedMarkers extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot)
   {
     if(this.props.startDelivered !== prevProps.startDelivered){
-      console.log('change in delivery:'+ this.props.startDelivered);
       if(this.props.startDelivered){
         this.setState({toggleContainer: true});
       } else {
@@ -403,14 +471,19 @@ class AnimatedMarkers extends React.Component {
     }
     
     if (
-      this.props.deliveryDestinationData.destinationid !==
-      prevProps.deliveryDestinationData.destinationid
+      this.props.destinationid !==
+      prevProps.destinationid
     ) {
-      this.getDeliveryDirection();
+      if(this.props.destinationid === null ){
+        this.setState({updateToRenderMap: true});
+      } else {
+        this.getDeliveryDirection();
+      }
     } else {
       if (
         this.state.GeoJSON === null &&
-        this.props.currentDeliveringAddress === null
+        this.props.currentDeliveringAddress === null &&
+        this.props.destinationid !== null
       ) {
         this.getDeliveryDirection();
       } else if (
@@ -420,14 +493,14 @@ class AnimatedMarkers extends React.Component {
       ) {
         // persistance
         if (
-          this.props.deliveryDestinationData.destinationid !== null &&
+          this.props.destinationid !== null &&
           this.props.currentDeliveringAddress !== this.state.index
         ) {
           this.props.setStartDelivered(true);
           this.updateAnimatedToIndex(this.props.currentDeliveringAddress);
           this.setState({index: this.props.currentDeliveringAddress});
         } else if (
-          this.props.deliveryDestinationData.destinationid !== null &&
+          this.props.destinationid !== null &&
           this.props.currentDeliveringAddress === this.state.index
         ) {
           this.props.setStartDelivered(true);
@@ -445,37 +518,6 @@ class AnimatedMarkers extends React.Component {
     }
     if(prevState.updateToRender !== this.state.updateToRender && this.state.updateToRender === true){
       this.setState({updateToRender:false});
-    }
-    if (
-      prevState.updateToRenderMap !== this.state.updateToRenderMap &&
-      this.state.updateToRenderMap === true
-    ) {
-      let {index, currentCoords} = this.state;
-      let {markers, currentPositionData, dataPackage} = this.props;
-
-      const route = Array.from({length: dataPackage.length}).map((num, index) => {
-        return {
-          id: index,
-          ammount: index * 10,
-          coordinate: {
-            latitude: dataPackage[index].coords.lat,
-            longitude: dataPackage[index].coords.lng,
-          },
-        };
-      });
-
-      let destination = new Location(markers[index][0], markers[index][1]);
-
-      if (AnimatedMarkers.Beacon instanceof Distance === false) {
-        AnimatedMarkers.Beacon = new Distance(destination);
-      } else if (
-        AnimatedMarkers.Beacon.checkDestination(destination) === false
-      ) {
-        AnimatedMarkers.Beacon = new Distance(destination);
-      }
-      this.props.getDeliveryDirections(route[index].coordinate, currentCoords);
-      this.props.reverseGeoCoding(currentCoords);
-      this.setState({updateToRenderMap: false, route: route});
     }
     if(prevState.isLoading !== this.state.isLoading){
       if(this.props.isConnected){
@@ -524,27 +566,10 @@ class AnimatedMarkers extends React.Component {
         duration: 0,
       })
       .start();
-      if (this.props.deliveryDestinationData.destinationid === null) {
+      if (this.props.destinationid === null) {
         this.setState({updateToRenderMap: true});
       }
-      //first load
-      if (
-        this.props.currentDeliveringAddress !== this.state.index &&
-        this.props.currentDeliveringAddress === null
-      ) {
-        let {index} = this.state;
-        let {markers} = this.props;
-        let destination = new Location(markers[index][0], markers[index][1]);
-        if (AnimatedMarkers.Beacon instanceof Distance === false) {
-          this.setState({updateToRenderMap: true});
-          AnimatedMarkers.Beacon = new Distance(destination);
-        } else if (
-          AnimatedMarkers.Beacon.checkDestination(destination) === false
-        ) {
-          this.setState({updateToRenderMap: true});
-          AnimatedMarkers.Beacon = new Distance(destination);
-        }
-      }
+ 
 
       AppState.addEventListener('change', (state) =>
       AnimatedMarkers._handlebackgroundgeolocation(
@@ -866,15 +891,20 @@ class AnimatedMarkers extends React.Component {
       markers,
       currentPositionData,
       deliveryDestinationData,
+      currentDeliveringAddress,
       startDelivered,
     } = this.props;
     const {index, ApplicationNavigational} = this.state;
     let LatLngs = [];
     let marker = [];
     let latLng;
-
+    if(startDelivered || currentDeliveringAddress !== null){
+    // push next location marker
+    latLng = new Location(markers[currentDeliveringAddress][0], markers[currentDeliveringAddress][1]);
+    } else {
     // push next location marker
     latLng = new Location(markers[index][0], markers[index][1]);
+    }
     marker.push(latLng.location());
 
     // push current location marker
@@ -922,10 +952,11 @@ class AnimatedMarkers extends React.Component {
         naverCallerName: 'com.example.myapp', // to link into Naver Map You should provide your appname which is the bundle ID in iOS and applicationId in android.
         app: ApplicationNavigational, // optionally specify specific app to use
       });
-      this.setState({startForegroundService: true, GeoJSON: GeoJSON});
+      this.setState({startForegroundService: true, GeoJSON: GeoJSON, loadingLayer: false});
     } else {
       this.setState({
         GeoJSON: GeoJSON,
+        loadingLayer: false,
       });
     }
     
@@ -1054,7 +1085,7 @@ class AnimatedMarkers extends React.Component {
     this.setState({
       updateAnimated: true,
       animations: {
-        ...route.map((m, i) => getMarkerState(panX, panY, scrollY, i, index)),
+        ...route.map((m, i) => getMarkerState(panX, panY, scrollY, i)),
       },
     });
   };
@@ -1331,6 +1362,7 @@ class AnimatedMarkers extends React.Component {
       index,
       trafficLayer,
       trafficButton,
+      loadingLayer,
     } = this.state;
     const {
       startDelivered,
@@ -1472,6 +1504,7 @@ class AnimatedMarkers extends React.Component {
             alignSelf: 'flex-end',
             marginHorizontal: 15,
             marginVertical: 10,
+            flexDirection: 'column'
           }}>
           <Avatar
             size={40}
@@ -1509,6 +1542,9 @@ class AnimatedMarkers extends React.Component {
             activeOpacity={0.7}
             containerStyle={Mixins.buttonAvatarDefaultContainerStyle}
           />
+          {this.state.loadingLayer && (
+            <ActivityIndicator size="large" color="#0000ff" />
+          )}
         </View>
        
      
@@ -2177,6 +2213,7 @@ function mapStateToProps(state) {
     dataPackage: state.originReducer.route.dataPackage,
     currentPositionData: state.originReducer.currentPositionData,
     deliveryDestinationData: state.originReducer.deliveryDestinationData,
+    destinationid : state.originReducer.deliveryDestinationData.destinationid,
     route_id: state.originReducer.route.id,
     currentDeliveringAddress: state.originReducer.currentDeliveringAddress,
   };
