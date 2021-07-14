@@ -229,6 +229,7 @@ class HomeNavigator extends React.Component {
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar(false);
                   this.props.navigation.navigate('Barcode')
                 }
               }
@@ -250,6 +251,14 @@ class HomeNavigator extends React.Component {
                   height: 45,
                 },
               })
+            },
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.navigation.navigate('Manifest')
+                }
+              }
+              />);
             },
             headerTintColor: '#fff',
             headerTitle: 'Back',

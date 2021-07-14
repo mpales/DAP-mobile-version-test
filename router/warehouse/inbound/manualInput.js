@@ -6,32 +6,47 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import Mixins from '../../../mixins';
 import { connect } from 'react-redux';
 
 class ManualInput extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            inputCode: ''
+            inputCode: '',
+            dataCode: null,
+            error: false,
         }
     }
 
-    handleConfirm = () => {
-        if(this.state.inputCode === '') {
-            return
-        }
-        this.props.setBottomBar(false);
-        this.props.navigation.navigate({
-            name: 'Barcode',
-            params: {
-                manualCode: this.state.inputCode,
+    static getDerivedStateFromProps(props,state){
+        const {navigation} = props;
+        const {dataCode} = state;
+        if(dataCode === null){
+            const {routes, index} = navigation.dangerouslyGetState();
+            if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
+              return {...state, dataCode: routes[index].params.dataCode};
             }
-        });
+        }
+        return {...state};
+      }
+    handleConfirm = () => {
+        if(this.state.inputCode !== this.state.dataCode) {
+            this.setState({inputCode: '', error: true});
+        } else {
+            this.props.setBottomBar(false);
+            this.props.navigation.navigate({
+                name: 'Barcode',
+                params: {
+                    manualCode: this.state.inputCode,
+                }
+            });
+        }
     }
-
     render() {
         return (
             <View style={styles.container}>
+                <View style={{padding:20}}>
                 <Text style={styles.title}>Input Manual Barcode</Text>
                 <TextInput
                     style={styles.textInput}
@@ -44,7 +59,11 @@ class ManualInput extends React.Component {
                 >
                     <Text style={styles.buttonText}>Confirm</Text>
                 </TouchableOpacity>
-            </View>
+                </View>
+                {this.state.error && (<View style={{position: 'absolute', bottom:0, left:0, right:0, backgroundColor:'#E03B3B', width: '100%', justifyContent: 'center', alignItems: 'center'}}>
+                <Text style={{...Mixins.small3, lineHeight: 16, fontSize: 11,fontWeight: '400', color:'#fff'}}>Invalid input barcode , please try it again</Text>
+                </View>)}
+        </View>
         )
     }
 }
@@ -52,7 +71,7 @@ class ManualInput extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
+        padding: 0,
         backgroundColor: '#fff'
     },
     title: {

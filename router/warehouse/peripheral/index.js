@@ -30,6 +30,7 @@ class Example extends React.Component {
     this.state = {
       dataCode: '0',
       qty: 0,
+      scanItem: '0',
       dataItem: null,
       
     };
@@ -41,28 +42,30 @@ class Example extends React.Component {
 
   static getDerivedStateFromProps(props,state){
     const {manifestList, currentASN, navigation, setBarcodeScanner, detectBarcode} = props;
-    const {dataCode, dataItem} = state;
+    const {dataCode, dataItem, scanItem} = state;
     const {routes, index} = navigation.dangerouslyGetState();
-    if(dataCode === '0'){
+    if(scanItem === '0'){
       if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined) {
         setBarcodeScanner(true);
-        return {...state, dataCode: routes[index].params.inputCode};
+        return {...state, scanItem: routes[index].params.inputCode};
       } else if(routes[index].params !== undefined && routes[index].params.manualCode !== undefined) {
+        setBarcodeScanner(false);
+        return {...state, scanItem: routes[index].params.manualCode};
+      }
+      return {...state};
+    } else if (scanItem !== '0'){
+      if(routes[index].params !== undefined && routes[index].params.manualCode !== undefined && scanItem === routes[index].params.manualCode) {
         setBarcodeScanner(false);
         return {...state, dataCode: routes[index].params.manualCode};
       }
-      return {...state};
-    } else if (routes[index].params !== undefined && routes[index].params.manualCode !== undefined && routes[index].params.manualCode !== dataCode) {
-      setBarcodeScanner(false);
-      return {...state, dataCode: routes[index].params.manualCode};   
-    }
+    }  
     return {...state};
   }
   shouldComponentUpdate(nextProps, nextState) {
     if(this.props.keyStack !== nextProps.keyStack){
       if(nextProps.keyStack === 'Barcode' && this.props.keyStack === 'newItem'){
-        if (nextState.dataCode !== '0' && nextState.dataItem === null && nextProps.manifestList.some((element) => element.code === nextState.dataCode)) {
-          let item = nextProps.manifestList.find((element)=>element.code === nextState.dataCode);
+        if (nextState.scanItem !== '0' && nextState.dataItem === null && nextProps.manifestList.some((element) => element.code === nextState.scanItem)) {
+          let item = nextProps.manifestList.find((element)=>element.code === nextState.scanItem);
           console.log('trigger');
           this.setState({dataItem: item, qty : item.scanned});
         }
@@ -73,7 +76,7 @@ class Example extends React.Component {
   }
   componentDidUpdate(prevProps, prevState) {
     const {manifestList,detectBarcode, currentASN, navigation, setBarcodeScanner} = this.props;
-    const {dataCode, dataItem} = this.state;
+    const {dataCode,scanItem, dataItem} = this.state;
     
     if(prevProps.detectBarcode !== detectBarcode){
       if(detectBarcode) {
@@ -82,7 +85,7 @@ class Example extends React.Component {
         this.handleZoomInAnimation();
       }
     }
-    if (prevState.dataCode !== dataCode && dataCode !== 0 && dataItem === null && manifestList.some((element) => element.code === dataCode)) {
+    if (dataCode === scanItem && dataCode !== 0 && dataItem === null && manifestList.some((element) => element.code === dataCode)) {
       let item = manifestList.find((element)=>element.code === dataCode);
       this.setState({dataItem: item, qty : item.scanned});
     }
@@ -104,7 +107,7 @@ class Example extends React.Component {
   };
 
   renderModal = () => {
-    const {dataItem, dataCode, qty} = this.state;
+    const {dataItem, dataCode, qty, scanItem} = this.state;
     return (
       <View style={styles.modalOverlay}>
         <Animated.View
@@ -197,7 +200,7 @@ class Example extends React.Component {
                       </View>
                      
                     </View>
-                    {qty < dataItem.total_package && (
+                    {dataItem.scanned < dataItem.total_package && (
                         <View style={[styles.sectionDividier,{flexDirection:'row',marginTop:15}]}>
                           <View style={[styles.dividerContent,{marginRight: 35}]}>
                             <Text style={styles.qtyTitle}>Qty</Text>
@@ -220,7 +223,7 @@ class Example extends React.Component {
                             />
                            <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
                            const {qty,dataItem} = this.state;
-                            this.setState({qty: dataItem.total_package > qty && qty > 0 ? qty-1 : qty});
+                            this.setState({qty: dataItem.total_package >= qty && qty > 0 ? qty-1 : qty});
                           }}  
                           containerStyle={{flexShrink:1, marginVertical: 5}}
                           badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
@@ -242,16 +245,16 @@ class Example extends React.Component {
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelNotFound}>Barcode</Text>
                         <Text style={styles.infoNotFound}>
-                          {dataCode}
+                          {scanItem}
                         </Text>
                       </View>
                 </View>
               </View>
             )}
             <View style={styles.buttonSheetContainer}>
-              {((dataItem !== null && qty < dataItem.total_package) ||  (dataCode !== '0' && dataItem === null)) && (
+              {((dataItem !== null && dataItem.scanned < dataItem.total_package) ||  (scanItem !== '0' && dataItem === null)) && (
                 <View style={styles.buttonSheet}>
-                  {dataItem !== null && qty < dataItem.total_package ? (
+                  {dataItem !== null && dataItem.scanned < dataItem.total_package ? (
                     <Button
                       containerStyle={{flex: 1, marginTop: 10}}
                       buttonStyle={styles.navigationButton}
@@ -265,14 +268,19 @@ class Example extends React.Component {
                     titleStyle={styles.deliveryText}
                     onPress={() => {
                       this.props.setBottomBar(true);
-                      this.props.navigation.navigate('ManualInput') 
+                      this.props.navigation.navigate({
+                        name: 'ManualInput',
+                        params: {
+                            dataCode: this.state.scanItem,
+                        }
+                      }) 
                     }}
                     title="Input Manual"
                   />)}
                 </View>
               )}
               <View style={styles.buttonSheet}>
-                {(dataItem !== null && qty < dataItem.total_package) ||  (dataCode !== '0' && dataItem === null) ? (
+                {(dataItem !== null && dataItem.scanned < dataItem.total_package) ||  (scanItem !== '0' && dataItem === null) ? (
                   <>
                     <Button
                       containerStyle={{flex: 1, marginTop: 10, marginLeft: 5}}
@@ -283,7 +291,7 @@ class Example extends React.Component {
                         this.props.navigation.navigate({
                           name: 'ReportManifest',
                           params: {
-                              dataCode: dataCode,
+                              dataCode: scanItem,
                           }
                         })}}
                       title="Report Item"
@@ -298,7 +306,7 @@ class Example extends React.Component {
                   </>
                 ) : (
                   <Button
-                    containerStyle={{flex: 1, marginTop: 10, marginRight: 5}}
+                    containerStyle={{flex: 1, marginTop: 50, marginRight: 5}}
                     buttonStyle={styles.navigationButton}
                     titleStyle={styles.deliverText}
                     onPress={()=>this.props.navigation.goBack()}
@@ -324,7 +332,7 @@ class Example extends React.Component {
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Barcode</Text>
-                  <Text style={styles.infoNotFound}>{this.state.dataCode}</Text>
+                  <Text style={styles.infoNotFound}>{this.state.scanItem}</Text>
                 </View>
             </View>
             
@@ -339,7 +347,7 @@ class Example extends React.Component {
             this.props.navigation.navigate({
               name: 'ReportManifest',
               params: {
-                  dataCode: this.state.dataCode,
+                  dataCode: this.state.scanItem,
               }
             })}}
           title="Report Item"
@@ -350,7 +358,12 @@ class Example extends React.Component {
           titleStyle={styles.deliveryText}
           onPress={() => {
             this.props.setBottomBar(true);
-            this.props.navigation.navigate('ManualInput')}}
+            this.props.navigation.navigate({
+              name: 'ManualInput',
+              params: {
+                  dataCode: this.state.scanItem,
+              }
+            })}}
           title="Input Manual"
         />
         </View>
@@ -375,13 +388,13 @@ class Example extends React.Component {
     });
   };
   onSubmit = () => {
-    const {dataCode,qty} = this.state;
+    const {dataCode,qty, scanItem} = this.state;
     this.props.setBarcodeScanner(true);
     this.setState({
       dataCode: '0',
     });
     // for prototype only
-    let arr = this.makeScannedItem(dataCode,qty);
+    let arr = this.makeScannedItem(scanItem,qty);
     console.log(arr);
     this.props.setItemScanned(arr);
     this.props.setBottomBar(false);

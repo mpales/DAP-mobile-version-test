@@ -8,15 +8,15 @@ import IconArrow66Mobile from '../../../assets/icon/iconmonstr-arrow-66mobile-7.
 import IconMenu6Mobile from '../../../assets/icon/iconmonstr-menu-6 1mobile.svg';
 import IconUser40Mobile from '../../../assets/icon/iconmonstr-user-40mobile.svg';
 import IconBell2Mobile from '../../../assets/icon/iconmonstr-bell-2mobile.svg';
-import Scanner from '../scanner';
 import Camera from '../peripheral/index-outbound';
 import Task from './task';
 import List from './list';
-import Completed from './detail-completed';
-import Reported from './detail-reported';
+import itemDetail from './itemDetails';
+import itemReportDetail from './itemReportDetails';
 import ManualInput from './manualInput';
 import ReportManifest from './reportManifest';
 import Mixins from '../../../mixins';
+import SingleCamera from '../peripheral/cameraSingle';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 const Stack = createStackNavigator();
@@ -103,16 +103,16 @@ class HomeNavigator extends React.Component {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
                   this.props.setBottomBar('true')
-                  this.props.navigation.navigate('List');
+                  this.props.navigation.navigate('Task');
                 }
               }
               />);
             },
           })}
         />
-        <Stack.Screen
-          name="Barcode"
-          component={Camera}
+         <Stack.Screen
+          name="ItemDetail"
+          component={itemDetail}
           options={() => ({
             headerStyle: {
               backgroundColor: '#121C78',
@@ -125,22 +125,49 @@ class HomeNavigator extends React.Component {
                 },
               })
             },
-            headerTransparent: true,
             headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
             headerTitle: 'Back',
-            headerRight: () => (
-              <View style={{display: 'flex', flexDirection: 'row'}}>
-                <TouchableOpacity
-                  style={{paddingHorizontal: 20, margin: 0}}
-                  onPress={() => {
-                    this.props.setBottomBar(true);
-                    this.props.navigation.navigate('ReportManifest')}}
-                >
-                  <Text style={{...Mixins.h6,fontWeight: '400',lineHeight: 22, color: '#FFF'}}>Report</Text>
-                </TouchableOpacity>
-              </View>
-            ),
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar('false')
+                  this.props.navigation.navigate('List');
+                }
+              }
+              />);
+            },
+          })}
+        />
+         <Stack.Screen
+          name="ItemReportDetail"
+          component={itemReportDetail}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'Back',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar('false')
+                  this.props.navigation.goBack();
+                }
+              }
+              />);
+            },
           })}
         />
         <Stack.Screen
@@ -164,7 +191,7 @@ class HomeNavigator extends React.Component {
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.navigation.navigate('Barcode')
+                  this.props.navigation.navigate('List')
                 }
               }
               />);
@@ -187,13 +214,21 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.navigation.navigate('List')
+                }
+              }
+              />);
+            },
             headerTitle: 'Back',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
           })}
         />
          <Stack.Screen
-          name="Scanner"
-          component={Scanner}
+          name="Barcode"
+          component={Camera}
           options={() => ({
             headerStyle: {
               backgroundColor: '#121C78',
@@ -209,6 +244,7 @@ class HomeNavigator extends React.Component {
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
             headerTitle: 'Back',
             headerRight: () => (
               <View style={{display: 'flex', flexDirection: 'row'}}>
@@ -224,9 +260,9 @@ class HomeNavigator extends React.Component {
             ),
           })}
         />
-          <Stack.Screen
-          name="Reported"
-          component={Reported}
+            <Stack.Screen
+          name="SingleCamera"
+          component={SingleCamera}
           options={() => ({
             headerStyle: {
               backgroundColor: '#121C78',
@@ -240,28 +276,8 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-          })}
-        />
-         <Stack.Screen
-          name="Completed"
-          component={Completed}
-          options={() => ({
-            headerStyle: {
-              backgroundColor: '#121C78',
-              elevation: 0,
-              shadowOpacity: 0,
-              borderBottomWidth: 0,
-              ...Platform.select({
-                android: {
-                  height: 45,
-                },
-              })
-            },
-            headerTintColor: '#fff',
-            headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
           })}
         />
       </Stack.Navigator>

@@ -14,11 +14,13 @@ import IconCursor20Mobile from '../../assets/icon/iconmonstr-cursor-20 1mobile.s
 import IconTime2Mobile from '../../assets/icon/iconmonstr-time-2 1mobile.svg';
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
 import Mixins from '../../mixins';
+import moment from 'moment';
 
 const styles = {
   sectionContainer: {
     marginHorizontal: 14,
     paddingVertical: 12,
+    flexGrow: 1,
   },
   titleText: {
     color: '#6C6B6B',
@@ -43,7 +45,22 @@ const styles = {
 
     elevation: 5,
   },
- 
+  labelContainer : {
+    flexShrink: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    marginHorizontal: 0,
+    marginVertical: 10,
+    padding:3,
+    alignSelf: 'stretch',
+  },
+  labelText: {
+    ...Mixins.small1,
+    fontWeight: '400',
+    lineHeight: 18,
+    color:'#ABABAB',
+    alignSelf: 'flex-end',
+  },
   leftList: {
     backgroundColor: 'grey',
     flexShrink: 1,
@@ -51,6 +68,12 @@ const styles = {
     borderRadius: 5,
     alignSelf: 'stretch',
   },
+  descText: {
+    ...Mixins.small1,
+    fontWeight: '400',
+    lineHeight: 18,
+    color:'#ABABAB'
+  }
 };
 const theme = {
   ListItem: {
@@ -73,9 +96,27 @@ const theme = {
   ListItemContent: {
     containerStyle: styles.sectionContainer,
   },
-};
+ 
 
+};
 const Manifest = ({item, index, isActive, ToManifest}) => {
+  let status = 'grey';
+  switch (item.status) {
+    case 'complete':
+      status = 'green';
+      break;
+      case 'progress':
+        status = 'orange';
+        break;
+        case 'pending':
+          status = 'grey';
+          break;
+          case 'reported':
+            status = 'red';
+            break;
+    default:
+      break;
+  }
   return (
     <ThemeProvider theme={theme}>
       <ListItem
@@ -83,35 +124,44 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         Component={TouchableScale}
         friction={90} //
         tension={100} // These props are passed to the parent component (here TouchableScale)
-        activeScale={0.95}>
-        <View style={styles.leftList}>
+        activeScale={0.95}
+        pad={0}>
+        <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
         <ListItem.Content style={styles.sectionContainer}>
-        <ListItem.Title style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
+          <Text style={{...Mixins.body3, fontWeight: '400',lineHeight: 18, color:'#ABABAB'}}>
+            {moment.unix(item.timestamp).format('DD MMMM YYYY')}
+          </Text>
+        <ListItem.Title style={{...Mixins.body3,lineHeight: 18,color: '#ABABAB', fontWeight: '600'}}>
         {item.code}
         </ListItem.Title>
-        <ListItem.Subtitle style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
+        <ListItem.Subtitle style={{...Mixins.body1, lineHeight: 21, color: '#424141', fontWeight: '600'}}>
         {item.warehouse_code}
         </ListItem.Subtitle>
-        <Text>{item.company}</Text>
+        <Text style={styles.descText}>{item.company}</Text>
         </ListItem.Content>
-        <View style={{flexDirection:'column',marginHorizontal: 10, justifyContent: 'space-evenly'}}>
-        <Badge value={item.status} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15}} containerStyle={{alignSelf: 'flex-start'}} />
-        <Text style={{alignSelf:'flex-end'}}>SKU: {item.sku}</Text>
-        </View>
+        <View style={styles.labelContainer}>
+        <Badge value={item.status} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />
+        <View style={{alignSelf:'flex-end',flexDirection: 'column'}}>
+           
         <ListItem.Chevron
-            size={26}
+            size={16}
             color="#2D2C2C"
+            containerStyle={{alignContent:'flex-end',justifyContent:'flex-end',alignItems:'flex-end',flexShrink:1,padding:0,margin:0}}
             Component={(props)=>(
               <Button
                 {...props}
                 type="clear"
                 icon={
-                  <IconArrow66Mobile height="16" width="26" fill="#2D2C2C"/>
+                  <IconArrow66Mobile height="26" width="26" fill="#2D2C2C"/>
                 }
               />)}
             onPress={ToManifest}
           />
+          </View>
+        <Text style={[styles.labelText,{marginHorizontal: 20}]}>packages: 20</Text>
+        </View>
+        
       </ListItem>
     </ThemeProvider>
   );
