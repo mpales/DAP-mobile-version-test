@@ -19,12 +19,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { connect } from 'react-redux';
 //component
 import OutboundDetail from '../../../component/extend/ListItem-outbound-detail';
-import OutboundReported from '../../../component/extend/ListItem-outbound-reported';
-import OutboundCompleted from '../../../component/extend/ListItem-outbound-completed';
 //style
 import Mixins from '../../../mixins';
 //icon
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
+import moment from 'moment';
 import mixins from '../../../mixins';
 
 const window = Dimensions.get('window');
@@ -32,15 +31,110 @@ const window = Dimensions.get('window');
 class List extends React.Component {
     constructor(props) {
         super(props);
-        const {routes, index} = this.props.navigation.dangerouslyGetState();
+
         this.state = {
             search: '',
+            taskNumber: null,
             filtered : 0,
-            confirm : routes[index].params !== undefined ? routes[index].params.confirm : false,
+            _list: [],
+            updated: false,
         };
     this.setFiltered.bind(this);
     this.updateSearch.bind(this);
     }
+    static getDerivedStateFromProps(props,state){
+        const {navigation,outboundList, currentTask,barcodeScanned, ReportedList, idScanned} = props;
+        const {taskNumber, _list, search, filtered} = state;
+        if(outboundList.length === 0 && search === ''){
+          let list = outboundListDummy.filter((element)=>element.description.indexOf(search) > -1);
+          props.setOutboundList(list);
+          return {...state, _list : list, updated: true};
+        } else if(outboundList.length > 0 && barcodeScanned.length > 0 && idScanned !== null) {
+          let list = Array.from({length: outboundList.length}).map((num, index) => {
+            return {
+                ...outboundList[index],
+                scanned: barcodeScanned.includes(outboundList[index].barcode) && idScanned === outboundList[index].id ? barcodeScanned.length : outboundList[index].scanned,
+            };
+          });
+          props.setItemIDScanned(null);
+          props.setItemScanned([]);
+          props.setOutboundList(list);
+          return {...state,_list : list, updated: true};
+        } else if(outboundList.length > 0 && ReportedList !== null ) {
+          let list = Array.from({length: outboundList.length}).map((num, index) => {
+            return {
+                ...outboundList[index],
+                scanned: ReportedList === outboundList[index].id ? -1 : outboundList[index].scanned,
+            };
+          });
+          props.setReportedList(null);
+          props.setOutboundList(list);
+          return {...state, _list: list, updated: true}
+        } else if(outboundList.length > 0 && _list.length === 0  && search === '' && filtered === 0 ) {
+          return {...state, _list: outboundList, updated: true}
+        }
+        return {...state};
+      }
+      shouldComponentUpdate(nextProps, nextState) {
+        if(this.props.keyStack !== nextProps.keyStack){
+          if(nextProps.keyStack === 'List' && this.props.keyStack ==='Barcode'){
+            this.setState({updated: true});
+            return true;
+          } else if(nextProps.keyStack === 'List' && this.props.keyStack ==='ReportManifest'){
+            this.setState({updated: true});
+            return true;
+          } else if(nextProps.keyStack === 'List'){
+            return true;
+          }
+        }
+        return true;
+      }
+      componentDidUpdate(prevProps, prevState, snapshot) {
+        const {outboundList} = this.props;
+        
+        if(prevState.taskNumber !== this.state.taskNumber){
+          if(this.state.taskNumber === null){
+            this.props.navigation.goBack();
+          } else {
+            this.setState({_list: []});
+            this.props.setOutboundList([]);
+          }
+        } 
+        let filtered = prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || this.state.updated === true ? this.state.filtered : null;
+        console.log('test'+ filtered);
+        if(filtered === 0) {
+          this.setState({_list: outboundList.sort((a,b)=>{
+            if(a.scanned !== a.total_qty && b.scanned === b.total_qty)
+            return -1;
+            if(a.scanned === a.total_qty && b.scanned !== b.total_qty)
+            return 1;
+            return a.scanned < b.scanned ? 1 : -1;  
+        }).filter((element)=> element.description.indexOf(this.state.search) > -1), updated: false});
+          } else if(filtered === 1){
+            this.setState({_list: outboundList.filter((element)=> element.scanned === -1).filter((element)=> element.description.indexOf(this.state.search) > -1), updated: false});
+          } else if(filtered === 2){
+            this.setState({_list: outboundList.filter((element)=>  element.scanned === 0).filter((element)=> element.description.indexOf(this.state.search) > -1), updated: false});
+          }else if(filtered === 3){
+            this.setState({_list: outboundList.filter((element)=>  element.scanned < element.total_qty && element.scanned > 0).filter((element)=> element.description.indexOf(this.state.search) > -1), updated: false});
+          }else if(filtered === 4){
+            this.setState({_list: outboundList.filter((element)=>  element.scanned === element.total_qty).filter((element)=> element.description.indexOf(this.state.search) > -1), updated: false});
+          } 
+       
+      }
+      componentDidMount() {
+        const {navigation, currentTask,barcodeScanned, ReportedManifest} = this.props;
+        const {taskNumber, _manifest, search} = this.state;
+        if(taskNumber === null){
+          const {routes, index} = navigation.dangerouslyGetState();
+          if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
+            this.setState({taskNumber: routes[index].params.number})
+          } else if(currentTask !== null) {
+            this.setState({taskNumber: currentTask})
+          } else {
+            navigation.popToTop();
+          }
+        }
+      }
     updateSearch = (search) => {
         this.setState({search});
       };
@@ -48,17 +142,10 @@ class List extends React.Component {
         this.setState({filtered:num});
     }
 
-    componentDidMount(){
-        this.props.setOutboundList(outboundList)
-        const {routes, index} = this.props.navigation.dangerouslyGetState();
-        this.setState({ confirm : routes[index].params !== undefined ? routes[index].params.confirm : false,});
-      }
-      componentDidUpdate(prevProps, prevState, snapshot){
-        const {routes, index} = this.props.navigation.dangerouslyGetState();
-        if(routes[index].params !== undefined && this.state.confirm !== routes[index].params.confirm)
-        this.setState({ confirm : routes[index].params !== undefined ? routes[index].params.confirm : false,});
-      }
     render() {
+        const {outboundTask} = this.props;
+        const {taskNumber, _list} = this.state;
+        let currentTask = outboundTask.find((element) => element.code === taskNumber);
         return(
             <SafeAreaProvider>
                 <StatusBar barStyle="dark-content" />
@@ -69,14 +156,14 @@ class List extends React.Component {
                     <View style={styles.headingBar}>
                         <View style={{flex:1,flexDirection: 'row'}}>
                         <View style={{alignItems:'flex-start',flex:1}}>
-                            <Text style={{...Mixins.subtitle1,lineHeight:21}}>WO000123456</Text>
+                            <Text style={{...Mixins.subtitle1,lineHeight:21}}>{taskNumber}</Text>
                         </View>
                             <View style={{alignItems:'flex-end',flex:1}}>
-                            <Text style={{...Mixins.small1,lineHeight:21}}>Warehouse A1 </Text>
+                            <Text style={{...Mixins.small1,lineHeight:21}}>{currentTask !== undefined ? currentTask.warehouse_code : null}</Text>
                             </View>
                         </View>
                         <View style={{flex:1}}>
-                        <Text style={{...Mixins.small1,lineHeight:21,fontWeight:'700'}}>WORKEDGE Singapore Ltd</Text>
+                        <Text style={{...Mixins.small1,lineHeight:21,fontWeight:'700'}}>{currentTask !== undefined ? currentTask.company : null}</Text>
                         </View>
                     </View>
                          <SearchBar
@@ -110,88 +197,89 @@ class List extends React.Component {
                         <Badge
                     value="All"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.props.setFiltered(0)}
+                    onPress={()=> this.setFiltered(0)}
                     badgeStyle={this.state.filtered === 0 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
-                          <Badge
-                    value="Unprogress"
+                    <Badge
+                    value="Reported"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.props.setFiltered(1)}
+                    onPress={()=> this.setFiltered(1)}
                     badgeStyle={this.state.filtered === 1 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
-                          <Badge
-                    value="Progress"
+                    <Badge
+                    value="Pending"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.props.setFiltered(2)}
+                    onPress={()=> this.setFiltered(2)}
                     badgeStyle={this.state.filtered === 2 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
-                          <Badge
-                    value="Complete"
+                    <Badge
+                    value="Progress"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.props.setFiltered(3)}
+                    onPress={()=> this.setFiltered(3)}
                     badgeStyle={this.state.filtered === 3 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
+                    <Badge
+                    value="Completed"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(4)}
+                    badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
                             </View>
-                            {this.props.outboundList.map((data, i) => (
+                            {_list.map((data, i, arr) =>   {
+                              let status = 'grey';
+                              let textstatus = 'pending';
+                              if(data.scanned < data.total_qty && data.scanned >= 0) {
+                                if(data.scanned === 0) {
+                                  status = 'grey';
+                                  textstatus = 'Pending';
+                                } else {
+                                  status = 'orange'
+                                  textstatus = 'Progress'
+                                }
+                              } else if(data.scanned === -1){
+                                status = 'red';
+                                textstatus = 'Reported'
+                              } else {
+                                textstatus = 'Completed'
+                                status = 'green';
+                              }
+                              let printheader = this.state.filtered === 0 && i > 0 && data.scanned !== arr[i -1].scanned;
+                                return (
+                                <>
+                                {printheader && 
+                                <View style={{paddingVertical: 10}}>
+                                  <Text style={{...Mixins.h6,fontWeight: '600',lineHeight: 27}}>
+                                    {textstatus}
+                                    </Text></View>
+                                }
                                 <OutboundDetail 
                                     key={i} 
                                     index={i} 
                                     item={data} 
                                     ToManifest={()=>{
                                         this.props.setBottomBar(false);
-                                        this.props.navigation.navigate('Scanner');
+                                        this.props.navigation.navigate({
+                                          name: 'Barcode',
+                                          params: {
+                                              inputCode: data.barcode,
+                                              bayCode: data.location_bay
+                                          }
+                                        });
                                     }}
+                                    navigation={this.props.navigation}
+                                    currentList={this.props.setCurrentList}
                                     // for prototype only
-                                    completedInboundList={this.props.completedInboundList}
                                     // end
                                 />
-                            ))}
+                                </>
+                            )})}
                         </Card>
 
-                    <View style={styles.sectionHeadPackage}>
-                    <Text style={styles.headTitle}>Reported</Text>
-                    </View>
-                    <Card containerStyle={styles.cardContainer}>
-                    {this.props.outboundList.slice(0,1).map((data, i) => (
-                                <OutboundReported 
-                                    key={i} 
-                                    index={i} 
-                                    item={data} 
-                                    ToManifest={()=>{
-                                        this.props.setBottomBar(false);
-                                        this.props.navigation.navigate('Reported');
-                                    }}
-                                    // for prototype only
-                                    completedInboundList={this.props.completedInboundList}
-                                    // end
-                                />
-                            ))}
-                    </Card>
-
-
-                    <View style={styles.sectionHeadPackage}>
-                    <Text style={styles.headTitle}>Completed</Text>
-                    </View>
-                    <Card containerStyle={styles.cardContainer}>
-                    {this.props.outboundList.slice(0,1).map((data, i) => (
-                                <OutboundCompleted 
-                                    key={i} 
-                                    index={i} 
-                                    item={data} 
-                                    ToManifest={()=>{
-                                        this.props.setBottomBar(false);
-                                        this.props.navigation.navigate('Completed');
-                                    }}
-                                    // for prototype only
-                                    completedInboundList={this.props.completedInboundList}
-                                    // end
-                                />
-                            ))}
-                    </Card>
                     </View>
 
 
@@ -323,76 +411,165 @@ const styles = StyleSheet.create({
           },
 });
 
-const outboundList = [
+const outboundListDummy = [
     {
+        id: 1,
        sku : 'ISO00012345',
-       location_bay: 'JP2 C05-002',
+       location_bay: '8993175536820',
        location_rack: ['J R21-15', 'J R21-01'],
-       barcode: 'EBV 2BL - TL',
+       barcode: '9780312205195',
        description: 'ERGOBLOM V2 BLUE DESK  (HTH-512W LARGE TABLE/SHELF )',
        category: '-',
+       grade : '01',
+       UOM : 'PCS',
+       packaging : 'PC 1 of 6',
+       total_qty: 100,
+       whole_qty: '1 pallet',
+       phoneNumber: '0123456774',
+       name: 'Yan Ting',
+       address: 'Blk 110 Pasir Ris Street 11 #11-607',
+       zipcode: 'Zip Code',
+       scanned: 0,
+       timestamp: moment().add(1, 'days').unix(),
        status: 'pending'
     },
     {
-        sku : 'ISO00012345',
-       location_bay: 'JP2 C05-002',
+      id: 2,
+        sku : 'ISO00034434',
+        location_bay: '9780312205195',
        location_rack: ['J R21-15', 'J R21-01'],
-       barcode: 'EBV 2BL - TL',
+       barcode: '8993175536820',
        description: 'ERGOBLOM V2 BLUE DESK  (HTH-512W LARGE TABLE/SHELF )',
        category: '-',
+       grade : '01',
+       UOM : 'PCS',
+       packaging : 'PC 1 of 6',
+       total_qty: 1,
+       phoneNumber: '0123456774',
+       name: 'Yan Ting',
+       address: 'Blk 110 Pasir Ris Street 11 #11-607',
+       zipcode: 'Zip Code',
+       scanned: 0,
+       whole_qty: '1 pallet',
+       timestamp: moment().add(1, 'days').unix(),
        status: 'pending'
     },
     {
-        sku : 'ISO00012345',
-        location_bay: 'JP2 C05-002',
+      id: 3,
+        sku : 'ISO0004353453',
+        location_bay: 'JP2 C05-003',
         location_rack: ['J R21-15', 'J R21-01'],
-        barcode: 'EBV 2BL - TL',
+        barcode: 'EBV 2BL - TC',
         description: 'ERGOBLOM V2 BLUE DESK  (HTH-512W LARGE TABLE/SHELF )',
         category: '-',
+        grade : '01',
+        UOM : 'PCS',
+        packaging : 'PC 1 of 6',
+        total_qty: 100,
+        phoneNumber: '0123456774',
+        name: 'Yan Ting',
+        address: 'Blk 110 Pasir Ris Street 11 #11-607',
+        zipcode: 'Zip Code',
+        scanned: 0,
+        whole_qty: '1 pallet',
+        timestamp: moment().add(2, 'days').unix(),
         status: 'pending'
     },
     {
+      id: 4,
         sku : 'ISO00012345',
-        location_bay: 'JP2 C05-002',
+        location_bay: 'JP2 C05-004',
         location_rack: ['J R21-15', 'J R21-01'],
-        barcode: 'EBV 2BL - TL',
+        barcode: 'EBV 2BL - TD',
         description: 'ERGOBLOM V2 BLUE DESK  (HTH-512W LARGE TABLE/SHELF )',
         category: '-',
+        grade : '01',
+        UOM : 'PCS',
+        packaging : 'PC 1 of 6',
+        total_qty: 100,
+        phoneNumber: '0123456774',
+        name: 'Yan Ting',
+        address: 'Blk 110 Pasir Ris Street 11 #11-607',
+        zipcode: 'Zip Code',
+        scanned: 0,
+        whole_qty: '1 pallet',
+        timestamp: moment().add(2, 'days').unix(),
         status: 'pending'
     },
     {
+      id: 5,
         sku : 'ISO00012345',
-        location_bay: 'JP2 C05-002',
+        location_bay: 'JP2 C05-005',
         location_rack: ['J R21-15', 'J R21-01'],
-        barcode: 'EBV 2BL - TL',
+        barcode: 'EBV 2BL - TF',
         description: 'ERGOBLOM V2 BLUE DESK  (HTH-512W LARGE TABLE/SHELF )',
         category: '-',
+        grade : '01',
+        UOM : 'PCS',
+        packaging : 'PC 1 of 6',
+        total_qty: 50,
+        phoneNumber: '0123456774',
+        name: 'Yan Ting',
+        address: 'Blk 110 Pasir Ris Street 11 #11-607',
+        zipcode: 'Zip Code',
+        scanned: 0,
+        whole_qty: '1 pallet',
+        timestamp: moment().add(4, 'days').unix(),
         status: 'pending'
     },
     {
+      id: 6,
         sku : 'ISO00012345',
-        location_bay: 'JP2 C05-002',
+        location_bay: 'JP2 C05-006',
         location_rack: ['J R21-15', 'J R21-01'],
-        barcode: 'EBV 2BL - TL',
+        barcode: 'EBV 2BL - TG',
         description: 'ERGOBLOM V2 BLUE DESK  (HTH-512W LARGE TABLE/SHELF )',
         category: '-',
+        grade : '01',
+        UOM : 'PCS',
+        packaging : 'PC 1 of 6',
+        total_qty: 50,
+        phoneNumber: '0123456774',
+        name: 'Yan Ting',
+        address: 'Blk 110 Pasir Ris Street 11 #11-607',
+        zipcode: 'Zip Code',
+        scanned: 0,
+        whole_qty: '1 pallet',
+        timestamp: moment().add(1, 'days').unix(),
         status: 'pending'
     },
     {
+      id: 7,
         sku : 'ISO00012345',
-        location_bay: 'JP2 C05-002',
+        location_bay: 'JP2 C05-008',
         location_rack: ['J R21-15', 'J R21-01'],
-        barcode: 'EBV 2BL - TL',
+        barcode: 'EBV 2BL - TH',
         description: 'ERGOBLOM V2 BLUE DESK  (HTH-512W LARGE TABLE/SHELF )',
         category: '-',
+        grade : '01',
+        UOM : 'PCS',
+        packaging : 'PC 1 of 6',
+        total_qty: 30,
+        phoneNumber: '0123456774',
+        name: 'Yan Ting',
+        address: 'Blk 110 Pasir Ris Street 11 #11-607',
+        zipcode: 'Zip Code',
+        scanned: 0,
+        whole_qty: '1 pallet',
+        timestamp: moment().add(10, 'days').unix(),
         status: 'pending'
     },
 ];
 
 function mapStateToProps(state) {
     return {
+        outboundTask: state.originReducer.outboundTask,
         outboundList: state.originReducer.outboundList,
-        completedInboundList: state.originReducer.completedInboundList,
+        barcodeScanned: state.originReducer.filters.barcodeScanned,
+        idScanned: state.originReducer.filters.idScanned,
+        currentTask : state.originReducer.filters.currentTask,
+        ReportedList : state.originReducer.filters.ReportedList,
+        keyStack: state.originReducer.filters.keyStack,
     };
   }
   
@@ -404,6 +581,24 @@ const mapDispatchToProps = (dispatch) => {
         },
       setBottomBar: (toggle) => {
         return dispatch({type: 'BottomBar', payload: toggle});
+      },
+      setBarcodeScanner: (toggle) => {
+        return dispatch({type: 'ScannerActive', payload: toggle});
+      },
+      addCompleteTask : (data)=>{
+        return dispatch({type:'addCompleteTask', payload: data})
+      },
+      setItemScanned : (item) => {
+        return dispatch({type: 'BarcodeScanned', payload: item});
+      },
+      setReportedList: (data) => {
+        return dispatch({type:'ReportedList', payload: data});
+      },
+      setCurrentList: (data) => {
+        return dispatch({type:'setCurrentList', payload: data});
+      },
+      setItemIDScanned : (id) => {
+        return dispatch({type: 'ListIDScanned', payload: id});
       },
       //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
     };

@@ -22,6 +22,7 @@ class ConnoteDetails extends React.Component {
     this.state = {
       sortBy: 'Name',
       dataCode : '0',
+      bayCode :'0',
       _itemDetail: null,
     };
   }
@@ -31,7 +32,7 @@ class ConnoteDetails extends React.Component {
     if(dataCode === '0'){
       const {routes, index} = navigation.dangerouslyGetState();
       if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-        return {...state, dataCode: routes[index].params.dataCode};
+        return {...state, dataCode: routes[index].params.dataCode, bayCode:routes[index].params.bayCode};
       }
       return {...state};
     } 
@@ -40,12 +41,12 @@ class ConnoteDetails extends React.Component {
   }
 
   componentDidMount(){
-    const {navigation, manifestList} = this.props;
-    const {dataCode, _itemDetail} = this.state;
+    const {navigation, outboundList} = this.props;
+    const {dataCode, _itemDetail, bayCode} = this.state;
     
-    if(dataCode !=='0' && _itemDetail === null && manifestList.some((element)=> element.code === dataCode)){
-      let manifest = manifestList.find((element)=>element.code === dataCode);
-      this.setState({_itemDetail: manifest});
+    if(dataCode !=='0' && _itemDetail === null && outboundList.some((element)=> element.barcode === dataCode && element.location_bay === bayCode)){
+      let list = outboundList.find((element)=>element.barcode === dataCode);
+      this.setState({_itemDetail: list});
     }
   }
   navigateSeeReport = () => {
@@ -108,26 +109,22 @@ class ConnoteDetails extends React.Component {
                     {_itemDetail.code}
                   </Text>
                   <Text style={[styles.detailText, {lineHeight: 24}]}>
-                    {_itemDetail.CBM + ' CBM'}
+                    {_itemDetail.UOM}
                   </Text>
                   <Text style={[styles.detailText, {lineHeight: 24}]}>
-                    {_itemDetail.weight + ' KG'}
+                    {_itemDetail.whole_qty}
                   </Text>
                 </View>
-                <Text style={styles.packageCounterText}>{_itemDetail.scanned+'/'+_itemDetail.total_package}</Text>
+                {/* <Text style={styles.packageCounterText}>{_itemDetail.scanned+'/'+_itemDetail.total_qty}</Text> */}
               </View>
               <View style={styles.detail}>
-                <DetailList title="Description" value={_itemDetail.name} />
-                <DetailList title="Quantity" value={_itemDetail.total_package} />
-                <DetailList title="Color" value={_itemDetail.color} />
-                <DetailList title="UOM" value="Pair" />
-                <DetailList
-                  title="Country"
-                  value="America"
-                />
-                <DetailList title="EXP Date" value="-" />
-                <DetailList title="Banch" value="01" />
-                <DetailList title="Class" value="A2" />
+                <DetailList title="Description" value={_itemDetail.description} />
+                <DetailList title="Quantity" value={_itemDetail.total_qty} />
+                <DetailList title="Phone Number" value={_itemDetail.phoneNumber} />
+                <DetailList title="Name" value={_itemDetail.name} />
+                <DetailList title="Address" value={_itemDetail.address} />
+                <DetailList title="Zip Code" value={_itemDetail.zipcode} />
+                <DetailList title="Cage" value={_itemDetail.location_bay} />
                 <View style={styles.reportSection}>
                   <Text style={styles.reportSectionTitle}>Report:</Text>
                   <DetailList
@@ -239,7 +236,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
   return {
-    manifestList: state.originReducer.manifestList,
+    outboundList: state.originReducer.outboundList,
   };
 };
 

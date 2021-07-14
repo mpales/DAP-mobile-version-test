@@ -57,7 +57,7 @@ class ReportManifest extends React.Component {
     handleDeliveryOptions = (selectedValue) => {
         this.setState({
             ...this.state,
-            deliveryOption: selectedValue,
+            reasonOption: selectedValue,
         });
     }
 
@@ -182,7 +182,7 @@ class ReportManifest extends React.Component {
                                 </View>
                                 <Button
               containerStyle={{flexShrink:1}}
-              buttonStyle={[styles.navigationButton,]}
+              buttonStyle={styles.navigationButton}
               titleStyle={styles.deliveryText}
               onPress={() => this.handleSubmit()}
               title="Submit"

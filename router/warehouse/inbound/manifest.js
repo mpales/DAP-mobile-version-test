@@ -58,7 +58,7 @@ class Warehouse extends React.Component{
       let manifest = Array.from({length: manifestList.length}).map((num, index) => {
         return {
             ...manifestList[index],
-            scanned: barcodeScanned.includes(manifestList[index].code) ? barcodeScanned.length : 0,
+            scanned: barcodeScanned.includes(manifestList[index].code) ? barcodeScanned.length : manifestList[index].scanned,
         };
       });
       props.setItemScanned([]);
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
 
 const manifestDummy = [
   {
-    code: '13140026927104',
+    code: '8993175536820',
     total_package: 2,
     name: 'Bear Brand Milk',
     color:'white',

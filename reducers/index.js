@@ -49,8 +49,15 @@ const initialState = {
     activeASN : [],
     completeASN :[],
     barcodeScanned: [],
+    idScanned: null,
     ReportedASN: [],
     ReportedManifest: null,
+    currentTask: null,
+    activeTask : [],
+    completeTask :[],
+    ReportedTask: [],
+    ReportedList: null,
+    currentList: null,
   },
 };
 
@@ -299,6 +306,45 @@ export default function appReducer(state = initialState, action) {
           ],
         },
       }
+
+      case 'setTask':
+        return {
+          ...state,
+          filters:{
+            ...state.filters,
+            currentTask: action.payload,
+          },
+        }
+        case 'setCurrentList':
+        return {
+          ...state,
+          filters:{
+            ...state.filters,
+            currentList: action.payload,
+          },
+        }
+      case 'addActiveTask':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            activeTask : [
+              ...state.filters.activeTask,
+              action.payload,
+            ],
+          },
+        }
+        case 'addCompleteTask':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            completeTask : [
+              ...state.filters.completeTask,
+              action.payload,
+            ],
+          },
+        }
     case 'filtered_sort':
       return {
         ...state,
@@ -455,6 +501,14 @@ export default function appReducer(state = initialState, action) {
             barcodeScanned: action.payload,
           },
         };
+        case 'ListIDScanned':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            idScanned: action.payload,
+          },
+        };
         case 'ReportedManifest':
           return {
             ...state,
@@ -474,6 +528,25 @@ export default function appReducer(state = initialState, action) {
                 ],
               },
             };
+            case 'ReportedList':
+              return {
+                ...state,
+                filters: {
+                  ...state.filters,
+                  ReportedList: action.payload,
+                },
+              };
+              case 'ReportedTask':
+                return {
+                  ...state,
+                  filters: {
+                    ...state.filters,
+                    ReportedTask: [
+                      ...state.filters.ReportedTask,
+                      action.payload,
+                    ],
+                  },
+                };
         case 'fromBarcode':
           return {
             ...state,

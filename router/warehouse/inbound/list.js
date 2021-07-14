@@ -175,7 +175,7 @@ class List extends React.Component {
                     />
                             </View>
                             {this.props.inboundList.map((data, i, arr) => {
-                                let printdate = i === 0 || moment.unix(data.timestamp).isSame(moment.unix(arr[i -1].timestamp), 'day') === false
+                                let printdate = this.state.filtered === 0 && (i === 0 || moment.unix(data.timestamp).isSame(moment.unix(arr[i -1].timestamp), 'day') === false)
                                 return (
                                 <>
                                 {printdate && 

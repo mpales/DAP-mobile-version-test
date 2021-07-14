@@ -92,6 +92,28 @@ class WarehouseNavigator extends React.Component {
       "hardwareBackPress",
       ()=>{
          this._refreshFromBackHandle();
+         if (this.props.keyStack === 'List' && this.props.indexBottomBar === 1) {
+          this.navigationRef.current.navigate('Outbound', {screen: 'Task'})
+          return true;
+          } else if(this.props.keyStack === 'Barcode' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Outbound', {screen: 'List'})
+            return true;    
+          } else if(this.props.keyStack === 'ReportManifest' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Outbound', {screen: 'List'})
+            return true;
+          } else if(this.props.keyStack === 'ItemDetail' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Outbound', {screen: 'List'})
+            return true;    
+          } else if(this.props.keyStack === 'ItemReportDetail' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Outbound', {screen: 'ItemDetail'})
+            return true;    
+          } else if(this.props.keyStack === 'ManualInput' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Outbound', {screen: 'List'})
+            return true;    
+          } else if(this.props.keyStack === 'SingleCamera' && this.props.indexBottomBar === 1){
+            this.navigationRef.current.navigate('Inbound', {screen: 'ReportManifest'})
+            return true;    
+          }
          return false;
        }
     );

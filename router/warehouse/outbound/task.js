@@ -18,6 +18,7 @@ import { Picker } from '@react-native-picker/picker';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { connect } from 'react-redux';
+import moment from 'moment';
 //component
 import Outbound from '../../../component/extend/ListItem-outbound';
 //style
@@ -33,7 +34,9 @@ class List extends React.Component {
         this.state = {
             search: '',
             filtered : 0,
+            renderGoBack : false,
         };
+    this.updateTask.bind(this);
     this.setFiltered.bind(this);
     this.updateSearch.bind(this);
     }
@@ -43,9 +46,58 @@ class List extends React.Component {
     setFiltered = (num)=>{
         this.setState({filtered:num});
     }
-    componentDidMount() {
-        this.props.setOutboundTask(outboundTask)
+    updateTask = ()=>{
+        const {activeTask,completeTask, ReportedTask} = this.props;
+        this.setState({renderGoBack: false});
+        return Array.from({length: outboundTaskDummy.length}).map((num, index) => {
+            return {
+                ...outboundTaskDummy[index],
+                status: completeTask.includes(outboundTaskDummy[index].code) ? 'completed' : ReportedTask.includes(outboundTaskDummy[index].code) ? 'reported' : activeTask.includes(outboundTaskDummy[index].code) ? 'progress': 'pending',
+            };
+          });
     }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        if(this.props.keyStack !== nextProps.keyStack){
+        if(nextProps.keyStack === 'Task'){
+            this.setState({renderGoBack : true});
+            return true;
+        }
+        }
+        return true;
+    }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        let filtered = prevState.renderGoBack !== this.state.renderGoBack || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
+        if(filtered === 0) {
+            this.props.setOutboundTask(this.updateTask().filter((element)=> element.code.indexOf(this.state.search) > -1));
+        } else if(filtered === 1){
+            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'reported').filter((element)=> element.code.indexOf(this.state.search) > -1));
+        } else if(filtered === 2){
+            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'pending').filter((element)=> element.code.indexOf(this.state.search)> -1));
+        }else if(filtered === 3){
+            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'progress').filter((element)=> element.code.indexOf(this.state.search) > -1));
+        }else if(filtered === 4){
+            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'completed').filter((element)=> element.code.indexOf(this.state.search) > -1));
+        }
+        
+    }
+    componentDidMount() {
+
+        const {filtered} = this.state;
+        if(filtered === 0) {
+            this.props.setOutboundTask(
+                this.updateTask().filter((element)=> element.code.indexOf(this.state.search) > -1));
+        } else if(filtered === 1){
+            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'reported').filter((element)=> element.code.indexOf(this.state.search) > -1));
+        } else if(filtered === 2){
+            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'pending').filter((element)=> element.code.indexOf(this.state.search) > -1));
+        }else if(filtered === 3){
+            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'progress').filter((element)=> element.code.indexOf(this.state.search) > -1));
+        }else if(filtered === 4){
+            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'completed').filter((element)=> element.code.indexOf(this.state.search) > -1));
+        }
+    }
+
     render() {
         return(
             <SafeAreaProvider>
@@ -78,7 +130,8 @@ class List extends React.Component {
                                     inputStyle={[Mixins.containedInputDefaultStyle, {marginHorizontal: 0}]}
                                     labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                                     label="Search"
-                                    placeholder=""
+                                    onChangeText={this.updateSearch}
+                                    value={this.state.search}
                                 />
                             </View>
                     <View style={styles.sectionContent}>
@@ -87,30 +140,37 @@ class List extends React.Component {
                         <Badge
                     value="All"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.props.setFiltered(0)}
+                    onPress={()=> this.setFiltered(0)}
                     badgeStyle={this.state.filtered === 0 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
-                    value="Pending"
+                    value="Reported"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.props.setFiltered(1)}
+                    onPress={()=> this.setFiltered(1)}
                     badgeStyle={this.state.filtered === 1 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
-                    value="In Progress"
+                    value="Pending"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.props.setFiltered(2)}
+                    onPress={()=> this.setFiltered(2)}
                     badgeStyle={this.state.filtered === 2 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
-                    value="Completed"
+                    value="Progress"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.props.setFiltered(3)}
+                    onPress={()=> this.setFiltered(3)}
                     badgeStyle={this.state.filtered === 3 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
+                                              <Badge
+                    value="Completed"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(4)}
+                    badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                             </View>
                             {this.props.outboundTask.map((data, i) => (
@@ -120,11 +180,15 @@ class List extends React.Component {
                                     item={data} 
                                     ToManifest={()=>{
                                         this.props.setBottomBar(false);
-                                        this.props.navigation.navigate('List');
+                                        this.props.setCurrentTask(data.code);
+                                        this.props.setActiveTask(data.code);
+                                        this.props.navigation.navigate(   {
+                                            name: 'List',
+                                            params: {
+                                              number: data.code,
+                                            },
+                                          });
                                     }}
-                                    // for prototype only
-                                    completedInboundList={this.props.completedInboundList}
-                                    // end
                                 />
                             ))}
                         </Card>
@@ -246,62 +310,62 @@ const styles = StyleSheet.create({
         },
 });
 
-const outboundTask = [
+const outboundTaskDummy = [
     {
         code: 'WHUS00018789719',
         warehouse_code: 'Warehouse A1',
-        date: '12/03/2021',
+        timestamp: moment().subtract(1, 'days').unix(),
         company: 'WORKEDGE',
         sku: 20,
-        status: 'onProgress'
+        status: 'Pending'
     },
     {
         code: 'WHUS00018789720',
         warehouse_code: 'Warehouse A1',
-        date: '12/03/2021',
+        timestamp: moment().subtract(1, 'days').unix(),
         company: 'WORKEDGE',
         sku: 20,
-        status: 'onProgress'
+        status: 'Pending'
     },
     {
         code: 'WHUS00018789721',
         warehouse_code: 'Warehouse A1',
-        date: '12/03/2021',
+        timestamp: moment().subtract(1, 'days').unix(),
         company: 'WORKEDGE',
         sku: 20,
-        status: 'onProgress'
+        status: 'Pending'
     },
     {
         code: 'WHUS00018789722',
         warehouse_code: 'Warehouse A1',
-        date: '12/03/2021',
+        timestamp: moment().subtract(1, 'days').unix(),
         company: 'WORKEDGE',
         sku: 20,
-        status: 'onProgress'
+        status: 'Pending'
     },
     {
         code: 'WHUS00018789723',
         warehouse_code: 'Warehouse A1',
-        date: '12/03/2021',
+        timestamp: moment().unix(),
         company: 'WORKEDGE',
         sku: 20,
-        status: 'onProgress'
+        status: 'Progress'
     },
     {
         code: 'WHUS00018789724',
         warehouse_code: 'Warehouse A1',
-        date: '12/03/2021',
+        timestamp: moment().unix(),
         company: 'WORKEDGE',
         sku: 20,
-        status: 'onProgress'
+        status: 'Progress'
     },
     {
         code: 'WHUS00018789725',
         warehouse_code: 'Warehouse A1',
-        date: '12/03/2021',
+        timestamp: moment().unix(),
         company: 'WORKEDGE',
         sku: 20,
-        status: 'onProgress'
+        status: 'Progress'
     },
 ];
 
@@ -309,6 +373,10 @@ function mapStateToProps(state) {
     return {
         outboundTask: state.originReducer.outboundTask,
         completedInboundList: state.originReducer.completedInboundList,
+        ReportedTask: state.originReducer.filters.ReportedTask,
+        activeTask : state.originReducer.filters.activeTask,
+        completeTask : state.originReducer.filters.completeTask,
+        keyStack: state.originReducer.filters.keyStack,
     };
   }
   
@@ -320,6 +388,12 @@ const mapDispatchToProps = (dispatch) => {
         },
       setBottomBar: (toggle) => {
         return dispatch({type: 'BottomBar', payload: toggle});
+      },
+      setCurrentTask : (data)=> {
+        return dispatch({type:'setTask', payload: data});
+      },
+      setActiveTask : (data)=> {
+        return dispatch({type:'addActiveTask', payload: data});
       },
       //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
     };
