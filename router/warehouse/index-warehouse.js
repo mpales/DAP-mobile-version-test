@@ -8,11 +8,11 @@ import { createDrawerNavigator,DrawerContentScrollView,
   DrawerItemList, DrawerItem} from '@react-navigation/drawer';
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
-import CCM from './inbound'
+import WMS from './warehouse-management'
 import Notification from './notification'
 import {Button, Avatar} from 'react-native-elements';
 import IconHome7Mobile from '../../assets/icon/iconmonstr-home-7mobile.svg';
-import IconNote19Mobile from '../../assets/icon/iconmonstr-note-19mobile.svg';
+import WarehouseDrawer from '../../assets/icon/warehouse-bottom-drawer-mobile.svg';
 import IconBubble26Mobile from '../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import IconGear2Mobile from '../../assets/icon/iconmonstr-gear-2mobile.svg';
 import IconBell2Mobile from '../../assets/icon/iconmonstr-bell-2mobile.svg';
@@ -233,8 +233,8 @@ class WarehouseNavigator extends React.Component {
           ),
         }),
       },
-      Inbound: {
-        screen: CCM,
+      Management: {
+        screen: WMS,
         navigationOptions:  ({ navigation }) => ({
           tabBarIcon: ({color, focused}) => (
             <Button
@@ -244,9 +244,9 @@ class WarehouseNavigator extends React.Component {
                   : {backgroundColor: 'transparent'}
               }
               onPress={()=> {
-                navigation.navigate('Inbound',{screen:"List"})}}
+                navigation.navigate('Management',{screen:"Stock"})}}
               icon={() => (
-                <IconNote19Mobile height="22" width="24" fill={color} />
+                <WarehouseDrawer height="22" width="24" fill={color} />
               )}
             />
           ),
