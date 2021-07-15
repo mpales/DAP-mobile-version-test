@@ -16,7 +16,8 @@ import itemReportDetail from './itemReportDetails';
 import ManualInput from './manualInput';
 import ReportManifest from './reportManifest';
 import Mixins from '../../../mixins';
-import SingleCamera from '../peripheral/cameraSingle';
+import SingleCamera from '../peripheral/cameraMulti';
+import EnlargeImage from '../peripheral/enlargeImage';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 const Stack = createStackNavigator();
@@ -275,6 +276,28 @@ class HomeNavigator extends React.Component {
                 },
               })
             },
+            headerTransparent: true,
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+          })}
+        />
+            <Stack.Screen
+          name="EnlargeImage"
+          component={EnlargeImage}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
         

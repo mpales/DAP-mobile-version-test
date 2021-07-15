@@ -20,17 +20,54 @@ class CameraSingle extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            pictureData: this.props.photoProofPostpone,
+            pictureData: null,
             isShowImagePreview: false,
             isFlashActive: false,
+            pictureGallery: this.props.photoProofPostpone,
         }
+  
+        this.handleShowImagePreview.bind(this);
+        this.takePicture.bind(this);
         this.flashToggle.bind(this);
     }
-
+    
+    static getDerivedStateFromProps(props,state){
+     const {addPhotoProofID, navigation} = props;
+     const {pictureGallery} = state;
+     // only one instance of multi camera can exist before submited
+     if(pictureGallery !== null){
+         const {routes, index} = navigation.dangerouslyGetState();
+        if(routes[index-1] !== undefined && routes[index-1].name === "ReceivingDetail"){
+           addPhotoProofID(routes[index-1].params.number)
+        } 
+        if(routes[index-1] !== undefined && routes[index-1].name === "ReportManifest"){
+             if(routes[index-1].params !== undefined && routes[index-1].params.dataCode !== undefined){
+                addPhotoProofID(routes[index-1].params.dataCode)
+            }
+         } 
+     } else {
+        addPhotoProofID(null)
+     }
+    
+     return {...state};
+    }
+    shouldComponentUpdate(nextProps, nextState) {
+        if(this.props.keyStack !== nextProps.keyStack){
+          if(nextProps.keyStack === 'SingleCamera' && this.props.keyStack ==='EnlargeImage'){
+            this.setState({pictureGallery: this.props.photoProofPostpone});
+            return true;
+          } 
+        }
+        return true;
+      }
     componentDidUpdate(prevProps, prevState) {
-       if(prevState.pictureData !== this.state.pictureData && this.state.pictureData === null && this.props.photoProofPostpone !== null){
-           this.setState({pictureData : this.props.photoProofPostpone});
+       if(Array.isArray(this.props.photoProofPostpone) && ((prevProps.photoProofPostpone === null && this.props.photoProofPostpone !== prevProps.photoProofPostpone) || this.props.photoProofPostpone.length !== prevProps.photoProofPostpone.length)){
+            this.setState({pictureGallery : this.props.photoProofPostpone});
+            if(this.state.isShowImagePreview && this.state.pictureGallery !== null) {
+                this.flatlist.scrollToEnd();
+            }
        }
+
     }
 
     flashToggle = () => {
@@ -59,18 +96,33 @@ class CameraSingle extends React.Component {
         if(confirm) {
             this.props.addPhotoProofPostpone( pictureData);
         } else {
-            this.props.addPhotoProofPostpone( null );
+
         }
         this.setState({pictureData: null});
-        this.props.navigation.goBack();
+    }
+    handleShowImagePreview = () => {
+        if(this.state.pictureGallery.length > 0) {
+            this.setState({
+                isShowImagePreview: !this.state.isShowImagePreview,
+            });
+        }
     }
 
 
     render() {
+        const renderItem = ({ item, index }) => (
+            <TouchableOpacity
+                style={styles.pictureSize}
+                onPress={()=> this.props.navigation.navigate('EnlargeImage', {index: index})}
+            >
+                <Image style={{width: '100%', height: '100%'}} source={{ uri: item }} />
+            </TouchableOpacity>
+        )
+
         const {photoProofPostpone} = this.props;
         return (
             <>
-            {(photoProofPostpone !== null || this.state.pictureData !== null ) ? (<View style={styles.container}>
+            {(this.state.pictureData !== null ) ? (<View style={styles.container}>
                 <View style={styles.preview}>
                     <Image style={styles.confirmPictureSize} source={{uri: this.state.pictureData}}  />
                 </View>
@@ -100,10 +152,25 @@ class CameraSingle extends React.Component {
                         }
                     </TouchableOpacity>
                 </View>
-             
+                {this.state.isShowImagePreview && 
+                    this.state.pictureGallery !== null &&
+                        <View style={styles.pictureListContainer}>
+                            <FlatList 
+                                ref={ref => { this.flatlist = ref }}
+                                data={this.state.pictureGallery}
+                                renderItem={renderItem}
+                                keyExtractor={(item, index) => index}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={{flexGrow: 1, justifyContent: 'center', alignItems: 'center'}}
+                            />
+                        </View>
+                }
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity onPress={()=>console.log('no-gallery')} style={styles.gallery}>
-                     
+                    <TouchableOpacity onPress={this.handleShowImagePreview} style={styles.gallery}>
+                        {this.state.pictureGallery !== null &&
+                            <Image style={styles.imagePreviewButton} source={{uri: this.state.pictureGallery[this.state.pictureGallery.length - 1]}} />
+                        }
                     </TouchableOpacity>
                     <TouchableOpacity onPress={this.takePicture.bind(this)} style={styles.capture} />
                     <TouchableOpacity onPress={() => launchImageLibrary({mediaType: 'photo'}, this.launchGallery)} style={styles.gallery}>
@@ -207,11 +274,13 @@ const styles = StyleSheet.create({
 function mapStateToProps(state) {
     return {
         photoProofPostpone: state.originReducer.photoProofPostpone,
+        keyStack: state.originReducer.filters.keyStack,
     };
 }
   
 const mapDispatchToProps = (dispatch) => {
     return {
+        addPhotoProofID: (id) => dispatch({type:'addPhotoProofID', payload: id}),
         addPhotoProofPostpone: (uri) => dispatch({type: 'PhotoProofPostpone', payload: uri}),
     };
 };

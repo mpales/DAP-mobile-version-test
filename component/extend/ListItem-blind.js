@@ -261,7 +261,12 @@ const Manifest = ({item, index, isActive, ToManifest, navigation}) => {
               buttonStyle={[styles.navigationButton, {backgroundColor: '#fff', borderWidth: 1, borderColor: '#D5D5D5'}]}
               titleStyle={[styles.deliveryText,{color:'#E03B3B',paddingHorizontal: 10}]}
               onPress={()=>{
-                navigation.navigate('ReportManifest')
+                navigation.navigate({
+                  name: 'ReportManifest',
+                  params: {
+                      dataCode: item.barcode,
+                  }
+                })
               }}
               disabled={item.scanned !== -1 ? false : true}
               title="Report Item"

@@ -159,13 +159,17 @@ class Acknowledge extends React.Component {
          <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
          <Avatar
           onPress={()=>{
-            this.props.setBottomBar(false);
-            this.props.navigation.navigate('SingleCamera')}}
+            console.log('test')
+            if(this.props.photoProofID === null || this.props.photoProofID === data.number){
+              this.props.setBottomBar(false);
+              this.props.navigation.navigate('SingleCamera')              
+            }
+          }}
                 size={79}
                 ImageComponent={() => (
                   <>
                     <IconPhoto5 height="40" width="40" fill="#fff" />
-                    {this.props.photoProofPostpone !== null && (
+                    {(this.props.photoProofPostpone !== null && (this.props.photoProofID !== null && this.props.photoProofID === data.number)) && (
                       <Checkmark
                         height="20"
                         width="20"
@@ -183,7 +187,7 @@ class Acknowledge extends React.Component {
                   },
                 }}
                 overlayContainerStyle={{
-                  backgroundColor: this.props.photoProofPostpone !== null
+                  backgroundColor: this.props.photoProofID !== null && this.props.photoProofID !== data.number ? 'grey' : this.props.photoProofPostpone !== null 
                     ? '#17B055'
                     : '#F07120',
                   flex: 2,
@@ -192,7 +196,7 @@ class Acknowledge extends React.Component {
                 <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Photo Proof Container</Text>
          </View>
          <Button
-              containerStyle={{flex:1, marginRight: 20,}}
+              containerStyle={{flex:1, marginRight: 0,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={()=>{
@@ -210,7 +214,7 @@ class Acknowledge extends React.Component {
                   },
                 })}}
               title="Start Receiving"
-              disabled={this.props.photoProofPostpone === null ? true : false}
+              disabled={this.props.photoProofPostpone === null || (this.props.photoProofID !== null && this.props.photoProofID !== data.number) ? true : false}
             />
         </View>
     );
@@ -332,6 +336,7 @@ function mapStateToProps(state) {
     photoProofPostpone: state.originReducer.photoProofPostpone,
     inboundList: state.originReducer.inboundList,
     keyStack: state.originReducer.filters.keyStack,
+    photoProofID: state.originReducer.photoProofID,
   };
 }
 
