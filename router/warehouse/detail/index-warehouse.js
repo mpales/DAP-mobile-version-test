@@ -1,10 +1,11 @@
 import React from 'react';
 import {Text, Button,Image, Avatar} from 'react-native-elements';
 import {View} from 'react-native';
-import Barcode from '../../../assets/icon/iconmonstr-barcode-3 3mobile.svg';
-import Note from '../../../assets/icon/iconmonstr-note-19mobile.svg';
-import Inventory from '../../../assets/icon/iconmonstr-delivery-19mobile.svg';
-import Transfer from '../../../assets/icon/iconmonstr-delivery-12mobile.svg';
+import ShippingBox from '../../../assets/icon/iconmonstr-shipping-box-2mobile.svg';
+import Warehouse from '../../../assets/icon/warehouse-mobile.svg';
+import Report from '../../../assets/icon/note-mobile.svg';
+import Shipping from '../../../assets/icon/iconmonstr-airport-8mobile.svg';
+import Recycling from '../../../assets/icon/recycle-mobile.svg';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
 
@@ -22,7 +23,7 @@ class Acknowledge extends React.Component {
   render(){
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
-          <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 100}}>
+          <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 50}}>
           <Image
               source={require('../../../assets/dap_logo_hires1thumb.png')}
               style={{ width: 135, height: 70 }}
@@ -33,18 +34,18 @@ class Acknowledge extends React.Component {
                 <Avatar
                   size={140}
                   ImageComponent={() => (
-                    <Barcode height="70" width="70" fill="#6C6B6B" />
+                    <ShippingBox height="70" width="70" fill="#6C6B6B" />
                   )}
                   imageProps={{
                     containerStyle: {
                      ...Mixins.buttonFloatedAvatarDefaultIconStyle
                     },
                   }}
-                  title="BARCODE"
+                  title="Stock Tick"
                   overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
                   onPress={() => {
                     this.props.setBottomBar(false);
-                    this.props.navigation.navigate('Inbound',{screen:'Barcode'})}}
+                    this.props.navigation.navigate('Management',{screen:'Stock'})}}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
@@ -55,18 +56,18 @@ class Acknowledge extends React.Component {
                 <Avatar
                   size={140}
                   ImageComponent={() => (
-                    <Note height="70" width="70" fill="#6C6B6B" />
+                    <Warehouse height="70" width="70" fill="#6C6B6B" />
                   )}
                   imageProps={{
                     containerStyle: {
                      ...Mixins.buttonFloatedAvatarDefaultIconStyle
                     },
                   }}
-                  title="PURCHASE ORDER"
+                  title="Warehouse Relocation"
                   overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
                   onPress={() => {
                     this.props.setBottomBar(false);
-                    this.props.navigation.navigate('Inbound',{screen:'Manifest'})}}
+                    this.props.navigation.navigate('Management',{screen:'Location'})}}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
@@ -80,14 +81,14 @@ class Acknowledge extends React.Component {
                 <Avatar
                   size={140}
                   ImageComponent={() => (
-                    <Inventory height="70" width="70" fill="#6C6B6B" />
+                    <Report height="70" width="70" fill="#6C6B6B" />
                   )}
                   imageProps={{
                     containerStyle: {
                      ...Mixins.buttonFloatedAvatarDefaultIconStyle
                     },
                   }}
-                  title="INVENTORY CONTROL"
+                  title="Report"
                   overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
                   onPress={() => console.log('Works!')}
                   activeOpacity={0.7}
@@ -100,14 +101,14 @@ class Acknowledge extends React.Component {
                 <Avatar
                   size={140}
                   ImageComponent={() => (
-                    <Transfer height="70" width="70" fill="#6C6B6B" />
+                    <Shipping height="70" width="70" fill="#6C6B6B" />
                   )}
                   imageProps={{
                     containerStyle: {
                      ...Mixins.buttonFloatedAvatarDefaultIconStyle
                     },
                   }}
-                  title="TRANSFER"
+                  title="Shipping"
                   overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
                   onPress={() => console.log('Works!')}
                   activeOpacity={0.7}
@@ -117,7 +118,31 @@ class Acknowledge extends React.Component {
                 />
               </View>
           </View>
-          
+          <View style={{flexDirection: 'row', flexShrink:1}}>
+          <View style={styles.sectionContainer}>
+                <Avatar
+                  size={140}
+                  ImageComponent={() => (
+                    <Recycling height="70" width="70" fill="#6C6B6B" />
+                  )}
+                  imageProps={{
+                    containerStyle: {
+                     ...Mixins.buttonFloatedAvatarDefaultIconStyle
+                    },
+                  }}
+                  title="Recycling"
+                  overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
+                  onPress={() => console.log('Works!')}
+                  activeOpacity={0.7}
+                  containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
+                  placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
+                  titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}]}
+                />
+              </View>
+              <View style={styles.sectionContainer}>
+              
+              </View>
+          </View>
         </View>
     );
   }

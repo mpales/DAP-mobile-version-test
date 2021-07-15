@@ -71,7 +71,7 @@ class Acknowledge extends React.Component {
                   this.props.setBottomBar(true);
                   this.props.setWarehouseModule('WAREHOUSE');
                     this.props.navigation.navigate('Details')}}
-                    buttonStyle={{backgroundColor: 'grey',paddingVertical:15, paddingHorizontal: 35}}
+                    buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
                     />
         </View>
     );
