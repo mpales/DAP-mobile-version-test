@@ -6,6 +6,7 @@ const initialState = {
   todos: STRUCT,
   userRole: USER,
   photoProofPostpone: null,
+  photoProofID : null,
   photoProofList: [],
   route: ROUTE,
   inboundList: [],
@@ -226,10 +227,38 @@ export default function appReducer(state = initialState, action) {
         photoProofList: action.payload,
       };
       case 'PhotoProofPostpone':
-        return {
-          ...state,
-          photoProofPostpone: action.payload,
-        };
+        if(action.payload === null ){
+          return {
+            ...state,
+            photoProofPostpone: initialState.photoProofPostpone,
+            photoProofID: initialState.photoProofID,
+          }
+        } else if(Array.isArray(state.photoProofPostpone)){
+          return {
+            ...state,
+            photoProofPostpone: [
+              ...state.photoProofPostpone,
+              action.payload
+            ],
+          };  
+        } else {
+          return {
+            ...state,
+            photoProofPostpone: [
+              action.payload
+            ],
+          };
+        }
+        case 'PhotoProofUpdate':
+          return {
+            ...state,
+            photoProofPostpone: action.payload,
+          }
+          case 'addPhotoProofID': 
+          return {
+            ...state,
+            photoProofID: action.payload,
+          }
     case 'PhotoProof':
       return {
         ...state,

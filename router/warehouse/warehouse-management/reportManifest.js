@@ -142,15 +142,17 @@ class ReportManifest extends React.Component {
                         />
 
                         <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
-                                <Avatar
-                                onPress={()=>{
+                        <Avatar onPress={()=>{
+                                       if(this.props.photoProofID === null || this.props.photoProofID === this.state.dataCode){
                                     this.props.setBottomBar(false);
-                                    this.props.navigation.navigate('SingleCamera')}}
+                                    this.props.navigation.navigate('SingleCamera')              
+                                    }
+                                }}
                                         size={79}
                                         ImageComponent={() => (
                                         <>
                                             <IconPhoto5 height="40" width="40" fill="#fff" />
-                                            {this.props.photoProofPostpone !== null && (
+                                            {(this.props.photoProofPostpone !== null && (this.props.photoProofID !== null && this.props.photoProofID === this.state.dataCode)) && (
                                             <Checkmark
                                                 height="20"
                                                 width="20"
@@ -168,7 +170,7 @@ class ReportManifest extends React.Component {
                                         },
                                         }}
                                         overlayContainerStyle={{
-                                        backgroundColor: this.props.photoProofPostpone !== null
+                                        backgroundColor: this.props.photoProofID !== null && this.props.photoProofID !== this.state.dataCode ? 'grey' : this.props.photoProofPostpone !== null 
                                             ? '#17B055'
                                             : '#F07120',
                                         flex: 2,
@@ -182,7 +184,7 @@ class ReportManifest extends React.Component {
               titleStyle={styles.deliveryText}
               onPress={() => this.handleSubmit()}
               title="Submit"
-              disabled={this.props.photoProofPostpone === null ? true : false}
+              disabled={this.props.photoProofPostpone === null || (this.props.photoProofID !== null && this.props.photoProofID !== this.state.dataCode) ? true : false}
             />
                 </View>
             </View>
@@ -303,6 +305,7 @@ const mapStateToProps = (state) => {
         manifestList: state.originReducer.manifestList,
         photoProofPostpone: state.originReducer.photoProofPostpone,
         currentASN : state.originReducer.filters.currentASN,
+        photoProofID: state.originReducer.photoProofID,
     };
 }
 
