@@ -360,7 +360,7 @@ class AnimatedMarkers extends React.Component {
  
   static getDerivedStateFromProps(props,state){
     const {navigation, currentDeliveringAddress, markers, dataPackage} = props;
-    const {index, currentCoords, route, updateToRenderMap} = state;
+    const {index, currentCoords, route, updateToRenderMap, region} = state;
 
     if(index === null && currentDeliveringAddress === null) {
       let params = props.route.params;
@@ -377,8 +377,17 @@ class AnimatedMarkers extends React.Component {
         }
         props.getDeliveryDirections(route[params.index].coordinate, currentCoords);
         props.reverseGeoCoding(currentCoords);
-        
-        return {...state, index: params.index,  loadingLayer: true};
+
+          //set first camera
+        let initialCamera = AnimatedMarkers.Beacon.camera(ASPECT_RATIO,currentCoords);
+        region
+        .setValue({
+          latitudeDelta: initialCamera.latitudeDelta,
+          longitudeDelta: initialCamera.longitudeDelta,
+          latitude: initialCamera.latitude,
+          longitude: initialCamera.longitude,
+        })
+        return {...state, index: params.index,  loadingLayer: true, region: region};
       } else {
         //from drawer
         let destination = new Location(markers[0][0], markers[0][1]);
@@ -407,7 +416,17 @@ class AnimatedMarkers extends React.Component {
       }
       props.getDeliveryDirections(route[currentDeliveringAddress].coordinate, currentCoords);
       props.reverseGeoCoding(currentCoords);
-      return {...state, index:currentDeliveringAddress,  loadingLayer: true};
+
+         //set first camera
+         let initialCamera = AnimatedMarkers.Beacon.camera(ASPECT_RATIO,currentCoords);
+         region
+         .setValue({
+           latitudeDelta: initialCamera.latitudeDelta,
+           longitudeDelta: initialCamera.longitudeDelta,
+           latitude: initialCamera.latitude,
+           longitude: initialCamera.longitude,
+         });
+      return {...state, index:currentDeliveringAddress,  loadingLayer: true, region: region};
     } else if(currentDeliveringAddress === null && index !== null && updateToRenderMap === true){
       // when switch between item cards
       let destination = new Location(markers[index][0], markers[index][1]);
