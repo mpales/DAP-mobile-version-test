@@ -11,7 +11,7 @@ import IconDelivery8Mobile from '../../../assets/icon/iconmonstr-delivery-8 1mob
 import IconArrow66Mobile from '../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 import List from './list';
 import ListMap from './list-map';
-import Navigation from '../../../component/map/index';
+import Navigation from '../transport';
 import OfflineMode from '../../../component/linked/offlinemode';
 import { TabRouter } from '@react-navigation/native';
 import Package from '../package';
