@@ -50,11 +50,12 @@ class NavigationalMap extends React.Component {
   _appState = React.createRef();
   locatorID = null;
   static Beacon = null;
-  callbackNode = new Reanimated.Value(1);
-  fadeAnimButton = new Animated.Value(1);
-  fadeAnim = new Animated.Value(0);
+ 
   constructor(props) {
     super(props);
+    if (!this._appState.current) {
+      this._appState.current = AppState.currentState;
+    }
     const {index, markers, data} = this.props;
     const LATITUDE = 1.3287109;
     const LONGITUDE = 103.8476682;
@@ -73,11 +74,12 @@ class NavigationalMap extends React.Component {
         coordinate: {latitude: data[index].coords.lat, longitude: data[index].coords.lng},
       };
     });
+    
     this.state = {
       route,
       region: new AnimatedRegion({
-        latitude: LATITUDE,
-        longitude: LONGITUDE,
+        latitude: markers[index][0],
+        longitude:  markers[index][1],
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LONGITUDE_DELTA,
       }),
@@ -92,6 +94,7 @@ class NavigationalMap extends React.Component {
       ApplicationNavigational: null,
       loadingLayer: true,
     };
+    this.toggleCamera.bind(this)
   }
  
   static getDerivedStateFromProps(props,state){
@@ -154,7 +157,28 @@ class NavigationalMap extends React.Component {
       if (this.props.destinationid !== null) {
         this.getDeliveryDirection();
       }
- 
+      
+      if (Platform.OS === 'ios') {
+        PushNotificationIOS.setNotificationCategories([
+          {
+            id: 'DELIVERY_NOTIFICATION',
+            actions: [
+              {id: 'open', title: 'Open', options: {foreground: true}},
+              {
+                id: 'ignore',
+                title: 'Desruptive',
+                options: {foreground: true, destructive: true},
+              },
+              {
+                id: 'text',
+                title: 'Text Input',
+                options: {foreground: true},
+                textInput: {buttonTitle: 'Send'},
+              },
+            ],
+          },
+        ]);
+      }
 
       AppState.addEventListener('change', (state) =>
       NavigationalMap._handlebackgroundgeolocation(
@@ -470,8 +494,7 @@ class NavigationalMap extends React.Component {
       deliveryDestinationData,
       currentDeliveringAddress,
       startDelivered,
-      index, 
-      ApplicationNavigational
+      index, ApplicationNavigational
     } = this.props;
     let LatLngs = [];
     let marker = [];
@@ -530,10 +553,11 @@ class NavigationalMap extends React.Component {
         naverCallerName: 'com.example.myapp', // to link into Naver Map You should provide your appname which is the bundle ID in iOS and applicationId in android.
         app: ApplicationNavigational, // optionally specify specific app to use
       });
-      this.setState({GeoJSON: GeoJSON});
+      this.setState({GeoJSON: GeoJSON,   startForegroundService: true,   loadingLayer: false,});
     } else {
       this.setState({
         GeoJSON: GeoJSON,
+        loadingLayer: false,
       });
     }
     

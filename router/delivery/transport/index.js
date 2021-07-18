@@ -48,8 +48,8 @@ class AnimatedMarkers extends React.Component {
   _appState = React.createRef();
   locatorID = null;
   static Beacon = null;
-  panX = new Reanimated.Value(0);
-  indexIndicator = new Reanimated.Value(0);
+    panX = new Reanimated.Value(0);
+    indexIndicator = new Reanimated.Value(0);
   callbackNode = new Reanimated.Value(1);
   fadeAnimButton = new Animated.Value(1);
   fadeAnim = new Animated.Value(0);
@@ -64,8 +64,6 @@ class AnimatedMarkers extends React.Component {
       trafficButton : false,
       isShowSeeDetails: true,
       isShowCancelOrder: false,
-      modalPosition: 'initial',
-      fadeAnim: new Animated.Value(0),
       isLoading: true,
       loadingLayer: false,
       isThirdPartyNavigational: false,
@@ -80,7 +78,7 @@ class AnimatedMarkers extends React.Component {
   }
  
   static getDerivedStateFromProps(props,state){
-    const {navigation, currentDeliveringAddress, markers, dataPackage, setStartDelivered, setBottomBar} = props;
+    const {navigation, currentDeliveringAddress, markers, dataPackage, startDelivered, setStartDelivered, setBottomBar} = props;
     const {index, currentCoords, route, updateToRenderMap, region} = state;
 
     if(index === null && currentDeliveringAddress === null) {
@@ -147,7 +145,7 @@ class AnimatedMarkers extends React.Component {
     this.fadeAnim.setValue(0);
     this.fadeAnimButton.setValue(1);
     this.props.setCurrentDeliveringAddress(index);
-    this.setState({...this.state, toggleContainer: toggle});
+    this.setState({...this.state, toggleContainer: toggle, isThirdPartyNavigational:true});
     this.props.setBottomBar(bottomBar);
   };
   onLihatDetail = () => {
@@ -510,18 +508,8 @@ class AnimatedMarkers extends React.Component {
                 }
               }
               options={{
-                latitude:
-                  route[
-                    this.props.currentDeliveringAddress !== null
-                      ? this.props.currentDeliveringAddress
-                      : index
-                  ].coordinate.latitude,
-                longitude:
-                  route[
-                    this.props.currentDeliveringAddress !== null
-                      ? this.props.currentDeliveringAddress
-                      : index
-                  ].coordinate.longitude,
+                latitude: this.props.dataPackage[index].coords.lat,
+                longitude:this.props.dataPackage[index].coords.lng,
                 sourceLatitude: -8.0870631, // optionally specify starting location for directions
                 sourceLongitude: -34.8941619, // not optional if sourceLatitude is specified
                 title: 'The White House', // optional
