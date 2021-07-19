@@ -57,7 +57,7 @@ export default class Distance {
   }
 
   checkDestination(Location:Location){
-    return Distance.location.lat === Location.latitude() && Distance.location.lng === Location.longitude();
+    return L.latLng( Distance.location.lat,  Distance.location.lng).equals(Location.location());
   }
 
   locator = (geoLocation?:geoLocation): L.LatLngBounds => {
