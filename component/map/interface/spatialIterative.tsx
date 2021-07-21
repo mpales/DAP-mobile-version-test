@@ -23,17 +23,27 @@ interface geoLocation {
   latitude: number,
   longitude: number,
 }
+
+interface staticCordinate {
+  latitude: number,
+  longitude: number,
+  altitude?: number,
+  lat :number,
+  lng :number,
+  alt? :number,
+}
 export default class Distance {
   geoLocation:undefined | geoLocation = undefined;// 0-5 is exist within marker key 1 | and marker key 0 will have one cordinate
   history : L.LatLng [] = [] ;
-  static location: Location;
+  static location: staticCordinate;
   static camera: any; // this are region in react-native-maps
   static view : L.LatLngBoundsExpression;  // this are road history viewed from current location
 
   constructor(Location:Location) {
-    Distance.location = Location;
+    Distance.location = Location.location();
     Distance.view = L.latLngBounds([[Location.location().lat,Location.location().lng]]);
     this.camera.bind(this);
+    this.checkDestination.bind(this);
     this.locator.bind(this);
     this.view_history.bind(this);
   }
@@ -47,7 +57,7 @@ export default class Distance {
   }
 
   checkDestination(Location:Location){
-    return Distance.location.latitude() === Location.latitude() && Distance.location.longitude() === Location.longitude();
+    return Distance.location.lat === Location.latitude() && Distance.location.lng === Location.longitude();
   }
 
   locator = (geoLocation?:geoLocation): L.LatLngBounds => {
@@ -61,7 +71,7 @@ export default class Distance {
     } else if(this.geoLocation !== undefined){
       return L.latLngBounds([[this.geoLocation.latitude,this.geoLocation.longitude]]).extend(Distance.view);
     } else {
-      return L.latLngBounds([[Distance.location.location().lat,Distance.location.location().lng]]).extend(Distance.view);
+      return L.latLng(Distance.location.lat,Distance.location.lng).toBounds(2).extend(Distance.view);
     }
   };
   
@@ -72,9 +82,10 @@ export default class Distance {
       // boxer optional are make routebox within 1km radius camera centroid to current geolocation
 
   camera(ASPECT_RATIO:number, POV?:geoLocation, route? : L.LatLng[], optional? :string) {
-    let BOX = this.locator();
+    let BOX = this.locator(POV);
     if(POV !== undefined) {
-      BOX.extend({lat:POV.latitude, lng:POV.longitude});
+      let meter = L.latLng(POV.latitude,POV.longitude).distanceTo(L.latLng(Distance.location.lat,Distance.location.lng));
+      BOX.extend(L.latLng(POV.latitude,POV.longitude).toBounds(meter));
 
     if(route !== undefined && route !== null){
       let route_polyline = L.polyline(route);
