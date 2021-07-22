@@ -18,7 +18,7 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import {Avatar, Card, Overlay, Button, SearchBar, Badge} from 'react-native-elements';
+import {Avatar, Card, Overlay, Button, SearchBar, Badge, Input} from 'react-native-elements';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect, Provider} from 'react-redux';
@@ -43,12 +43,13 @@ class Warehouse extends React.Component{
       _manifest: [],
       updated: false,
     };
+    this.goToIVAS.bind(this);
     this.toggleOverlay.bind(this);
     this.setFiltered.bind(this);
     this.updateSearch.bind(this);
   }
   static getDerivedStateFromProps(props,state){
-    const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest} = props;
+    const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest, barcodeGrade} = props;
     const {receivingNumber, _manifest, search, filtered} = state;
     if(manifestList.length === 0 && search === ''){
       let manifest = manifestDummy.filter((element)=>element.name.indexOf(search) > -1);
@@ -58,9 +59,11 @@ class Warehouse extends React.Component{
       let manifest = Array.from({length: manifestList.length}).map((num, index) => {
         return {
             ...manifestList[index],
+            grade : barcodeScanned.includes(manifestList[index].code) ? barcodeGrade : manifestList[index].grade,
             scanned: barcodeScanned.includes(manifestList[index].code) ? barcodeScanned.length : manifestList[index].scanned,
         };
       });
+      props.setItemGrade(null);
       props.setItemScanned([]);
       props.setManifestList(manifest);
       return {...state,_manifest : manifest};
@@ -151,7 +154,9 @@ class Warehouse extends React.Component{
       this.props.navigation.navigate('containerDetail');
     }
   }
-
+  goToIVAS =() =>{
+    this.props.navigation.navigate('IVAS');
+  }
   updateSearch = (search) => {
     this.setState({search});
   };
@@ -165,9 +170,60 @@ class Warehouse extends React.Component{
         <SafeAreaProvider>
           <ScrollView style={styles.body}>
             <View style={[styles.sectionContent,{marginTop: 20}]}>
+            <View style={[styles.sectionContentTitle, {flexDirection: 'row'}]}>
+            <View style={[styles.titleHead,{flexShrink :1,minWidth: 120}]}>
             <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{receivingNumber}</Text>
             <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{currentASN !== undefined ? currentASN.transport : null}</Text>
-           <View style={{flexDirection:'row',marginVertical: 10}}>
+            </View>
+            <View style={[styles.contentHead,{flexShrink: 1,alignSelf:'flex-end', flexDirection: 'column'}]}>
+            <View style={[styles.headPallet,{flexDirection:'row', flexShrink:1}]}>
+              <Text style={{...Mixins.subtitle3,color:'#424141',lineHeight: 21,fontWeight: '600'}}>Pallet ID : </Text>
+              <Input 
+                                 containerStyle={{flexShrink:1,maxHeight:30}}
+                                 inputContainerStyle={{...Mixins.containedInputDefaultContainer,maxHeight:20, paddingHorizontal: 0,
+                                  paddingVertical: 0}} 
+                                 inputStyle={{...Mixins.containedInputDefaultStyle,marginHorizontal: 0}}
+            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
+            placeholder="PLDAP 0000091"
+                disabled={true}
+            />
+            </View>
+            <Button
+              containerStyle={{width: '100%',justifyContent: 'center',height:30}}
+              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
+              titleStyle={[styles.deliveryText,{lineHeight:16}]}
+              onPress={this.toggleOverlay}
+              title="Generate"
+            />
+            </View>
+            </View>
+            <SearchBar
+              placeholder="Type Here..."
+              onChangeText={this.updateSearch}
+              value={this.state.search}
+              lightTheme={true}
+              inputStyle={{backgroundColor: '#fff'}}
+              placeholderTextColor="#2D2C2C"
+              searchIcon={() => (
+                <IconSearchMobile height="20" width="20" fill="#2D2C2C" />
+              )}
+              containerStyle={{
+                backgroundColor: 'transparent',
+                borderTopWidth: 0,
+                borderBottomWidth: 0,
+                paddingHorizontal: 0,
+                marginVertical: 5,
+              }}
+              inputContainerStyle={{
+                backgroundColor: 'white',
+                borderWidth: 1,
+                borderBottomWidth: 1,
+                borderColor: '#D5D5D5',
+                maxHeight:40,
+              }}
+              leftIconContainerStyle={{backgroundColor: 'white'}}
+            />
+             <View style={{flexDirection:'row',marginVertical: 10}}>
             <Badge
                     value="All"
                     containerStyle={styles.badgeSort}
@@ -204,31 +260,22 @@ class Warehouse extends React.Component{
                     textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
             </View>
-            <SearchBar
-              placeholder="Type Here..."
-              onChangeText={this.updateSearch}
-              value={this.state.search}
-              lightTheme={true}
-              inputStyle={{backgroundColor: '#fff'}}
-              placeholderTextColor="#2D2C2C"
-              searchIcon={() => (
-                <IconSearchMobile height="20" width="20" fill="#2D2C2C" />
-              )}
-              containerStyle={{
-                backgroundColor: 'transparent',
-                borderTopWidth: 0,
-                borderBottomWidth: 0,
-                paddingHorizontal: 0,
-                marginVertical: 5,
-              }}
-              inputContainerStyle={{
-                backgroundColor: 'white',
-                borderWidth: 1,
-                borderBottomWidth: 1,
-                borderColor: '#D5D5D5',
-              }}
-              leftIconContainerStyle={{backgroundColor: 'white'}}
+            <View style={[styles.tabList, {flexDirection: 'row', flexShrink: 1}]}>
+            <Button
+              containerStyle={{flexShrink:1, marginRight:10}}
+              buttonStyle={[styles.navigationButton, {paddingHorizontal: 40}]}
+              titleStyle={styles.deliveryText}
+       
+              title="GRN"
             />
+            <Button
+              containerStyle={{flexShrink:1}}
+              buttonStyle={[styles.navigationButton, {backgroundColor:'white',paddingHorizontal: 40,borderWidth:1,borderColor:'#6C6B6B'}]}
+              titleStyle={[styles.deliveryText,{color:'black'}]}
+
+              title="ASN"
+            />
+            </View>
               <Card containerStyle={styles.cardContainer}>
                 {_manifest.map((u, i) => (
                   <InboundDetail 
@@ -263,9 +310,16 @@ class Warehouse extends React.Component{
           </Overlay>
          
           <View style={styles.bottomTabContainer}>
+          <Button
+              containerStyle={{flex:1, marginRight:10}}
+              buttonStyle={[styles.navigationButton, {paddingVertical: 20, backgroundColor: '#121C78'}]}
+              titleStyle={styles.deliveryText}
+              onPress={this.goToIVAS}
+              title="IVAS"
+            />
             <Button
               containerStyle={{flex:1}}
-              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
+              buttonStyle={[styles.navigationButton, {paddingVertical: 10}]}
               titleStyle={styles.deliveryText}
               onPress={this.toggleOverlay}
               title="Complete all Receiving"
@@ -411,7 +465,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    height: 100,
+    paddingVertical:10,
   },
   reportButton: {
     backgroundColor: '#FFF',
@@ -423,7 +477,7 @@ const styles = StyleSheet.create({
 
 const manifestDummy = [
   {
-    code: '8993175536820',
+    code: '8998768568882',
     total_package: 2,
     name: 'Bear Brand Milk',
     color:'white',
@@ -433,7 +487,8 @@ const manifestDummy = [
     CBM: 20.10,
     weight: 115,
     status: 'onProgress',
-    sku: '221314123'
+    sku: '221314123',
+    grade: 'Pick'
   },
   {
     code: '13140026927105',
@@ -445,7 +500,8 @@ const manifestDummy = [
     scanned: 0,
     CBM: 10.10,
     weight: 70,
-    sku: '412321412'
+    sku: '412321412',
+    grade: 'Pick'
   },
   {
     code: '13140026927106',
@@ -457,7 +513,8 @@ const manifestDummy = [
     scanned: 0,
     CBM: 15.10,
     weight: 90,
-    sku: '1241231231'
+    sku: '1241231231',
+    grade: 'Pick'
   },
   {
     code: '13140026927107',
@@ -469,7 +526,8 @@ const manifestDummy = [
     scanned: 0,
     CBM: 20.10,
     weight: 115,
-    sku : '12454634545'
+    sku : '12454634545',
+    grade: 'Pick'
   },
   {
     code: '13140026927108',
@@ -481,7 +539,8 @@ const manifestDummy = [
     scanned: 0,
     CBM: 10.10,
     weight: 90,
-    sku: '430344390'
+    sku: '430344390',
+    grade: 'Pick'
   },
   {
     code: '13140026927109',
@@ -493,7 +552,8 @@ const manifestDummy = [
     scanned: 0,
     CBM: 15.10,
     weight: 70,
-    sku: '430958095'
+    sku: '430958095',
+    grade: 'Pick'
   },
   {
     code: '13140026927110',
@@ -505,7 +565,8 @@ const manifestDummy = [
     scanned: 0,
     CBM: 20.10,
     weight: 115,
-    sku: '430950345'
+    sku: '430950345',
+    grade: 'Pick'
   },
   {
     code: '13140026927111',
@@ -517,7 +578,8 @@ const manifestDummy = [
     scanned: 0,
     CBM: 20.10,
     weight: 115,
-    sku: '250345345'
+    sku: '250345345',
+    grade: 'Pick'
   },
   {
     code: '13140026927112',
@@ -529,7 +591,8 @@ const manifestDummy = [
     scanned: 0,
     CBM: 20.10,
     weight: 115,
-    sku: '4309583049'
+    sku: '4309583049',
+    grade: 'Pick'
   },
   {
     code: '13140026927113',
@@ -541,7 +604,8 @@ const manifestDummy = [
     scanned: 0,
     CBM: 20.10,
     weight: 115,
-    sku: '3405934095'
+    sku: '3405934095',
+    grade: 'Pick'
   },
   {
     code: '13140026927114',
@@ -553,7 +617,8 @@ const manifestDummy = [
     scanned: 0,
     CBM: 20.10,
     weight: 115,
-    sku: '4059304034'
+    sku: '4059304034',
+    grade: 'Pick'
   },
 ];
 
@@ -568,6 +633,7 @@ function mapStateToProps(state) {
     inboundList: state.originReducer.inboundList,
     // for prototype only
     barcodeScanned: state.originReducer.filters.barcodeScanned,
+    barcodeGrade: state.originReducer.filters.barcodeGrade,
     completedInboundList: state.originReducer.completedInboundList,
     currentASN : state.originReducer.filters.currentASN,
     ReportedManifest : state.originReducer.filters.ReportedManifest,
@@ -609,7 +675,10 @@ const mapDispatchToProps = (dispatch) => {
     },
     setCurrentManifest: (data) => {
       return dispatch({type:'setCurrentManifest', payload: data});
-    }
+    },
+    setItemGrade : (grade)=>{
+      return dispatch({type:'BarcodeGrade', payload: grade});
+    },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };

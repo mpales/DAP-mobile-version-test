@@ -50,6 +50,7 @@ const initialState = {
     activeASN : [],
     completeASN :[],
     barcodeScanned: [],
+    barcodeGrade: null,
     idScanned: null,
     ReportedASN: [],
     ReportedManifest: null,
@@ -528,6 +529,14 @@ export default function appReducer(state = initialState, action) {
           filters: {
             ...state.filters,
             barcodeScanned: action.payload,
+          },
+        };
+        case 'BarcodeGrade':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            barcodeGrade: action.payload,
           },
         };
         case 'ListIDScanned':

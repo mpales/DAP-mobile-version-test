@@ -6,7 +6,7 @@ import Mixins from '../../../mixins';
 import moment from 'moment';
 import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
-
+import WarehouseIlustration from '../../../assets/icon/Group 4968warehouse_ilustrate_mobile.svg'
 
 class Acknowledge extends React.Component {
   constructor(props) {
@@ -77,9 +77,7 @@ class Acknowledge extends React.Component {
     return (
       <View
         style={
-          this.state.totalPackages > 0
-            ? styles.checked
-            : [styles.checked, {backgroundColor: '#ABABAB'}]
+          styles.checked
         }>
         <Checkmark height="14" width="14" fill="#FFFFFF" />
       </View>
@@ -99,11 +97,8 @@ class Acknowledge extends React.Component {
     const {userRole} = this.props;
     if(startReceiving === false){
       return (  
-        <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white', justifyContent: 'center',alignItems: 'center'}}>
-      <Image
-        source={require('../../../assets/group_mobile.png')}
-        style={{ width: 280, height: 236 }}
-      />
+        <View style={{flexGrow: 1, flexDirection:'column', backgroundColor: 'white', justifyContent: 'center',alignItems: 'center', paddingHorizontal: 30}}>
+    <WarehouseIlustration height="200" width="200" />
       <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color: '#424141'}}>Before start receiving, please acknowledge the item</Text>
       <CheckBox
                 title="I Acknowledge"
@@ -116,17 +111,17 @@ class Acknowledge extends React.Component {
               />
 
         <Button
-              containerStyle={{flex:1, marginRight: 0,}}
+              containerStyle={{width:'100%', marginRight: 0,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.toggleStartReceiving}
               title="Start Receiving"
-              disabled={this.state.acknowledged}
+              disabled={(!this.state.acknowledged)}
             />
       </View>)
     }
     return (
-        <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
+        <View style={{flexGrow: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
          <View style={{flexDirection:'row', flexShrink:1}}>
              <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'center',marginRight: 20}}>
                  <Text>Client</Text>
@@ -209,7 +204,9 @@ class Acknowledge extends React.Component {
                 disabled={true}
             />
          </View>
-         { data.status === 'pending' && (<View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
+        <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
+        { data.status === 'pending' && (
+          <>
          <Avatar
           onPress={()=>{
             console.log('test')
@@ -247,9 +244,11 @@ class Acknowledge extends React.Component {
                   borderRadius: 5,
                 }}/>
                 <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Photo Proof Container</Text>
-         </View>)}
+                </>
+                )}
+                </View>
          <Button
-              containerStyle={{flex:1, marginRight: 0,}}
+              containerStyle={{flexShrink:1, marginVertical: 10,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={()=>{
@@ -271,7 +270,7 @@ class Acknowledge extends React.Component {
             />
 
           <Button
-              containerStyle={{flex:1, marginRight: 0,}}
+              containerStyle={{flexShrink:1, marginRight: 0,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0, backgroundColor: '#121C78'}]}
               titleStyle={styles.deliveryText}
               onPress={()=>{
@@ -283,13 +282,13 @@ class Acknowledge extends React.Component {
                 this.props.setItemScanned([]);
                 this.props.setManifestList([]);
                 this.props.navigation.navigate(  {
-                  name: 'IVAS',
+                  name: 'RecordIVAS',
                   params: {
                     number: data.number,
                   },
                 })}}
               title="Record IVAS"
-              disabled={this.props.photoProofPostpone === null || (this.props.photoProofID !== null && this.props.photoProofID !== data.number) ? true : false}
+        
             />
         </View>
     );

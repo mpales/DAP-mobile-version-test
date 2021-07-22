@@ -65,6 +65,7 @@
     "react-native-reanimated": "2.1.0",
     "react-native-safe-area-context": "^3.1.9",
     "react-native-screens": "^2.18.1",
+    "react-native-select-dropdown": "^1.0.9",
     "react-native-send-intent": "^1.2.3",
     "react-native-signature-canvas": "^3.6.0",
     "react-native-sortable-multilist": "^1.1.2",

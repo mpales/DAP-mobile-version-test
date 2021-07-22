@@ -194,22 +194,12 @@ class List extends React.Component {
                                     item={data} 
                                     ToManifest={()=>{
                                         this.props.setBottomBar(false);
-                                        if(data.status !== 'pending') {
-                                           this.props.setCurrentASN(data.number);
-                                            this.props.navigation.navigate(   {
-                                                name: 'Manifest',
-                                                params: {
-                                                  number: data.number,
-                                                },
-                                              });
-                                        } else {
-                                            this.props.navigation.navigate(   {
-                                                name: 'ReceivingDetail',
-                                                params: {
-                                                  number: data.number,
-                                                },
-                                              });
-                                        }
+                                        this.props.navigation.navigate(   {
+                                            name: 'ReceivingDetail',
+                                            params: {
+                                              number: data.number,
+                                            },
+                                          });
                                     }}
                                
                                 />

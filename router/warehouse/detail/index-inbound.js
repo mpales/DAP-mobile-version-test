@@ -90,7 +90,7 @@ class Acknowledge extends React.Component {
                      ...Mixins.buttonFloatedAvatarDefaultIconStyle
                     },
                   }}
-                  title="TRANSFER"
+                  title="PUT-AWAY"
                   overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
                   onPress={() => console.log('Works!')}
                   activeOpacity={0.7}
@@ -101,7 +101,7 @@ class Acknowledge extends React.Component {
               </View>
           </View>
           
-          <View style={{flexDirection: 'row', flexShrink:1}}>
+          {/* <View style={{flexDirection: 'row', flexShrink:1}}>
           <View style={styles.sectionContainer}>
                 <Avatar
                   size={140}
@@ -123,7 +123,7 @@ class Acknowledge extends React.Component {
                 />
               </View>
               <View style={styles.sectionContainer}></View>
-          </View>
+          </View> */}
           
         </View>
     );

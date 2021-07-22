@@ -31,6 +31,10 @@ class ConnoteDetails extends React.Component {
     if(dataCode === '0'){
       const {routes, index} = navigation.dangerouslyGetState();
       if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
+        if( manifestList.some((element)=> element.code === routes[index].params.dataCode)){
+          let manifest = manifestList.find((element)=>element.code === routes[index].params.dataCode);
+          return {...state, dataCode: routes[index].params.dataCode, _itemDetail:manifest};    
+        }
         return {...state, dataCode: routes[index].params.dataCode};
       }
       return {...state};
@@ -40,13 +44,6 @@ class ConnoteDetails extends React.Component {
   }
 
   componentDidMount(){
-    const {navigation, manifestList} = this.props;
-    const {dataCode, _itemDetail} = this.state;
-    
-    if(dataCode !=='0' && _itemDetail === null && manifestList.some((element)=> element.code === dataCode)){
-      let manifest = manifestList.find((element)=>element.code === dataCode);
-      this.setState({_itemDetail: manifest});
-    }
   }
   navigateSeeReport = () => {
     this.props.navigation.navigate('ItemReportDetail');
