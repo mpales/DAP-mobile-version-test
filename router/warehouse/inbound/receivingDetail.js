@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, Button, Input, Avatar, Image} from 'react-native-elements';
+import {Text, Button, Input, Avatar, Image, CheckBox} from 'react-native-elements';
 import {View} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
@@ -13,11 +13,15 @@ class Acknowledge extends React.Component {
     super(props);
     const {routes, index} = this.props.navigation.dangerouslyGetState();
     this.state = {
+      acknowledged: false,
       bottomSheet: false,
       isShowSignature: false,
       receivingNumber: routes[index].params.number,
       data : null,
+      startReceiving: false,
     };
+    this.toggleCheckBox.bind(this);
+    this.toggleStartReceiving.bind(this);
   }
   static getDerivedStateFromProps(props,state){
     const {inboundList} = props;
@@ -26,7 +30,12 @@ class Acknowledge extends React.Component {
       return {...state};
     }
     if(state.data === null){
-      return {...state, data: inboundList.find((element)=> element.number === receivingNumber)};
+      let ASN = inboundList.find((element)=> element.number === receivingNumber);
+      if(ASN.status === 'pending'){
+        return {...state, data: ASN}
+      } else {
+        return {...state, data: ASN, startReceiving: true,acknowledge: true}
+      }
     }
     return {...state};
   }
@@ -55,21 +64,65 @@ class Acknowledge extends React.Component {
       }
     }
   }
+  
   componentDidMount(){
   }
 
-
-
+  toggleCheckBox = () => {
+    this.setState({
+      acknowledged: !this.state.acknowledged,
+    });
+  };
+  checkedIcon = () => {
+    return (
+      <View
+        style={
+          this.state.totalPackages > 0
+            ? styles.checked
+            : [styles.checked, {backgroundColor: '#ABABAB'}]
+        }>
+        <Checkmark height="14" width="14" fill="#FFFFFF" />
+      </View>
+    );
+  };
+  
+  uncheckedIcon = () => {
+    return <View style={styles.unchecked} />;
+  };
+  toggleStartReceiving = ()=>{
+    this.setState({
+      startReceiving: true,
+    });
+  };
   render(){
-    const {data} = this.state;
+    const {data,startReceiving} = this.state;
     const {userRole} = this.props;
-    if(userRole === 'default'){
+    if(startReceiving === false){
       return (  
         <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white', justifyContent: 'center',alignItems: 'center'}}>
       <Image
         source={require('../../../assets/group_mobile.png')}
         style={{ width: 280, height: 236 }}
       />
+      <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color: '#424141'}}>Before start receiving, please acknowledge the item</Text>
+      <CheckBox
+                title="I Acknowledge"
+                textStyle={styles.text}
+                containerStyle={styles.checkboxContainer}
+                checked={this.state.acknowledged}
+                onPress={this.toggleCheckBox}
+                checkedIcon={this.checkedIcon()}
+                uncheckedIcon={this.uncheckedIcon()}
+              />
+
+        <Button
+              containerStyle={{flex:1, marginRight: 0,}}
+              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
+              titleStyle={styles.deliveryText}
+              onPress={this.toggleStartReceiving}
+              title="Start Receiving"
+              disabled={this.state.acknowledged}
+            />
       </View>)
     }
     return (
@@ -138,7 +191,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput,{backgroundColor:'#F8B511'}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21,textTransform: 'uppercase', color:'#fff'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                value={data.status}
+                value={data.status === 'pending'? 'waiting' : 'progressing'}
                 disabled={false}
             />
          </View>
@@ -156,7 +209,7 @@ class Acknowledge extends React.Component {
                 disabled={true}
             />
          </View>
-         <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
+         { data.status === 'pending' && (<View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
          <Avatar
           onPress={()=>{
             console.log('test')
@@ -194,7 +247,7 @@ class Acknowledge extends React.Component {
                   borderRadius: 5,
                 }}/>
                 <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Photo Proof Container</Text>
-         </View>
+         </View>)}
          <Button
               containerStyle={{flex:1, marginRight: 0,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
@@ -213,7 +266,29 @@ class Acknowledge extends React.Component {
                     number: data.number,
                   },
                 })}}
-              title="Start Receiving"
+              title={data.status === 'pending' ? 'Start Processing' : 'Go To  List'}
+              disabled={(this.props.photoProofPostpone === null || (this.props.photoProofID !== null && this.props.photoProofID !== data.number)) && data.status === 'pending' ? true : false}
+            />
+
+          <Button
+              containerStyle={{flex:1, marginRight: 0,}}
+              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0, backgroundColor: '#121C78'}]}
+              titleStyle={styles.deliveryText}
+              onPress={()=>{
+                this.props.addPhotoProofPostpone( null );
+                this.props.setBottomBar(false);
+                this.props.setActiveASN(this.state.receivingNumber);
+                this.props.setCurrentASN(this.state.receivingNumber);
+                this.props.setReportedManifest(null);
+                this.props.setItemScanned([]);
+                this.props.setManifestList([]);
+                this.props.navigation.navigate(  {
+                  name: 'IVAS',
+                  params: {
+                    number: data.number,
+                  },
+                })}}
+              title="Record IVAS"
               disabled={this.props.photoProofPostpone === null || (this.props.photoProofID !== null && this.props.photoProofID !== data.number) ? true : false}
             />
         </View>
@@ -222,6 +297,37 @@ class Acknowledge extends React.Component {
 }
 
 const styles = {
+  text: {
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    fontWeight: '400',
+    color: '#6C6B6B',
+    textAlign: 'center',
+  },
+  checkboxContainer: {
+    width: '100%',
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+    margin: 0,
+    paddingHorizontal: 0,
+  },
+  checked: {
+    backgroundColor: '#2A3386',
+    padding: 5,
+    borderRadius: 2,
+    marginRight: 5,
+    marginVertical: 3,
+  },
+  unchecked: {
+    width: 24,
+    height: 24,
+    borderWidth: 1,
+    borderRadius: 2,
+    borderColor: '#6C6B6B',
+    padding: 5,
+    marginRight: 5,
+    marginVertical: 3,
+  },
   textInput: {
     borderWidth: 1,
     borderColor: '#D5D5D5',
