@@ -14,6 +14,7 @@ Input,
 Badge, 
 Divider
 } from 'react-native-elements'
+import SelectDropdown from 'react-native-select-dropdown';
 import { Modalize } from 'react-native-modalize';
 import BarCode from '../../../component/camera/filter-barcode';
 import CheckmarkIcon from '../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
@@ -22,6 +23,7 @@ import Mixins from '../../../mixins';
 import moment from 'moment';
 import {connect} from 'react-redux';
 const screen = Dimensions.get('screen');
+const grade = ["Pick", "Buffer", "Damage", "Defective", "Short Expiry", "Expired", "No Stock", "Reserve"];
 
 class Example extends React.Component {
   animatedValue = new Animated.Value(0);
@@ -32,7 +34,7 @@ class Example extends React.Component {
       qty: 0,
       scanItem: '0',
       dataItem: null,
-      
+      ItemGrade : null,
     };
     this.handleResetAnimation.bind(this);
     this.handleZoomInAnimation.bind(this);
@@ -72,6 +74,9 @@ class Example extends React.Component {
         return true;
       }
     }
+    if(this.props.ItemGrade !== nextProps.itemGrade){
+      return false;
+    }
     return true;
   }
   componentDidUpdate(prevProps, prevState) {
@@ -85,9 +90,10 @@ class Example extends React.Component {
         this.handleZoomInAnimation();
       }
     }
+ 
     if (dataCode === scanItem && dataCode !== 0 && dataItem === null && manifestList.some((element) => element.code === dataCode)) {
       let item = manifestList.find((element)=>element.code === dataCode);
-      this.setState({dataItem: item, qty : item.scanned});
+      this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade});
     }
   }
   handleResetAnimation = () => {
@@ -198,7 +204,30 @@ class Example extends React.Component {
                           {moment.unix(dataItem.timestamp).format('DD/MM/YY')}
                         </Text>
                       </View>
-                     
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelPackage}>Grade</Text>
+                        <View style={styles.infoElement}>
+                        <SelectDropdown
+                            buttonStyle={{maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
+                            buttonTextStyle={{...styles.infoPackage,textAlign:'left',}}
+                            data={grade}
+                            defaultValue={this.state.ItemGrade}
+                            onSelect={(selectedItem, index) => {
+                              this.setState({itemGrade:selectedItem});
+                            }}
+                            buttonTextAfterSelection={(selectedItem, index) => {
+                              // text represented after item is selected
+                              // if data array is an array of objects then return selectedItem.property to render after item is selected
+                              return selectedItem
+                            }}
+                            rowTextForSelection={(item, index) => {
+                              // text represented for each item in dropdown
+                              // if data array is an array of objects then return item.property to represent item in dropdown
+                              return item
+                            }}
+                          />
+                        </View>
+                      </View>
                     </View>
                     {dataItem.scanned < dataItem.total_package && (
                         <View style={[styles.sectionDividier,{flexDirection:'row',marginTop:15}]}>
@@ -388,7 +417,7 @@ class Example extends React.Component {
     });
   };
   onSubmit = () => {
-    const {dataCode,qty, scanItem} = this.state;
+    const {dataCode,qty, scanItem, ItemGrade} = this.state;
     this.props.setBarcodeScanner(true);
     this.setState({
       dataCode: '0',
@@ -396,6 +425,7 @@ class Example extends React.Component {
     // for prototype only
     let arr = this.makeScannedItem(scanItem,qty);
     console.log(arr);
+    this.props.setItemGrade(ItemGrade);
     this.props.setItemScanned(arr);
     this.props.setBottomBar(false);
     this.props.navigation.navigate('Manifest');
@@ -565,7 +595,9 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     lineHeight: 18,
   },
-  
+  infoElement : {
+    paddingHorizontal: 10,
+  },
   navigationButton: {
     backgroundColor: '#F07120',
     borderRadius: 5,
@@ -607,8 +639,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
-    minHeight: (screen.height * 50) / 100,
-    maxHeight: (screen.height * 50) / 100,
+    minHeight: (screen.height * 60) / 100,
+    maxHeight: (screen.height * 60) / 100,
     borderRadius: 10,
   },
   modalContainerSmall: {
@@ -670,6 +702,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setItemScanned : (item) => {
       return dispatch({type: 'BarcodeScanned', payload: item});
+    },
+    setItemGrade : (grade)=>{
+      return dispatch({type:'BarcodeGrade', payload: grade});
     },
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});

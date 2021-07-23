@@ -22,6 +22,10 @@ import itemDetail from './itemDetails';
 import SingleCamera from '../peripheral/cameraMulti';
 import EnlargeImage from '../peripheral/enlargeImage';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import recordIVAS from './recordIVAS';
+import IVAS from './IVAS-list';
+import detailIVAS from './IVASDetails';
+import newIVAS from './newIVAS';
 const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
   constructor(props) {
@@ -323,6 +327,110 @@ class HomeNavigator extends React.Component {
                   height: 45,
                 },
               })
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+          })}
+        />
+             <Stack.Screen
+          name="newIVAS"
+          component={newIVAS}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+          })}
+        />
+            <Stack.Screen
+          name="RecordIVAS"
+          component={recordIVAS}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.navigation.navigate('List')
+                }
+              }
+              />);
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+          })}
+        />
+           <Stack.Screen
+          name="IVAS"
+          component={IVAS}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.navigation.navigate('Manifest')
+                }
+              }
+              />);
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+          })}
+        />
+          <Stack.Screen
+          name="detailIVAS"
+          component={detailIVAS}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.navigation.navigate('IVAS')
+                }
+              }
+              />);
             },
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
