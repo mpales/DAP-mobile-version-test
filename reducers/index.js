@@ -60,6 +60,7 @@ const initialState = {
     ReportedTask: [],
     ReportedList: null,
     currentList: null,
+    currentIVAS: [],
   },
 };
 
@@ -304,6 +305,7 @@ export default function appReducer(state = initialState, action) {
         filters:{
           ...state.filters,
           currentASN: action.payload,
+          currentIVAS: initialState.filters.currentIVAS,
         },
       }
       case 'setCurrentManifest':
@@ -585,6 +587,17 @@ export default function appReducer(state = initialState, action) {
                     ],
                   },
                 };
+                case 'currentIVAS':
+                  return {
+                    ...state,
+                    filters: {
+                      ...state.filters,
+                      currentIVAS: [
+                        ...state.filters.currentIVAS,
+                        action.payload,
+                      ],
+                    },
+                  };
         case 'fromBarcode':
           return {
             ...state,

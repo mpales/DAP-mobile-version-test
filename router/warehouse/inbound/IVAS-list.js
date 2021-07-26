@@ -18,7 +18,7 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import {Avatar, Card, Overlay, Button, SearchBar, Badge, Input} from 'react-native-elements';
+import {Avatar, Card, Overlay, Button, SearchBar, Badge, Input, Image} from 'react-native-elements';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect, Provider} from 'react-redux';
@@ -26,6 +26,7 @@ import Mixins from '../../../mixins';
 import IVASList from '../../../component/extend/ListItem-inbound-IVAS';
 import IconBarcodeMobile from '../../../assets/icon/iconmonstr-barcode-3 2mobile.svg';
 import moment from 'moment';
+
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 const window = Dimensions.get('window');
 
@@ -35,13 +36,14 @@ class Warehouse extends React.Component{
     super(props);
 
     this.state = {
-   
+      ivasList : []
     };
     this.goToAddIVAS.bind(this);
    
   }
   static getDerivedStateFromProps(props,state){
- 
+    const {manifestList, currentIVAS} = props;
+    state.ivasList = manifestList.filter((element)=> currentIVAS.includes(element.sku))
     return {...state};
   }
   shouldComponentUpdate(nextProps, nextState) {
@@ -59,16 +61,22 @@ class Warehouse extends React.Component{
 
 
   render() {
-  
+    const {ivasList} = this.state;
     return (
       <>
         <StatusBar barStyle="dark-content" /> 
         <SafeAreaProvider>
-          <ScrollView style={styles.body}>
+          {ivasList.length === 0 ? (
+          <View style={{flexGrow:1, justifyContent:'center',alignItems:'center',backgroundColor:'white'}}>
+              <Image
+              source={require('../../../assets/Group4812mobile.jpg')}
+              style={{ width: 130, height: 130 }}
+            />
+          </View>):(<ScrollView style={styles.body}>
             <View style={[styles.sectionContent,{marginTop: 20}]}>
-            
+              
               <Card containerStyle={styles.cardContainer}>
-                {manifestDummy.map((u, i) => (
+                {ivasList.map((u, i) => (
                   <IVASList 
                     key={i} 
                     index={i} 
@@ -81,7 +89,7 @@ class Warehouse extends React.Component{
                 ))}
               </Card>
             </View>
-          </ScrollView>
+          </ScrollView>)}
         
          
           <View style={styles.bottomTabContainer}>
@@ -406,6 +414,7 @@ function mapStateToProps(state) {
     currentASN : state.originReducer.filters.currentASN,
     ReportedManifest : state.originReducer.filters.ReportedManifest,
     keyStack: state.originReducer.filters.keyStack,
+    currentIVAS: state.originReducer.filters.currentIVAS,
     // end
   };
 }
