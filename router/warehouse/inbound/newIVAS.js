@@ -5,7 +5,7 @@ import {connect} from 'react-redux';
 import moment from 'moment';
 import Mixins from '../../../mixins';
 import SelectDropdown from 'react-native-select-dropdown';
-
+import SearchableDropdown from 'react-native-searchable-dropdown';
 const IVASDATA = ["Forklift", "Labelling", "Take Off Price Tag"];
 
 class Acknowledge extends React.Component {
@@ -17,16 +17,24 @@ class Acknowledge extends React.Component {
       sku: '',
       qty: '',
       note: '',
+      productList : [],
     };
     this.submitItem.bind(this);
   }
-  
+  static getDerivedStateFromProps(props,state){
+    const {manifestList} = props;
+    state.productList = Array.from({length:manifestList.length}).map((num,index)=>{
+      return {id:index+1,name:manifestList[index].sku}
+    });
+    return {...state};
+  }
 
   componentDidUpdate(prevProps, prevState, snapshot){
     
   }
   submitItem = ()=>{
-    
+    const {sku} = this.state;
+    this.props.addIVAS(sku);
     this.props.navigation.navigate('IVAS');
   }
   onChangeTextSKU = (text)=> {
@@ -43,27 +51,69 @@ class Acknowledge extends React.Component {
     const {IVAS, sku,qty, note} = this.state;
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
-         <View style={{flexDirection:'row', flexShrink:1}}>
+         <View style={{flexDirection:'row', flexShrink:1, marginBottom:15}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 120, alignItems: 'flex-start',marginRight: 20}}>
              <Text>Product Code</Text>
              </View>
-             <Input 
-                containerStyle={{flex: 1,paddingVertical:0}}
-                inputContainerStyle={styles.textInput} 
-                inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                onChangeText={this.onChangeTextSKU.bind(this)}
-                onSubmitEditing={this.onChangeTextSKU.bind(this)}
-                value={sku}
+             <View style={styles.inputWrapper}>
+            
+             <SearchableDropdown
+                multi={false}
+                onItemSelect={(item) => {
+                  this.setState({ sku: item.name });
+                }}
+                containerStyle={{ flex: 1,
+                  left: 0,
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                  zIndex: 1 }}
+                itemStyle={{
+                  padding: 10,
+                  marginTop: 0,
+                  backgroundColor: '#fff',
+                  borderColor: '#bbb',
+                  borderWidth: 1,
+                  zIndex:5,
+                }}
+                itemTextStyle={{ color: '#000' }}
+                itemsContainerStyle={{ maxHeight: 140, backgroundColor:'white'}}
+                items={this.state.productList}
+                resetValue={false}
+                textInputStyle={{ 
+                  ...Mixins.small1,
+                  ...Mixins.containedInputDefaultStyle,
+                  marginHorizontal:0,
+                  marginVertical:0,
+                  lineHeight:18,
+                  fontWeight:'400',
+                  maxHeight:30,
+                  borderWidth: 1,
+                  borderColor: '#D5D5D5',
+                  borderRadius: 5,}}
+                textInputProps={
+                  {
+                    value: sku,
+                    underlineColorAndroid: "transparent",
+                    onTextChange: this.onChangeTextSKU.bind(this)
+                  }
+                }
+                listProps={
+                  {
+                    nestedScrollEnabled: true,
+                  }
+                }
             />
+            </View>
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
-         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 120, alignItems: 'flex-start',marginRight: 30}}>
+              <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 120, alignItems: 'flex-start',marginRight: 30}}>
                <Text>IVAS</Text>
              </View>
-             <SelectDropdown
+                  <View style={{flexDirection:'column',flex:1,paddingRight:10}}>
+                    <SelectDropdown
                             data={IVASDATA}
-                            buttonStyle={{paddingHorizontal:0,marginBottom:20,maxHeight:35, borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
+                            buttonStyle={{maxHeight:35, borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white',width:'100%'}}
                             onSelect={(selectedItem, index) => {
                               this.setState({IVAS:selectedItem});
                             }}
@@ -78,6 +128,7 @@ class Acknowledge extends React.Component {
                               return item
                             }}
                           />
+                  </View>
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 120, alignItems: 'flex-start',marginRight: 20}}>
@@ -126,6 +177,20 @@ const styles = {
     borderColor: '#D5D5D5',
     borderRadius: 5,
     maxHeight: 30,
+},
+inputWrapper:{
+flex:1,
+flexDirection:'column',
+marginLeft:10,
+marginRight:10,
+},
+autocompleteContainer: {
+  flex: 1,
+  left: 0,
+  position: 'absolute',
+  right: 0,
+  top: 0,
+  zIndex: 1
 },
   sectionSheetButton: {
     marginHorizontal: 20,
@@ -255,6 +320,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setBarcodeScanner: (toggle) => {
       return dispatch({type: 'ScannerActive', payload: toggle});
+    },
+    addIVAS: (sku) => {
+      return dispatch({type: 'currentIVAS', payload: sku});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };

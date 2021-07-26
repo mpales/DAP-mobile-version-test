@@ -20,10 +20,23 @@ class ConnoteReportDetails extends React.Component {
     this.state = {
       title: 'Forklift',
       note: 'Item weight is over 10 kg',
+      itemIVAS : null,
     };
   }
-
+  static getDerivedStateFromProps(props,state){
+    const {manifestList, currentIVAS,navigation} = props;
+    const {routes, index} = navigation.dangerouslyGetState();
+    if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
+      if( manifestList.some((element)=> element.sku === routes[index].params.dataCode)){
+        state.itemIVAS = manifestList.find((element)=> element.sku === routes[index].params.dataCode)
+      } else {
+        navigation.navigate('IVAS');
+      }
+    }
+    return {...state};
+  }
   render() {
+    const {sku,name} = this.state.itemIVAS;
     return (
       <>
         <StatusBar barStyle="dark-content" />
@@ -45,8 +58,8 @@ class ConnoteReportDetails extends React.Component {
               <View style={styles.detail}>
                 <DetailList title="Create By" value="Kim Tan" />
                 <DetailList title="Date and Time" value="12/03/21 13:05 P.M" />
-                <DetailList title="Product Code" value="ISO000012345" />
-                <DetailList title="Description" value="ERGOBLOM V2 BLUE DESK " />
+                <DetailList title="Product Code" value={sku} />
+                <DetailList title="Description" value={name} />
                 <Text style={styles.detailText}>Note</Text>
                 <TextInput
                   style={styles.note}
@@ -126,7 +139,9 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  return {};
+  return {
+    manifestList: state.originReducer.manifestList,
+  };
 };
 
 const mapDispatchToProps = (dispatch) => {

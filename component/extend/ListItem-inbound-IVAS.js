@@ -242,7 +242,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                       navigation.navigate({
                         name: 'detailIVAS',
                         params: {
-                            inputCode: item.code,
+                            dataCode: item.sku,
                         }
                       })
                     }}
