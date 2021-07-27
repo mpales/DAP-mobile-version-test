@@ -7125,6 +7125,11 @@ react-native-crypto@^2.0.1:
     public-encrypt "^4.0.0"
     randomfill "^1.0.3"
 
+react-native-device-info@^8.1.4:
+  version "8.1.4"
+  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-8.1.4.tgz#709a424b64cd01b26e91000e9b7e2c36e8b832f0"
+  integrity sha512-PiYRJf3GBaVnGAUUB9YKzaGc5h6Rmn7NniD328JUXLeepKvLaDhK6EvFWU98YiZ2jePOF9/jg2cxfyN4jhZ2LA==
+
 react-native-draggable-flatlist@^2.5.4:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/react-native-draggable-flatlist/-/react-native-draggable-flatlist-2.6.0.tgz#c7219104df52c7789172199a28aba0dcbc87d91f"

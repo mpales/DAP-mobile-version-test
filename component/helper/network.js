@@ -38,9 +38,11 @@ var apiFetch = fetchDefaults(crossFetch, SERVER_DOMAIN, async (url, opt) => {
   await getToken('jwtToken').then((test) => {
     token = test.replace(/^"(.+(?="$))"$/, '$1');
   });
+ 
   await getDeviceSignature().then((test) => {
     signature = test.replace(/^"(.+(?="$))"$/, '$1');
   });
+  console.log(signature);
 
   await getUserAgent().then((userAgent) => {
     UA = userAgent;

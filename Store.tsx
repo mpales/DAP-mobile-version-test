@@ -12,6 +12,7 @@ import * as ActionIndex from './action/index';
 import FilesystemStorage from 'redux-persist-filesystem-storage'
 import RNFetchBlob from 'rn-fetch-blob';
 import { createFilter, createBlacklistFilter } from 'redux-persist-transform-filter';
+import {checkLoginStatus,loggedIn,resetLog} from './component/helper/persist-login';
 
 import { Platform } from 'react-native';
 
@@ -126,7 +127,7 @@ const rootReducer = combineReducers({
   
   const persistedReducer = persistReducer(networkPersistConfig, rootReducer)
 
-export default function configureStore(callback) {
+  export default function configureStore(callback) {
     const store = createStore(persistedReducer, applyMiddleware(networkMiddleware,thunk));
     const { connectionChange } = offlineActionCreators;
     // https://github.com/rt2zz/redux-persist#persiststorestore-config-callback
@@ -134,8 +135,18 @@ export default function configureStore(callback) {
       // After rehydration completes, we detect initial connection
       checkInternetConnection().then(isConnected => {
         store.dispatch(connectionChange(isConnected));
-        callback(); // Notify our root component we are good to go, so that we can render our app
+        // Notify our root component we are good to go, so that we can render our app
+        checkLoginStatus(store).then(dispatch => {
+          dispatch(loggedIn());
+          callback();
+        }, dispatch => {
+          dispatch(resetLog());
+          callback();
+        });
       });
+
+      /// if already implement backend move to inside internetconnection check;
+
     });
   
     return {store,persistor};

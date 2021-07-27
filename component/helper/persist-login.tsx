@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StackActions, dis} from '@react-navigation/native';
+import { StackActions, CommonActions} from '@react-navigation/native';
 import {Store,Dispatch} from 'redux';
 import {postData} from './network';
 /**
@@ -56,7 +56,22 @@ import {postData} from './network';
       // You can ignore this, or add these actions to a queue you can call later
     }
   }
-
+  export function refreshLogin(){
+    if (isReadyRef.current && navigationRef.current) {
+      // Perform navigation if the app has mounted
+      navigationRef.current?.dispatch(state => {
+        const routes = state.routes;
+        return CommonActions.reset({
+          ...state,
+          routes,
+          index: state.index,
+        });
+      });
+    } else {
+      // You can decide what to do if the app hasn't mounted
+      // You can ignore this, or add these actions to a queue you can call later
+    }
+  }
    
   export function popToLogout(){
     if (isReadyRef.current && navigationRef.current) {

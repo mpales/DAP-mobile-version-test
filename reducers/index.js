@@ -13,6 +13,8 @@ const initialState = {
   outboundTask: [],
   outboundList: [],
   manifestList: [],
+  deviceSignature: null,
+  jwtToken: null,
   // for prototype only
   currentPositionData: null,
   completedInboundList: [],
@@ -61,6 +63,7 @@ const initialState = {
     ReportedList: null,
     currentList: null,
     currentIVAS: [],
+    logged: false,
   },
 };
 
@@ -123,23 +126,22 @@ export default function appReducer(state = initialState, action) {
             other: 'yes',
           },
       };
-    case 'login':
-      return {
-        ...state,
-        userRole: {
-          type: action.payload === 'demo' ? 'Warehouse' : action.payload === 'supervisor' ? 'Warehouse' : 'Delivery',
-          id: 0,
-          role: action.payload === 'supervisor' ? 'SPV': 'default' ,
-          name: 'Nana',
-        },
-      };
-      case 'logout':
+      case 'login':
         return {
           ...state,
           userRole: {
-            ...state.userRole,
-            type: false,
+            type: action.payload.role,
+            id: action.payload.id,
+            name: action.payload.name,
+            role: action.payload.role,
+            userRights: action.payload.userRights,
           },
+        };
+      case 'logout':
+        return {
+          ...state,
+          userRole: initialState.userRole,
+          jwtToken: initialState.jwtToken
         };
         
       case 'warehouseModule':
@@ -651,6 +653,28 @@ export default function appReducer(state = initialState, action) {
               ...state,
               currentDeliveringAddress: action.payload,
             };
+            case 'loggedIn':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          logged: action.payload,
+        },
+      };
+    case 'resetLogin':
+      return {
+        ...initialState,
+      };
+      case 'JWTToken':
+        return {
+          ...state,
+          jwtToken: action.payload,
+        };
+        case 'DeviceSignature':
+          return {
+            ...state,
+            deviceSignature: action.payload,
+          };
       // end
       // Do something here based on the different types of actions
     default:

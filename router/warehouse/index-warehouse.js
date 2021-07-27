@@ -20,6 +20,7 @@ import IconTime17Mobile from '../../assets/icon/iconmonstr-time-17 1mobile.svg';
 import IconLogout2Mobile from '../../assets/icon/iconmonstr-log-out-2 2mobile.svg';
 import Mixins from '../../mixins';
 import { ReactReduxContext } from 'react-redux'
+import {popToLogout} from '../../component/helper/persist-login';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 const screen = Dimensions.get('window');
@@ -180,7 +181,10 @@ class WarehouseNavigator extends React.Component {
       <DrawerItemList {...props} />
       <DrawerItem
         label="Logout"
-        onPress={() => navigation.navigate('Home')}
+        onPress={() => {
+          this.props.removeJwtToken(null);
+          popToLogout();
+        }}
       />
     </DrawerContentScrollView> );
   }
@@ -395,6 +399,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
+    },
+    removeJwtToken: (token) => {
+      dispatch({type: 'JWTToken', payload: token});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
