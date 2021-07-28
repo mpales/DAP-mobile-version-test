@@ -77,9 +77,9 @@ class Example extends React.Component {
           this.setState({dataItem: item, qty : item.scanned});
         }
         return true;
-      }
+      } 
     }
-    if(this.state.ItemGrade !== nextState.ItemGrade || this.state.ItemPallet !== nextState.ItemPallet){
+    if((this.state.ItemGrade !== nextState.ItemGrade || this.state.ItemPallet !== nextState.ItemPallet) && nextState.dataItem === this.state.dataItem){
       return false;
     }
     return true;
@@ -87,7 +87,6 @@ class Example extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     const {manifestList,detectBarcode, currentASN, navigation, setBarcodeScanner} = this.props;
     const {dataCode,scanItem, dataItem} = this.state;
-    
     if(prevProps.detectBarcode !== detectBarcode){
       if(detectBarcode) {
         this.handleResetAnimation();
@@ -97,7 +96,6 @@ class Example extends React.Component {
     }
  
     if (dataCode === scanItem && dataCode !== 0 && dataItem === null && manifestList.some((element) => element.code === dataCode)) {
-     console.log('true'+ dataCode);
       if(this.state.indexItem === null && this.state.multipleSKU === false) {
         let foundIndex = manifestList.filter((element) => element.code === dataCode);
         let indexItem = manifestList.findIndex((element)=>element.code === dataCode);
@@ -105,7 +103,7 @@ class Example extends React.Component {
         if(foundIndex.length > 1) {
           this.setState({multipleSKU: true});
         } else {
-          this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade, indexItem: indexItem});
+         this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade, indexItem: indexItem});
         }
       } else if(this.state.indexItem !== null && this.state.multipleSKU === true){
         let item = manifestList[this.state.indexItem];  
