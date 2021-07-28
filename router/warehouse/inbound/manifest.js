@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
 
 const manifestDummy = [
   {
-    code: '8998768568882',
+    code: '9780312205195',
     total_package: 2,
     name: 'Bear Brand Milk',
     color:'white',
@@ -491,7 +491,7 @@ const manifestDummy = [
     grade: 'Pick'
   },
   {
-    code: '13140026927105',
+    code: '9780312205195',
     total_package: 5,
     name: 'Lotte Milkis',
     category: '',
@@ -504,7 +504,7 @@ const manifestDummy = [
     grade: 'Pick'
   },
   {
-    code: '13140026927106',
+    code: '9780312205195',
     total_package: 5,
     name: 'LG TwinWash',
     category: '[A-CCR1]',
@@ -517,7 +517,7 @@ const manifestDummy = [
     grade: 'Pick'
   },
   {
-    code: '13140026927107',
+    code: '9780312205195',
     total_package: 5,
     name: 'Midea U Inverter',
     category: '[A-DD1B]',
@@ -530,7 +530,7 @@ const manifestDummy = [
     grade: 'Pick'
   },
   {
-    code: '13140026927108',
+    code: '9780312205195',
     total_package: 5,
     name: 'TEODORES',
     category: '[G-CCD1]',
@@ -543,7 +543,7 @@ const manifestDummy = [
     grade: 'Pick'
   },
   {
-    code: '13140026927109',
+    code: '9780312205195',
     total_package: 5,
     name: 'FIXA 7.2V',
     category: '[A-CCR1]',
@@ -556,7 +556,7 @@ const manifestDummy = [
     grade: 'Pick'
   },
   {
-    code: '13140026927110',
+    code: '9780312205195',
     total_package: 5,
     name: 'Hock Stove Gas',
     category: '[D-RR1B]',
@@ -569,7 +569,7 @@ const manifestDummy = [
     grade: 'Pick'
   },
   {
-    code: '13140026927111',
+    code: '9780099582113',
     total_package: 5,
     name: 'Philips Bulb E27',
     category: '[D-BB1B]',
