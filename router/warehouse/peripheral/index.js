@@ -375,7 +375,7 @@ class Example extends React.Component {
                   ) : (
                     <>
                     <Button
-                      containerStyle={{flex: 1, marginTop: 10, marginLeft: 5}}
+                      containerStyle={{flex: 1, marginTop: 10, marginRight: 5}}
                       buttonStyle={styles.cancelButton}
                       titleStyle={styles.reportText}
                       onPress={() => {
@@ -389,7 +389,7 @@ class Example extends React.Component {
                       title="Report Item"
                     />
                     <Button
-                      containerStyle={{flex: 1, marginTop: 10, marginRight: 5}}
+                      containerStyle={{flex: 1, marginTop: 10, marginLeft: 5}}
                       buttonStyle={styles.cancelButton}
                       titleStyle={styles.backText}
                       onPress={()=>this.props.navigation.goBack()}
