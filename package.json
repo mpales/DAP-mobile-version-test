@@ -45,6 +45,7 @@
     "react-native-asset": "^2.0.1",
     "react-native-camera": "^3.43.0",
     "react-native-carousel-view": "^0.5.1",
+    "react-native-device-info": "^8.1.4",
     "react-native-draggable-flatlist": "^2.5.4",
     "react-native-eject": "^0.1.2",
     "react-native-elements": "^3.4.1",

@@ -42,11 +42,18 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {enableScreens} from 'react-native-screens';
 import { useIsConnected, ReduxNetworkProvider, offlineActionCreators} from 'react-native-offline';
 import { PersistGate } from 'redux-persist/integration/react';
+import {postData} from './component/helper/network';
 import Checkmark from './assets/icon/iconmonstr-check-mark-8mobile.svg';
+import {
+  isReadyRef,
+  navigationRef,
+  switchLogged,
+  refreshLogin
+} from './component/helper/persist-login';
 import MenuWarehouse from './router/warehouse/detail/menu';
 
 enableScreens(false);
-class App extends React.Component<IProps, {}> {
+class App extends React.Component<IProps, IState> {
   keyboardDidShowListener: any;
   keyboardDidHideListener: any;
   constructor(props: IProps | Readonly<IProps>){
@@ -56,7 +63,7 @@ class App extends React.Component<IProps, {}> {
       password: '',
       keyboardState: 'closed',
       transitionTo: 0,
-      submit: false,
+      errors: [],
     };
     this._keyboardDidHide.bind(this);
     this._keyboardDidShow.bind(this);
@@ -73,24 +80,9 @@ class App extends React.Component<IProps, {}> {
   }
 
   componentDidMount(){
-    this.props.logout();
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) { 
-    if(prevState.submit !== this.state.submit && this.state.submit === true){ 
-        if(this.props.roletype === 'Warehouse'){
-          this.setState({submit: false});
-          this.props.navigation.navigate('MenuWarehouse');
-        } else {
-          this.setState({submit: false});
-          this.props.navigation.navigate('Details');
-        }
-    }
-  }
   webWorker() {}
-  onChangeText(text: any) {
-    this.setState({text});
-  }
 
   _keyboardDidShow = () => {
     this.setState({
@@ -106,20 +98,87 @@ class App extends React.Component<IProps, {}> {
     });
   };
 
-  onChangeTextTwo(text: any) {
+  onChangeEmail(text: any) {
     this.setState({email: text});
+    this.clearError('password');
   }
-  onSubmited(e: any) {
-    this.setState({email: e.nativeEvent.text});
+  
+  onChangePassword(text: any) {
+    this.setState({password: text});
+    this.clearError('password');
+  }
+  clearError = (inputName: string) => {
+    const errors = this.state.errors;
+    if (errors.length > 0 && typeof errors === 'object') {
+      errors.map((err: Error, i) => {
+        if (err.param === inputName) {
+          inputName === 'email' ? errors.splice(i, 2) : errors.splice(i, 1);
+        }
+      });
+      this.setState({errors: errors});
+    } else {
+      this.setState({errors: []});
+    }
+  };
 
-    const {email} = this.state;
-    this.props.login(email);
+  onSubmited(e: any) {
   }
-  onSubmitToBeranda(e: any) {
-   this.props.login(this.state.email);
-   this.setState({submit:true});
+  onSubmitToBeranda = async(e: any) => {
+    let body = {
+      email: this.state.email,
+      password: this.state.password,
+      fingerprint: this.props.deviceSignatureValue,
+    };
+    const result = await postData('auth/login', body);
+    console.log(result);
+    if (result.authToken) {
+      // user object is temporary
+      let role = '';
+      let type = '';
+      if (
+        result.userRights.includes('m1') ||
+        result.userRights.includes('m2') ||
+        result.userRights.includes('m3')
+      ) {
+        type = 'Warehouse';
+        if( result.userRights.includes('m4') || result.userRights.includes('m5') ){
+          role = 'SPV';
+        } else {
+          role = 'default';
+        }
+      } else if (
+        result.userRights.includes('m4') ||
+        result.userRights.includes('m5')
+      ) {
+        type = 'Delivery';
+        role = 'default';
+      }
+      let user = {
+        id: 0,
+        role: type,
+        name: this.state.email,
+        type: role,
+        userRights: result.userRights,
+      };
+      this.props.login(user);
+      this.props.saveJwtToken(result.authToken);
+      this.setState({
+        email: '',
+        password: '',
+      });
+      refreshLogin();
+    } else if (result.errors) {
+      this.setState({
+       errors: result.errors,
+       });
+     } else {
+     this.setState({
+       errors: result,
+       });
+     }
   }
   render() {
+    const {errors} = this.state;
     return (
       <>
         <StatusBar barStyle="dark-content" />
@@ -139,27 +198,75 @@ class App extends React.Component<IProps, {}> {
               label="Email"
               value={this.state.email}
               placeholder="Masukan Email / Username"
-              onChangeText={this.onChangeTextTwo.bind(this)}
+              onChangeText={this.onChangeEmail.bind(this)}
               onSubmitEditing={this.onSubmited.bind(this)}
               secureTextEntry={false}
             />
+            <View style={styles.errorContainer}>
+              {errors.length > 0 &&
+                typeof errors === 'object' &&
+                errors.map((err: Error, i) => {
+                  if (err.param === 'email') {
+                    return (
+                      <Text
+                        key={i}
+                        style={[
+                          styles.labelText,
+                          {color: 'red', textAlign: 'left'},
+                        ]}>
+                        {err.msg}
+                      </Text>
+                    );
+                  }
+                })}
+            </View>
             <LoginInput
               label="Password"
               value={this.state.password}
               placeholder="password"
-              onChangeText={this.onChangeTextTwo.bind(this)}
+              onChangeText={this.onChangePassword.bind(this)}
               onSubmitEditing={this.onSubmited.bind(this)}
               secureTextEntry={true}
             />
-            <View>
+            <View style={[styles.errorContainer,{flexShrink:1}]}>
+                {errors.length > 0 && typeof errors === 'object' ? (
+                  errors.map((err: Error, i) => {
+                    if (err.param === 'password') {
+                      return (
+                        <Text
+                          key={i}
+                          style={[
+                            styles.labelText,
+                            {color: 'red', textAlign: 'left'},
+                          ]}>
+                          {err.msg}
+                        </Text>
+                      );
+                    }
+                  })
+                ) : (
+                  <Text
+                    style={[
+                      styles.labelText,
+                      {color: 'red', textAlign: 'left'},
+                    ]}>
+                    {errors}
+                  </Text>
+                )}
+               
+              </View>
+            <View style={{flexShrink:1,}}>
               <Text style={styles.buttonTextForgot}>Forgot password?</Text>
             </View>
+
           </FadeInView>
 
           <View style={styles.footer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={this.onSubmitToBeranda.bind(this)}>
+              onPress={this.onSubmitToBeranda.bind(this)}
+              disabled={(this.state.email.length !== 0 && this.state.password.length !== 0) ? false : true}
+              >
               <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
           </View>
@@ -277,20 +384,51 @@ const styles = StyleSheet.create({
     backgroundColor: '#F07120',
     borderRadius: 5,
   },
+  errorContainer: {
+ 
+  },
+  labelText: {
+    color: Colors.white,
+    ...Mixins.body1,
+    lineHeight: 21,
+    textAlign: 'center',
+  },
 });
-
+type IState = {
+  email: string;
+  password: string;
+  transitionTo: number;
+  keyboardState: string;
+  errors: [];
+};
+interface Error {
+  value: string;
+  msg: string;
+  param: string;
+  location: string;
+}
+interface userObject {
+  id: number;
+  role: string;
+  name: string;
+  type: string;
+  userRights: object;
+}
 interface IProps {
   textfield: string;
   value: string;
   todos: {};
   password: string;
   email: string;
-  login: (text: any) => void;
+  deviceSignatureValue: string;
+  login: (text: userObject) => void;
   logout: () => void;
   onChange: (text: any) => void;
   deviceSignature: (text: string) => void;
   navigation: any;
   roletype: string;
+  saveJwtToken: (token: string) => void;
+  saveUsername: (text: string | null) => void;
 }
 
 interface dispatch {
@@ -303,18 +441,23 @@ function mapStateToProps(state) {
     textfield: state.originReducer.todos.name,
     value: state.originReducer.todos.name,
     roletype: state.originReducer.userRole.type,
+    deviceSignatureValue: state.originReducer.deviceSignature,
+    userRole: state.originReducer.userRole,
   };
 }
 
 const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
   return {
-    login: (text: any) => dispatch({type: 'login', payload: text}),
+    login: (user: userObject) => dispatch({type: 'login', payload: user}),
     logout: () => dispatch({type: 'logout'}),
     onChange: (text: any) => {
       return {type: 'todos', payload: text};
     },
-    deviceSignature: (text: string) => {
+    deviceSignature: (text: string) => {  
       return dispatch({type: 'DeviceSignature', payload: text});
+    },
+    saveJwtToken: (token: string) => {
+      dispatch({type: 'JWTToken', payload: token});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
@@ -322,45 +465,82 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
 
 const ConnectedApp = connect(mapStateToProps, mapDispatchToProps)(App);
 const Stack = createStackNavigator();
-const NavigationWrapper = (props)=> {
-  const isConnected = useSelector(state => state.network.isConnected);
-  const isGlobalLoading = useSelector(state => state.originReducer.filters.isGlobalLoading);
-  const isActionQueue = useSelector(state => state.network.actionQueue);
+const NavigationWrapper = (props) => {
+  const isConnected = useSelector((state) => state.network.isConnected);
+  const isJWTExist = useSelector((state) => state.originReducer.jwtToken);
+  const roleType = useSelector((state)=> state.originReducer.userRole.type)
   const dispatch = useDispatch();
   const [visible, setVisible] = React.useState(false);
-  const { changeQueueSemaphore } = offlineActionCreators;
+  const {changeQueueSemaphore} = offlineActionCreators;
 
   const toggleOverlay = () => {
     setVisible(!visible);
   };
 
-    const filterLoading = React.useCallback(
-      (state) => {
-        dispatch({ type: 'GlobalLoading', payload: true})
-        const task = InteractionManager.runAfterInteractions(() => dispatch({ type: 'GlobalLoading', payload: false }));
-        return () => task.cancel();
-      },
-      [dispatch]
-    );
-    React.useEffect(() => {
+  const filterLoading = React.useCallback(
+    (state) => {
+      const task = InteractionManager.runAfterInteractions(() => {
+        if (state.routes[state.index].name === 'Details' && !isJWTExist) {
+          switchLogged('Login', {});
+        } else if (state.routes[state.index].name === 'Login' && isJWTExist) {
+          if(roleType === 'Warehouse'){
+            switchLogged('MenuWarehouse', {});
+          } else {
+            switchLogged('Details', {});
+          }
+        }
+      });
+      return () => task.cancel();
+    },
+    [isJWTExist],
+  );
+  React.useEffect(() => {
+    if (!isConnected) {
+      dispatch(changeQueueSemaphore('RED'));
+    }
+  }, [isConnected]); // Only re-run the effect if count changes
 
-      if(!isConnected){
-        dispatch(changeQueueSemaphore('RED'));
-      } 
-    }, [isConnected]); // Only re-run the effect if count changes
-
-return  (
-  <SafeAreaProvider>
-<NavigationContainer
-onStateChange={filterLoading} {...props} />
+  return (
+    <SafeAreaProvider>
+      <NavigationContainer
+        ref={navigationRef}
+        onReady={() => {
+          isReadyRef.current = true;
+        }}
+        onStateChange={filterLoading}
+        {...props}
+      />
     </SafeAreaProvider>
-);
-}
+  );
+};
 
 const Root = (props) => {
 
   const [isLoading, setLoading] = React.useState(true);
-  const {store,persistor} = configureStore(() => setLoading(false));
+  const isLoggedIn = React.useRef(null);
+  const setLoggedin = React.useCallback((store) => {
+    let bool = store.getState().originReducer.filters.logged;
+    let roleType = store.getState().originReducer.userRole.type
+    if (bool) {
+      if(roleType === 'Warehouse'){
+        setRoute('MenuWarehouse');
+      } else {
+        setRoute('Details');
+      }
+      setLoading(false);
+    } else {
+      setRoute('Login');
+      setLoading(false);
+    }
+    isLoggedIn.current = bool;
+  }, []);
+  const {store, persistor} = configureStore(() => {
+    // this is callback to store.subscribe, please don't load anymore state
+    // as this is expensive trigger to redux without lazy
+    setLoggedin(store);
+  });
+  const [routeName, setRoute] = React.useState('Login');
+
   if (isLoading) return null;
   return (
     <Provider store={store}>
@@ -368,7 +548,7 @@ const Root = (props) => {
       <ReduxNetworkProvider>
       <NavigationWrapper>
         <Stack.Navigator
-          initialRouteName="Home"
+          initialRouteName={routeName}
           headerMode="screen"
           screenOptions={{
             headerTintColor: 'white',
@@ -377,7 +557,7 @@ const Root = (props) => {
             animationEnabled: false, // hack to fix android 10-12 crash with react-native-screens
           }}>
           <Stack.Screen
-            name="Home"
+            name="Login"
             component={ConnectedApp}
             options={{
               title: 'Awesome app',
