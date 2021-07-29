@@ -198,18 +198,6 @@ class HomeNavigator extends React.Component {
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
         
             headerTitle: 'Back',
-            headerRight: () => (
-              <View style={{display: 'flex', flexDirection: 'row'}}>
-                <TouchableOpacity
-                  style={{paddingHorizontal: 20, margin: 0}}
-                  onPress={() => {
-                    this.props.setBottomBar(true);
-                    this.props.navigation.navigate('ReportManifest')}}
-                >
-                  <Text style={{...Mixins.h6,fontWeight: '400',lineHeight: 22, color: '#FFF'}}>Report</Text>
-                </TouchableOpacity>
-              </View>
-            ),
           })}
         />
         <Stack.Screen

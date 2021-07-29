@@ -7,12 +7,14 @@ import {
   TouchableWithoutFeedback,
   View,
   Dimensions,
+  FlatList
 } from 'react-native';
 import {
 Button,
 Input,
 Badge, 
-Divider
+Divider,
+ListItem
 } from 'react-native-elements'
 import SelectDropdown from 'react-native-select-dropdown';
 import { Modalize } from 'react-native-modalize';
@@ -22,9 +24,10 @@ import XMarkIcon from '../../../assets/icon/iconmonstr-x-mark-7mobile.svg';
 import Mixins from '../../../mixins';
 import moment from 'moment';
 import {connect} from 'react-redux';
+import MultipleSKUList from '../../../component/extend/ListItem-inbound-multiple-sku';
 const screen = Dimensions.get('screen');
 const grade = ["Pick", "Buffer", "Damage", "Defective", "Short Expiry", "Expired", "No Stock", "Reserve"];
-
+const pallet = ["PLDAP 0091", "PLDAP 0092", "PLDAP 0093", "PLDAP 0094"];
 class Example extends React.Component {
   animatedValue = new Animated.Value(0);
   constructor(props) {
@@ -34,7 +37,10 @@ class Example extends React.Component {
       qty: 0,
       scanItem: '0',
       dataItem: null,
+      multipleSKU : false,
+      indexItem: null,
       ItemGrade : null,
+      ItemPallet : null,
     };
     this.handleResetAnimation.bind(this);
     this.handleZoomInAnimation.bind(this);
@@ -68,13 +74,12 @@ class Example extends React.Component {
       if(nextProps.keyStack === 'Barcode' && this.props.keyStack === 'newItem'){
         if (nextState.scanItem !== '0' && nextState.dataItem === null && nextProps.manifestList.some((element) => element.code === nextState.scanItem)) {
           let item = nextProps.manifestList.find((element)=>element.code === nextState.scanItem);
-          console.log('trigger');
           this.setState({dataItem: item, qty : item.scanned});
         }
         return true;
-      }
+      } 
     }
-    if(this.props.ItemGrade !== nextProps.itemGrade){
+    if((this.state.ItemGrade !== nextState.ItemGrade || this.state.ItemPallet !== nextState.ItemPallet) && nextState.dataItem === this.state.dataItem){
       return false;
     }
     return true;
@@ -82,7 +87,6 @@ class Example extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     const {manifestList,detectBarcode, currentASN, navigation, setBarcodeScanner} = this.props;
     const {dataCode,scanItem, dataItem} = this.state;
-    
     if(prevProps.detectBarcode !== detectBarcode){
       if(detectBarcode) {
         this.handleResetAnimation();
@@ -92,8 +96,19 @@ class Example extends React.Component {
     }
  
     if (dataCode === scanItem && dataCode !== 0 && dataItem === null && manifestList.some((element) => element.code === dataCode)) {
-      let item = manifestList.find((element)=>element.code === dataCode);
-      this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade});
+      if(this.state.indexItem === null && this.state.multipleSKU === false) {
+        let foundIndex = manifestList.filter((element) => element.code === dataCode);
+        let indexItem = manifestList.findIndex((element)=>element.code === dataCode);
+        let item = manifestList.find((element)=>element.code === dataCode);  
+        if(foundIndex.length > 1) {
+          this.setState({multipleSKU: true});
+        } else {
+         this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade, indexItem: indexItem});
+        }
+      } else if(this.state.indexItem !== null && this.state.multipleSKU === true){
+        let item = manifestList[this.state.indexItem];  
+        this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade}); 
+      }
     }
   }
   handleResetAnimation = () => {
@@ -111,14 +126,16 @@ class Example extends React.Component {
       useNativeDriver: false,
     }).start();
   };
-
+  renderMultipleSKU = (props) => (
+    <MultipleSKUList {...props} selectIndex={()=>this.setState({indexItem: props.index})}/>
+  )
   renderModal = () => {
     const {dataItem, dataCode, qty, scanItem} = this.state;
     return (
       <View style={styles.modalOverlay}>
         <Animated.View
           style={
-            dataItem !== null
+            dataItem !== null || (dataItem === null && this.state.multipleSKU === true)
               ? [
                   styles.modalContainerAll,
                   {
@@ -160,7 +177,7 @@ class Example extends React.Component {
           }>
           <View style={[styles.sectionSheetDetail, {marginHorizontal: 0, marginTop:0}]}>
             <View style={styles.modalHeader}>
-              {dataItem === null ? (
+              {dataItem === null && this.state.multipleSKU === false ? (
                 <XMarkIcon height="24" width="24" fill="#E03B3B" />
               ) : (
                 <CheckmarkIcon height="24" width="24" fill="#17B055" />
@@ -169,7 +186,10 @@ class Example extends React.Component {
                 <Text style={styles.modalHeaderText}>
                 Success Scan Item                
                 </Text>
-              ) : (
+              ) : dataItem === null && this.state.multipleSKU === true ? (
+              <Text style={styles.modalHeaderText}>
+                Multiple SKU Found                
+                </Text>): (
                 <Text style={[styles.modalHeaderText, {color: '#E03B3B'}]}>
                   Item Not Found
                 </Text>
@@ -203,6 +223,30 @@ class Example extends React.Component {
                         <Text style={styles.infoPackage}>
                           {moment.unix(dataItem.timestamp).format('DD/MM/YY')}
                         </Text>
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelPackage}>Pallet ID</Text>
+                        <View style={styles.infoElement}>
+                        <SelectDropdown
+                            buttonStyle={{maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
+                            buttonTextStyle={{...styles.infoPackage,textAlign:'left',}}
+                            data={pallet}
+                            defaultValue={this.state.ItemPallet}
+                            onSelect={(selectedItem, index) => {
+                              this.setState({ItemPallet:selectedItem});
+                            }}
+                            buttonTextAfterSelection={(selectedItem, index) => {
+                              // text represented after item is selected
+                              // if data array is an array of objects then return selectedItem.property to render after item is selected
+                              return selectedItem
+                            }}
+                            rowTextForSelection={(item, index) => {
+                              // text represented for each item in dropdown
+                              // if data array is an array of objects then return item.property to represent item in dropdown
+                              return item
+                            }}
+                          />
+                        </View>
                       </View>
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Grade</Text>
@@ -261,7 +305,16 @@ class Example extends React.Component {
                         </View>
                       )}
               </View>
-            ) : (
+            ) :  dataItem === null && this.state.multipleSKU === true ? (
+              <View style={[styles.sheetPackages,{marginHorizontal: 0, marginTop: 20, maxHeight: (screen.height * 45) / 100}]}>
+            <FlatList
+              keyExtractor={ (item, index) => index.toString()}
+              horizontal={false}
+              data={this.props.manifestList.filter((element) => element.code === this.state.scanItem)}
+              renderItem={this.renderMultipleSKU.bind(this)}
+            />
+             </View>
+            ) :  (
               <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
                <View
                       style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
@@ -291,7 +344,7 @@ class Example extends React.Component {
                       onPress={() => this.onSubmit()}
                       title="Confirm"
                     />
-                  ) : ( <Button
+                  ) : (this.state.dataItem === null && this.state.multipleSKU === false) && ( <Button
                     containerStyle={{flex: 1, marginTop: 10}}
                     buttonStyle={styles.navigationButton}
                     titleStyle={styles.deliveryText}
@@ -311,8 +364,18 @@ class Example extends React.Component {
               <View style={styles.buttonSheet}>
                 {(dataItem !== null && dataItem.scanned < dataItem.total_package) ||  (scanItem !== '0' && dataItem === null) ? (
                   <>
+                  {dataItem === null && this.state.multipleSKU === true ? (
                     <Button
-                      containerStyle={{flex: 1, marginTop: 10, marginLeft: 5}}
+                    containerStyle={{flex: 1, marginTop: 10, marginRight: 0}}
+                    buttonStyle={styles.cancelButton}
+                    titleStyle={styles.backText}
+                    onPress={()=>this.props.navigation.goBack()}
+                    title="Back"
+                  />
+                  ) : (
+                    <>
+                    <Button
+                      containerStyle={{flex: 1, marginTop: 10, marginRight: 5}}
                       buttonStyle={styles.cancelButton}
                       titleStyle={styles.reportText}
                       onPress={() => {
@@ -326,12 +389,13 @@ class Example extends React.Component {
                       title="Report Item"
                     />
                     <Button
-                      containerStyle={{flex: 1, marginTop: 10, marginRight: 5}}
+                      containerStyle={{flex: 1, marginTop: 10, marginLeft: 5}}
                       buttonStyle={styles.cancelButton}
                       titleStyle={styles.backText}
                       onPress={()=>this.props.navigation.goBack()}
                       title="Back"
                     />
+                    </>)}
                   </>
                 ) : (
                   <Button
@@ -639,8 +703,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
-    minHeight: (screen.height * 60) / 100,
-    maxHeight: (screen.height * 60) / 100,
+    minHeight: (screen.height * 65) / 100,
+    maxHeight: (screen.height * 65) / 100,
     borderRadius: 10,
   },
   modalContainerSmall: {
@@ -678,6 +742,7 @@ const styles = StyleSheet.create({
   backText: {
     color: '#F1811C',
   },
+  
 });
 
 function mapStateToProps(state) {
