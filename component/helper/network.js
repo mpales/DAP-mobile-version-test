@@ -1,9 +1,10 @@
 import crossFetch from 'cross-fetch';
 import {SERVER_DOMAIN} from '../../constant/server';
 import fetchDefaults from './network-mixins';
+import fetchBlobDefault from './network-blob-mixins';
 import AsyncStorage from '@react-native-community/async-storage';
 import {getUserAgent} from 'react-native-device-info';
-
+import RNFetchBlob from 'rn-fetch-blob';
 /**
  * Created on Tue May 11 2021
  *
@@ -61,6 +62,35 @@ var apiFetch = fetchDefaults(crossFetch, SERVER_DOMAIN, async (url, opt) => {
     },
   };
 });
+var blobFetch = fetchBlobDefault(RNFetchBlob, SERVER_DOMAIN, async () => {
+  let token = null;
+  let signature = null;
+  let UA = null;
+  //replace quotes from storage string
+  await getToken('jwtToken').then((test) => {
+    token = test.replace(/^"(.+(?="$))"$/, '$1');
+  });
+ 
+  await getDeviceSignature().then((test) => {
+    signature = test.replace(/^"(.+(?="$))"$/, '$1');
+  });
+  console.log(signature);
+
+  await getUserAgent().then((userAgent) => {
+    UA = userAgent;
+    // iOS: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143"
+    // tvOS: not available
+    // Android: ?
+    // Windows: ?
+  });
+
+  return {
+      'Content-Type': 'multipart/form-data',
+      'User-Agent': UA,
+      fingerprint: signature,
+      authToken: token,
+    };
+});
 
 export const getData = (path) => {
   let result = (async () => {
@@ -79,6 +109,26 @@ export const getData = (path) => {
     }
   })();
   return result;
+};
+
+
+export const postBlob = (path, data, callbackUploadProgress, callbackProgress) => {
+  let result = (async () => {
+    try {
+      const res = await blobFetch(path,{method:'POST'},data,callbackUploadProgress,callbackProgress);
+      if (res.respInfo.headers['Content-Type'].includes('text/plain')) {
+        return res.data;
+      } else if (res.respInfo.headers['Content-Type'].includes('text/html')) {
+        return responseBlobHandler(res);
+      }
+      return res.json();
+    } catch (err) {
+      return err;
+    }
+  })();
+  return new Promise((resolve, reject) => {
+    resolve(result);
+  });;
 };
 
 export const postData = (path, data) => {
@@ -118,6 +168,22 @@ export const putData = (path, data) => {
 
 const responseHandler = (response) => {
   const {status} = response;
+  switch (status) {
+    case 200:
+      return response.text();
+    case 404:
+      return 'Not found';
+    case 403:
+      return response.text();
+    case 504:
+      return 'Bad gateway';
+    default:
+      return 'Something went wrong';
+  }
+};
+
+const responseBlobHandler = (response) => {
+  const {status} = response.respInfo;
   switch (status) {
     case 200:
       return response.text();

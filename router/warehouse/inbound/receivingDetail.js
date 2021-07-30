@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, Button, Input, Avatar, Image, CheckBox} from 'react-native-elements';
+import {Text, Button, Input, Avatar, Image, CheckBox, LinearProgress} from 'react-native-elements';
 import {View} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
@@ -7,65 +7,71 @@ import moment from 'moment';
 import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import WarehouseIlustration from '../../../assets/icon/Group 4968warehouse_ilustrate_mobile.svg'
-
+import {getData, postBlob} from '../../../component/helper/network';
+import RNFetchBlob from 'rn-fetch-blob';
 class Acknowledge extends React.Component {
   constructor(props) {
     super(props);
-    const {routes, index} = this.props.navigation.dangerouslyGetState();
     this.state = {
       acknowledged: false,
       bottomSheet: false,
       isShowSignature: false,
-      receivingNumber: routes[index].params.number,
+      receivingNumber: null,
       data : null,
       startReceiving: false,
+      errors: '',
+      progressLinearVal : 0,
+      updateData: false,
     };
     this.toggleCheckBox.bind(this);
+    this.startProcessing.bind(this);
+    this.getPhotoReceivingGoods.bind(this);
+    this.listenToProgressUpload.bind(this);
+    this.goToList.bind(this);
     this.toggleStartReceiving.bind(this);
   }
   static getDerivedStateFromProps(props,state){
-    const {inboundList} = props;
+    const {inboundList, navigation} = props;
     const {receivingNumber} = state;
-    if(receivingNumber === undefined){
-      return {...state};
-    }
-    if(state.data === null){
-      let ASN = inboundList.find((element)=> element.number === receivingNumber);
-      if(ASN.status === 'pending'){
-        return {...state, data: ASN}
-      } else {
-        return {...state, data: ASN, startReceiving: true,acknowledge: true}
-      }
+    const {routes, index} = navigation.dangerouslyGetState();
+    if(receivingNumber === null &&  routes[index].params !== undefined &&  routes[index].params.number !== undefined ){
+        return {...state, receivingNumber: routes[index].params.number};
     }
     return {...state};
   }
   shouldComponentUpdate(nextProps, nextState) {
+    if(nextState.receivingNumber === null ){
+      this.props.navigation.goBack();
+      return false;
+    }
     if(this.props.keyStack !== nextProps.keyStack){
       if(nextProps.keyStack === 'ReceivingDetail'){
+        this.setState({updateData:true});
         this.props.setBottomBar(true);
-        return true;
+        return false;
       }
     }
     return true;
   }
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if(prevState.data !== this.state.data){
-      if(this.state.data === undefined) {
-        this.props.addPhotoProofPostpone(null);
-        this.props.navigation.goBack();
+  async componentDidUpdate(prevProps, prevState, snapshot) {
+    
+    if(this.state.updateData === true){
+      const result = await getData('inbounds/'+this.state.receivingNumber);
+      if(typeof result === 'object' && result.errors === undefined){
+        this.setState({updateData:false,data: result, startReceiving: result.status === 1 ? false : true,acknowledge: result.status === 1 ? false : true});
       } else {
-        //
-      }
-    }
-    if(prevState.receivingNumber !== this.state.receivingNumber){
-      this.props.addPhotoProofPostpone(null);
-      if(this.props.receivingNumber === undefined){
         this.props.navigation.goBack();
       }
-    }
+    } 
   }
   
-  componentDidMount(){
+  async componentDidMount(){
+    const result = await getData('inbounds/'+this.state.receivingNumber);
+    if(typeof result === 'object' && result.error === undefined){
+      this.setState({data: result, startReceiving: result.status === 1 ? false : true,acknowledge: result.status === 1 ? false : true});
+    } else {
+      this.props.navigation.goBack();
+    }
   }
 
   toggleCheckBox = () => {
@@ -90,6 +96,68 @@ class Acknowledge extends React.Component {
   toggleStartReceiving = ()=>{
     this.setState({
       startReceiving: true,
+    });
+  };
+  getPhotoReceivingGoods = async () => {
+    const {photoProofPostpone} = this.props;
+    let formdata = [];
+    for (let index = 0; index < photoProofPostpone.length; index++) {
+      let name,filename,path,type ='';
+      await RNFetchBlob.fs.stat(photoProofPostpone[index]).then((FSStat)=>{
+        name = FSStat.filename.replace('.','-');
+        filename= FSStat.filename;
+        path = FSStat.path;
+        type = FSStat.type;
+      });
+      if(type === 'file')
+      formdata.push({ name : 'photos', filename : filename, data: RNFetchBlob.wrap(path)})
+    }
+    return formdata;
+  }
+  goToList = ()=>{
+    this.props.setBottomBar(false);
+    this.props.setActiveASN(this.state.receivingNumber);
+    this.props.setCurrentASN(this.state.receivingNumber);
+    this.props.navigation.navigate(  {
+      name: 'Manifest',
+      params: {
+        number: this.state.receivingNumber,
+      },
+    })
+  }
+  listenToProgressUpload = (written, total) => {
+    this.setState({progressLinearVal:(1/total)*written});
+  }
+  startProcessing = async () => {
+    const {photoProofPostpone} = this.props;
+    let FormData = await this.getPhotoReceivingGoods();
+    postBlob('/inbounds/'+this.state.receivingNumber, [
+      // element with property `filename` will be transformed into `file` in form data
+      { name : 'receiptNumber', data: this.state.data.inbound_asn !== null ? ''+this.state.data.inbound_asn.reference_id :  ''+this.state.data.inbound_grn.reference_id},
+      // custom content type
+      ...FormData,
+    ], this.listenToProgressUpload).then(result=>{
+      if(typeof result === 'object' && result.error === undefined){
+        this.props.addPhotoProofPostpone( null );
+        this.props.setBottomBar(false);
+        this.props.setActiveASN(this.state.receivingNumber);
+        this.props.setCurrentASN(this.state.receivingNumber);
+        this.props.setReportedManifest(null);
+        this.props.setItemScanned([]);
+        this.props.setManifestList([]);
+        this.props.navigation.navigate(  {
+          name: 'Manifest',
+          params: {
+            number: this.state.receivingNumber,
+          },
+        })
+      } else {
+        if(typeof result === 'object'){
+          this.setState({errors: result.error});
+        } else {
+          this.setState({errors: result});
+        }
+      }
     });
   };
   render(){
@@ -131,7 +199,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={styles.textInput} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.transport}
+                placeholder={data.company}
                 disabled={true}
             />
          </View>
@@ -144,39 +212,14 @@ class Acknowledge extends React.Component {
               inputContainerStyle={styles.textInput} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.rcpt}
+                placeholder={"test"}
                 disabled={true}
             />
             <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, alignItems: 'center',marginRight: 10}}>
                    <Text>N</Text>
              </View>
          </View>
-         <View style={{flexDirection:'row', flexShrink:1}}>
-         <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'center',marginRight: 20}}>
-              <Text>Doc Ref #</Text>
-             </View>
-             <Input 
-               containerStyle={{flex: 1,paddingVertical:0}}
-               inputContainerStyle={styles.textInput} 
-                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21}]}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.ref}
-                disabled={true}
-            />
-         </View>
-         <View style={{flexDirection:'row', flexShrink:1}}>
-         <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'center',marginRight: 20}}>
-              <Text>PO #</Text>
-             </View>
-             <Input 
-               containerStyle={{flex: 1,paddingVertical:0}}
-               inputContainerStyle={styles.textInput} 
-                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21}]}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.number}
-                disabled={true}
-            />
-         </View>
+       
          <View style={{flexDirection:'row', flexShrink:1}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>            
          <Text>Status</Text>
@@ -186,7 +229,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput,{backgroundColor:'#F8B511'}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21,textTransform: 'uppercase', color:'#fff'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                value={data.status === 'pending'? 'waiting' : 'progressing'}
+                value={data.status}
                 disabled={false}
             />
          </View>
@@ -200,17 +243,15 @@ class Acknowledge extends React.Component {
               inputContainerStyle={styles.textInput} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={moment.unix(data.timestamp).format('DD/MM/YYYY')}
+                placeholder={data.eta}
                 disabled={true}
             />
          </View>
         <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
-        { data.status === 'pending' && (
-          <>
+        {data.status ==='Waiting' && ( <>
          <Avatar
           onPress={()=>{
-            console.log('test')
-            if(this.props.photoProofID === null || this.props.photoProofID === data.number){
+            if(this.props.photoProofID === null || this.props.photoProofID === data.id){
               this.props.setBottomBar(false);
               this.props.navigation.navigate('SingleCamera')              
             }
@@ -219,7 +260,7 @@ class Acknowledge extends React.Component {
                 ImageComponent={() => (
                   <>
                     <IconPhoto5 height="40" width="40" fill="#fff" />
-                    {(this.props.photoProofPostpone !== null && (this.props.photoProofID !== null && this.props.photoProofID === data.number)) && (
+                    {(this.props.photoProofPostpone !== null && (this.props.photoProofID !== null && this.props.photoProofID === data.id)) && (
                       <Checkmark
                         height="20"
                         width="20"
@@ -237,37 +278,32 @@ class Acknowledge extends React.Component {
                   },
                 }}
                 overlayContainerStyle={{
-                  backgroundColor: this.props.photoProofID !== null && this.props.photoProofID !== data.number ? 'grey' : this.props.photoProofPostpone !== null 
+                  backgroundColor: this.props.photoProofID !== null && this.props.photoProofID !== data.id ? 'grey' : this.props.photoProofPostpone !== null 
                     ? '#17B055'
                     : '#F07120',
                   flex: 2,
                   borderRadius: 5,
                 }}/>
+                <LinearProgress value={this.state.progressLinearVal} color="primary" style={{width:80}} variant="determinate"/>
                 <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Photo Proof Container</Text>
-                </>
-                )}
+               {this.state.errors !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.errors}</Text>)}
+                </>)}
                 </View>
-         <Button
+                
+            {data.status === 'Waiting' ? ( <Button
               containerStyle={{flexShrink:1, marginVertical: 10,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
-              onPress={()=>{
-                this.props.addPhotoProofPostpone( null );
-                this.props.setBottomBar(false);
-                this.props.setActiveASN(this.state.receivingNumber);
-                this.props.setCurrentASN(this.state.receivingNumber);
-                this.props.setReportedManifest(null);
-                this.props.setItemScanned([]);
-                this.props.setManifestList([]);
-                this.props.navigation.navigate(  {
-                  name: 'Manifest',
-                  params: {
-                    number: data.number,
-                  },
-                })}}
-              title={data.status === 'pending' ? 'Start Processing' : 'Go To  List'}
-              disabled={(this.props.photoProofPostpone === null || (this.props.photoProofID !== null && this.props.photoProofID !== data.number)) && data.status === 'pending' ? true : false}
-            />
+              onPress={this.startProcessing}
+              title={'Start Processing'}
+              disabled={(this.props.photoProofPostpone === null || (this.props.photoProofID !== null && this.props.photoProofID !== data.id)) && data.status === 'Waiting' ? true : false}
+            />) : ( <Button
+              containerStyle={{flexShrink:1, marginVertical: 10,}}
+              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
+              titleStyle={styles.deliveryText}
+              onPress={this.goToList}
+              title={'Go To  List'}
+            />)}
 
           <Button
               containerStyle={{flexShrink:1, marginRight: 0,}}
@@ -284,7 +320,7 @@ class Acknowledge extends React.Component {
                 this.props.navigation.navigate(  {
                   name: 'RecordIVAS',
                   params: {
-                    number: data.number,
+                    number: data.id,
                   },
                 })}}
               title="Record IVAS"
