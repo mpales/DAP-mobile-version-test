@@ -24,6 +24,7 @@ import Mixins from '../../../mixins';
 //icon
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import moment from 'moment';
+import {getData} from '../../../component/helper/network';
 import { element } from 'prop-types';
 const window = Dimensions.get('window');
 
@@ -46,15 +47,14 @@ class List extends React.Component {
     setFiltered = (num)=>{
         this.setState({filtered:num});
     }
-    updateASN = ()=>{
-        const {activeASN,completeASN, ReportedASN} = this.props;
+    updateASN = async ()=>{
         this.setState({renderGoBack: false});
-        return Array.from({length: ASN.length}).map((num, index) => {
-            return {
-                ...ASN[index],
-                status: completeASN.includes(ASN[index].number) ? 'complete' : ReportedASN.includes(ASN[index].number) ? 'reported' : activeASN.includes(ASN[index].number) ? 'progress': 'pending',
-            };
-          });
+        const result = await getData('inbounds');
+        if(Array.isArray(result)){
+            return result.filter((element)=> element.inbound_asn !== null );
+        } else {
+            return [];
+        }
     }
     
     shouldComponentUpdate(nextProps, nextState) {
@@ -66,39 +66,44 @@ class List extends React.Component {
         }
         return true;
     }
-    componentDidUpdate(prevProps, prevState, snapshot) {
+    async componentDidUpdate(prevProps, prevState, snapshot) {
         let filtered = prevState.renderGoBack !== this.state.renderGoBack || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
         if(filtered === 0) {
-            this.props.setInboundLIst(this.updateASN(ASN).sort((a,b)=>{
-                return   a.timestamp <   b.timestamp ? 1 : -1;  
-            }).filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let AllASN = await this.updateASN();
+            this.props.setInboundLIst(AllASN.filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
         } else if(filtered === 1){
-            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'pending').filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let PendingASN = await this.updateASN();
+            this.props.setInboundLIst(PendingASN.filter((element)=> element.status === 'Waiting').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
         } else if(filtered === 2){
-            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'progress').filter((element)=> element.number.indexOf(this.state.search)> -1));
+            let ProgressASN = await this.updateASN();
+            this.props.setInboundLIst(ProgressASN.filter((element)=> element.status === 'received').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search)> -1));
         }else if(filtered === 3){
-            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'complete').filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let CompleteASN = await this.updateASN();
+            this.props.setInboundLIst(CompleteASN.filter((element)=> element.status === 'complete').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
         }else if(filtered === 4){
-            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'reported').filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let ReportedASN = await this.updateASN();
+            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 'reported').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
         }
         
     }
-    componentDidMount() {
+    async componentDidMount() {
 
         const {filtered} = this.state;
         if(filtered === 0) {
-            this.props.setInboundLIst(
-                this.updateASN(ASN).sort((a,b)=>{
-                return   a.timestamp <   b.timestamp ? 1 : -1;  
-            }).filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let AllASN = await this.updateASN();
+            this.props.setInboundLIst(AllASN.filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
         } else if(filtered === 1){
-            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'pending').filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let PendingASN = await this.updateASN();
+            this.props.setInboundLIst(PendingASN.filter((element)=> element.status === 'Waiting').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
         } else if(filtered === 2){
-            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'progress').filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let ProgressASN = await this.updateASN();
+            this.props.setInboundLIst(ProgressASN.filter((element)=> element.status === 'received').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search)> -1));
         }else if(filtered === 3){
-            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'complete').filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let CompleteASN = await this.updateASN();
+            this.props.setInboundLIst(CompleteASN.filter((element)=> element.status === 'complete').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
         }else if(filtered === 4){
-            this.props.setInboundLIst(this.updateASN(ASN).filter((element)=> element.status === 'reported').filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let ReportedASN = await this.updateASN();
+            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 'reported').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
         }
     }
     render() {
@@ -153,14 +158,14 @@ class List extends React.Component {
                     textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
-                    value="Pending"
+                    value="Waiting"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(1)}
                     badgeStyle={this.state.filtered === 1 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
-                    value="Progress"
+                    value="Received"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(2)}
                     badgeStyle={this.state.filtered === 2 ? styles.badgeActive : styles.badgeInactive }
@@ -175,20 +180,8 @@ class List extends React.Component {
                     />
                             </View>
                             {this.props.inboundList.map((data, i, arr) => {
-                                let printdate = this.state.filtered === 0 && (i === 0 || moment.unix(data.timestamp).isSame(moment.unix(arr[i -1].timestamp), 'day') === false)
                                 return (
-                                <>
-                                {printdate && 
-                                <View style={{paddingVertical: 10}}><Text style={{...Mixins.small1,fontWeight: '300',lineHeight: 18}}>{moment.unix(data.timestamp).calendar(null, {
-                                    sameDay: '[Today] , D MMMM YYYY',
-                                    nextDay: '[Tomorrow] , D MMMM YYYY',
-                                    nextWeek: 'dddd , D MMMM YYYY',
-                                    lastDay: '[Yesterday] , D MMMM YYYY',
-                                    lastWeek: '[Last] dddd , D MMMM YYYY',
-                                    sameElse: 'D MMMM YYYY'
-                                })}</Text></View>
-                                }
-                                <Inbound 
+                                    <Inbound 
                                     key={i} 
                                     index={i} 
                                     item={data} 
@@ -197,13 +190,12 @@ class List extends React.Component {
                                         this.props.navigation.navigate(   {
                                             name: 'ReceivingDetail',
                                             params: {
-                                              number: data.number,
+                                              number: data.id,
                                             },
                                           });
                                     }}
                                
                                 />
-                                </>
                             )})}
                         </Card>
                     </View>
