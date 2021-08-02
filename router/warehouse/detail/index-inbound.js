@@ -92,7 +92,10 @@ class Acknowledge extends React.Component {
                   }}
                   title="PUT-AWAY"
                   overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
-                  onPress={() => console.log('Works!')}
+                  onPress={() => {
+                    this.props.setBottomBar(false);
+                    this.props.navigation.navigate('Inbound',{screen:'PalletList'})
+                  }}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}

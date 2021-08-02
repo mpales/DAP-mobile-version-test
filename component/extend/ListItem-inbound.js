@@ -134,7 +134,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         <ListItem.Subtitle style={{...Mixins.body1, lineHeight: 21, color: '#424141', fontWeight: '600'}}>
         {item.inbound_asn !== null ? item.inbound_asn.reference_id : item.inbound_grn.reference_id}
         </ListItem.Subtitle>
-        <Text style={styles.descText}>{item.company}</Text>
+        <Text style={styles.descText}>{item.company.company_code}</Text>
         <Text style={styles.descText}>{item.inbound_products.filter((element)=> element.status !== 1).length + '/' + item.inbound_products.length + ' Lines Complete'}</Text>
         </ListItem.Content>
         <View style={styles.labelContainer}>

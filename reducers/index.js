@@ -10,6 +10,7 @@ const initialState = {
   photoProofList: [],
   route: ROUTE,
   inboundList: [],
+  putawayList : [],
   outboundTask: [],
   outboundList: [],
   manifestList: [],
@@ -510,7 +511,12 @@ export default function appReducer(state = initialState, action) {
         return {
           ...state,
           inboundList: action.payload
-        }
+        };
+        case 'PutawayList':
+          return {
+            ...state,
+            putawayList: action.payload
+          }
         case 'OutboundTask':
         return {
           ...state,
