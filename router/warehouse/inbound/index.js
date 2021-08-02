@@ -26,6 +26,9 @@ import recordIVAS from './recordIVAS';
 import IVAS from './IVAS-list';
 import detailIVAS from './IVASDetails';
 import newIVAS from './newIVAS';
+import PalletList from './putaway/putaway-list';
+import PalletDetails from './putaway/palletDetails';
+import PalletScanner from '../peripheral/index-inbound-pallet';
 const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
   constructor(props) {
@@ -118,6 +121,66 @@ class HomeNavigator extends React.Component {
             },
           })}
         />
+          <Stack.Screen
+          name="PalletList"
+          component={PalletList}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'Back',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar('true')
+                  this.props.navigation.navigate('Home');
+                }
+              }
+              />);
+            },
+          })}
+        />
+        <Stack.Screen
+          name="PalletDetails"
+          component={PalletDetails}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'Back',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar('false')
+                  this.props.navigation.navigate('PalletList');
+                }
+              }
+              />);
+            },
+          })}
+        />
         <Stack.Screen
           name="ItemDetail"
           component={itemDetail}
@@ -181,6 +244,28 @@ class HomeNavigator extends React.Component {
         <Stack.Screen
           name="Barcode"
           component={Camera}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTransparent: true,
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+            headerTitle: 'Back',
+          })}
+        />
+         <Stack.Screen
+          name="PalletScanner"
+          component={PalletScanner}
           options={() => ({
             headerStyle: {
               backgroundColor: '#121C78',
