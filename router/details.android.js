@@ -691,6 +691,9 @@ class Details extends React.Component {
           </View>
         </Overlay>
         </>;
+      } else {
+        this.props.navigation.navigate('MenuWarehouse');
+        Navigate = <></>
       }
     } else if (this.props.userRole.type === 'Delivery') {
       Navigate =  <><DeliveryNavigator component={this.detailPage} />

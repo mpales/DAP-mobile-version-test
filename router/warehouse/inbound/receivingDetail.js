@@ -8,17 +8,16 @@ import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.s
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import WarehouseIlustration from '../../../assets/icon/Group 4968warehouse_ilustrate_mobile.svg'
 import {getData, postBlob} from '../../../component/helper/network';
+import Loading from '../../../component/loading/loading';
 import RNFetchBlob from 'rn-fetch-blob';
 class Acknowledge extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      acknowledged: false,
       bottomSheet: false,
       isShowSignature: false,
       receivingNumber: null,
       data : null,
-      startReceiving: false,
       errors: '',
       progressLinearVal : 0,
       updateData: false,
@@ -58,7 +57,7 @@ class Acknowledge extends React.Component {
     if(this.state.updateData === true){
       const result = await getData('inbounds/'+this.state.receivingNumber);
       if(typeof result === 'object' && result.errors === undefined){
-        this.setState({updateData:false,data: result, startReceiving: result.status === 1 ? false : true,acknowledge: result.status === 1 ? false : true});
+        this.setState({updateData:false,data: result});
       } else {
         this.props.navigation.goBack();
       }
@@ -68,7 +67,7 @@ class Acknowledge extends React.Component {
   async componentDidMount(){
     const result = await getData('inbounds/'+this.state.receivingNumber);
     if(typeof result === 'object' && result.error === undefined){
-      this.setState({data: result, startReceiving: result.status === 1 ? false : true,acknowledge: result.status === 1 ? false : true});
+      this.setState({data: result});
     } else {
       this.props.navigation.goBack();
     }
@@ -131,7 +130,8 @@ class Acknowledge extends React.Component {
   startProcessing = async () => {
     const {photoProofPostpone} = this.props;
     let FormData = await this.getPhotoReceivingGoods();
-    postBlob('/inbounds/'+this.state.receivingNumber, [
+    let uploadCategory = this.state.data.status === 1 ? 'receiving' : 'processing';
+    postBlob('/inbounds/'+this.state.receivingNumber +'/'+ uploadCategory, [
       // element with property `filename` will be transformed into `file` in form data
       { name : 'receiptNumber', data: this.state.data.inbound_asn !== null ? ''+this.state.data.inbound_asn.reference_id :  ''+this.state.data.inbound_grn.reference_id},
       // custom content type
@@ -145,12 +145,17 @@ class Acknowledge extends React.Component {
         this.props.setReportedManifest(null);
         this.props.setItemScanned([]);
         this.props.setManifestList([]);
-        this.props.navigation.navigate(  {
-          name: 'Manifest',
-          params: {
-            number: this.state.receivingNumber,
-          },
-        })
+        if(this.state.data.status === 1){
+          this.setState({updateData:true});
+        } else {
+          this.setState({updateData:true});
+          this.props.navigation.navigate(  {
+            name: 'Manifest',
+            params: {
+              number: this.state.receivingNumber,
+            },
+          })
+        }
       } else {
         if(typeof result === 'object'){
           this.setState({errors: result.error});
@@ -163,63 +168,49 @@ class Acknowledge extends React.Component {
   render(){
     const {data,startReceiving} = this.state;
     const {userRole} = this.props;
-    if(startReceiving === false){
-      return (  
-        <View style={{flexGrow: 1, flexDirection:'column', backgroundColor: 'white', justifyContent: 'center',alignItems: 'center', paddingHorizontal: 30}}>
-    <WarehouseIlustration height="200" width="200" />
-      <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color: '#424141'}}>Before start receiving, please acknowledge the item</Text>
-      <CheckBox
-                title="I Acknowledge"
-                textStyle={styles.text}
-                containerStyle={styles.checkboxContainer}
-                checked={this.state.acknowledged}
-                onPress={this.toggleCheckBox}
-                checkedIcon={this.checkedIcon()}
-                uncheckedIcon={this.uncheckedIcon()}
-              />
-
-        <Button
-              containerStyle={{width:'100%', marginRight: 0,}}
-              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
-              titleStyle={styles.deliveryText}
-              onPress={this.toggleStartReceiving}
-              title="Start Receiving"
-              disabled={(!this.state.acknowledged)}
-            />
-      </View>)
-    }
+    if(data === null)
+    return <Loading />
     return (
         <View style={{flexGrow: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
          <View style={{flexDirection:'row', flexShrink:1}}>
-             <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'center',marginRight: 20}}>
+             <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
                  <Text>Client</Text>
              </View>
              <Input 
                 containerStyle={{flex: 1,paddingVertical:0}}
-                inputContainerStyle={styles.textInput} 
-                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21}]}
+                inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.company}
+                placeholder={data.company.company_code}
                 disabled={true}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
-              <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'center',marginRight: 20}}>
-                   <Text>Rcpt #</Text>
+              <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+                   <Text>Ref #</Text>
              </View>
              <Input 
               containerStyle={{flex: 1,paddingVertical:0}}
-              inputContainerStyle={styles.textInput} 
-                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21}]}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+              inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
+              inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
+              labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 placeholder={"test"}
                 disabled={true}
             />
-            <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, alignItems: 'center',marginRight: 10}}>
-                   <Text>N</Text>
-             </View>
          </View>
-       
+         {data.status === 1 && (<View style={{flexDirection:'row', flexShrink:1}}>
+             <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+                 <Text>Container  #</Text>
+             </View>
+             <Input 
+                containerStyle={{flex: 1,paddingVertical:0}}
+                inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                placeholder={"1"}
+                disabled={true}
+            />
+         </View>)}
          <View style={{flexDirection:'row', flexShrink:1}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>            
          <Text>Status</Text>
@@ -229,26 +220,26 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput,{backgroundColor:'#F8B511'}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21,textTransform: 'uppercase', color:'#fff'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                value={data.status}
+                value={''+data.status}
                 disabled={false}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-         <Text>Date</Text>
+         <Text>{data.status === 1 ? "ETA Date" : "Received Date"}</Text>
          
            </View>
              <Input 
               containerStyle={{flex: 1,paddingVertical:0}}
-              inputContainerStyle={styles.textInput} 
-                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21}]}
+              inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.eta}
+                placeholder={data.status === 1 ? data.eta : moment.unix(data.created_on).format("DD-MM-YYYY")}
                 disabled={true}
             />
          </View>
         <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
-        {data.status ==='Waiting' && ( <>
+        {(data.status === 1 || data.status === 2) && ( <>
          <Avatar
           onPress={()=>{
             if(this.props.photoProofID === null || this.props.photoProofID === data.id){
@@ -290,40 +281,27 @@ class Acknowledge extends React.Component {
                 </>)}
                 </View>
                 
-            {data.status === 'Waiting' ? ( <Button
+             <Button
               containerStyle={{flexShrink:1, marginVertical: 10,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.startProcessing}
-              title={'Start Processing'}
-              disabled={(this.props.photoProofPostpone === null || (this.props.photoProofID !== null && this.props.photoProofID !== data.id)) && data.status === 'Waiting' ? true : false}
-            />) : ( <Button
-              containerStyle={{flexShrink:1, marginVertical: 10,}}
-              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
-              titleStyle={styles.deliveryText}
-              onPress={this.goToList}
-              title={'Go To  List'}
-            />)}
-
+              title={data.status === 1 ? 'Receive Goods' : 'Start Processing'}
+              disabled={(this.props.photoProofPostpone === null || (this.props.photoProofID !== null && this.props.photoProofID !== data.id)) && (data.status === 1 || data.status === 2) ? true : false}
+            />
           <Button
               containerStyle={{flexShrink:1, marginRight: 0,}}
-              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0, backgroundColor: '#121C78'}]}
+              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={()=>{
-                this.props.addPhotoProofPostpone( null );
-                this.props.setBottomBar(false);
-                this.props.setActiveASN(this.state.receivingNumber);
-                this.props.setCurrentASN(this.state.receivingNumber);
-                this.props.setReportedManifest(null);
-                this.props.setItemScanned([]);
-                this.props.setManifestList([]);
                 this.props.navigation.navigate(  {
-                  name: 'RecordIVAS',
+                  name: 'DetailsDraft',
                   params: {
-                    number: data.id,
+                    number: this.state.receivingNumber,
                   },
-                })}}
-              title="Record IVAS"
+                })
+              }}
+              title="Inbound Details"
         
             />
         </View>

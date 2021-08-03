@@ -157,9 +157,6 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
         tension={100} // These props are passed to the parent component (here TouchableScale)
         activeScale={0.95}
         pad={0}
-        onPress={()=>{
-          currentManifest(item.code)
-        }}
         >
         <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
@@ -255,11 +252,8 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                       }
                     />)}
                     onPress={()=>{
-                      navigation.navigate({
-                        name: 'Barcode',
-                        params: {
-                            inputCode: item.code,
-                        }
+                      navigation.navigate('ItemDraftDetails',{
+                            dataCode: item.code,
                       })
                     }}
                 />
@@ -267,61 +261,6 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                 </View>
               </View>
           </View>
-          {(isCurrentManifest === item.code) && (
-            <View style={[styles.buttonContainer,{flexDirection:'column',flex: 1,width:'100%'}]}>
-            <View style={{flexDirection:'row'}}>
-            <Button
-              containerStyle={{flex:1, paddingVertical: 4, paddingHorizontal: 0,}}
-              buttonStyle={[styles.navigationButton]}
-              titleStyle={[styles.deliveryText,{paddingHorizontal: 10}]}
-              onPress={()=>{
-                navigation.navigate({
-                  name: category === 'default' ? 'ItemTransitDetail' : 'ItemDetail',
-                  params: {
-                      dataCode: item.code,
-                  }
-                })
-              }}
-              title="Process Item"
-            />
-                {addAttribute && (
-                  <Button
-                    containerStyle={{flex:1, paddingVertical: 4,alignSelf:'flex-end', marginLeft:20}}
-                    buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
-                    titleStyle={[styles.deliveryText,{color:'#ffffff', paddingHorizontal: 10}]}
-                    onPress={()=>{
-                      navigation.navigate({
-                        name: 'newItem',
-                        params: {
-                            inputCode: item.code,
-                        }
-                      })
-                    }}
-                    title="Input Attribute"
-                  />
-                )}
-            </View>
-            <Button
-              containerStyle={{flexShrink:1, paddingVertical: 4, paddingHorizontal: 0}}
-              buttonStyle={[styles.navigationButton, {backgroundColor: '#fff', borderWidth: 1, borderColor: '#D5D5D5'}]}
-              titleStyle={[styles.deliveryText,{color:'#E03B3B',paddingHorizontal: 10}]}
-              onPress={()=>{
-                navigation.navigate({
-                  name: 'ReportManifest',
-                  params: {
-                      dataCode: item.code,
-                  }
-                })
-              }}
-              disabled={item.scanned !== -1 ? false : true}
-              title="Report Item"
-            />
-           
-          </View>
-        
-          )}
-          
-      
      
         </ListItem.Content>
       </ListItem>

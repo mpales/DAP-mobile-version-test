@@ -157,9 +157,6 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
         tension={100} // These props are passed to the parent component (here TouchableScale)
         activeScale={0.95}
         pad={0}
-        onPress={()=>{
-          currentManifest(item.code)
-        }}
         >
         <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
@@ -167,20 +164,6 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
           <View style={[styles.detailContainer,{flexDirection:'row', flex: 1}]}>
               <View style={[styles.detail,{flexDirection:'column',flexGrow: 1, paddingVertical: 15}]}>
 
-                   {addAttribute && ( <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5', width:50,paddingHorizontal:10}}>
-                        
-                        <Text style={{...Mixins.small1,lineHeight: 18,color: '#F07120', fontWeight: '500'}}>
-                        New
-                        </Text>
-                        
-                    </View>)}
-                    {category !== 'default' && (<View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5', width:97,paddingHorizontal:10}}>
-                        
-                        <Text style={{...Mixins.small1,lineHeight: 18,color: '#FFFFFF', fontWeight: '500'}}>
-                        Transit Item
-                        </Text>
-                        
-                    </View>)}
                     <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
                         <View style={{width:60}}>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
@@ -236,6 +219,20 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                         </Text>
                         </View>
                     </View>
+                       
+                    <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
+                        <View style={{width:60}}>
+                        <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
+                        Pallet ID
+                        </Text>
+                        </View>
+                        <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
+                        <View style={addAttribute ? {width: 100} : {width: 150} }>
+                        <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
+                        P00091
+                        </Text>
+                        </View>
+                    </View>
               </View>
 
               
@@ -255,73 +252,13 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                       }
                     />)}
                     onPress={()=>{
-                      navigation.navigate({
-                        name: 'Barcode',
-                        params: {
-                            inputCode: item.code,
-                        }
-                      })
+                      navigation.navigate('ReportDetailsSPV')
                     }}
                 />
 
                 </View>
               </View>
           </View>
-          {(isCurrentManifest === item.code) && (
-            <View style={[styles.buttonContainer,{flexDirection:'column',flex: 1,width:'100%'}]}>
-            <View style={{flexDirection:'row'}}>
-            <Button
-              containerStyle={{flex:1, paddingVertical: 4, paddingHorizontal: 0,}}
-              buttonStyle={[styles.navigationButton]}
-              titleStyle={[styles.deliveryText,{paddingHorizontal: 10}]}
-              onPress={()=>{
-                navigation.navigate({
-                  name: category === 'default' ? 'ItemTransitDetail' : 'ItemDetail',
-                  params: {
-                      dataCode: item.code,
-                  }
-                })
-              }}
-              title="Process Item"
-            />
-                {addAttribute && (
-                  <Button
-                    containerStyle={{flex:1, paddingVertical: 4,alignSelf:'flex-end', marginLeft:20}}
-                    buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
-                    titleStyle={[styles.deliveryText,{color:'#ffffff', paddingHorizontal: 10}]}
-                    onPress={()=>{
-                      navigation.navigate({
-                        name: 'newItem',
-                        params: {
-                            inputCode: item.code,
-                        }
-                      })
-                    }}
-                    title="Input Attribute"
-                  />
-                )}
-            </View>
-            <Button
-              containerStyle={{flexShrink:1, paddingVertical: 4, paddingHorizontal: 0}}
-              buttonStyle={[styles.navigationButton, {backgroundColor: '#fff', borderWidth: 1, borderColor: '#D5D5D5'}]}
-              titleStyle={[styles.deliveryText,{color:'#E03B3B',paddingHorizontal: 10}]}
-              onPress={()=>{
-                navigation.navigate({
-                  name: 'ReportManifest',
-                  params: {
-                      dataCode: item.code,
-                  }
-                })
-              }}
-              disabled={item.scanned !== -1 ? false : true}
-              title="Report Item"
-            />
-           
-          </View>
-        
-          )}
-          
-      
      
         </ListItem.Content>
       </ListItem>
