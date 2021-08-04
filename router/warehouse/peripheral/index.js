@@ -41,6 +41,7 @@ class Example extends React.Component {
       indexItem: null,
       ItemGrade : null,
       ItemPallet : null,
+      enterAttr: false,
     };
     this.handleResetAnimation.bind(this);
     this.handleZoomInAnimation.bind(this);
@@ -314,7 +315,109 @@ class Example extends React.Component {
               renderItem={this.renderMultipleSKU.bind(this)}
             />
              </View>
-            ) :  (
+            ) : dataItem !== null && this.state.enterAttr ? (
+              <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
+               <View
+                      style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelNotFound}>Batch #</Text>
+                        <Input 
+                          containerStyle={{flex: 1,paddingVertical:0}}
+                          inputContainerStyle={styles.textInput} 
+                            inputStyle={Mixins.containedInputDefaultStyle}
+                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            placeholder=""
+                        />
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelNotFound}>Lot #</Text>
+                        <Input 
+                          containerStyle={{flex: 1,paddingVertical:0}}
+                          inputContainerStyle={styles.textInput} 
+                            inputStyle={Mixins.containedInputDefaultStyle}
+                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            placeholder=""
+                        />
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelNotFound}>Exp Date </Text>
+                        <Input 
+                          containerStyle={{flex: 1,paddingVertical:0}}
+                          inputContainerStyle={styles.textInput} 
+                            inputStyle={Mixins.containedInputDefaultStyle}
+                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            placeholder=""
+                        />
+                         <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, alignItems: 'center',marginRight: 10}}>
+                              <Text>dd-MM-yyyy</Text>
+                        </View>
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelNotFound}>Mfg Date</Text>
+                        <Input 
+                          containerStyle={{flex: 1,paddingVertical:0}}
+                          inputContainerStyle={styles.textInput} 
+                            inputStyle={Mixins.containedInputDefaultStyle}
+                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            placeholder=""
+                        />
+                        <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, alignItems: 'center',marginRight: 10}}>
+                              <Text>dd-MM-yyyy</Text>
+                        </View>
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelNotFound}>Size</Text>
+                        <Input 
+                          containerStyle={{flex: 1,paddingVertical:0}}
+                          inputContainerStyle={styles.textInput} 
+                            inputStyle={Mixins.containedInputDefaultStyle}
+                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            placeholder=""
+                        />
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelNotFound}>Color</Text>
+                        <Input 
+                          containerStyle={{flex: 1,paddingVertical:0}}
+                          inputContainerStyle={styles.textInput} 
+                            inputStyle={Mixins.containedInputDefaultStyle}
+                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            placeholder=""
+                        />
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelNotFound}>Class</Text>
+                        <Input 
+                          containerStyle={{flex: 1,paddingVertical:0}}
+                          inputContainerStyle={styles.textInput} 
+                            inputStyle={Mixins.containedInputDefaultStyle}
+                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            placeholder=""
+                        />
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelNotFound}>Country</Text>
+                        <Input 
+                          containerStyle={{flex: 1,paddingVertical:0}}
+                          inputContainerStyle={styles.textInput} 
+                            inputStyle={Mixins.containedInputDefaultStyle}
+                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            placeholder=""
+                        />
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelNotFound}>C. Lot #</Text>
+                        <Input 
+                          containerStyle={{flex: 1,paddingVertical:0}}
+                          inputContainerStyle={styles.textInput} 
+                            inputStyle={Mixins.containedInputDefaultStyle}
+                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            placeholder=""
+                        />
+                      </View>
+                </View>
+              </View>
+            ) : (
               <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
                <View
                       style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>

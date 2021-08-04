@@ -22,11 +22,11 @@ import {Avatar, Card, Overlay, Button, SearchBar, Badge, Input} from 'react-nati
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect, Provider} from 'react-redux';
-import Mixins from '../../../mixins';
-import InboundDetail from '../../../component/extend/ListItem-inbound-detail';
-import IconBarcodeMobile from '../../../assets/icon/iconmonstr-barcode-3 2mobile.svg';
+import Mixins from '../../../../mixins';
+import InboundSupervisorDetail from '../../../../component/extend/ListItem-inbound-supervisor-detail';
+import IconBarcodeMobile from '../../../../assets/icon/iconmonstr-barcode-3 2mobile.svg';
 import moment from 'moment';
-import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
+import IconSearchMobile from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component{
@@ -35,16 +35,14 @@ class Warehouse extends React.Component{
     super(props);
 
     this.state = {
-      inboundCode: this.props.route.params?.code ?? '',
-      _visibleOverlay : false,
+     _visibleOverlay : false,
       receivingNumber: null,
       search: '',
       filtered : 0,
       _manifest: [],
       updated: false,
     };
-    this.goToIVAS.bind(this);
-    this.toggleOverlay.bind(this);
+
     this.setFiltered.bind(this);
     this.updateSearch.bind(this);
   }
@@ -55,28 +53,6 @@ class Warehouse extends React.Component{
       let manifest = manifestDummy.filter((element)=>element.name.indexOf(search) > -1);
       props.setManifestList(manifest);
       return {...state, _manifest : manifest};
-    } else if(manifestList.length > 0 && barcodeScanned.length > 0) {
-      let manifest = Array.from({length: manifestList.length}).map((num, index) => {
-        return {
-            ...manifestList[index],
-            grade : barcodeScanned.includes(manifestList[index].code) ? barcodeGrade : manifestList[index].grade,
-            scanned: barcodeScanned.includes(manifestList[index].code) ? barcodeScanned.length : manifestList[index].scanned,
-        };
-      });
-      props.setItemGrade(null);
-      props.setItemScanned([]);
-      props.setManifestList(manifest);
-      return {...state,_manifest : manifest};
-    } else if(manifestList.length > 0 && ReportedManifest !== null ) {
-      let manifest = Array.from({length: manifestList.length}).map((num, index) => {
-        return {
-            ...manifestList[index],
-            scanned: ReportedManifest === manifestList[index].code ? -1 : manifestList[index].scanned,
-        };
-      });
-      props.setReportedManifest(null);
-      props.setManifestList(manifest);
-      return {...state, _manifest: manifest}
     } else if(manifestList.length > 0 && _manifest.length === 0  && search === '' && filtered === 0 ) {
       return {...state, _manifest: manifestList}
     }
@@ -136,27 +112,7 @@ class Warehouse extends React.Component{
   setFiltered = (num)=>{
     this.setState({filtered:num});
 }
-  toggleOverlay =()=> {
-    const {_visibleOverlay} = this.state;
-    this.setState({_visibleOverlay: !_visibleOverlay})
-  }
-
-  handleConfirm = ({action}) => {
-    const {currentASN} = this.props;
-    this.toggleOverlay();
-    if(action) {
-      this.props.setBottomBar(true);
-      // for prototype only
-      this.props.addCompleteASN(currentASN);
-      this.props.completedInboundList.push(this.state.inboundCode);
-      // end
-
-      this.props.navigation.navigate('containerDetail');
-    }
-  }
-  goToIVAS =() =>{
-    this.props.navigation.navigate('IVAS');
-  }
+ 
   updateSearch = (search) => {
     this.setState({search});
   };
@@ -175,25 +131,15 @@ class Warehouse extends React.Component{
             <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{receivingNumber}</Text>
             <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{currentASN !== undefined ? currentASN.transport : null}</Text>
             </View>
-            <View style={[styles.contentHead,{flexShrink: 1,alignSelf:'flex-end', flexDirection: 'column'}]}>
-            <View style={[styles.headPallet,{flexDirection:'row', flexShrink:1}]}>
-              <Text style={{...Mixins.subtitle3,color:'#424141',lineHeight: 21,fontWeight: '600'}}>Pallet ID : </Text>
-              <Input 
-                                 containerStyle={{flexShrink:1,maxHeight:20}}
-                                 inputContainerStyle={{...Mixins.containedInputDefaultContainer,maxHeight:20, paddingHorizontal: 0,
-                                  paddingVertical: 0}} 
-                                 inputStyle={{...Mixins.containedInputDefaultStyle,marginHorizontal: 0}}
-            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
-            placeholder="P0091"
-                disabled={true}
-            />
-            </View>
+            <View style={[styles.contentHead,{flex: 1,alignSelf:'flex-end', flexDirection: 'column'}]}>
             <Button
               containerStyle={{width: '100%',justifyContent: 'center',height:20,marginTop:2}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0}]}
               titleStyle={[styles.deliveryText,{lineHeight:21,fontWeight:'400'}]}
-              onPress={this.toggleOverlay}
-              title="New Pallet ID"
+              onPress={()=>{
+                this.props.navigation.navigate('PhotosDraftSPV')
+              }}
+              title="Inbound Photos"
             />
               <Button
               containerStyle={{width: '100%',justifyContent: 'center',height:20, marginTop:9}}
@@ -270,12 +216,11 @@ class Warehouse extends React.Component{
          
               <Card containerStyle={styles.cardContainer}>
                 {_manifest.map((u, i) => (
-                  <InboundDetail 
+                  <InboundSupervisorDetail 
                     key={i} 
                     index={i} 
                     item={u} 
                     navigation={this.props.navigation}
-                    currentManifest={this.props.setCurrentManifest}
                     // for prototype only
                     // end
                   />
@@ -283,62 +228,21 @@ class Warehouse extends React.Component{
               </Card>
             </View>
           </ScrollView>
-          <Overlay fullScreen={false} overlayStyle={styles.overlayContainerStyle} isVisible={_visibleOverlay} onBackdropPress={this.toggleOverlay}>
-            <Text style={styles.confirmText}>Are you sure you want to Submit ?</Text>
-            <View style={styles.cancelButtonContainer}>
-              <TouchableOpacity 
-                style={[styles.cancelButton, {borderWidth: 1, borderColor: '#ABABAB'}]}
-                onPress={() => this.handleConfirm({action: false})}
-              >
-              <Text style={[styles.cancelText, {color: '#6C6B6B'}]}>No</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.cancelButton, {backgroundColor: '#F07120'}]}
-                onPress={() => this.handleConfirm({action: true})}
-              >
-                <Text style={[styles.cancelText, {color: '#fff'}]}>Yes</Text>
-              </TouchableOpacity>
-            </View>
-          </Overlay>
-          <View style={styles.buttonSticky}>
-              <Avatar
-                size={75}
-                ImageComponent={() => (
-                  <IconBarcodeMobile height="40" width="37" fill="#fff" />
-                )}
-                imageProps={{
-                  containerStyle: {
-                    ...Mixins.buttonAvatarDefaultIconStyle,
-                  },
-                }}
-                overlayContainerStyle={styles.barcodeButton}
-                onPress={() => {
-                  this.props.setBarcodeScanner(true);
-                  this.props.navigation.navigate({
-                    name: 'PalletScanner',
-                    params: {
-                      inputCode: this.state._itemDetail.code,
-                    },
-                  });
-                }}
-                activeOpacity={0.7}
-                containerStyle={Mixins.buttonAvatarDefaultContainerStyle}
-              />
-            </View>
           <View style={styles.bottomTabContainer}>
           <Button
               containerStyle={{flex:1, marginRight:10}}
               buttonStyle={[styles.navigationButton, {paddingVertical: 10, backgroundColor: '#121C78'}]}
               titleStyle={styles.deliveryText}
-              onPress={this.goToIVAS}
+              onPress={()=>{
+                this.props.navigation.navigate('IVASDetailsSPV')
+              }}
               title="Shipment VA"
             />
             <Button
               containerStyle={{flex:1}}
               buttonStyle={[styles.navigationButton, {paddingVertical: 10}]}
               titleStyle={styles.deliveryText}
-              onPress={this.toggleOverlay}
-              title="Complete Receiving"
+              title="Comfirm & Putaway"
             />
           </View>
         </SafeAreaProvider>
@@ -647,7 +551,7 @@ function mapStateToProps(state) {
     userRole: state.originReducer.userRole,
     ManifestCompleted: state.originReducer.filters.manifestCompleted,
     manifestList: state.originReducer.manifestList,
-    inboundList: state.originReducer.inboundList,
+    inboundList: state.originReducer.inboundSPVList,
     // for prototype only
     barcodeScanned: state.originReducer.filters.barcodeScanned,
     barcodeGrade: state.originReducer.filters.barcodeGrade,

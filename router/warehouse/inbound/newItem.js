@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, Button,Image, Input} from 'react-native-elements';
+import {Text, Button,Image, Input, Divider} from 'react-native-elements';
 import {View} from 'react-native';
 import {connect} from 'react-redux';
 import moment from 'moment';
@@ -12,16 +12,17 @@ class Acknowledge extends React.Component {
       dataCode: '0',
       bottomSheet: false,
       isShowSignature: false,
-      expDate: '',
-      mfgDate: '',
-      size: '',
-      color : '',
-      class : '',
-      country : '',
-      height : '',
-      weight: '',
       barcode : '',
       sku: '',
+      description: '',
+      uom : '',
+      length: '',
+      width: '',
+      height: '',
+      volweight: '',
+      weight: '',
+      pcscarton: '',
+      
     };
     this.submitItem.bind(this);
   }
@@ -32,7 +33,7 @@ class Acknowledge extends React.Component {
       const {routes, index} = navigation.dangerouslyGetState();
        if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined){
         let manifest = manifestList.find((element)=>element.code === routes[index].params.inputCode);
-        return {...state, dataCode: routes[index].params.dataCode, barcode: manifest.code, sku : manifest.sku};
+        return {...state, dataCode: routes[index].params.dataCode, sku : manifest.sku, description: manifest.name,};
       }
       return {...state};
     } 
@@ -43,6 +44,9 @@ class Acknowledge extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot){
     
   }
+  registerBarcode = () => {
+
+  };
   submitItem = ()=>{
     const {manifestList} = this.props;
     const {dataCode, barcode, sku, expDate,mfgDate,size,color,classcode,country,height, weight} = this.state;
@@ -68,78 +72,18 @@ class Acknowledge extends React.Component {
     this.props.setBottomBar(false);
     this.props.navigation.navigate('Manifest');
   }
-  onChangeTextexpdate = (text)=> {
-    this.setState({expDate: text});
-  }
-  onSubmitedexpdate = (e) => {
-    this.setState({expDate: e.nativeEvent.text});
-  }
-  onChangeTextmfgdate = (text)=> {
-    this.setState({mfgDate: text});
-  }
-  onSubmitedmfgdate = (e) => {
-    this.setState({mfgDate: e.nativeEvent.text});
-  }
-  onChangeTextsize = (text)=> {
-    this.setState({size: text});
-  }
-  onSubmitedsize = (e) => {
-    this.setState({size: e.nativeEvent.text});
-  }
-  onChangeTextcolor = (text)=> {
-    this.setState({color: text});
-  }
-  onSubmitedcolor = (e) => {
-    this.setState({color: e.nativeEvent.text});
-  }
-  onChangeTextclasscode = (text)=> {
-    this.setState({classcode: text});
-  }
-  onSubmitedclasscode = (e) => {
-    this.setState({classcode: e.nativeEvent.text});
-  }
-  onChangeTextcountry = (text)=> {
-    this.setState({country: text});
-  }
-  onSubmitedcountry = (e) => {
-    this.setState({country: e.nativeEvent.text});
-  }
-  onChangeTextheight = (text)=> {
-    this.setState({height: text});
-  }
-  onSubmitedheight = (e) => {
-    this.setState({height: e.nativeEvent.text});
-  }
-  onChangeTextweight = (text)=> {
-    this.setState({weight: text});
-  }
-  onSubmitedweight = (e) => {
-    this.setState({weight: e.nativeEvent.text});
-  }
+ 
   render(){
-    const {barcode, sku, expDate,mfgDate,size,color,classcode,country,height, weight} = this.state;
+    const {barcode, sku,description, uom, length,width,height,volweight,weight,pcscarton} = this.state;
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
          <View style={{flexDirection:'row', flexShrink:1}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-             <Text>SKU</Text>
+             <Text>Item Code</Text>
              </View>
              <Input 
                 containerStyle={{flex: 1,paddingVertical:0}}
                 inputContainerStyle={styles.textInput} 
-                inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                disabled={true}
-                value={barcode}
-            />
-         </View>
-         <View style={{flexDirection:'row', flexShrink:1}}>
-         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-               <Text>Barcode</Text>
-             </View>
-             <Input 
-              containerStyle={{flex: 1,paddingVertical:0}}
-              inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={true}
@@ -148,120 +92,130 @@ class Acknowledge extends React.Component {
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-              <Text>Exp Date</Text>
+               <Text>Description</Text>
+             </View>
+             <Input 
+              containerStyle={{flex: 1,paddingVertical:0}}
+              inputContainerStyle={styles.textInput} 
+                inputStyle={Mixins.containedInputDefaultStyle}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                disabled={true}
+                value={description}
+            />
+         </View>
+         <View style={{flexDirection:'row', flexShrink:1}}>
+         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+              <Text>Barcode</Text>
+             </View>
+             <View style={{flexDirection:'column',flex:1}}>
+             <Input 
+               containerStyle={{flex: 1,paddingVertical:0}}
+               inputContainerStyle={styles.textInput} 
+                inputStyle={Mixins.containedInputDefaultStyle}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                onChangeText={(text)=>{this.setState({barcode:text})}}
+                value={barcode}
+            />
+              <Button
+              containerStyle={{flex:1, marginRight: 0,}}
+              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
+              titleStyle={styles.buttonText}
+              onPress={this.registerBarcode}
+              title="Register Barcode"
+            />
+            </View>
+         </View>
+         <View style={{flexDirection:'row', flexShrink:1}}>
+         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+             <Text>UOM</Text>
              </View>
              <Input 
                containerStyle={{flex: 1,paddingVertical:0}}
                inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                onChangeText={this.onChangeTextexpdate.bind(this)}
-                onSubmitEditing={this.onSubmitedexpdate.bind(this)}
-                value={expDate}
+                disabled={true}
+                value={uom}
             />
-             <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, alignItems: 'center',marginRight: 10}}>
-                   <Text>dd-MM-yyyy</Text>
-             </View>
          </View>
+        <Divider />
+        <Text style={{...Mixins.h6,lineHeight: 27,fontWeight:'700',color:'#424141'}}>Carton Dimensions</Text>
          <View style={{flexDirection:'row', flexShrink:1}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-             <Text>Mfg Date</Text>
-             </View>
-             <Input 
-               containerStyle={{flex: 1,paddingVertical:0}}
-               inputContainerStyle={styles.textInput} 
-                inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                onChangeText={this.onChangeTextmfgdate.bind(this)}
-                onSubmitEditing={this.onSubmitedmfgdate.bind(this)}
-                value={mfgDate}
-            />
-                <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, alignItems: 'center',marginRight: 10}}>
-                   <Text>dd-MM-yyyy</Text>
-             </View>
-         </View>
-         <View style={{flexDirection:'row', flexShrink:1}}>
-         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-          <Text>Size</Text>
+          <Text>Length ( m )</Text>
              </View>
              <Input 
                 containerStyle={{flex: 1,paddingVertical:0}}
                 inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                onChangeText={this.onChangeTextsize.bind(this)}
-                onSubmitEditing={this.onSubmitedsize.bind(this)}
-                value={size}
+                onChangeText={(text)=>{this.setState({length:text})}}
+                value={length}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
           <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-          <Text>Color</Text>
+          <Text>Width ( m )</Text>
            </View>
              <Input 
               containerStyle={{flex: 1,paddingVertical:0}}
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                onChangeText={this.onChangeTextcolor.bind(this)}
-                onSubmitEditing={this.onSubmitedcolor.bind(this)}
-                value={color}
+                onChangeText={(text)=>{this.setState({width:text})}}
+                value={width}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
           <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-          <Text>Class</Text>
+          <Text>Height ( m )</Text>
            </View>
              <Input 
               containerStyle={{flex: 1,paddingVertical:0}}
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                onChangeText={this.onChangeTextclasscode.bind(this)}
-                onSubmitEditing={this.onSubmitedclasscode.bind(this)}
-                value={classcode}
-            />
-         </View>
-         <View style={{flexDirection:'row', flexShrink:1}}>
-          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-          <Text>Country</Text>
-           </View>
-             <Input 
-              containerStyle={{flex: 1,paddingVertical:0}}
-              inputContainerStyle={styles.textInput} 
-                inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                onChangeText={this.onChangeTextcountry.bind(this)}
-                onSubmitEditing={this.onSubmitedcountry.bind(this)}
-                value={country}
-            />
-         </View>
-         <View style={{flexDirection:'row', flexShrink:1}}>
-          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-          <Text>Height</Text>
-           </View>
-             <Input 
-              containerStyle={{flex: 1,paddingVertical:0}}
-              inputContainerStyle={styles.textInput} 
-                inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                onChangeText={this.onChangeTextheight.bind(this)}
-                onSubmitEditing={this.onSubmitedheight.bind(this)}
+                onChangeText={(text)=>{this.setState({height:text})}}
                 value={height}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
           <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-          <Text>Weight</Text>
+          <Text>Vol. Weight ( m3 )</Text>
            </View>
              <Input 
               containerStyle={{flex: 1,paddingVertical:0}}
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                onChangeText={this.onChangeTextweight.bind(this)}
-                onSubmitEditing={this.onSubmitedweight.bind(this)}
+                onChangeText={(text)=>{this.setState({volweight:text})}}
+                value={volweight}
+            />
+         </View>
+         <View style={{flexDirection:'row', flexShrink:1}}>
+          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+          <Text>Weight ( Kg )</Text>
+           </View>
+             <Input 
+              containerStyle={{flex: 1,paddingVertical:0}}
+              inputContainerStyle={styles.textInput} 
+                inputStyle={Mixins.containedInputDefaultStyle}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                onChangeText={(text)=>{this.setState({weight:text})}}
                 value={weight}
+            />
+         </View>
+         <View style={{flexDirection:'row', flexShrink:1}}>
+          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+          <Text># Pcs per carton</Text>
+           </View>
+             <Input 
+              containerStyle={{flex: 1,paddingVertical:0}}
+              inputContainerStyle={styles.textInput} 
+                inputStyle={Mixins.containedInputDefaultStyle}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                onChangeText={(text)=>{this.setState({pcscarton:text})}}
+                value={pcscarton}
             />
          </View>
          <Button
@@ -269,8 +223,7 @@ class Acknowledge extends React.Component {
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.submitItem}
-              title="Save Attribute"
-              disabled={ barcode && sku && expDate && mfgDate && size && color && classcode && country && height && weight ? false : true }
+              title="Update Attribute"
             />
         </View>
     );
@@ -289,8 +242,15 @@ const styles = {
     marginVertical: 10,
   },
   deliveryText: {
-    ...Mixins.subtitle3,
-    lineHeight: 21,
+    ...Mixins.h6,
+    lineHeight: 27,
+    fontWeight:'600',
+    color: '#ffffff',
+  },
+  buttonText: {
+    ...Mixins.h6,
+    lineHeight: 27,
+    fontWeight:'600',
     color: '#ffffff',
   },
   navigationButton: {

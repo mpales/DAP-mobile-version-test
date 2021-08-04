@@ -1,9 +1,10 @@
 import React from 'react';
 import {Text, Button,Image, Avatar} from 'react-native-elements';
 import {View} from 'react-native';
-import Barcode from '../../../assets/icon/iconmonstr-barcode-3 3mobile.svg';
+import ASNNote from '../../../assets/icon/Group 5071mobile.svg';
+import GRNNote from '../../../assets/icon/Group 5072mobile.svg';
 import Note from '../../../assets/icon/iconmonstr-note-19mobile.svg';
-import Inventory from '../../../assets/icon/iconmonstr-delivery-19mobile.svg';
+import Supervisor from '../../../assets/icon/iconmonstr-delivery-10 1mobile.svg';
 import Transfer from '../../../assets/icon/iconmonstr-delivery-12mobile.svg';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
@@ -22,57 +23,69 @@ class Acknowledge extends React.Component {
   render(){
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
-          <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 100}}>
+          <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 40}}>
           <Image
               source={require('../../../assets/dap_logo_hires1thumb.png')}
               style={{ width: 135, height: 70 }}
             />
           </View>
           <View style={{flexDirection: 'row', flexShrink:1}}>
-          {/* <View style={styles.sectionContainer}>
-                <Avatar
-                  size={140}
-                  ImageComponent={() => (
-                    <Barcode height="70" width="70" fill="#6C6B6B" />
-                  )}
-                  imageProps={{
-                    containerStyle: {
-                     ...Mixins.buttonFloatedAvatarDefaultIconStyle
-                    },
-                  }}
-                  title="BARCODE"
-                  overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle, this.props.currentASN === null ? {backgroundColor: 'grey'} : null]}
-                  onPress={() => {
-                    if(this.props.currentASN !== null){
-                    this.props.setBottomBar(false);
-                    this.props.navigation.navigate('Inbound',{screen:'Barcode'})
-                  }
-                  }}
-                  activeOpacity={0.7}
-                  containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
-                  placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
-                  titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}, this.props.currentASN === null ? {color: '#6C6B6B'} : null]}
-                  />
-              </View> */}
               <View style={styles.sectionContainer}>
                 <Avatar
                   size={140}
                   ImageComponent={() => (
-                    <Note height="70" width="70" fill="#6C6B6B" />
+                    <ASNNote height="70" width="70" fill="#6C6B6B" />
                   )}
                   imageProps={{
                     containerStyle: {
                      ...Mixins.buttonFloatedAvatarDefaultIconStyle
                     },
                   }}
-                  title="INBOUND"
-                  overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle, this.props.currentASN === null ? {backgroundColor: 'grey'} : null]}
-                  onPress={() => {
-                    if(this.props.currentASN !== null){
-                      this.props.setBottomBar(false);
-                      this.props.navigation.navigate('Inbound',{screen:'Manifest'})
-                    }
+                  title="ASN"
+                  overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle]}
+               
+                  activeOpacity={0.7}
+                  containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
+                  placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
+                  titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}, this.props.currentASN === null ? {color: '#6C6B6B'} : null]}
+                />
+              </View>
+              <View style={styles.sectionContainer}>
+                <Avatar
+                  size={140}
+                  ImageComponent={() => (
+                    <GRNNote height="70" width="70" fill="#6C6B6B" />
+                  )}
+                  imageProps={{
+                    containerStyle: {
+                     ...Mixins.buttonFloatedAvatarDefaultIconStyle
+                    },
                   }}
+                  title="GRN"
+                  overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
+             
+                  activeOpacity={0.7}
+                  containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
+                  placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
+                  titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}]}
+                />
+              </View>
+          </View>
+          <View style={{flexDirection: 'row', flexShrink:1}}>
+              <View style={styles.sectionContainer}>
+                <Avatar
+                  size={140}
+                  ImageComponent={() => (
+                    <Note height="70" width="60" fill="#6C6B6B" />
+                  )}
+                  imageProps={{
+                    containerStyle: {
+                     ...Mixins.buttonFloatedAvatarDefaultIconStyle
+                    },
+                  }}
+                  title="OTHERS"
+                  overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle]}
+                
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
@@ -103,30 +116,34 @@ class Acknowledge extends React.Component {
                 />
               </View>
           </View>
-          
-          {/* <View style={{flexDirection: 'row', flexShrink:1}}>
-          <View style={styles.sectionContainer}>
+          <View style={{flexDirection: 'row', flexShrink:1}}>
+              <View style={styles.sectionContainer}>
                 <Avatar
                   size={140}
                   ImageComponent={() => (
-                    <Inventory height="70" width="70" fill="#6C6B6B" />
+                    <Supervisor height="70" width="70" fill="#6C6B6B" />
                   )}
                   imageProps={{
                     containerStyle: {
                      ...Mixins.buttonFloatedAvatarDefaultIconStyle
                     },
                   }}
-                  title="INVENTORY CONTROL"
-                  overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
-                  onPress={() => console.log('Works!')}
+                  title="INBOUND SUPERVISOR"
+                  overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle]}
+                  onPress={()=>{
+                    this.props.setBottomBar(false);
+                    this.props.navigation.navigate('Inbound',{screen:'SupervisorMode'});
+                  }}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
-                  titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}]}
+                  titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}, this.props.currentASN === null ? {color: '#6C6B6B'} : null]}
                 />
               </View>
-              <View style={styles.sectionContainer}></View>
-          </View> */}
+              <View style={styles.sectionContainer}>
+              
+              </View>
+          </View>
           
         </View>
     );

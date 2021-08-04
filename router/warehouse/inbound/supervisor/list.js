@@ -18,13 +18,13 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { connect } from 'react-redux';
 //component
-import Inbound from '../../../component/extend/ListItem-inbound';
+import InboundSupervisor from '../../../../component/extend/ListItem-inbound-supervisor';
 //style
-import Mixins from '../../../mixins';
+import Mixins from '../../../../mixins';
 //icon
-import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
+import IconSearchMobile from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import moment from 'moment';
-import {getData} from '../../../component/helper/network';
+import {getData} from '../../../../component/helper/network';
 import { element } from 'prop-types';
 const window = Dimensions.get('window');
 
@@ -49,9 +49,9 @@ class List extends React.Component {
     }
     updateASN = async ()=>{
         this.setState({renderGoBack: false});
-        const result = await getData('inbounds');
+        const result = ASN;
         if(Array.isArray(result)){
-            return result.filter((element)=> element.inbound_asn !== null );
+            return result
         } else {
             return [];
         }
@@ -70,19 +70,16 @@ class List extends React.Component {
         let filtered = prevState.renderGoBack !== this.state.renderGoBack || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
         if(filtered === 0) {
             let AllASN = await this.updateASN();
-            this.props.setInboundLIst(AllASN.filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
+            this.props.setinboundList(AllASN.filter((element)=> element.number.indexOf(this.state.search) > -1));
         } else if(filtered === 1){
             let PendingASN = await this.updateASN();
-            this.props.setInboundLIst(PendingASN.filter((element)=> element.status === 'Waiting').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
+            this.props.setinboundList(PendingASN.filter((element)=> element.category === 'ASN').filter((element)=> element.number.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
             let ProgressASN = await this.updateASN();
-            this.props.setInboundLIst(ProgressASN.filter((element)=> element.status === 'received').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search)> -1));
+            this.props.setinboundList(ProgressASN.filter((element)=> element.category === 'GRN').filter((element)=> element.number.indexOf(this.state.search)> -1));
         }else if(filtered === 3){
             let CompleteASN = await this.updateASN();
-            this.props.setInboundLIst(CompleteASN.filter((element)=> element.status === 'complete').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
-        }else if(filtered === 4){
-            let ReportedASN = await this.updateASN();
-            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 'reported').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
+            this.props.setinboundList(CompleteASN.filter((element)=> element.category === 'OTHERS').filter((element)=> element.number.indexOf(this.state.search) > -1));
         }
         
     }
@@ -91,19 +88,16 @@ class List extends React.Component {
         const {filtered} = this.state;
         if(filtered === 0) {
             let AllASN = await this.updateASN();
-            this.props.setInboundLIst(AllASN.filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
+            this.props.setinboundList(AllASN.filter((element)=> element.number.indexOf(this.state.search) > -1));
         } else if(filtered === 1){
             let PendingASN = await this.updateASN();
-            this.props.setInboundLIst(PendingASN.filter((element)=> element.status === 'Waiting').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
+            this.props.setinboundList(PendingASN.filter((element)=> element.category === 'ASN').filter((element)=> element.number.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
             let ProgressASN = await this.updateASN();
-            this.props.setInboundLIst(ProgressASN.filter((element)=> element.status === 'received').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search)> -1));
+            this.props.setinboundList(ProgressASN.filter((element)=> element.category === 'GRN').filter((element)=> element.number.indexOf(this.state.search)> -1));
         }else if(filtered === 3){
             let CompleteASN = await this.updateASN();
-            this.props.setInboundLIst(CompleteASN.filter((element)=> element.status === 'complete').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
-        }else if(filtered === 4){
-            let ReportedASN = await this.updateASN();
-            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 'reported').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
+            this.props.setinboundList(CompleteASN.filter((element)=> element.category === 'OTHERS').filter((element)=> element.number.indexOf(this.state.search) > -1));
         }
     }
     render() {
@@ -147,61 +141,66 @@ class List extends React.Component {
                     value="All"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(0)}
+                    badgeStyle={this.state.filtered === 0 ? styles.badgeBigActive : styles.badgeBigInactive }
+                    textStyle={this.state.filtered === 0 ? styles.badgeBigActiveTint : styles.badgeBigInactiveTint }
+                    />
+                      <Badge
+                    value="ASN"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(1)}
+                    badgeStyle={this.state.filtered === 1 ? styles.badgeBigActive : styles.badgeBigInactive }
+                    textStyle={this.state.filtered === 1 ? styles.badgeBigActiveTint : styles.badgeBigInactiveTint }
+               />
+                          <Badge
+                    value="GRN"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(2)}
+                    badgeStyle={this.state.filtered === 2 ? styles.badgeBigActive : styles.badgeBigInactive }
+                    textStyle={this.state.filtered === 2 ? styles.badgeBigActiveTint : styles.badgeBigInactiveTint }
+             />
+                          <Badge
+                    value="OTHERS"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(3)}
+                    badgeStyle={this.state.filtered === 3 ? styles.badgeBigActive : styles.badgeBigInactive }
+                    textStyle={this.state.filtered === 3 ? styles.badgeBigActiveTint : styles.badgeBigInactiveTint }
+           />
+                            </View>
+                            <View style={styles.headingCard}>
+                        <Badge
+                    value="All"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(0)}
                     badgeStyle={this.state.filtered === 0 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                       <Badge
                     value="Reported"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.setFiltered(4)}
-                    badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
-                    />
-                          <Badge
-                    value="Waiting"
-                    containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(1)}
                     badgeStyle={this.state.filtered === 1 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
-                    value="Received"
+                    value="Processed"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(2)}
                     badgeStyle={this.state.filtered === 2 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
-                          <Badge
-                    value="Complete"
-                    containerStyle={styles.badgeSort}
-                    onPress={()=> this.setFiltered(3)}
-                    badgeStyle={this.state.filtered === 3 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
-                    />
+                  
                             </View>
                             {this.props.inboundList.map((data, i, arr) => {
                                 return (
-                                    <Inbound 
+                                    <InboundSupervisor 
                                     key={i} 
                                     index={i} 
                                     item={data} 
                                     ToManifest={()=>{
                                         this.props.setBottomBar(false);
-                                        if(data.status === 1 || data.status === 2){
-                                            this.props.navigation.navigate(   {
-                                                name: 'ReceivingDetail',
-                                                params: {
-                                                  number: data.id,
-                                                },
-                                              });
-                                        } else {
-                                            this.props.navigation.navigate(  {
-                                                name: 'Manifest',
-                                                params: {
-                                                  number: data.id,
-                                                },
-                                              })
-                                        }
+                                        this.props.navigation.navigate('ManifestSupervisor',   {
+                                            number: data.number,
+                                        });
                                     }}
                                
                                 />
@@ -292,60 +291,85 @@ const styles = StyleSheet.create({
         elevation: 0,
         backgroundColor: '#ffffff',
     },
-    badgeActive: {    
+    badgeBigActive: {    
         backgroundColor: '#F1811C',
         borderWidth: 1,
         borderColor: '#F1811C',
         paddingHorizontal: 12,
-        height: 20,
-      
+        height: 29,
+        borderRadius: 5,
         },
-        badgeActiveTint: {
-          ...Mixins.small3,
-          lineHeight: 12,
+        badgeBigActiveTint: {
+          ...Mixins.body1,
+          lineHeight: 21,
+          fontWeight: '600',
           color: '#ffffff'
         },
-        badgeInactive: {
+        badgeBigInactive: {
           backgroundColor: '#ffffff',
           borderWidth: 1,
           borderColor: '#121C78',
           paddingHorizontal: 12,
-          height: 20,
+          height: 29,
+          borderRadius: 5,
         },
-        badgeInactiveTint: {
-          ...Mixins.small3,
-          lineHeight: 12,
+        badgeBigInactiveTint: {
+          ...Mixins.body1,
+          lineHeight: 21,
+          fontWeight: '600',
           color: '#121C78'
         },
+
+        badgeActive: {    
+            backgroundColor: '#F1811C',
+            borderWidth: 1,
+            borderColor: '#F1811C',
+            paddingHorizontal: 12,
+            height: 20,
+          
+            },
+            badgeActiveTint: {
+              ...Mixins.small3,
+              lineHeight: 12,
+              color: '#ffffff'
+            },
+            badgeInactive: {
+              backgroundColor: '#ffffff',
+              borderWidth: 1,
+              borderColor: '#121C78',
+              paddingHorizontal: 12,
+              height: 20,
+            },
+            badgeInactiveTint: {
+              ...Mixins.small3,
+              lineHeight: 12,
+              color: '#121C78'
+            },
 });
 const ASN = [
-    {'number':'PO00001234','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
-    {'number':'PO00001222','timestamp':moment().subtract(4, 'days').unix(),'transport':'DSP','status':'complete','desc':'Roboto', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
-    {'number':'PO00001221','timestamp':moment().subtract(3, 'days').unix(),'transport':'DSP','status':'pending','desc':'Poopie', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
-    {'number':'PO00001225','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
-    {'number':'PO00001223','timestamp':moment().unix(),'transport':'DSP','status':'pending','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
-    {'number':'PO00001224','timestamp':moment().unix(),'transport':'DSP','status':'pending','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
-    {'number':'PO00001235','timestamp':moment().unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
-    {'number':'PO00001236','timestamp':moment().unix(),'transport':'DSP','status':'pending','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
-    {'number':'PO00001237','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
-    {'number':'PO00001238','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+  {'number':'PO00001234','category':'ASN','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+  {'number':'PO00001222','category':'ASN','timestamp':moment().subtract(4, 'days').unix(),'transport':'DSP','status':'complete','desc':'Roboto', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+  {'number':'PO00001221','category':'GRN','timestamp':moment().subtract(3, 'days').unix(),'transport':'DSP','status':'pending','desc':'Poopie', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+  {'number':'PO00001225','category':'GRN','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+  {'number':'PO00001223','category':'GRN','timestamp':moment().unix(),'transport':'DSP','status':'pending','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+  {'number':'PO00001224','category':'OTHERS','timestamp':moment().unix(),'transport':'DSP','status':'pending','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+  {'number':'PO00001235','category':'OTHERS','timestamp':moment().unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+  {'number':'PO00001236','category':'OTHERS','timestamp':moment().unix(),'transport':'DSP','status':'pending','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+  {'number':'PO00001237','category':'OTHERS','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
+  {'number':'PO00001238','category':'OTHERS','timestamp':moment().subtract(1, 'days').unix(),'transport':'DSP','status':'progress','desc':'Dead Sea Premier', 'rcpt': 'DRC000206959', 'ref': 'BESG20200820A'},
 ];
 
 function mapStateToProps(state) {
     return {
-        ReportedASN: state.originReducer.filters.ReportedASN,
-        activeASN : state.originReducer.filters.activeASN,
-        completeASN : state.originReducer.filters.completeASN,
-        inboundList: state.originReducer.inboundList,
-        completedInboundList: state.originReducer.completedInboundList,
+        inboundList: state.originReducer.inboundSPVList,
         keyStack: state.originReducer.filters.keyStack,
     };
   }
   
 const mapDispatchToProps = (dispatch) => {
     return { 
-    setInboundLIst: (data) => {
-            return dispatch({type: 'InboundList', payload: data});
+      setinboundList: (data) => {
+            return dispatch({type: 'InboundSPVList', payload: data});
         },
       setBottomBar: (toggle) => {
         return dispatch({type: 'BottomBar', payload: toggle});

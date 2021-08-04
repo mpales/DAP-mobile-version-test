@@ -29,6 +29,10 @@ import newIVAS from './newIVAS';
 import PalletList from './putaway/putaway-list';
 import PalletDetails from './putaway/palletDetails';
 import PalletScanner from '../peripheral/index-inbound-pallet';
+import ItemTransitDetail from './itemTransitDetails';
+import DetailsDraft from './details/index';
+import SupervisorMode from './supervisor/index';
+
 const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
   constructor(props) {
@@ -38,7 +42,7 @@ class HomeNavigator extends React.Component {
   }
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
-    if(indexBottomBar === 1){
+    if(indexBottomBar === 1 && key !== 'SupervisorMode' && key !== 'SupervisorMode'){
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }
@@ -78,7 +82,6 @@ class HomeNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
             headerTitleAlign: 'left',
             headerLeft: (props) => {
               return(
@@ -184,6 +187,36 @@ class HomeNavigator extends React.Component {
         <Stack.Screen
           name="ItemDetail"
           component={itemDetail}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'Back',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar('false')
+                  this.props.navigation.navigate('Manifest');
+                }
+              }
+              />);
+            },
+          })}
+        />
+         <Stack.Screen
+          name="ItemTransitDetail"
+          component={ItemTransitDetail}
           options={() => ({
             headerStyle: {
               backgroundColor: '#121C78',
@@ -345,6 +378,50 @@ class HomeNavigator extends React.Component {
           })}
         />
           <Stack.Screen
+          name="DetailsDraft"
+          component={DetailsDraft}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerShown:false,
+            headerTintColor: '#fff',
+            headerTitle: 'Back',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+          })}
+        />
+            <Stack.Screen
+          name="SupervisorMode"
+          component={SupervisorMode}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerShown:false,
+            headerTintColor: '#fff',
+            headerTitle: 'Back',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+          })}
+        />
+               <Stack.Screen
           name="ReceivingDetail"
           component={ReceivingDetail}
           options={() => ({
