@@ -14,11 +14,15 @@ Button,
 Input,
 Badge, 
 Divider,
-ListItem
+ListItem,
+Avatar,
+LinearProgress
 } from 'react-native-elements'
 import SelectDropdown from 'react-native-select-dropdown';
 import { Modalize } from 'react-native-modalize';
 import BarCode from '../../../component/camera/filter-barcode';
+import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
+import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import CheckmarkIcon from '../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
 import XMarkIcon from '../../../assets/icon/iconmonstr-x-mark-7mobile.svg';
 import Mixins from '../../../mixins';
@@ -41,7 +45,10 @@ class Example extends React.Component {
       indexItem: null,
       ItemGrade : null,
       ItemPallet : null,
+      currentPOSM: false,
       enterAttr: false,
+      isPOSM : false,
+      isConfirm : false,
     };
     this.handleResetAnimation.bind(this);
     this.handleZoomInAnimation.bind(this);
@@ -55,8 +62,13 @@ class Example extends React.Component {
     const {routes, index} = navigation.dangerouslyGetState();
     if(scanItem === '0'){
       if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined) {
-        setBarcodeScanner(true);
-        return {...state, scanItem: routes[index].params.inputCode};
+        if(routes[index].params.isPOSM !== undefined && routes[index].params.isPOSM === true){
+          setBarcodeScanner(false);
+          return {...state, scanItem: routes[index].params.inputCode, currentPOSM: true, dataCode: routes[index].params.inputCode};
+        } else {
+          setBarcodeScanner(true);
+          return {...state, scanItem: routes[index].params.inputCode};
+        }
       } else if(routes[index].params !== undefined && routes[index].params.manualCode !== undefined) {
         setBarcodeScanner(false);
         return {...state, scanItem: routes[index].params.manualCode};
@@ -82,12 +94,14 @@ class Example extends React.Component {
     }
     if((this.state.ItemGrade !== nextState.ItemGrade || this.state.ItemPallet !== nextState.ItemPallet) && nextState.dataItem === this.state.dataItem){
       return false;
+    } else if(nextState.isPOSM === true && nextState.dataItem === null){
+      return false;
     }
     return true;
   }
   componentDidUpdate(prevProps, prevState) {
     const {manifestList,detectBarcode, currentASN, navigation, setBarcodeScanner} = this.props;
-    const {dataCode,scanItem, dataItem} = this.state;
+    const {dataCode,scanItem, dataItem, isPOSM} = this.state;
     if(prevProps.detectBarcode !== detectBarcode){
       if(detectBarcode) {
         this.handleResetAnimation();
@@ -110,7 +124,7 @@ class Example extends React.Component {
         let item = manifestList[this.state.indexItem];  
         this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade}); 
       }
-    }
+    } 
   }
   handleResetAnimation = () => {
     Animated.timing(this.animatedValue, {
@@ -136,7 +150,7 @@ class Example extends React.Component {
       <View style={styles.modalOverlay}>
         <Animated.View
           style={
-            dataItem !== null || (dataItem === null && this.state.multipleSKU === true)
+           ( dataItem !== null && this.state.enterAttr !== true && this.state.isConfirm !== true) || (dataItem === null && this.state.multipleSKU === true)
               ? [
                   styles.modalContainerAll,
                   {
@@ -156,6 +170,42 @@ class Example extends React.Component {
                     ],
                   },
                 ]
+              : dataItem !== null && this.state.isConfirm === true ?
+              [styles.modalContainerSmallConfirm,
+              {
+                transform: [
+                  {
+                    scaleX: this.animatedValue.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 1],
+                    }),
+                  },
+                  {
+                    scaleY: this.animatedValue.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 1],
+                    }),
+                  },
+                ],
+              },] 
+              : dataItem !== null && this.state.enterAttr === true ? 
+              [styles.modalContainerEnterAttr,
+              {
+                transform: [
+                  {
+                    scaleX: this.animatedValue.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 1],
+                    }),
+                  },
+                  {
+                    scaleY: this.animatedValue.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 1],
+                    }),
+                  },
+                ],
+              },]
               : [
                   styles.modalContainerSmall,
                   {
@@ -185,7 +235,7 @@ class Example extends React.Component {
               )}
               {dataItem !== null ? (
                 <Text style={styles.modalHeaderText}>
-                Success Scan Item                
+                  {this.state.isConfirm === true ? ' Item Processed ' : this.state.enterAttr === true ? 'Enter Item Attribute' : this.state.isPOSM === true ? 'Photo Required' : ' Item Found'}                
                 </Text>
               ) : dataItem === null && this.state.multipleSKU === true ? (
               <Text style={styles.modalHeaderText}>
@@ -197,7 +247,7 @@ class Example extends React.Component {
               )}
             </View>
             <Divider color="#D5D5D5" />
-            {dataItem !== null ? (
+            {(dataItem !== null && ((this.state.enterAttr === false && this.state.isPOSM === false) || this.state.isConfirm === true )) ? (
               <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
                <View
                       style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
@@ -227,6 +277,11 @@ class Example extends React.Component {
                       </View>
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Pallet ID</Text>
+                      { this.state.isConfirm === true ? (  
+                      <Text style={styles.infoPackage}>
+                        PLDAP 0000091
+                        </Text>) 
+                        :(  
                         <View style={styles.infoElement}>
                         <SelectDropdown
                             buttonStyle={{maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
@@ -247,12 +302,16 @@ class Example extends React.Component {
                               return item
                             }}
                           />
-                        </View>
+                        </View>)}
                       </View>
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Grade</Text>
-                        <View style={styles.infoElement}>
-                        <SelectDropdown
+                    
+                       { this.state.isConfirm === true ? (
+                       <Text style={styles.infoPackage}>PICK</Text>
+                       ) :(     
+                       <View style={styles.infoElement}>
+                         <SelectDropdown
                             buttonStyle={{maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
                             buttonTextStyle={{...styles.infoPackage,textAlign:'left',}}
                             data={grade}
@@ -270,11 +329,19 @@ class Example extends React.Component {
                               // if data array is an array of objects then return item.property to represent item in dropdown
                               return item
                             }}
-                          />
-                        </View>
+                          />    
+                          </View>
+                          )}
+                    
                       </View>
+                      {this.state.isConfirm === true && (    
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelPackage}>QTY</Text>
+                        <Text style={styles.infoPackage}> {this.state.qty} </Text>
+                        </View>
+                        )}
                     </View>
-                    {dataItem.scanned < dataItem.total_package && (
+                    {this.state.isConfirm !== true && (
                         <View style={[styles.sectionDividier,{flexDirection:'row',marginTop:15}]}>
                           <View style={[styles.dividerContent,{marginRight: 35}]}>
                             <Text style={styles.qtyTitle}>Qty</Text>
@@ -315,109 +382,135 @@ class Example extends React.Component {
               renderItem={this.renderMultipleSKU.bind(this)}
             />
              </View>
-            ) : dataItem !== null && this.state.enterAttr ? (
+            ) : dataItem !== null && this.state.enterAttr === true ? (
               <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
                <View
                       style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
-                      <View style={styles.dividerContent}>
-                        <Text style={styles.labelNotFound}>Batch #</Text>
+                      <View style={[styles.dividerContent,{marginVertical:3}]}>
+                        <Text style={styles.labelPackage}>Batch #</Text>
                         <Input 
-                          containerStyle={{flex: 1,paddingVertical:0}}
-                          inputContainerStyle={styles.textInput} 
+                          containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
+                          inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
                             inputStyle={Mixins.containedInputDefaultStyle}
-                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            labelStyle={Mixins.containedInputDefaultLabel}
                             placeholder=""
                         />
                       </View>
-                      <View style={styles.dividerContent}>
-                        <Text style={styles.labelNotFound}>Lot #</Text>
+                      <View style={[styles.dividerContent,{marginVertical:3}]}>
+                        <Text style={styles.labelPackage}>Lot #</Text>
                         <Input 
-                          containerStyle={{flex: 1,paddingVertical:0}}
-                          inputContainerStyle={styles.textInput} 
+                             containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
+                             inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
                             inputStyle={Mixins.containedInputDefaultStyle}
-                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            labelStyle={Mixins.containedInputDefaultLabel}
                             placeholder=""
                         />
                       </View>
-                      <View style={styles.dividerContent}>
-                        <Text style={styles.labelNotFound}>Exp Date </Text>
+                      <View style={[styles.dividerContent,{marginVertical:3,marginRight:10}]}>
+                        <Text style={styles.labelPackage}>Exp Date </Text>
                         <Input 
-                          containerStyle={{flex: 1,paddingVertical:0}}
-                          inputContainerStyle={styles.textInput} 
-                            inputStyle={Mixins.containedInputDefaultStyle}
-                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                          containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
+                          inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
+                         inputStyle={Mixins.containedInputDefaultStyle}
+                         labelStyle={Mixins.containedInputDefaultLabel}
                             placeholder=""
                         />
-                         <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, alignItems: 'center',marginRight: 10}}>
-                              <Text>dd-MM-yyyy</Text>
-                        </View>
+                                 <Text style={{...Mixins.body3,lineHeight:18,fontWeight:'400',color:'#424141',paddingVertical:6}}>dd-MM-yy</Text>
+                     
                       </View>
-                      <View style={styles.dividerContent}>
-                        <Text style={styles.labelNotFound}>Mfg Date</Text>
+                      <View style={[styles.dividerContent,{marginVertical:3, marginRight:10}]}>
+                        <Text style={styles.labelPackage}>Mfg Date</Text>
                         <Input 
-                          containerStyle={{flex: 1,paddingVertical:0}}
-                          inputContainerStyle={styles.textInput} 
-                            inputStyle={Mixins.containedInputDefaultStyle}
-                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                           containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
+                           inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
+                          inputStyle={Mixins.containedInputDefaultStyle}
+                          labelStyle={Mixins.containedInputDefaultLabel}
                             placeholder=""
                         />
-                        <View style={{flexShrink:1, backgroundColor: '#D5D5D5', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, alignItems: 'center',marginRight: 10}}>
-                              <Text>dd-MM-yyyy</Text>
-                        </View>
+                     
+                     <Text style={{...Mixins.body3,lineHeight:18,fontWeight:'400',color:'#424141',paddingVertical:6}}>dd-MM-yy</Text>
+         
                       </View>
-                      <View style={styles.dividerContent}>
-                        <Text style={styles.labelNotFound}>Size</Text>
+                      <View style={[styles.dividerContent,{marginVertical:3}]}>
+                        <Text style={styles.labelPackage}>Size</Text>
                         <Input 
-                          containerStyle={{flex: 1,paddingVertical:0}}
-                          inputContainerStyle={styles.textInput} 
-                            inputStyle={Mixins.containedInputDefaultStyle}
-                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                            placeholder=""
-                        />
-                      </View>
-                      <View style={styles.dividerContent}>
-                        <Text style={styles.labelNotFound}>Color</Text>
-                        <Input 
-                          containerStyle={{flex: 1,paddingVertical:0}}
-                          inputContainerStyle={styles.textInput} 
-                            inputStyle={Mixins.containedInputDefaultStyle}
-                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
+                            inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
+                           inputStyle={Mixins.containedInputDefaultStyle}
+                           labelStyle={Mixins.containedInputDefaultLabel}
                             placeholder=""
                         />
                       </View>
-                      <View style={styles.dividerContent}>
-                        <Text style={styles.labelNotFound}>Class</Text>
+                      <View style={[styles.dividerContent,{marginVertical:3}]}>
+                        <Text style={styles.labelPackage}>Color</Text>
                         <Input 
-                          containerStyle={{flex: 1,paddingVertical:0}}
-                          inputContainerStyle={styles.textInput} 
-                            inputStyle={Mixins.containedInputDefaultStyle}
-                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
+                            inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
+                           inputStyle={Mixins.containedInputDefaultStyle}
+                           labelStyle={Mixins.containedInputDefaultLabel}
                             placeholder=""
                         />
                       </View>
-                      <View style={styles.dividerContent}>
-                        <Text style={styles.labelNotFound}>Country</Text>
+                      <View style={[styles.dividerContent,{marginVertical:3}]}>
+                        <Text style={styles.labelPackage}>Class</Text>
                         <Input 
-                          containerStyle={{flex: 1,paddingVertical:0}}
-                          inputContainerStyle={styles.textInput} 
+                             containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
+                             inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
                             inputStyle={Mixins.containedInputDefaultStyle}
-                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            labelStyle={Mixins.containedInputDefaultLabel}
                             placeholder=""
                         />
                       </View>
-                      <View style={styles.dividerContent}>
-                        <Text style={styles.labelNotFound}>C. Lot #</Text>
+                      <View style={[styles.dividerContent,{marginVertical:3}]}>
+                        <Text style={styles.labelPackage}>Country</Text>
                         <Input 
-                          containerStyle={{flex: 1,paddingVertical:0}}
-                          inputContainerStyle={styles.textInput} 
-                            inputStyle={Mixins.containedInputDefaultStyle}
-                            labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                           containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
+                           inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
+                          inputStyle={Mixins.containedInputDefaultStyle}
+                          labelStyle={Mixins.containedInputDefaultLabel}
+                            placeholder=""
+                        />
+                      </View>
+                      <View style={[styles.dividerContent,{marginVertical:3}]}>
+                        <Text style={styles.labelPackage}>C. Lot #</Text>
+                        <Input 
+                           containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
+                           inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
+                          inputStyle={Mixins.containedInputDefaultStyle}
+                          labelStyle={Mixins.containedInputDefaultLabel}
                             placeholder=""
                         />
                       </View>
                 </View>
               </View>
-            ) : (
+            ) : this.state.dataItem !== null && this.state.isPOSM === true ? (
+              <View style={[styles.sheetPackages,{alignItems: 'center',justifyContent: 'center',marginHorizontal: 32, marginTop: 20}]}>
+              <Avatar
+                onPress={()=>{
+                }}
+                size={79}
+                ImageComponent={() => (
+                  <>
+                    <IconPhoto5 height="40" width="40" fill="#fff" />
+                  </>
+                )}
+                imageProps={{
+                  containerStyle: {
+                    alignItems: 'center',
+                    paddingTop: 18,
+                    paddingBottom: 21,
+                  },
+                }}
+                overlayContainerStyle={{
+                  backgroundColor: '#F07120',
+                  flex: 2,
+                  borderRadius: 5,
+                }}/>
+
+                <LinearProgress value={this.state.progressLinearVal} color="primary" style={{width:80}} variant="determinate"/>
+                <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Take Photo</Text>
+              </View>
+            ): (
               <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
                <View
                       style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
@@ -437,16 +530,25 @@ class Example extends React.Component {
               </View>
             )}
             <View style={styles.buttonSheetContainer}>
-              {((dataItem !== null && dataItem.scanned < dataItem.total_package) ||  (scanItem !== '0' && dataItem === null)) && (
                 <View style={styles.buttonSheet}>
-                  {dataItem !== null && dataItem.scanned < dataItem.total_package ? (
+                  {dataItem !== null && this.state.isConfirm === false && this.state.isPOSM === false && this.state.enterAttr === false ? (
                     <Button
                       containerStyle={{flex: 1, marginTop: 10}}
                       buttonStyle={styles.navigationButton}
                       titleStyle={styles.deliveryText}
                       onPress={() => this.onSubmit()}
-                      title="Confirm"
+                      title="Next Step"
                     />
+                  ) : dataItem !== null && this.state.enterAttr === true && this.state.isConfirm !== true ? (
+                    <Button
+                    containerStyle={{flex: 1, marginTop: 10}}
+                    buttonStyle={styles.navigationButton}
+                    titleStyle={styles.deliveryText}
+                    onPress={() => this.onUpdateAttr()}
+                    title="Confirm"
+                  />
+                  ) : dataItem !== null && this.state.isPOSM === true && this.state.isConfirm !== true? (
+                    <></>
                   ) : (this.state.dataItem === null && this.state.multipleSKU === false) && ( <Button
                     containerStyle={{flex: 1, marginTop: 10}}
                     buttonStyle={styles.navigationButton}
@@ -463,19 +565,17 @@ class Example extends React.Component {
                     title="Input Manual"
                   />)}
                 </View>
-              )}
               <View style={styles.buttonSheet}>
-                {(dataItem !== null && dataItem.scanned < dataItem.total_package) ||  (scanItem !== '0' && dataItem === null) ? (
-                  <>
+                
                   {dataItem === null && this.state.multipleSKU === true ? (
                     <Button
                     containerStyle={{flex: 1, marginTop: 10, marginRight: 0}}
                     buttonStyle={styles.cancelButton}
                     titleStyle={styles.backText}
                     onPress={()=>this.props.navigation.goBack()}
-                    title="Back"
+                    title="Cancel"
                   />
-                  ) : (
+                  ) : dataItem !== null && this.state.isConfirm === false ? (
                     <>
                     <Button
                       containerStyle={{flex: 1, marginTop: 10, marginRight: 5}}
@@ -496,10 +596,9 @@ class Example extends React.Component {
                       buttonStyle={styles.cancelButton}
                       titleStyle={styles.backText}
                       onPress={()=>this.props.navigation.goBack()}
-                      title="Back"
+                      title="Cancel"
                     />
-                    </>)}
-                  </>
+                    </>
                 ) : (
                   <Button
                     containerStyle={{flex: 1, marginTop: 50, marginRight: 5}}
@@ -585,9 +684,10 @@ class Example extends React.Component {
   };
   onSubmit = () => {
     const {dataCode,qty, scanItem, ItemGrade} = this.state;
-    this.props.setBarcodeScanner(true);
+    //this.props.setBarcodeScanner(true);
     this.setState({
       dataCode: '0',
+      enterAttr : true 
     });
     // for prototype only
     let arr = this.makeScannedItem(scanItem,qty);
@@ -595,7 +695,13 @@ class Example extends React.Component {
     this.props.setItemGrade(ItemGrade);
     this.props.setItemScanned(arr);
     this.props.setBottomBar(false);
-    this.props.navigation.navigate('Manifest');
+    //this.props.navigation.navigate('Manifest');
+  }
+  onUpdateAttr = ()=>{
+    this.setState({
+      dataCode: '0',
+      isConfirm: true,
+    });
   }
 
   render() {
@@ -802,12 +908,28 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 40,
   },
+  modalContainerEnterAttr: {
+    flexGrow: 1,
+    backgroundColor: 'white',
+    width: (screen.width * 90) / 100,
+    minHeight: (screen.height * 70) / 100,
+    maxHeight: (screen.height * 70) / 100,
+    borderRadius: 10,
+  },
   modalContainerAll: {
     flexGrow: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
     minHeight: (screen.height * 65) / 100,
     maxHeight: (screen.height * 65) / 100,
+    borderRadius: 10,
+  },
+  modalContainerSmallConfirm: {
+    flexGrow: 1,
+    backgroundColor: 'white',
+    width: (screen.width * 90) / 100,
+    minHeight: (screen.height * 55) / 100,
+    maxHeight: (screen.height * 55) / 100,
     borderRadius: 10,
   },
   modalContainerSmall: {

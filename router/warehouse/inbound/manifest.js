@@ -155,7 +155,7 @@ class Warehouse extends React.Component{
     }
   }
   goToIVAS =() =>{
-    this.props.navigation.navigate('IVAS');
+    this.props.navigation.navigate('RecordIVAS');
   }
   updateSearch = (search) => {
     this.setState({search});
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
 
 const manifestDummy = [
   {
-    code: '9780312205195',
+    code: '8999909000377',
     total_package: 2,
     name: 'Bear Brand Milk',
     color:'white',

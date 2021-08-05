@@ -21,6 +21,7 @@ class Acknowledge extends React.Component {
       takeCartoon: false,
       takeLabelling: false,
       takePacking: false,
+      takeOthers: false,
       
     };
     this.submitItem.bind(this);
@@ -28,6 +29,7 @@ class Acknowledge extends React.Component {
     this.toggleCheckBoxStuffContainer20.bind(this);
     this.toggleCheckBoxStuffContainer40.bind(this);
     this.toggleCheckBoxTakeCartoon.bind(this);
+    this.toggleCheckBoxTakeOthers.bind(this);
     this.toggleCheckBoxTakeLabelling.bind(this);
     this.toggleCheckBoxTakePacking.bind(this);
   }
@@ -97,51 +99,48 @@ class Acknowledge extends React.Component {
         takePacking: !this.state.takePacking,
     });
   };
+  toggleCheckBoxTakeOthers = ()=> {
+    this.setState({
+      takeOthers: !this.state.takeOthers,
+  });
+  }
   render(){
     return (
         <ScrollView style={styles.body}>
-         <View style={[styles.sectionInput,{paddingHorizontal: 30,paddingTop: 40}]}>
+         <View style={[styles.sectionInput,{paddingHorizontal: 30,paddingTop: 40, paddingBottom:10}]}>
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Client</Text>
              </View>
-             <Input 
-                containerStyle={{flexShrink:1}}
-                inputContainerStyle={[Mixins.containedInputDefaultContainer,{maxHeight:35}]} 
-                inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                disabled={true}
-                placeholder="DSP"
-            />
+             <Text style={styles.textHeadInput}>DSP -Dead Sea Preimer</Text>
          </View>
-         <View style={[styles.sectionInput,{    paddingHorizontal: 30,}]}>
+         <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
+            <View style={styles.labelHeadInput}>
+             <Text style={styles.textHeadInput}>Ref #</Text>
+             </View>
+             <Text style={styles.textHeadInput}>PO0001234</Text>
+         </View>
+
+         <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
+            <View style={styles.labelHeadInput}>
+             <Text style={styles.textHeadInput}>Receipt #</Text>
+             </View>
+             <Text style={styles.textHeadInput}>900812345</Text>
+         </View>
+         <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Date</Text>
              </View>
-             <Input 
-                 containerStyle={{flexShrink:1}}
-                 inputContainerStyle={[Mixins.containedInputDefaultContainer,{maxHeight:35}]} 
-                inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                disabled={true}
-                placeholder="22-06-21"
-            />
+             <Text style={styles.textHeadInput}>22-06-21</Text>
          </View>
-
-         <View style={[styles.sectionInput,{    paddingHorizontal: 30,}]}>
+         <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>
-             <Text style={styles.textHeadInput}>Issue By</Text>
+             <Text style={styles.textHeadInput}>Recorded By</Text>
              </View>
-             <Input 
-                 containerStyle={{flexShrink:1}}
-                 inputContainerStyle={[Mixins.containedInputDefaultContainer,{maxHeight:35}]} 
-                inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                disabled={true}
-                placeholder="DSP"
-            />
+             <Text style={styles.textHeadInput}>Name</Text>
          </View>
          <Divider orientation="horizontal" color="#D5D5D5" style={{marginVertical: 15}}/>
         <View style={styles.sectionInbound}>
+          <Text style={{...Mixins.h6,lineHeight:27,fontWeight:'600',color:'#424141',marginVertical:10}}>Inbound Shipment</Text>
         <CheckBox
                 title="Un-Stuffing From Truck"
                 textStyle={styles.text}
@@ -214,6 +213,18 @@ class Acknowledge extends React.Component {
             </View>
             <View style={styles.sectionInput}>
             <View style={styles.labelInput}>
+             <Text style={styles.textInput}>Number Pallet</Text>
+             </View>
+             <Input 
+                 containerStyle={{flexShrink:1}}
+                 inputContainerStyle={[(!this.state.stuff20Container) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer,{maxHeight:35, width:80}]} 
+                inputStyle={(!this.state.stuff20Container) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                disabled={(!this.state.stuff20Container)}
+            />
+         </View>      
+            <View style={styles.sectionInput}>
+            <View style={styles.labelInput}>
              <Text style={styles.textInput}>Number Cartons</Text>
              </View>
              <Input 
@@ -263,6 +274,18 @@ class Acknowledge extends React.Component {
             </View>
             <View style={styles.sectionInput}>
             <View style={styles.labelInput}>
+             <Text style={styles.textInput}>Number Pallet</Text>
+             </View>
+             <Input 
+                 containerStyle={{flexShrink:1}}
+                 inputContainerStyle={[(!this.state.stuff40Container) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer,{maxHeight:35, width:80}]} 
+                inputStyle={(!this.state.stuff40Container) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                disabled={(!this.state.stuff40Container)}
+            />
+         </View> 
+            <View style={styles.sectionInput}>
+            <View style={styles.labelInput}>
              <Text style={styles.textInput}>Number Cartons</Text>
              </View>
              <Input 
@@ -279,6 +302,7 @@ class Acknowledge extends React.Component {
         <Divider orientation="horizontal" color="#D5D5D5" style={{marginVertical: 15}}/>
 
         <View style={styles.sectionValueAdded}>
+        <Text style={{...Mixins.h6,lineHeight:27,fontWeight:'600',color:'#424141',marginVertical:10}}>Value Added Work Required</Text>
             <CheckBox
                 title="Take Carton Dimension "
                 textStyle={styles.text}
@@ -300,18 +324,26 @@ class Acknowledge extends React.Component {
                 disabled={(!this.state.takeCartoon)}
             />
             </View> 
+            <CheckBox
+                title="Other"
+                textStyle={styles.text}
+                containerStyle={styles.checkboxContainer}
+                checked={this.state.takeOthers}
+                onPress={this.toggleCheckBoxTakeOthers}
+                checkedIcon={this.checkedIcon()}
+                uncheckedIcon={this.uncheckedIcon()}
+              />
             <View style={styles.sectionInput}>
             <Input 
-                    inputContainerStyle={[(!this.state.takeCartoon) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer]} 
-                    inputStyle={(!this.state.takeCartoon) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                    inputContainerStyle={[(!this.state.takeOthers) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer]} 
+                    inputStyle={(!this.state.takeOthers) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
                 labelStyle={styles.textInput}
-                label="Request By : ( Please attach supporting email )"
-                disabled={(!this.state.takeCartoon)}
+                disabled={(!this.state.takeOthers)}
             />
             </View> 
 
 
-            <CheckBox
+            {/* <CheckBox
                 title="Labelling Required  "
                 textStyle={styles.text}
                 containerStyle={styles.checkboxContainer}
@@ -386,7 +418,7 @@ class Acknowledge extends React.Component {
                 label="Request By : ( Please attach supporting email )"
                 disabled={(!this.state.takePacking)}
             />
-            </View> 
+            </View>  */}
         </View>
          <Button
               containerStyle={{flex:1, marginHorizontal: 30,marginVertical: 20}}
@@ -457,9 +489,9 @@ sectionInput: {
     flexShrink:1,
 },
 labelHeadInput :{
-    width: 60,
-    justifyContent: 'center',
-    maxHeight:35
+  flexShrink: 1,
+  width: 120,
+  justifyContent: 'center',
 },
 labelInput: {
     flexShrink: 1,

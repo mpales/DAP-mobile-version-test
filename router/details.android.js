@@ -341,7 +341,7 @@ class Details extends React.Component {
     let {writeStoragePermission} = this.props;
 
     if (writeStoragePermission) {
-      check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE)
+      check(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE)
         .then((result) => {
           switch (result) {
             case RESULTS.UNAVAILABLE:
@@ -372,7 +372,7 @@ class Details extends React.Component {
         });
     } else {
   
-      request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,   {
+      request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE,   {
         title: "App Write Storage Permission",
         message:
         "Driver module needs write access to your External Storage " +
