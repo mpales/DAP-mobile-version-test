@@ -29,22 +29,20 @@ import IconSearchMobile from '../../../../assets/icon/iconmonstr-search-thinmobi
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
 import {createStackNavigator,Header} from '@react-navigation/stack';
-import ItemDraftDetails from './itemDraftDetails';
-import PhotosDraft from './photos';
-import ManifestDetails from './manifest';
+import CameraMulti from './cameraMulti';
+import enlargeImage from './enlargeImage';
 import Mixins from '../../../../mixins';
-import UpdatePhotos from '../../peripheral/updatePhoto/index';
 
 const window = Dimensions.get('window');
 
-class DetailsDraft extends React.Component {
+class UpdatePhoto extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       params: null,
     };
     this.StackSelector.bind(this);
-        this.setWrapperofStack.bind(this);
+    this.setWrapperofStack.bind(this);
   }
   static getDerivedStateFromProps(props,state){
     const {params} = state;
@@ -58,15 +56,15 @@ class DetailsDraft extends React.Component {
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
     
-    if(indexBottomBar === 1 && key !== 'UpdatePhotos'){
+    if(indexBottomBar === 1 ){
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }
   }
   StackSelector = createCompatNavigatorFactory(createStackNavigator)(
     {
-      ManifestDetails: {
-        screen: ManifestDetails,
+      CameraMulti: {
+        screen: CameraMulti,
         initialParams: ()=>{
           return {...this.state.params}
         },
@@ -86,8 +84,8 @@ class DetailsDraft extends React.Component {
           headerTitle: 'Chat',
         }),
       },
-      PhotosDraft: {
-        screen: PhotosDraft,
+      enlargeImage: {
+        screen: enlargeImage,
         initialParams: ()=>{
           return {...this.state.params}
         },
@@ -105,48 +103,11 @@ class DetailsDraft extends React.Component {
           },
           headerTintColor: '#fff',
           headerTitle: 'Chat',
-        }),
-      },
-      ItemDraftDetails: {
-        screen: ItemDraftDetails,
-        navigationOptions:  ({ navigation }) => ({
-          headerStyle: {
-            backgroundColor: '#121C78',
-            elevation: 0,
-            shadowOpacity: 0,
-            borderBottomWidth: 0,
-            ...Platform.select({
-              android: {
-                height: 45,
-              },
-            })
-          },
-          headerTintColor: '#fff',
-          headerTitle: 'Contact',
-        }),
-      },
-      UpdatePhotos: {
-        screen: UpdatePhotos,
-        navigationOptions:  ({ navigation }) => ({
-          headerStyle: {
-            backgroundColor: '#121C78',
-            elevation: 0,
-            shadowOpacity: 0,
-            borderBottomWidth: 0,
-            ...Platform.select({
-              android: {
-                height: 45,
-              },
-            })
-          },
-          headerShown: false,
-          headerTintColor: '#fff',
-          headerTitle: 'Contact',
         }),
       },
     },
     {
-      initialRouteName: 'ManifestDetails',
+      initialRouteName: 'CameraMulti',
       headerMode: 'screen',
       defaultNavigationOptions: {
         headerBackTitleVisible:true,
@@ -206,4 +167,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DetailsDraft);
+export default connect(mapStateToProps, mapDispatchToProps)(UpdatePhoto);
