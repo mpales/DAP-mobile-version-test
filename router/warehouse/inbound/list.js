@@ -187,7 +187,7 @@ class List extends React.Component {
                                     item={data} 
                                     ToManifest={()=>{
                                         this.props.setBottomBar(false);
-                                        if(data.status === 1 || data.status === 2){
+                                       if(data.status === 1 || data.status === 2){
                                             this.props.navigation.navigate(   {
                                                 name: 'ReceivingDetail',
                                                 params: {
@@ -195,12 +195,12 @@ class List extends React.Component {
                                                 },
                                               });
                                         } else {
-                                            this.props.navigation.navigate(  {
+                                             this.props.navigation.navigate(  {
                                                 name: 'Manifest',
-                                                params: {
+                                                 params: {
                                                   number: data.id,
                                                 },
-                                              })
+                                           })
                                         }
                                     }}
                                
