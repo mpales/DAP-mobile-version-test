@@ -111,6 +111,24 @@ export const getData = (path) => {
   return result;
 };
 
+export const deleteData = (path) => {
+  let result = (async () => {
+    try {
+      const res = await apiFetch(path, {
+        method: 'DELETE',
+      });
+      if (res.headers.map['content-type'].includes('text/plain')) {
+        return res.text();
+      } else if (res.headers.map['content-type'].includes('text/html')) {
+        return responseHandler(res);
+      }
+      return res.json();
+    } catch (err) {
+      return err;
+    }
+  })();
+  return result;
+};
 
 export const postBlob = (path, data, callbackUploadProgress, callbackProgress) => {
   let result = (async () => {
@@ -130,17 +148,35 @@ export const postBlob = (path, data, callbackUploadProgress, callbackProgress) =
     resolve(result);
   });;
 };
-
-export const getBlob = (path) => {
+export const putBlob = (path, data, callbackUploadProgress, callbackProgress) => {
   let result = (async () => {
     try {
-      const res = await blobFetch(path,{method:'GET'});
+      const res = await blobFetch(path,{method:'PUT'},data,callbackUploadProgress,callbackProgress);
       if (res.respInfo.headers['Content-Type'].includes('text/plain')) {
-        return await responseBlobRawHandler(res);
+        return res.data;
+      } else if (res.respInfo.headers['Content-Type'].includes('text/html')) {
+        return responseBlobHandler(res);
+      }
+      return res.json();
+    } catch (err) {
+      return err;
+    }
+  })();
+  return new Promise((resolve, reject) => {
+    resolve(result);
+  });;
+};
+
+export const getBlob = (path,data, callbackProgress) => {
+  let result = (async () => {
+    try {
+      const res = await blobFetch(path,{method:'GET'}, null,null,callbackProgress);
+      if (res.respInfo.headers['Content-Type'].includes('text/plain')) {
+        return await responseBlobRawHandler(res,data);
       } else if (res.respInfo.headers['Content-Type'].includes('text/html')) {
         return responseBlobHandler(res);
       } else if (res.respInfo.headers['Content-Type'].includes('image')) {
-        return res.path();
+        return responseImageHandler(res,data);
       }
       return res.json();
     } catch (err) {
@@ -217,13 +253,39 @@ const responseBlobHandler = (response) => {
   }
 };
 
-const responseBlobRawHandler = async (response) => {
+const responseBlobRawHandler = async (response,data) => {
   const dirs = RNFetchBlob.fs.dirs.CacheDir
   const {status} = response.respInfo;
   switch (status) {
     case 200:
-      await RNFetchBlob.fs.writeFile(response.path(), await response.text(), 'base64')
-      return response.path();
+      if(data !== undefined && data.filename !== undefined){
+        await RNFetchBlob.fs.writeFile(dirs+'/'+data.filename, await response.text(), 'base64')
+        return dirs+'/'+data.filename;
+      } else {
+        return response.text();
+      }
+    case 404:
+      return 'Not found';
+    case 403:
+      return response.text();
+    case 504:
+      return 'Bad gateway';
+    default:
+      return 'Something went wrong';
+  }
+};
+
+const responseImageHandler = async (response,data) => {
+  const dirs = RNFetchBlob.fs.dirs.CacheDir
+  const {status} = response.respInfo;
+  switch (status) {
+    case 200:
+      if(data !== undefined && data.filename !== undefined){
+        await RNFetchBlob.fs.writeFile(dirs+'/'+data.filename, await response.base64(), 'base64')
+        return dirs+'/'+data.filename;
+      } else {
+        return response.text();
+      }
     case 404:
       return 'Not found';
     case 403:

@@ -5,7 +5,9 @@ import {
     StyleSheet,
     TouchableOpacity,
     View,
+    Text
 } from 'react-native';
+import {LinearProgress} from 'react-native-elements';
 import { RNCamera } from 'react-native-camera';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { connect } from 'react-redux';
@@ -16,11 +18,17 @@ import FlashActiveIcon from '../../../../assets/icon/FlashActive.svg';
 
 import CheckMark from '../../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
 import XMark from '../../../../assets/icon/iconmonstr-x-mark-5 1mobile.svg';
-import {getBlob, getData} from '../../../../component/helper/network';
+import ImageLoading from '../../../../component/loading/image';
+import RNFetchBlob from 'rn-fetch-blob';
+import Mixins from '../../../../mixins';
+import {getBlob, getData, putBlob} from '../../../../component/helper/network';
 class CameraSingle extends React.Component {
+    thumbRef = null;
+    flatlistImageRef = [];
     constructor(props) {
         super(props);
         this.state = {
+            progressLinearVal: 0,
             pictureData: null,
             isShowImagePreview: false,
             isFlashActive: false,
@@ -28,8 +36,12 @@ class CameraSingle extends React.Component {
             inboundId : null,
             data : null,
             updateGallery : false,
+            typeGallery: null,
+            errors: '',
         }
-  
+        this.getPhotoToFormdata.bind(this);
+        this.listenToProgressUpload.bind(this);
+        this.renderItem.bind(this);
         this.handleShowImagePreview.bind(this);
         this.takePicture.bind(this);
         this.flashToggle.bind(this);
@@ -42,7 +54,7 @@ class CameraSingle extends React.Component {
      if(inboundId === null){
          const {routes, index} = navigation.dangerouslyGetState();
         if(routes[index].params !== undefined && routes[index].params.inboundId !== undefined && routes[index].params.photoId !== undefined){
-           return {...state,inboundId:routes[index].params.inboundId, data:routes[index].params.photoId };
+           return {...state,inboundId:routes[index].params.inboundId, data:routes[index].params.photoId, typeGallery: routes[index].params.type };
         } 
      } 
      return {...state};
@@ -59,34 +71,44 @@ class CameraSingle extends React.Component {
     async componentDidUpdate(prevProps, prevState) {
         if(this.state.updateGallery === true){
             const result = await getData('inbounds/'+this.state.inboundId+'/photosIds');
-            if(typeof result === 'object' && result.errors === undefined){
-                let galleryDump = [];
+              if(typeof result === 'object' && result.errors === undefined){
+                let galleryIDDump = [];
                 for (let index = 0; index < result.inbound_photos.length; index++) {
                     const element = result.inbound_photos[index].photoId;
-                    await getBlob('/inbounds/'+this.state.inboundId+'/processingThumb/'+element,null).then((result)=>{
-                        if(typeof result === 'object' && result.error !== undefined){
-                          } else {
-                            galleryDump.push(Platform.OS === 'android' ? 'file://' + result : '' + result)
-                         }
-                     });
+                    if(result.inbound_photos[index].status === 2 && this.state.typeGallery === 'received'){
+                        galleryIDDump.push(element);
+                    } else if (result.inbound_photos[index].status === 3 && this.state.typeGallery === 'processing'){
+                        galleryIDDump.push(element);
+                    }
                 }
-                this.setState({pictureGallery: galleryDump, updateGallery:false});
+                this.setState({pictureGallery: galleryIDDump, updateGallery:false});
             }
+        }
+        if(prevState.pictureGallery !== this.state.pictureGallery) {
+            this.thumbRef.init();
+        }
+        if(prevState.isShowImagePreview !== this.state.isShowImagePreview && this.state.isShowImagePreview === true){
+            this.flatlistImageRef.forEach(element => {
+                if(element.checkPreload() === true){
+                    element.init();
+                }
+            }); 
+        }
+        if(this.state.updateGallery !== prevState.updateGallery && this.state.updateGallery === false){
+            this.flatlistImageRef.forEach(element => {
+                    element.refresh();
+            });
         }
     }
     
     async componentDidMount() {
-        let galleryDump = [];
+        let galleryIDDump = [];
         for (let index = 0; index < this.state.data.length; index++) {
             const element = this.state.data[index];
-            await getBlob('/inbounds/'+this.state.inboundId+'/processingThumb/'+element,null).then((result)=>{
-                if(typeof result === 'object' && result.error !== undefined){
-                  } else {
-                    galleryDump.push(Platform.OS === 'android' ? 'file://' + result : '' + result)
-                 }
-             });
+            galleryIDDump.push(element);
         }
-        this.setState({pictureGallery: galleryDump});
+        console.log(this.state.typeGallery);
+        this.setState({pictureGallery: galleryIDDump});
     }
 
     flashToggle = () => {
@@ -108,20 +130,45 @@ class CameraSingle extends React.Component {
             this.setState({pictureData: data.uri});
         }
     };
-
-
-    handlePhotoConfirmation = confirm => {
+    getPhotoToFormdata = async () => {
+        const {pictureData} = this.state;
+          let name,filename,path,type ='';
+          await RNFetchBlob.fs.stat(pictureData).then((FSStat)=>{
+            name = FSStat.filename.replace('.','-');
+            filename= FSStat.filename;
+            path = FSStat.path;
+            type = FSStat.type;
+          });
+          if(type === 'file')
+         return { name : 'photos', filename : filename, data: RNFetchBlob.wrap(path)};
+        
+      }
+      listenToProgressUpload = (written, total) => {
+        this.setState({progressLinearVal:(1/total)*written});
+      }
+    handlePhotoConfirmation = async (confirm) => {
         const {pictureData, pictureGallery} = this.state;
+        let FormData = await this.getPhotoToFormdata();
+        let uploadCategory = this.state.typeGallery === 'received' ? 'processing' : 'receiving' ;
         if(confirm) {
-            this.setState({pictureGallery:[...pictureGallery,pictureData]})
+            console.log('/inbounds/'+this.state.inboundId +'/'+ uploadCategory);
+            putBlob('/inbounds/'+this.state.inboundId +'/'+ uploadCategory, [
+                FormData,
+              ], this.listenToProgressUpload).then(result=>{
+                if(typeof result !== 'object'){
+                    this.setState({pictureData: null, updateGallery:true});         
+                } else {       
+                  if(typeof result === 'object'){
+                    this.setState({errors: result.error});
+                  }
+                }
+              });
         } else {
-
+            this.setState({pictureData: null, errors: ''});
         }
-        this.setState({pictureData: null});
     }
     handleShowImagePreview = () => {
         if(this.state.pictureGallery.length > 0) {
-            console.log('test');
             this.setState({
                 isShowImagePreview: !this.state.isShowImagePreview,
             });
@@ -129,13 +176,27 @@ class CameraSingle extends React.Component {
     }
 
     renderItem = ({ item, index }) => {
-        console.log(item);
+        let typeAPI = this.state.typeGallery === 'received' ? 'receiveThumb' : 'processingThumb';
         return (
         <TouchableOpacity
             style={styles.pictureSize}
-            onPress={()=> this.props.navigation.navigate('enlargeImage', {index: index})}
+            onPress={()=> this.props.navigation.navigate('enlargeImage', {index: index, photoId: this.state.pictureGallery})}
         >
-            <Image style={{width: '100%', height: '100%'}} source={{ uri: item }} />
+                <ImageLoading 
+        ref={ ref => {
+            this.flatlistImageRef[index] = ref;
+        }} 
+        callbackToFetch={async ()=>{
+            return await getBlob('/inbounds/'+this.state.inboundId+'/'+typeAPI+'/'+item,{filename:item+'.jpg'},(received, total) => {
+                if(this.flatlistImageRef[index] !== null)
+                this.flatlistImageRef[index].indicatorTick(received)
+            })
+        }}
+        containerStyle={{width: '100%', height: '100%',}}
+        style={{width: '100%', height: '100%',backgroundColor:'black'}}
+        imageStyle={{}}
+        imageContainerStyle={{width: '100%', height: '100%'}}
+        />
         </TouchableOpacity>
     )}
     render() {
@@ -147,13 +208,19 @@ class CameraSingle extends React.Component {
                 <View style={styles.preview}>
                     <Image style={styles.confirmPictureSize} source={{uri: this.state.pictureData}}  />
                 </View>
-                <View style={styles.buttonContainer}>
+                <View style={[styles.buttonContainer,{paddingVertical:0}]}>
+                <LinearProgress value={this.state.progressLinearVal} color="primary" style={{width:'100%',flexShrink:1}} variant="determinate"/>
+                 <View style={styles.errorContainer}>
+                 <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.errors}</Text>
+                 </View>
+                    <View style={[styles.buttonContent,{paddingVertical:35}]}>
                     <TouchableOpacity onPress={() => {this.handlePhotoConfirmation(false)}} style={styles.gallery}>
                         <XMark height="50" width="50" fill="#fff" />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => {this.handlePhotoConfirmation(true)}} style={styles.gallery}>
                         <CheckMark height="50" width="50" fill="#fff" />
                     </TouchableOpacity>
+                    </View>
                 </View>
             </View>) : (<View style={styles.container}>
                 <RNCamera
@@ -188,15 +255,32 @@ class CameraSingle extends React.Component {
                         </View>
                 }
                 <View style={styles.buttonContainer}>
+                <View style={styles.buttonContent}>
                     <TouchableOpacity onPress={this.handleShowImagePreview} style={styles.gallery}>
                         {this.state.pictureGallery !== null &&
-                            <Image style={styles.imagePreviewButton} source={{uri: this.state.pictureGallery[this.state.pictureGallery.length - 1]}} />
+
+                            <ImageLoading 
+                            ref={ ref => {
+                                this.thumbRef = ref
+                            }} 
+                            callbackToFetch={async ()=>{
+                                return await getBlob('/inbounds/'+this.state.inboundId+'/'+( this.state.typeGallery ==='received' ? 'receiveThumb' : 'processingThumb')+'/'+this.state.pictureGallery[this.state.pictureGallery.length -1],{filename:this.state.pictureGallery[this.state.pictureGallery.length -1]+'.jpg'},(received, total) => {
+                                    if(this.thumbRef !== null)
+                                    this.thumbRef.indicatorTick(received)
+                                })
+                            }}
+                            containerStyle={styles.imagePreviewButton}
+                            style={{width: '100%', height: '100%',backgroundColor:'black'}}
+                            imageStyle={{}}
+                            imageContainerStyle={{width: '100%', height: '100%'}}
+                            />
                         }
                     </TouchableOpacity>
                     <TouchableOpacity onPress={this.takePicture.bind(this)} style={styles.capture} />
                     <TouchableOpacity onPress={() => launchImageLibrary({mediaType: 'photo'}, this.launchGallery)} style={styles.gallery}>
                         <GalleryAttachment height="39" width="30" fill="#fff" />
                     </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         )}
@@ -216,17 +300,29 @@ const styles = StyleSheet.create({
         right: 0,
         left: 0,
     },
+    errorContainer: { 
+        backgroundColor: 'transparent',
+        flexDirection: 'column', 
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        zIndex: 2,
+        flexShrink:1,
+        paddingVertical:5,
+    },
     buttonContainer: { 
         backgroundColor: 'rgba(0,0,0,0.2)',
         position: 'absolute',
         left: 0,
         right: 0,
         bottom: 0, 
+        flexDirection:'column',
+        zIndex: 2,
+        paddingVertical: 35,
+    },
+    buttonContent: {
         flexDirection: 'row', 
         justifyContent: 'space-evenly',
         alignItems: 'center',
-        zIndex: 2,
-        paddingVertical: 35,
     },
     optionContainer: {
         position: 'absolute',

@@ -14,17 +14,11 @@ exports = module.exports = function(fetchInstance, rootUrl, defaults) {
 exports.fetch = async function(fetchInstance, rootUrl, defaults, url, opts, data, UploadProgress, Progress) {
   if (rootUrl != null) url = rootUrl.resolve(url)
   if (typeof defaults === "function") defaults = await defaults();
-      if(opts.method === 'POST')
+      if(opts.method === 'POST' || opts.method === 'PUT')
       return fetchInstance.fetch(opts.method,url, defaults ,data).uploadProgress({ interval : 100 },UploadProgress)
     // listen to download progress event, every 10%
     .progress({ count : 10 }, Progress);
-  return fetchInstance.config({
-    // add this option that makes response data to be stored as a file,
-    // this is much more performant.
-    fileCache : true,
-    overwrite : true,
-    appendExt : 'png'
-  }).fetch(opts.method,url, defaults)
+  return fetchInstance.fetch(opts.method,url, defaults).progress({ interval: 250},Progress)
   // listen to download progress event, every 10%
 }
 

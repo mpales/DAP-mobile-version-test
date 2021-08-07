@@ -6,18 +6,23 @@ import {
     Text,
     TouchableOpacity,
     View,
+    FlatList
 } from 'react-native';
 import { connect } from 'react-redux';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 // icons
+import ImageZoom from 'react-native-image-pan-zoom';
 import TrashCan16Mobile from '../../../../assets/icon/iconmonstr-trash-can-16mobile.svg';
 
 import OfflineMode from '../../../../component/linked/offlinemode';
-import {getBlob} from '../../../../component/helper/network';
+import ImageLoading from '../../../../component/loading/image';
+import {getBlob, deleteData} from '../../../../component/helper/network';
+import Mixins from '../../../../mixins';
 const window = Dimensions.get("window");
 
 class EnlargeImage extends React.Component {
+    viewerImageRef = [];
     constructor(props) {
         super(props);
         this.state = ({
@@ -25,9 +30,14 @@ class EnlargeImage extends React.Component {
             convertedPictureData: [],
             currentPictureIndex: 0,
             isShowDelete: false,
+            typeGallery:null,
             data : null,
-            inboundId: null
+            inboundId: null,
+            respondBackend :'',
+            updateLoadImage: false,
         });
+        this.handleOnChangeImage.bind(this);
+        this.renderImage.bind(this);
         this.handleDelete.bind(this);
     }
     static getDerivedStateFromProps(props,state){
@@ -36,13 +46,18 @@ class EnlargeImage extends React.Component {
         // only one instance of multi camera can exist before submited
         if(inboundId === null){
             const {routes, index} = navigation.dangerouslyGetState();
-            console.log(routes[index].params.inboundId);
             if(routes[index].params !== undefined && routes[index].params.inboundId !== undefined && routes[index].params.photoId !== undefined){
-              return {...state,inboundId:routes[index].params.inboundId, data:routes[index].params.photoId,currentPictureIndex:routes[index].params.index };
-           } 
+                return {...state,inboundId:routes[index].params.inboundId, data:routes[index].params.photoId,currentPictureIndex:routes[index].params.index, typeGallery: routes[index].params.type };
+             } 
         } 
         return {...state};
        }
+       shouldComponentUpdate(nextProps, nextState) {
+        if(this.state.currentPictureIndex !== nextState.currentPictureIndex && nextState.updateLoadImage === false){
+            return false;
+        }
+        return true;
+      }
     componentDidUpdate(prevProps, prevState){
         // if(this.state.pictureData === null){
         //     this.props.navigation.navigate('SingleCamera');
@@ -54,18 +69,24 @@ class EnlargeImage extends React.Component {
         //         this.props.addPhotoProofUpdate(this.state.pictureData);
         //     }
         // }
+      if(prevState.updateLoadImage !== this.state.updateLoadImage && this.state.updateLoadImage === true){
+        if(this.state.convertedPictureData.length > 0){
+
+            this.flatlist.scrollToIndex({index:this.state.currentPictureIndex,animated:true});
+        } else {
+            this.props.navigation.goBack();
+        }
+        // if(this.viewerImageRef[  this.state.currentPictureIndex] !== undefined && this.viewerImageRef[  this.state.currentPictureIndex].checkPreload() === true)
+        // this.viewerImageRef[  this.state.currentPictureIndex].init(); 
+        this.setState({updateLoadImage:false});
+      }
     }
     async componentDidMount() {
 
         let galleryDump = [];
         for (let index = 0; index < this.state.data.length; index++) {
             const element = this.state.data[index];
-            await getBlob('/inbounds/'+this.state.inboundId+'/processingPhoto/'+element,null).then((result)=>{
-                if(typeof result === 'object' && result.error !== undefined){
-                  } else {
-                    galleryDump.push( { url: Platform.OS === 'android' ? 'file://' + result : '' + result });
-                 }
-             });
+            galleryDump.push(element);
         }
         this.setState({convertedPictureData: galleryDump});
         // if(this.props.route.params.index !== undefined) {
@@ -81,21 +102,58 @@ class EnlargeImage extends React.Component {
         this.setState({isShowDelete: !this.state.isShowDelete})
     }
 
-    handleDelete = () => {
+    handleDelete = async () => {
+        let respondbackend = '';
         const {pictureData, convertedPictureData, currentPictureIndex} = this.state;
-
-        // this.setState({
-        //     pictureData: pictureData.filter((element,index) => index !== currentPictureIndex),
-        //     convertedPictureData : convertedPictureData.filter((element,index) => index !== currentPictureIndex),
-        //     currentPictureIndex: currentPictureIndex > 0 ? currentPictureIndex -1 : 0,
-        // });     
-        this.handleShowDelete();
+        let typeAPI = this.state.typeGallery === 'received' ? 'receivePhoto' : 'processingPhoto';
+        const result = await deleteData('/inbounds/'+this.state.inboundId+'/'+typeAPI+'/'+convertedPictureData[currentPictureIndex]);
+        if(typeof result === 'object' && result.error === undefined){
+            respondbackend = result;
+          } else {
+            respondbackend = result.error;
+          }
+        this.setState({
+            respondBackend: respondbackend,
+            convertedPictureData : convertedPictureData.filter((element,index) => index !== currentPictureIndex),
+            currentPictureIndex: currentPictureIndex > 0 ? currentPictureIndex -1 : 0,
+            updateLoadImage: true,
+        });     
+         this.handleShowDelete();
     }
 
-    handleOnChangeImage = (index) => {
-        this.setState({
-            currentPictureIndex: index,
+    handleOnChangeImage = ({viewableItems, changed}) => {
+        const {currentPictureIndex} = this.state;
+        viewableItems.forEach(element => {
+            if(this.viewerImageRef[  element.index] !== undefined && this.viewerImageRef[  element.index].checkPreload() === true)
+            this.viewerImageRef[  element.index].init(); 
+            this.setState({currentPictureIndex:element.index === currentPictureIndex ? currentPictureIndex: element.index});
         });
+    }
+    renderImage = ({item,index}) => {
+        let typeAPI = this.state.typeGallery === 'received' ? 'receivePhoto' : 'processingPhoto';
+        
+        return(   
+        <ImageZoom cropWidth={window.width}
+        cropHeight={window.height/2}
+        imageWidth={window.width}
+        imageHeight={window.height/2}>
+            <ImageLoading 
+            ref={ ref => {
+                this.viewerImageRef[index] = ref;
+            }} 
+            callbackToFetch={async ()=>{
+                return await getBlob('/inbounds/'+this.state.inboundId+'/'+typeAPI+'/'+item,{filename:item+'.png'},(received, total) => {
+                    if(this.viewerImageRef[index] !== null)
+                    this.viewerImageRef[index].indicatorTick(received)
+                })
+            }}
+            containerStyle={{width: window.width, height: window.height/2}}
+            style={{width: '100%', height: '100%',backgroundColor:'black'}}
+            imageStyle={{}}
+            imageContainerStyle={{width: '100%', height: '100%'}}
+            /> 
+        </ImageZoom>
+        );
     }
 
     render() {
@@ -105,16 +163,22 @@ class EnlargeImage extends React.Component {
                 <OfflineMode/>
                     <View style={styles.pictureContainer}>
                         {this.state.convertedPictureData.length > 0 &&
-                            <ImageViewer
-                                imageUrls={this.state.convertedPictureData}
-                                index={this.state.currentPictureIndex}
-                                renderIndicator={() => null}
-                                onChange={index => this.handleOnChangeImage(index)}
-                            />
+                         <FlatList
+                         ref={(ref)=>this.flatlist = ref}
+                         horizontal={true}
+                         keyExtractor={(item,index)=> index}
+                         data={this.state.convertedPictureData}
+                         renderItem={this.renderImage}
+                         initialScrollIndex={this.state.currentPictureIndex}
+                         onViewableItemsChanged={this.handleOnChangeImage}
+                        />
                         }
                         {/* {this.state.pictureData.map((value, index) => {
                             return <Image key={index} style={styles.picture} source={{uri: value}} />
                         })} */}
+                    </View>
+                    <View style={styles.respondContainer}>
+                            <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.respondBackend}</Text>
                     </View>
                     <TouchableOpacity 
                         style={styles.deleteButton}
@@ -209,9 +273,13 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     deleteButton: {
-        position: 'absolute',
-        bottom: 0,
-        paddingVertical: 60,
+        paddingBottom:60,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    respondContainer: {
+        paddingVertical:20,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
