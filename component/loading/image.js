@@ -4,28 +4,39 @@ import {View,StyleSheet} from 'react-native';
 import {useImperativeGetter} from './imperativeGet';
 import Animated from 'react-native-reanimated';
 import {Image,LinearProgress} from 'react-native-elements';
-
+/**
+ * Created on Sun Jul 8 2021
+ *
+ * Image LazyLoad
+ *
+ * lazyload image using init as fetch trigger
+ * with Reanimated as concept to avoid heavyload in UI Thread (detect Frame Drops when processing are in heavyload)
+ * use with useImperativeGetter to detect node trigger in UI Thread
+ * also set the fetch initialization inside component 
+ * 
+ * @param key
+ * @return dispatch
+ * @throws null
+ * @todo 
+ * @author Dwinanto Saputra (dwinanto@grip-principle.com)
+ */
 export default ImageLoading = forwardRef((props, ref) => {
     const value = useMemo(() => new Animated.Value(0), []);
     const getValue = useImperativeGetter(value);
     const [imageURI, setURI] = useState(null);
     const save = React.useCallback(async () => {
         setURI(null);
-        const currentValue = await getValue()
+        const currentValue = await getValue() // when frame drop detected because rn-reanimated use synchronous 
         let uri = await props.callbackToFetch();
         setURI(Platform.OS === 'android' ? 'file://' + uri : '' + uri );
-        value.setValue(1);
+        value.setValue(1); // set different value
     }, [getValue])
     const [progressLinearVal, setTick] = useState(0);
     const [progressLinearType, setOpt] = useState('indeterminate');
-    // To customize the value that the parent will get in their ref.current: 
-    // pass the ref object to useImperativeHandle as the first argument. 
-    // Then, whatever will be returned from the callback in the second argument, 
-    // will be the value of ref.current. 
-    // Here I return an object with the toggleColor method on it, for the parent to use:
+  
     useImperativeHandle(ref, () => ({
       refresh: () => {
-        value.setValue(0);
+        value.setValue(0); // reset to default
         save();
     },
     init : ()=>{
