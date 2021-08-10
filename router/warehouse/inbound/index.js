@@ -32,6 +32,8 @@ import PalletScanner from '../peripheral/index-inbound-pallet';
 import ItemTransitDetail from './itemTransitDetails';
 import DetailsDraft from './details/index';
 import SupervisorMode from './supervisor/index';
+import RegisterBarcode from '../peripheral/index-inbound-register';
+import POSMPhoto from '../peripheral/POSMPhoto/index';
 
 const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
@@ -42,7 +44,7 @@ class HomeNavigator extends React.Component {
   }
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
-    if(indexBottomBar === 1 && key !== 'SupervisorMode' && key !== 'SupervisorMode'){
+    if(indexBottomBar === 1 && key !== 'SupervisorMode' && key !== 'SupervisorMode' && key !== 'POSMPhoto'){
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }
@@ -277,6 +279,28 @@ class HomeNavigator extends React.Component {
         <Stack.Screen
           name="Barcode"
           component={Camera}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTransparent: true,
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+            headerTitle: 'Back',
+          })}
+        />
+        <Stack.Screen
+          name="RegisterBarcode"
+          component={RegisterBarcode}
           options={() => ({
             headerStyle: {
               backgroundColor: '#121C78',
@@ -625,6 +649,28 @@ class HomeNavigator extends React.Component {
             },
             headerTransparent: true,
             headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+          })}
+        />
+        <Stack.Screen
+          name="POSMPhoto"
+          component={POSMPhoto}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerShown:false,
+            headerTintColor: '#fff',
+            headerTitle: 'Back',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
         
           })}

@@ -24,6 +24,7 @@ const initialState = {
   deliveryDestinationData: DESTINATION,
   // end
   filters: {
+    POSMPostpone: null,
     status: IS_UNICODE,
     colors: [],
     isPhotoProofSubmitted: false,
@@ -255,11 +256,50 @@ export default function appReducer(state = initialState, action) {
             ],
           };
         }
+        case 'POSMPostpone':
+          if(action.payload === null ){
+            return {
+              ...state,
+              filters : {
+                ...state.filters,
+                POSMPostpone: initialState.filters.POSMPostpone,
+              }
+            }
+          } else if(Array.isArray(state.filters.POSMPostpone)){
+            return {
+              ...state,
+              filters: {
+                ...state.filters,
+                POSMPostpone: [
+                  ...state.filters.POSMPostpone,
+                  action.payload
+                ],
+              }
+            };  
+          } else {
+            return {
+              ...state,
+              filters: {
+                ...state.filters,
+                POSMPostpone: [
+                  action.payload
+                ],
+              }
+            };
+          }
         case 'PhotoProofUpdate':
           return {
             ...state,
             photoProofPostpone: action.payload,
           }
+          case 'POSMUpdate':
+            return {
+              ...state,
+              filters: {
+                ...state.filters,
+                POSMPostpone: action.payload,
+              }
+            }
           case 'addPhotoProofID': 
           return {
             ...state,

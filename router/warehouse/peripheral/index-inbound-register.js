@@ -28,7 +28,7 @@ import MultipleSKUList from '../../../component/extend/ListItem-inbound-multiple
 const screen = Dimensions.get('screen');
 const grade = ["Pick", "Buffer", "Damage", "Defective", "Short Expiry", "Expired", "No Stock", "Reserve"];
 const pallet = ["PLDAP 0091", "PLDAP 0092", "PLDAP 0093", "PLDAP 0094"];
-const dummybarcodesearch = [8998768568882,8998768568883,8998768568884]
+const dummybarcodesearch = ['8998768568882','8998768568883','8998768568884']
 class Example extends React.Component {
   animatedValue = new Animated.Value(0);
   constructor(props) {
@@ -297,7 +297,13 @@ class Example extends React.Component {
   };
   onGoToList = ()=>{
     this.props.setBarcodeScanner(true);
-    this.props.navigation.navigate('Manifest');
+    this.props.navigation.navigate({
+      name: 'newItem',
+      params: {
+        attrSKU: this.state.dataItem.sku,
+        inputCode : this.state.dataCode
+      }
+    })
   }
   onSubmit = () => {
     const {dataCode,qty, scanItem, ItemGrade} = this.state;

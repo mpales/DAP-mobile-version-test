@@ -24,28 +24,48 @@ class Acknowledge extends React.Component {
       pcscarton: '',
       
     };
+    this.registerBarcode.bind(this);
     this.submitItem.bind(this);
   }
   static getDerivedStateFromProps(props,state){
     const {navigation, manifestList} = props;
-    const {dataCode} = state;
-    if(dataCode === '0'){
+    const {dataCode, sku} = state;
+    if(sku === ''){
       const {routes, index} = navigation.dangerouslyGetState();
-       if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined){
-        let manifest = manifestList.find((element)=>element.code === routes[index].params.inputCode);
-        return {...state, dataCode: routes[index].params.dataCode, sku : manifest.sku, description: manifest.name,};
+       if(routes[index].params !== undefined && routes[index].params.attrSKU !== undefined){
+         //if multiple sku
+        let manifest = manifestList.find((element)=>element.sku === routes[index].params.attrSKU);
+        return {...state, sku : manifest.sku, description: manifest.name,};
       }
       return {...state};
     } 
     
     return {...state};
   }
-
+  shouldComponentUpdate(nextProps, nextState) {
+    if(this.props.keyStack !== nextProps.keyStack){
+      if(nextProps.keyStack === 'newItem' && this.props.keyStack ==='RegisterBarcode'){
+        const {routes, index} = nextProps.navigation.dangerouslyGetState();
+        if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined){
+          //if multiple sku
+          this.setState({barcode: routes[index].params.inputCode});
+        }
+        return false;
+      }
+    }
+    return true;
+  }
   componentDidUpdate(prevProps, prevState, snapshot){
     
   }
   registerBarcode = () => {
-
+    const {sku} = this.state;
+    this.props.navigation.navigate({
+      name: 'RegisterBarcode',
+      params: {
+        attrSKU: sku,
+      }
+    })
   };
   submitItem = ()=>{
     const {manifestList} = this.props;
@@ -53,10 +73,10 @@ class Acknowledge extends React.Component {
     let manifest = []
     
       manifest = Array.from({length: manifestList.length}).map((num, index, arr) => {
-      if(barcode === manifestList[index].code){
+      if(sku === manifestList[index].sku){
         return {
           ...manifestList[index],
-            code: dataCode,
+            code: barcode,
             color:color,
             timestamp: moment().unix(),
             scanned: 0,
@@ -82,10 +102,10 @@ class Acknowledge extends React.Component {
              <Text>Item Code</Text>
              </View>
              <Input 
-                containerStyle={{flex: 1,paddingVertical:0}}
-                inputContainerStyle={styles.textInput} 
-                inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                            containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
+                inputContainerStyle={[Mixins.containedInputDisabledContainer,styles.textInput]} 
+                inputStyle={Mixins.containedInputDisabledStyle}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 disabled={true}
                 value={sku}
             />
@@ -95,10 +115,10 @@ class Acknowledge extends React.Component {
                <Text>Description</Text>
              </View>
              <Input 
-              containerStyle={{flex: 1,paddingVertical:0}}
-              inputContainerStyle={styles.textInput} 
+              containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
+              inputContainerStyle={[Mixins.containedInputDisabledContainer,styles.textInput]} 
                 inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 disabled={true}
                 value={description}
             />
@@ -109,17 +129,17 @@ class Acknowledge extends React.Component {
              </View>
              <View style={{flexDirection:'column',flex:1}}>
              <Input 
-               containerStyle={{flex: 1,paddingVertical:0}}
-               inputContainerStyle={styles.textInput} 
+               containerStyle={{flexShrink: 1,marginVertical:5,maxHeight:30}}
+               inputContainerStyle={[Mixins.containedInputDisabledContainer,styles.textInput]} 
                 inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({barcode:text})}}
                 value={barcode}
             />
               <Button
-              containerStyle={{flex:1, marginRight: 0,}}
-              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
-              titleStyle={styles.buttonText}
+              containerStyle={{flexShrink:1, marginTop: 5,marginBottom:15,paddingHorizontal:10, maxHeight:30}}
+              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0, paddingVertical:0}]}
+              titleStyle={[styles.buttonText,{lineHeight:27}]}
               onPress={this.registerBarcode}
               title="Register Barcode"
             />
@@ -131,7 +151,7 @@ class Acknowledge extends React.Component {
              </View>
              <Input 
                containerStyle={{flex: 1,paddingVertical:0}}
-               inputContainerStyle={styles.textInput} 
+               inputContainerStyle={[Mixins.containedInputDisabledContainer,styles.textInput]} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={true}
@@ -141,85 +161,85 @@ class Acknowledge extends React.Component {
         <Divider />
         <Text style={{...Mixins.h6,lineHeight: 27,fontWeight:'700',color:'#424141'}}>Carton Dimensions</Text>
          <View style={{flexDirection:'row', flexShrink:1}}>
-         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
           <Text>Length ( m )</Text>
              </View>
              <Input 
-                containerStyle={{flex: 1,paddingVertical:0}}
+                 containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
                 inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({length:text})}}
                 value={length}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
-          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
           <Text>Width ( m )</Text>
            </View>
              <Input 
-              containerStyle={{flex: 1,paddingVertical:0}}
+             containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({width:text})}}
                 value={width}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
-          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
           <Text>Height ( m )</Text>
            </View>
              <Input 
-              containerStyle={{flex: 1,paddingVertical:0}}
+              containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({height:text})}}
                 value={height}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
-          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
           <Text>Vol. Weight ( m3 )</Text>
            </View>
              <Input 
-              containerStyle={{flex: 1,paddingVertical:0}}
+                containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({volweight:text})}}
                 value={volweight}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
-          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
           <Text>Weight ( Kg )</Text>
            </View>
              <Input 
-              containerStyle={{flex: 1,paddingVertical:0}}
+                          containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({weight:text})}}
                 value={weight}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
-          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
           <Text># Pcs per carton</Text>
            </View>
              <Input 
-              containerStyle={{flex: 1,paddingVertical:0}}
+                        containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({pcscarton:text})}}
                 value={pcscarton}
             />
          </View>
          <Button
-              containerStyle={{flex:1, marginRight: 0,}}
+              containerStyle={{flex:1, marginRight: 0,marginVertical:30}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.submitItem}
@@ -349,6 +369,7 @@ function mapStateToProps(state) {
     isPhotoProofSubmitted: state.originReducer.filters.isPhotoProofSubmitted,
     isSignatureSubmitted: state.originReducer.filters.isSignatureSubmitted,
     manifestList: state.originReducer.manifestList,
+    keyStack: state.originReducer.filters.keyStack,
   };
 }
 

@@ -141,6 +141,7 @@ class Photos extends React.Component {
       }} 
       callbackToFetch={async ()=>{
         return await getBlob('/inbounds/'+this.state.receivingNumber+'/receiveThumb/'+item,{filename:item+'.jpg'},(received, total) => {
+          if(this.arrayImageProcessingRef[index] !== undefined)
           this.arrayImageReceivedRef[index].indicatorTick(received)
         })
       }}
@@ -158,6 +159,7 @@ class Photos extends React.Component {
       }} 
       callbackToFetch={async ()=>{
         return await getBlob('/inbounds/'+this.state.receivingNumber+'/processingThumb/'+item,{filename:item+'.jpg'},(received, total) => {
+          if(this.arrayImageProcessingRef[index] !== undefined)
           this.arrayImageProcessingRef[index].indicatorTick(received)
         })
       }}
