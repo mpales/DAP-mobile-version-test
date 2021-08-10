@@ -61,25 +61,23 @@ class Example extends React.Component {
     const {dataCode, dataItem, scanItem} = state;
     const {routes, index} = navigation.dangerouslyGetState();
     if(scanItem === '0'){
-      if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined) {
+      if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined && manifestList.some((element) => element.code === routes[index].params.inputCode)) {
         if(routes[index].params.isPOSM !== undefined && routes[index].params.isPOSM === true){
           setBarcodeScanner(false);
           return {...state, scanItem: routes[index].params.inputCode, currentPOSM: true, dataCode: routes[index].params.inputCode};
         } else {
-          setBarcodeScanner(true);
-          return {...state, scanItem: routes[index].params.inputCode};
+          setBarcodeScanner(false);
+          return {...state, scanItem: routes[index].params.inputCode, dataCode:routes[index].params.inputCode };
         }
-      } else if(routes[index].params !== undefined && routes[index].params.manualCode !== undefined) {
+      } else if(routes[index].params !== undefined && routes[index].params.manualCode !== undefined && manifestList.some((element) => element.code === routes[index].params.manualCode)) {
         setBarcodeScanner(false);
         return {...state, scanItem: routes[index].params.manualCode};
+      } else if(dataCode !== '0' && manifestList.some((element) => element.code === dataCode)) {
+        setBarcodeScanner(false);
+        return {...state, scanItem: dataCode};
       }
       return {...state};
-    } else if (scanItem !== '0'){
-      if(routes[index].params !== undefined && routes[index].params.manualCode !== undefined && scanItem === routes[index].params.manualCode) {
-        setBarcodeScanner(false);
-        return {...state, dataCode: routes[index].params.manualCode};
-      }
-    }  
+    } 
     return {...state};
   }
   shouldComponentUpdate(nextProps, nextState) {
@@ -126,6 +124,26 @@ class Example extends React.Component {
       }
     } 
   }
+  componentDidMount(){
+    const {scanItem,dataCode} = this.state;
+    const {detectBarcode, manifestList} = this.props;
+    if(scanItem === dataCode && detectBarcode === false){
+      this.handleZoomInAnimation();
+      if(this.state.indexItem === null && this.state.multipleSKU === false) {
+        let foundIndex = manifestList.filter((element) => element.code === dataCode);
+        let indexItem = manifestList.findIndex((element)=>element.code === dataCode);
+        let item = manifestList.find((element)=>element.code === dataCode);  
+        if(foundIndex.length > 1) {
+          this.setState({multipleSKU: true});
+        } else {
+         this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade, indexItem: indexItem});
+        }
+      } else if(this.state.indexItem !== null && this.state.multipleSKU === true){
+        let item = manifestList[this.state.indexItem];  
+        this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade}); 
+      }
+    }
+  }
   handleResetAnimation = () => {
     Animated.timing(this.animatedValue, {
       toValue: 0,
@@ -152,7 +170,7 @@ class Example extends React.Component {
           style={
            ( dataItem !== null && this.state.enterAttr !== true && this.state.isConfirm !== true) || (dataItem === null && this.state.multipleSKU === true)
               ? [
-                  styles.modalContainerAll,
+                  dataItem.transit === 0 ? styles.modalContainerAll : styles.modalContainerAllTransit,
                   {
                     transform: [
                       {
@@ -171,7 +189,7 @@ class Example extends React.Component {
                   },
                 ]
               : dataItem !== null && this.state.isConfirm === true ?
-              [styles.modalContainerSmallConfirm,
+              [dataItem.transit === 0 ? styles.modalContainerSmallConfirm : styles.modalContainerSmallConfirmTransit,
               {
                 transform: [
                   {
@@ -249,9 +267,8 @@ class Example extends React.Component {
             <Divider color="#D5D5D5" />
             {(dataItem !== null && ((this.state.enterAttr === false && this.state.isPOSM === false) || this.state.isConfirm === true )) ? (
               <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
-               <View
-                      style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
-                      <View style={styles.dividerContent}>
+               <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
+                      {dataItem.transit === 0 ? (<><View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>SKU</Text>
                         <Text style={styles.infoPackage}>
                           {dataItem.sku}
@@ -274,7 +291,28 @@ class Example extends React.Component {
                         <Text style={styles.infoPackage}>
                           {moment.unix(dataItem.timestamp).format('DD/MM/YY')}
                         </Text>
+                      </View></>) : (
+                        <>
+                        <View style={styles.dividerContent}>
+                        <Text style={styles.labelPackage}>Container # </Text>
+                        <Text style={styles.infoPackage}>
+                         -
+                        </Text>
                       </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelPackage}>No. of Pallet</Text>
+                        <Text style={styles.infoPackage}>
+                          -
+                        </Text>
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelPackage}>No. of Carton</Text>
+                        <Text style={styles.infoPackage}>
+                          -
+                        </Text>
+                      </View>
+                        </>
+                      )}
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Pallet ID</Text>
                       { this.state.isConfirm === true ? (  
@@ -304,6 +342,7 @@ class Example extends React.Component {
                           />
                         </View>)}
                       </View>
+                      {dataItem.transit === 0 && (
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Grade</Text>
                     
@@ -333,7 +372,8 @@ class Example extends React.Component {
                           </View>
                           )}
                     
-                      </View>
+                      </View>)}
+
                       {this.state.isConfirm === true && (    
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>QTY</Text>
@@ -523,7 +563,7 @@ class Example extends React.Component {
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelNotFound}>Barcode</Text>
                         <Text style={styles.infoNotFound}>
-                          {scanItem}
+                          {this.state.dataCode}
                         </Text>
                       </View>
                 </View>
@@ -557,9 +597,6 @@ class Example extends React.Component {
                       this.props.setBottomBar(true);
                       this.props.navigation.navigate({
                         name: 'ManualInput',
-                        params: {
-                            dataCode: this.state.scanItem,
-                        }
                       }) 
                     }}
                     title="Input Manual"
@@ -575,7 +612,7 @@ class Example extends React.Component {
                     onPress={()=>this.props.navigation.goBack()}
                     title="Cancel"
                   />
-                  ) : dataItem !== null && this.state.isConfirm === false ? (
+                  ) : (dataItem !== null && this.state.isConfirm === false) || (dataItem === null && this.state.scanItem === '0') ? (
                     <>
                     <Button
                       containerStyle={{flex: 1, marginTop: 10, marginRight: 5}}
@@ -627,7 +664,7 @@ class Example extends React.Component {
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Barcode</Text>
-                  <Text style={styles.infoNotFound}>{this.state.scanItem}</Text>
+                  <Text style={styles.infoNotFound}>{this.state.dataCode}</Text>
                 </View>
             </View>
             
@@ -645,6 +682,7 @@ class Example extends React.Component {
                   dataCode: this.state.scanItem,
               }
             })}}
+            disabled={this.state.dataItem !== null ? false : true}
           title="Report Item"
         />
           <Button
@@ -655,9 +693,6 @@ class Example extends React.Component {
             this.props.setBottomBar(true);
             this.props.navigation.navigate({
               name: 'ManualInput',
-              params: {
-                  dataCode: this.state.scanItem,
-              }
             })}}
           title="Input Manual"
         />
@@ -683,11 +718,12 @@ class Example extends React.Component {
     });
   };
   onSubmit = () => {
-    const {dataCode,qty, scanItem, ItemGrade} = this.state;
+    const {dataCode,qty, scanItem, ItemGrade, dataItem} = this.state;
     //this.props.setBarcodeScanner(true);
     this.setState({
       dataCode: '0',
-      enterAttr : true 
+      enterAttr : true,
+      isConfirm: dataItem.transit === 1 ? true : false,
     });
     // for prototype only
     let arr = this.makeScannedItem(scanItem,qty);
@@ -914,6 +950,22 @@ const styles = StyleSheet.create({
     width: (screen.width * 90) / 100,
     minHeight: (screen.height * 70) / 100,
     maxHeight: (screen.height * 70) / 100,
+    borderRadius: 10,
+  },
+  modalContainerAllTransit: {
+    flexGrow: 1,
+    backgroundColor: 'white',
+    width: (screen.width * 90) / 100,
+    minHeight: (screen.height * 55) / 100,
+    maxHeight: (screen.height * 55) / 100,
+    borderRadius: 10,
+  },
+  modalContainerSmallConfirmTransit: {
+    flexGrow: 1,
+    backgroundColor: 'white',
+    width: (screen.width * 90) / 100,
+    minHeight: (screen.height * 45) / 100,
+    maxHeight: (screen.height * 45) / 100,
     borderRadius: 10,
   },
   modalContainerAll: {
