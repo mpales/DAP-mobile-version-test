@@ -315,10 +315,7 @@ class Warehouse extends React.Component{
                 onPress={() => {
                   this.props.setBarcodeScanner(true);
                   this.props.navigation.navigate({
-                    name: 'PalletScanner',
-                    params: {
-                      inputCode: this.state._itemDetail.code,
-                    },
+                    name: 'Barcode',
                   });
                 }}
                 activeOpacity={0.7}
@@ -494,7 +491,7 @@ const styles = StyleSheet.create({
 
 const manifestDummy = [
   {
-    code: '8999909000377',
+    code: '8998768568882',
     total_package: 2,
     name: 'Bear Brand Milk',
     color:'white',
@@ -505,7 +502,8 @@ const manifestDummy = [
     weight: 115,
     status: 'onProgress',
     sku: '221314123',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 1,
   },
   {
     code: '9780312205195',
@@ -518,7 +516,8 @@ const manifestDummy = [
     CBM: 10.10,
     weight: 70,
     sku: '412321412',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
   },
   {
     code: '9780312205195',
@@ -531,7 +530,8 @@ const manifestDummy = [
     CBM: 15.10,
     weight: 90,
     sku: '1241231231',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
   },
   {
     code: '9780312205195',
@@ -544,7 +544,8 @@ const manifestDummy = [
     CBM: 20.10,
     weight: 115,
     sku : '12454634545',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
   },
   {
     code: '9780312205195',
@@ -557,7 +558,8 @@ const manifestDummy = [
     CBM: 10.10,
     weight: 90,
     sku: '430344390',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0
   },
   {
     code: '9780312205195',
@@ -570,7 +572,8 @@ const manifestDummy = [
     CBM: 15.10,
     weight: 70,
     sku: '430958095',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
   },
   {
     code: '9780312205195',
@@ -583,7 +586,8 @@ const manifestDummy = [
     CBM: 20.10,
     weight: 115,
     sku: '430950345',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
   },
   {
     code: '9780099582113',
@@ -596,7 +600,8 @@ const manifestDummy = [
     CBM: 20.10,
     weight: 115,
     sku: '250345345',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
   },
   {
     code: '13140026927112',
@@ -609,7 +614,8 @@ const manifestDummy = [
     CBM: 20.10,
     weight: 115,
     sku: '4309583049',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
   },
   {
     code: '13140026927113',
@@ -622,7 +628,8 @@ const manifestDummy = [
     CBM: 20.10,
     weight: 115,
     sku: '3405934095',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
   },
   {
     code: '13140026927114',
@@ -635,7 +642,8 @@ const manifestDummy = [
     CBM: 20.10,
     weight: 115,
     sku: '4059304034',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
   },
 ];
 

@@ -20,18 +20,12 @@ class ManualInput extends React.Component {
     }
 
     static getDerivedStateFromProps(props,state){
-        const {navigation} = props;
-        const {dataCode} = state;
-        if(dataCode === null){
-            const {routes, index} = navigation.dangerouslyGetState();
-            if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-              return {...state, dataCode: routes[index].params.dataCode};
-            }
-        }
         return {...state};
       }
     handleConfirm = () => {
-        if(this.state.inputCode !== this.state.dataCode) {
+        const {inputCode} = this.state;
+        const {manifestList} = this.props;
+        if(manifestList.some((element) => element.code === inputCode)) {
             this.setState({inputCode: '', error: true});
         } else {
             this.props.setBottomBar(false);
@@ -102,7 +96,9 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-    return {};
+    return {
+        manifestList: state.originReducer.manifestList,
+    };
   }
   
 const mapDispatchToProps = (dispatch) => {
