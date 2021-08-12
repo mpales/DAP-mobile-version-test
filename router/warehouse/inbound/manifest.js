@@ -503,7 +503,8 @@ const manifestDummy = [
     status: 'onProgress',
     sku: '221314123',
     grade: 'Pick',
-    transit : 1,
+    transit : 0,
+    posm: 1
   },
   {
     code: '9780312205195',
@@ -518,6 +519,7 @@ const manifestDummy = [
     sku: '412321412',
     grade: 'Pick',
     transit : 0,
+    posm:0
   },
   {
     code: '9780312205195',
@@ -531,7 +533,8 @@ const manifestDummy = [
     weight: 90,
     sku: '1241231231',
     grade: 'Pick',
-    transit : 0,
+    transit : 1,
+    posm:0
   },
   {
     code: '9780312205195',
@@ -546,6 +549,7 @@ const manifestDummy = [
     sku : '12454634545',
     grade: 'Pick',
     transit : 0,
+    posm:0
   },
   {
     code: '9780312205195',
@@ -559,7 +563,8 @@ const manifestDummy = [
     weight: 90,
     sku: '430344390',
     grade: 'Pick',
-    transit : 0
+    transit : 0,
+    posm:0
   },
   {
     code: '9780312205195',
@@ -574,6 +579,7 @@ const manifestDummy = [
     sku: '430958095',
     grade: 'Pick',
     transit : 0,
+    posm:0
   },
   {
     code: '9780312205195',
@@ -588,6 +594,7 @@ const manifestDummy = [
     sku: '430950345',
     grade: 'Pick',
     transit : 0,
+    posm:0
   },
   {
     code: '9780099582113',
@@ -602,6 +609,7 @@ const manifestDummy = [
     sku: '250345345',
     grade: 'Pick',
     transit : 0,
+    posm:0
   },
   {
     code: '13140026927112',
@@ -616,6 +624,7 @@ const manifestDummy = [
     sku: '4309583049',
     grade: 'Pick',
     transit : 0,
+    posm:0
   },
   {
     code: '13140026927113',
@@ -630,6 +639,7 @@ const manifestDummy = [
     sku: '3405934095',
     grade: 'Pick',
     transit : 0,
+    posm:0
   },
   {
     code: '13140026927114',
@@ -644,6 +654,7 @@ const manifestDummy = [
     sku: '4059304034',
     grade: 'Pick',
     transit : 0,
+    posm:0
   },
 ];
 

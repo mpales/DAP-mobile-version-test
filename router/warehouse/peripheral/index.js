@@ -49,6 +49,7 @@ class Example extends React.Component {
       enterAttr: false,
       isPOSM : false,
       isConfirm : false,
+      uploadPOSM : false,
     };
     this.handleResetAnimation.bind(this);
     this.handleZoomInAnimation.bind(this);
@@ -62,13 +63,8 @@ class Example extends React.Component {
     const {routes, index} = navigation.dangerouslyGetState();
     if(scanItem === '0'){
       if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined && manifestList.some((element) => element.code === routes[index].params.inputCode)) {
-        if(routes[index].params.isPOSM !== undefined && routes[index].params.isPOSM === true){
-          setBarcodeScanner(false);
-          return {...state, scanItem: routes[index].params.inputCode, currentPOSM: true, dataCode: routes[index].params.inputCode};
-        } else {
           setBarcodeScanner(false);
           return {...state, scanItem: routes[index].params.inputCode, dataCode:routes[index].params.inputCode };
-        }
       } else if(routes[index].params !== undefined && routes[index].params.manualCode !== undefined && manifestList.some((element) => element.code === routes[index].params.manualCode)) {
         setBarcodeScanner(false);
         return {...state, scanItem: routes[index].params.manualCode};
@@ -88,6 +84,12 @@ class Example extends React.Component {
           this.setState({dataItem: item, qty : item.scanned});
         }
         return true;
+      } else if (nextProps.keyStack === 'Barcode' && this.props.keyStack === 'POSMCameraMulti' && nextState.currentPOSM === true){
+        const {routes, index} = nextProps.navigation.dangerouslyGetState();
+        if(routes[index].params !== undefined && routes[index].params.upload === true){
+          this.setState({uploadPOSM: true});
+          return false;
+        }
       } 
     }
     if((this.state.ItemGrade !== nextState.ItemGrade || this.state.ItemPallet !== nextState.ItemPallet) && nextState.dataItem === this.state.dataItem){
@@ -97,7 +99,7 @@ class Example extends React.Component {
     }
     return true;
   }
-  componentDidUpdate(prevProps, prevState) {
+  async componentDidUpdate(prevProps, prevState) {
     const {manifestList,detectBarcode, currentASN, navigation, setBarcodeScanner} = this.props;
     const {dataCode,scanItem, dataItem, isPOSM} = this.state;
     if(prevProps.detectBarcode !== detectBarcode){
@@ -107,7 +109,10 @@ class Example extends React.Component {
         this.handleZoomInAnimation();
       }
     }
- 
+    if(prevState.uploadPOSM !== this.state.uploadPOSM && this.state.uploadPOSM === true){
+      //backend upload api
+      this.setState({enterAttr: true});
+    }
     if (dataCode === scanItem && dataCode !== 0 && dataItem === null && manifestList.some((element) => element.code === dataCode)) {
       if(this.state.indexItem === null && this.state.multipleSKU === false) {
         let foundIndex = manifestList.filter((element) => element.code === dataCode);
@@ -116,18 +121,21 @@ class Example extends React.Component {
         if(foundIndex.length > 1) {
           this.setState({multipleSKU: true});
         } else {
-         this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade, indexItem: indexItem});
+         this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade, indexItem: indexItem, currentPOSM: item.posm === 1 ? true : false});
         }
       } else if(this.state.indexItem !== null && this.state.multipleSKU === true){
         let item = manifestList[this.state.indexItem];  
-        this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade}); 
+        this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade,currentPOSM: item.posm === 1 ? true : false}); 
       }
     } 
+  }
+  componentWillUnmount(){
+    this.props.addPOSMPostpone(null);
   }
   componentDidMount(){
     const {scanItem,dataCode} = this.state;
     const {detectBarcode, manifestList} = this.props;
-    if(scanItem === dataCode && detectBarcode === false){
+    if(scanItem === dataCode && detectBarcode === false  && manifestList.some((element) => element.code === dataCode)){
       this.handleZoomInAnimation();
       if(this.state.indexItem === null && this.state.multipleSKU === false) {
         let foundIndex = manifestList.filter((element) => element.code === dataCode);
@@ -136,11 +144,11 @@ class Example extends React.Component {
         if(foundIndex.length > 1) {
           this.setState({multipleSKU: true});
         } else {
-         this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade, indexItem: indexItem});
+         this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade, indexItem: indexItem, currentPOSM: item.posm === 1 ? true : false});
         }
       } else if(this.state.indexItem !== null && this.state.multipleSKU === true){
         let item = manifestList[this.state.indexItem];  
-        this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade}); 
+        this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade, currentPOSM: item.posm === 1 ? true : false}); 
       }
     }
   }
@@ -168,7 +176,7 @@ class Example extends React.Component {
       <View style={styles.modalOverlay}>
         <Animated.View
           style={
-           ( dataItem !== null && this.state.enterAttr !== true && this.state.isConfirm !== true) || (dataItem === null && this.state.multipleSKU === true)
+           ( dataItem !== null && this.state.enterAttr !== true && this.state.isConfirm !== true && this.state.isPOSM !== true) || (dataItem === null && this.state.multipleSKU === true)
               ? [
                   dataItem.transit === 0 ? styles.modalContainerAll : styles.modalContainerAllTransit,
                   {
@@ -527,6 +535,7 @@ class Example extends React.Component {
               <View style={[styles.sheetPackages,{alignItems: 'center',justifyContent: 'center',marginHorizontal: 32, marginTop: 20}]}>
               <Avatar
                 onPress={()=>{
+                  this.props.navigation.navigate('POSMPhoto');
                 }}
                 size={79}
                 ImageComponent={() => (
@@ -722,8 +731,9 @@ class Example extends React.Component {
     //this.props.setBarcodeScanner(true);
     this.setState({
       dataCode: '0',
-      enterAttr : true,
+      enterAttr : dataItem.posm === 1 ? false : true,
       isConfirm: dataItem.transit === 1 ? true : false,
+      isPOSM: dataItem.posm === 1 ? true : false,
     });
     // for prototype only
     let arr = this.makeScannedItem(scanItem,qty);
@@ -1031,6 +1041,7 @@ function mapStateToProps(state) {
     // end
     manifestList: state.originReducer.manifestList,
     keyStack: state.originReducer.filters.keyStack,
+    POSMPostpone: state.originReducer.filters.POSMPostpone,
   };
 }
 
@@ -1051,6 +1062,7 @@ const mapDispatchToProps = (dispatch) => {
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
     },
+    addPOSMPostpone: (uri) => dispatch({type: 'POSMPostpone', payload: uri}),
   };
 };
 

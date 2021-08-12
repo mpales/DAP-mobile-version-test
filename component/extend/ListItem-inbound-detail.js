@@ -256,9 +256,9 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                     />)}
                     onPress={()=>{
                       navigation.navigate({
-                        name: 'Barcode',
+                        name: category === 'default' ? 'ItemTransitDetail' : 'ItemDetail',
                         params: {
-                            inputCode: item.code,
+                            dataCode: item.code,
                         }
                       })
                     }}
@@ -276,9 +276,9 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
               titleStyle={[styles.deliveryText,{paddingHorizontal: 10}]}
               onPress={()=>{
                 navigation.navigate({
-                  name: category === 'default' ? 'ItemTransitDetail' : 'ItemDetail',
+                  name: 'Barcode',
                   params: {
-                      dataCode: item.code,
+                      inputCode: item.code,
                   }
                 })
               }}
@@ -293,7 +293,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                       navigation.navigate({
                         name: 'newItem',
                         params: {
-                            inputCode: item.code,
+                          attrSKU: item.sku,
                         }
                       })
                     }}
