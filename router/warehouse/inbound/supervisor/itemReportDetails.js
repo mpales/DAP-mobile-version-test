@@ -6,25 +6,140 @@ import {
   Text,
   TextInput,
   View,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
 } from 'react-native';
-import {Card, CheckBox, Button} from 'react-native-elements';
+import {Card, CheckBox, Button, Overlay} from 'react-native-elements';
 import {connect} from 'react-redux';
 import Mixins from '../../../../mixins';
 import Checkmark from '../../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 // component
 import DetailList from '../../../../component/extend/Card-detail';
-import {TouchableOpacity} from 'react-native-gesture-handler';
-
+import ImageLoading from '../../../../component/loading/image';
+import {getData, getBlob,postData, postBlob} from '../../../../component/helper/network';
+import moment from 'moment';
+const window = Dimensions.get('screen');
 class ConnoteReportDetails extends React.Component {
+  overlayThumb = null;
+  arrayImageProcessingRef = [];
   constructor(props) {
     super(props);
     this.state = {
+      receivingNumber: null,
+      inboundID : null,
       acknowledged:false,
       title: 'Damage Item',
       note: 'Theres some crack on packages',
       resolution: '',
+      dataReports : null,
+      overlayImage : false,
+      overlayImageString: null,
+      overlayImageFilename : null,
     };
+    this.toggleOverlay.bind(this);
+    this.renderPhotoProof.bind(this);
+    this.renderInner.bind(this)
+    this.acknowledgedReport.bind(this);
   }
+  static getDerivedStateFromProps(props,state){
+    const {navigation} = props;
+    const {receivingNumber} = state;
+    if(receivingNumber === null){
+      const {routes, index} = navigation.dangerouslyGetState();
+      if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
+        return {...state, inboundID: routes[index].params.number, receivingNumber:  routes[index].params.productID};
+      }
+      return {...state};
+    } 
+    
+    return {...state};
+  }
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if(prevState.dataReports !== this.state.dataReports){
+      this.arrayImageProcessingRef.forEach(element => {
+        if(element !== undefined){
+          element.init();
+        }
+      });
+    } 
+    if(prevState.overlayImage !== this.state.overlayImage && this.state.overlayImage === true){
+     if(this.overlayThumb !== null && this.overlayThumb !== undefined){
+       this.overlayThumb.refresh();
+     }
+    } 
+   }
+   async componentDidMount(){
+    const {receivingNumber, inboundID} = this.state;
+    const {currentASN} = this.props;
+    const result = await getData('/inbounds/'+inboundID+'/'+receivingNumber+'/reports');
+    if(typeof result === 'object' && result.error === undefined){
+      this.setState({dataReports:result})
+    } else {
+      this.props.navigation.goBack();
+    }
+  }
+  toggleOverlay = (item)=>{
+    const {overlayImage} = this.state;
+    this.setState({
+      overlayImage: !overlayImage,
+      overlayImageString : item !== undefined ? '/inbounds/'+item.inbound_id+'/'+item.inbound_product_id+'/reports/'+item.report_id+'/photo/'+item.id : null,
+      overlayImageFilename: item !== undefined ? ''+item.inbound_id+''+item.inbound_product_id+''+item.report_id+''+item.id+'.png' : null,
+    });
+  }
+  renderPhotoProof = ({item,index})=>{
+    return (<TouchableOpacity onPress={()=>this.toggleOverlay(item)}><ImageLoading 
+        ref={ ref => {
+          this.arrayImageProcessingRef[item.id] = ref
+        }} 
+        callbackToFetch={async ()=>{
+          return await getBlob('/inbounds/'+item.inbound_id+'/'+item.inbound_product_id+'/reports/'+item.report_id+'/thumb/'+item.id,{filename:''+item.inbound_id+''+item.inbound_product_id+''+item.report_id+''+item.id+'.jpg'},(received, total) => {
+            if(this.arrayImageProcessingRef.length > 0 && this.arrayImageProcessingRef[item.id] !== undefined && this.arrayImageProcessingRef[item.id] !== null)
+            this.arrayImageProcessingRef[item.id].indicatorTick(received)
+          })
+        }}
+        containerStyle={{width:65,height:65, margin:5}}
+        style={{width:65,height:65,backgroundColor:'black'}}
+        imageStyle={{width:65,height:65}}
+        imageContainerStyle={{}}
+        /></TouchableOpacity>)
+    }
+    renderInner = (item) =>{
+      let photoData = Array.from({length:item.inbound_report_photos.length}).map((num,index)=>{
+        return {...item.inbound_report_photos[index],report_id:item.id,inbound_id:item.inbound_id,inbound_product_id:item.inbound_product_id}
+      });
+      return (<Card containerStyle={styles.cardContainer} style={styles.card}>
+      <View style={styles.header}>
+        <Text
+          style={[
+            styles.headerTitle,
+            {marginBottom: 10, color: '#E03B3B', fontSize: 20},
+          ]}>
+          {item.report}
+        </Text>
+      </View>
+      <View style={styles.detail}>
+        <DetailList title="Report By" value={item.reported_by.firstName} />
+        <DetailList title="Date and Time" value={moment(item.reported_on).format('DD/MM/YYY h:mm a')} />
+        <DetailList title="Photo Proof" value={''} />
+        <FlatList
+              horizontal={true}
+              keyExtractor={(item,index)=>index}
+              data={photoData}
+              renderItem={this.renderPhotoProof}
+        />
+        <Text style={styles.detailText}>Note</Text>
+        <TextInput
+          style={styles.note}
+          multiline={true}
+          numberOfLines={3}
+          textAlignVertical="top"
+          value={item.description}
+          editable={false}
+        />
+      </View>
+    </Card>);
+    }
   checkedIcon = () => {
     return (
       <View
@@ -39,40 +154,19 @@ class ConnoteReportDetails extends React.Component {
   uncheckedIcon = () => {
     return <View style={styles.unchecked} />;
   };
-  render() {
-    return (
-      <>
-        <StatusBar barStyle="dark-content" />
-        <ScrollView style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Report Details</Text>
-          </View>
-          <View style={styles.body}>
-            <Card containerStyle={styles.cardContainer} style={styles.card}>
-              <View style={styles.header}>
-                <Text
-                  style={[
-                    styles.headerTitle,
-                    {marginBottom: 10, color: '#E03B3B', fontSize: 20},
-                  ]}>
-                  {this.state.title}
-                </Text>
-              </View>
-              <View style={styles.detail}>
-                <DetailList title="Report By" value="Kim Tan" />
-                <DetailList title="Date and Time" value="12/03/21 13:05 P.M" />
-                <Text style={styles.detailText}>Note</Text>
-                <TextInput
-                  style={styles.note}
-                  multiline={true}
-                  numberOfLines={3}
-                  textAlignVertical="top"
-                  value={this.state.note}
-                />
-              </View>
-            </Card>
-          </View>
-          <Text style={styles.detailText}>Resolution</Text>
+  acknowledgedReport = async ()=>{
+    const {receivingNumber, inboundID,dataReports, resolution, acknowledged} = this.state;
+    let data = {acknowledge: acknowledged >>> 0};
+    for (let index = 0; index < dataReports.length; index++) {
+      const element = dataReports[index];
+      let result = await postBlob('/inbounds/'+inboundID+'/'+receivingNumber+'/reports/'+element.id,data); 
+      console.log(result);
+    }
+    this.props.navigation.goBack();
+  }
+  renderFooter = () =>{
+    return (<>
+     <Text style={styles.detailText}>Resolution</Text>
                 <TextInput
                   style={styles.note}
                   multiline={true}
@@ -94,9 +188,45 @@ class ConnoteReportDetails extends React.Component {
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               title="Confirm"
-  
+              onPress={this.acknowledgedReport}
+              disabled={(this.state.acknowledged === false && this.state.resolution.length === 0)}
+            /></>);
+  }
+  render() {
+    return (
+      <>
+        <StatusBar barStyle="dark-content" />
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Report Details</Text>
+          </View>
+          <Overlay isVisible={this.state.overlayImage} onBackdropPress={this.toggleOverlay}>
+            <ImageLoading 
+            ref={ ref => {
+              this.overlayThumb = ref
+            }} 
+            callbackToFetch={async ()=>{
+              return await getBlob(this.state.overlayImageString,{filename:this.state.overlayImageFilename},(received, total) => {
+                if(this.overlayThumb !== undefined)
+                this.overlayThumb.indicatorTick(received)
+              })
+            }}
+            containerStyle={{width:window.width * 0.8,height:window.width * 0.8,}}
+            style={{width:window.width * 0.8,height:window.width * 0.8,backgroundColor:'black'}}
+            imageStyle={{width:window.width * 0.8,height:window.width * 0.8}}
+            imageContainerStyle={{}}
             />
-        </ScrollView>
+          </Overlay>
+          <View style={styles.body}>
+          <FlatList
+            keyExtractor={(item,index)=>index}
+              data={this.state.dataReports}
+              renderItem={({item}) => this.renderInner(item)}
+              ListFooterComponent={this.renderFooter}
+            />
+          </View>
+         
+        </View>
       </>
     );
   }

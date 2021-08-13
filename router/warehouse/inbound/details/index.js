@@ -30,6 +30,7 @@ import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
 import {createStackNavigator,Header} from '@react-navigation/stack';
 import ItemDraftDetails from './itemDraftDetails';
+import ItemTransitDraftDetails from './itemTransitDetails';
 import PhotosDraft from './photos';
 import ManifestDetails from './manifest';
 import Mixins from '../../../../mixins';
@@ -109,6 +110,24 @@ class DetailsDraft extends React.Component {
       },
       ItemDraftDetails: {
         screen: ItemDraftDetails,
+        navigationOptions:  ({ navigation }) => ({
+          headerStyle: {
+            backgroundColor: '#121C78',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+            ...Platform.select({
+              android: {
+                height: 45,
+              },
+            })
+          },
+          headerTintColor: '#fff',
+          headerTitle: 'Contact',
+        }),
+      },
+      ItemTransitDraftDetail: {
+        screen: ItemTransitDraftDetails,
         navigationOptions:  ({ navigation }) => ({
           headerStyle: {
             backgroundColor: '#121C78',

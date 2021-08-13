@@ -126,20 +126,31 @@ const theme = {
   
 };
 const Manifest = ({item, index, ToManifest}) => {
+  let category = item.inbound_asn !== null ? 'ASN' : item.inbound_grn !== null ? 'GRN' : 'Others';
+  let categorycolor = item.inbound_asn !== null ? '#121C78' : item.inbound_grn !== null ? '#F07120' : '#F07120';;
   let status = 'grey';
+  let labelstatus = '';
   switch (item.status) {
-    case 'complete':
-      status = 'green';
+    case 1:
+      status = '#ABABAB';
+      labelstatus = 'Waiting';
       break;
-      case 'progress':
-        status = 'orange';
+      case 2:
+        status = '#F1811C';
+        labelstatus = 'Received';
         break;
-        case 'pending':
-          status = 'grey';
+        case 3:
+          status = '#F1811C';
+          labelstatus = 'Processing';
           break;
-          case 'reported':
-            status = 'red';
+          case 4:
+            status = '#17B055';
+            labelstatus = 'Processed'
             break;
+            case 4:
+              status = '#E03B3B';
+              labelstatus = 'Reported'
+              break;
     default:
       break;
   }
@@ -158,21 +169,21 @@ const Manifest = ({item, index, ToManifest}) => {
         </View>
           <ListItem.Content style={styles.sectionContainer}>
                     <Text style={{...Mixins.small1,lineHeight: 18,color: '#ABABAB', fontWeight: '400'}}>
-                    25-07-2021
+                    {moment(item.eta).format("DD-MM-YYYY")}
                     </Text>
                     <Text style={{...Mixins.body1,lineHeight: 21,color: '#424141', fontWeight: '600'}}>
-                        {item.number}
+                    {item.id}
                     </Text>
                     <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '400'}}>
-                    {item.transport}
+                    {item.company.company_name}
                     </Text>
                     <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '400'}}>
-                    30/50 Lines Complete
+                    {item.inbound_products.filter((element)=>element.status !== 1).length+'/'+item.inbound_products.length+' Lines Complete'}
                     </Text>
     
         </ListItem.Content>
         <View style={{flexDirection: 'column', paddingHorizontal: 10}}>
-        <Badge value={item.status} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />
+        <Badge value={labelstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />
             <ListItem.Chevron
                   size={16}
                   color="#2D2C2C"
@@ -187,7 +198,7 @@ const Manifest = ({item, index, ToManifest}) => {
                     />)}
                     onPress={ToManifest}
                 />
-            <Badge value={item.category} status="warning" textStyle={{...Mixins.small3,fontWeight: '700',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end'}} badgeStyle={{backgroundColor: '#121C78'}} />
+            <Badge value={category} status="warning" textStyle={{...Mixins.small3,fontWeight: '700',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end'}} badgeStyle={{backgroundColor: categorycolor}} />
         </View>
       </ListItem>
     </ThemeProvider>

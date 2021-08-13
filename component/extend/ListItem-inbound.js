@@ -13,6 +13,7 @@ import TouchableScale from 'react-native-touchable-scale'; // https://github.com
 import IconCursor20Mobile from '../../assets/icon/iconmonstr-cursor-20 1mobile.svg';
 import IconTime2Mobile from '../../assets/icon/iconmonstr-time-2 1mobile.svg';
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
+import moment from 'moment';
 import Mixins from '../../mixins';
 
 const styles = {
@@ -100,19 +101,28 @@ const theme = {
 };
 const Manifest = ({item, index, isActive, ToManifest}) => {
   let status = 'grey';
+  let labelstatus = '';
   switch (item.status) {
-    case 'complete':
-      status = 'green';
+    case 1:
+      status = '#ABABAB';
+      labelstatus = 'Waiting';
       break;
-      case 'progress':
-        status = 'orange';
+      case 2:
+        status = '#F1811C';
+        labelstatus = 'Received';
         break;
-        case 'pending':
-          status = 'grey';
+        case 3:
+          status = '#F1811C';
+          labelstatus = 'Processing';
           break;
-          case 'reported':
-            status = 'red';
+          case 4:
+            status = '#17B055';
+            labelstatus = 'Processed'
             break;
+            case 4:
+              status = '#E03B3B';
+              labelstatus = 'Reported'
+              break;
     default:
       break;
   }
@@ -129,16 +139,16 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         </View>
         <ListItem.Content style={styles.sectionContainer}>
         <ListItem.Title style={{...Mixins.body3,lineHeight: 18,color: '#ABABAB', fontWeight: '600'}}>
-        ASN Number
+        {moment(item.eta).format("DD-MM-YYYY")}
         </ListItem.Title>
         <ListItem.Subtitle style={{...Mixins.body1, lineHeight: 21, color: '#424141', fontWeight: '600'}}>
-        {item.inbound_asn !== null ? item.inbound_asn.reference_id : item.inbound_grn.reference_id}
+        {item.id}
         </ListItem.Subtitle>
-        <Text style={styles.descText}>{item.company.company_code}</Text>
-        <Text style={styles.descText}>{item.inbound_products.filter((element)=> element.status !== 1).length + '/' + item.inbound_products.length + ' Lines Complete'}</Text>
+        <Text style={styles.descText}>{item.company.company_name}</Text>
+        <Text style={styles.descText}>                    {item.inbound_products.filter((element)=>element.status !== 1).length+'/'+item.inbound_products.length+' Lines Complete'}</Text>
         </ListItem.Content>
         <View style={styles.labelContainer}>
-        <Badge value={item.status} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />
+        <Badge value={labelstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />
         <View style={{alignSelf:'flex-end',flexDirection: 'column'}}>
            
         <ListItem.Chevron
@@ -156,7 +166,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             onPress={ToManifest}
           />
           </View>
-        <Text style={[styles.labelText,{marginHorizontal: 20}]}>{item.transport}</Text>
+       
         </View>
         
       </ListItem>

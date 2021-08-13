@@ -125,27 +125,32 @@ const theme = {
   },
   
 };
-const Manifest = ({item, index, drag, currentManifest, navigation}) => {
+const Manifest = ({item, index, drag, currentManifest, navigation, toDetailsDraft}) => {
   const isCurrentManifest = useSelector(
     (state) => state.originReducer.filters.currentManifest,
   );
   let addAttribute = item.category !== '' ? false : true;
   let status = 'grey';
   let textstatus = 'pending';
-  if(item.scanned < item.total_package && item.scanned >= 0) {
-    if(item.scanned === 0) {
-      status = 'grey';
+  switch (item.status) {
+    case 1:
+      status = '#ABABAB';
       textstatus = 'Pending';
-    } else {
-      status = 'orange'
-      textstatus = 'Progress'
-    }
-  } else if(item.scanned === -1){
-    status = 'red';
-    textstatus = 'Reported'
-  } else {
-    textstatus = 'Completed'
-    status = 'green';
+      break;
+      case 2:
+      status = '#F1811C';
+      textstatus = 'Processing';
+      break;
+      case 3:
+        status = '#17B055';
+      textstatus = 'Processed';
+      break;
+      case 4:
+      status = '#E03B3B';
+      textstatus = 'Reported';
+      break;
+    default:
+      break;
   }
   let category = 'default';
   return (
@@ -251,11 +256,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                         <IconArrow66Mobile height="26" width="26" fill="#2D2C2C"/>
                       }
                     />)}
-                    onPress={()=>{
-                      navigation.navigate('ItemDraftDetails',{
-                            dataCode: item.code,
-                      })
-                    }}
+                    onPress={toDetailsDraft}
                 />
 
                 </View>

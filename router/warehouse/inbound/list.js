@@ -34,6 +34,7 @@ class List extends React.Component {
         this.state = {
             search: '',
             filtered : 0,
+            type: null,
             renderGoBack : false,
         };
 
@@ -41,6 +42,19 @@ class List extends React.Component {
     this.setFiltered.bind(this);
     this.updateSearch.bind(this);
     }
+
+    static getDerivedStateFromProps(props,state){
+        const {navigation} = props;
+        const {type} = state;
+        const {routes, index} = navigation.dangerouslyGetState();
+            if(routes[index].params !== undefined && routes[index].params.type !== undefined && type !== routes[index].params.type){
+                //if multiple sku
+               return {...state, type : routes[index].params.type,};
+            } else {
+                return {...state, type : 'asn',};
+            }
+        return {...state};
+      }
     updateSearch = (search) => {
         this.setState({search});
       };
@@ -48,10 +62,11 @@ class List extends React.Component {
         this.setState({filtered:num});
     }
     updateASN = async ()=>{
+        const {type} = this.state;
         this.setState({renderGoBack: false});
-        const result = await getData('inbounds');
+        const result = await getData('inbounds/type/'+type);
         if(Array.isArray(result)){
-            return result.filter((element)=> element.inbound_asn !== null );
+            return result;
         } else {
             return [];
         }
@@ -70,20 +85,24 @@ class List extends React.Component {
         let filtered = prevState.renderGoBack !== this.state.renderGoBack || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
         if(filtered === 0) {
             let AllASN = await this.updateASN();
-            this.props.setInboundLIst(AllASN.filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(AllASN.filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         } else if(filtered === 1){
             let PendingASN = await this.updateASN();
-            this.props.setInboundLIst(PendingASN.filter((element)=> element.status === 'Waiting').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(PendingASN.filter((element)=> element.status === 1).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
             let ProgressASN = await this.updateASN();
-            this.props.setInboundLIst(ProgressASN.filter((element)=> element.status === 'received').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search)> -1));
+            this.props.setInboundLIst(ProgressASN.filter((element)=> element.status === 2).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
         }else if(filtered === 3){
             let CompleteASN = await this.updateASN();
-            this.props.setInboundLIst(CompleteASN.filter((element)=> element.status === 'complete').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(CompleteASN.filter((element)=> element.status === 3).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         }else if(filtered === 4){
             let ReportedASN = await this.updateASN();
-            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 'reported').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 4).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+        }else if(filtered === 5){
+            let ReportedASN = await this.updateASN();
+            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 5).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         }
+        
         
     }
     async componentDidMount() {
@@ -91,19 +110,22 @@ class List extends React.Component {
         const {filtered} = this.state;
         if(filtered === 0) {
             let AllASN = await this.updateASN();
-            this.props.setInboundLIst(AllASN.filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
-        } else if(filtered === 1){
+            this.props.setInboundLIst(AllASN.filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+        }else if(filtered === 1){
             let PendingASN = await this.updateASN();
-            this.props.setInboundLIst(PendingASN.filter((element)=> element.status === 'Waiting').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(PendingASN.filter((element)=> element.status === 1).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
             let ProgressASN = await this.updateASN();
-            this.props.setInboundLIst(ProgressASN.filter((element)=> element.status === 'received').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search)> -1));
+            this.props.setInboundLIst(ProgressASN.filter((element)=> element.status === 2).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
         }else if(filtered === 3){
             let CompleteASN = await this.updateASN();
-            this.props.setInboundLIst(CompleteASN.filter((element)=> element.status === 'complete').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(CompleteASN.filter((element)=> element.status === 3).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         }else if(filtered === 4){
             let ReportedASN = await this.updateASN();
-            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 'reported').filter((element)=> element.inbound_asn.reference_id.toString().indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 4).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+        }else if(filtered === 5){
+            let ReportedASN = await this.updateASN();
+            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 5).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         }
     }
     render() {
@@ -150,13 +172,6 @@ class List extends React.Component {
                     badgeStyle={this.state.filtered === 0 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
-                      <Badge
-                    value="Reported"
-                    containerStyle={styles.badgeSort}
-                    onPress={()=> this.setFiltered(4)}
-                    badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
-                    />
                           <Badge
                     value="Waiting"
                     containerStyle={styles.badgeSort}
@@ -171,14 +186,28 @@ class List extends React.Component {
                     badgeStyle={this.state.filtered === 2 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
-                          <Badge
-                    value="Complete"
+                           <Badge
+                    value="Processing"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(3)}
                     badgeStyle={this.state.filtered === 3 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
-                            </View>
+                           <Badge
+                    value="Processed"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(4)}
+                    badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
+                          <Badge
+                    value="Reported"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(5)}
+                    badgeStyle={this.state.filtered === 5 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 5 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
+                     </View>
                             {this.props.inboundList.map((data, i, arr) => {
                                 return (
                                     <Inbound 
@@ -195,6 +224,7 @@ class List extends React.Component {
                                                 },
                                               });
                                         } else {
+                                            this.props.setCurrentASN(data.id);
                                              this.props.navigation.navigate(  {
                                                 name: 'Manifest',
                                                  params: {

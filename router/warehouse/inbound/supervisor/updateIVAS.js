@@ -5,24 +5,33 @@ import {connect} from 'react-redux';
 import moment from 'moment';
 import Checkmark from '../../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import Mixins from '../../../../mixins';
-
+import {getData,putData} from '../../../../component/helper/network';
 class Acknowledge extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      dataCode: '0',
+      receivingNumber: null,
+      inboundData : null,
       stuffTruck: false,
+      stuffTruckPallet: '',
+      stuffTruckCarton : '',
       stuff20Container: false,
       stuff20ContainerDot1: false,
       stuff20ContainerDot2: false,
+      stuff20ContainerPallet :'',
+      stuff20ContainerCarton : '',
       stuff40Container: false,
       stuff40ContainerDot1: false,
       stuff40ContainerDot2: false,
+      stuff40ContainerPallet :'',
+      stuff40ContainerCarton : '',
       takeCartoon: false,
+      takeCartonSKU : '',
       takeLabelling: false,
       takePacking: false,
       takeOthers: false,
-      
+      takeOthersInput : '',
+      recordedBy : '',
     };
     this.submitItem.bind(this);
     this.toggleCheckBoxStuffTruck.bind(this);
@@ -34,12 +43,13 @@ class Acknowledge extends React.Component {
     this.toggleCheckBoxTakePacking.bind(this);
   }
   static getDerivedStateFromProps(props,state){
-    const {navigation, manifestList} = props;
-    const {dataCode} = state;
-    if(dataCode === '0'){
+    const {navigation, inboundList} = props;
+    const {receivingNumber} = state;
+    if(receivingNumber === null){
       const {routes, index} = navigation.dangerouslyGetState();
-       if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined){
-        return {...state, dataCode: routes[index].params.dataCode,};
+       if(routes[index].params !== undefined && routes[index].params.number !== undefined){
+        let inboundData = inboundList.find((element) => element.id === routes[index].params.number);
+        return {...state, receivingNumber: routes[index].params.number,inboundData: inboundData};
       }
       return {...state};
     } 
@@ -47,12 +57,69 @@ class Acknowledge extends React.Component {
     return {...state};
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot){
-    
+  async componentDidMount(){
+    const {receivingNumber} = this.state;
+    const result = await getData('/inbounds/'+receivingNumber+'/shipmentVAS');
+    this.setState({
+      stuffTruck: result.inbound_shipment === 1 ? true : false,
+      stuffTruckPallet: result.inbound_shipment === 1 ? ''+result.inbound_shipment_no_pallet : '',
+      stuffTruckCarton : result.inbound_shipment === 1 ? ''+result.inbound_shipment_no_carton : '',
+      stuff20Container: result.inbound_shipment === 2 ? true : false,
+      stuff20ContainerDot1: result.inbound_shipment === 2 && (result.inbound_shipment_pallet === 1 || result.inbound_shipment_pallet === 3) ? true : false,
+      stuff20ContainerDot2: result.inbound_shipment === 2 && (result.inbound_shipment_pallet === 2 || result.inbound_shipment_pallet === 3) ? true : false,
+      stuff20ContainerPallet :result.inbound_shipment === 2 ? ''+result.inbound_shipment_no_pallet : '',
+      stuff20ContainerCarton : result.inbound_shipment === 2 ? ''+result.inbound_shipment_no_pallet : '',
+      stuff40Container: result.inbound_shipment === 3 ? true : false,
+      stuff40ContainerDot1: result.inbound_shipment === 3 && (result.inbound_shipment_pallet === 1 || result.inbound_shipment_pallet === 3) ? true : false,
+      stuff40ContainerDot2: result.inbound_shipment === 3 && (result.inbound_shipment_pallet === 2 || result.inbound_shipment_pallet === 3) ? true : false,
+      stuff40ContainerPallet :result.inbound_shipment === 3 ? ''+result.inbound_shipment_no_pallet : '',
+      stuff40ContainerCarton : result.inbound_shipment === 3 ? ''+result.inbound_shipment_no_pallet : '',
+      takeCartoon: result.carton_dimension_sku === 1 ? true : false,
+      takeCartonSKU : ''+result.carton_dimension_sku,
+      takeLabelling: false,
+      takePacking: false,
+      takeOthers: result.other === 1 ? true : false,
+      takeOthersInput : '',
+      recordedBy: result.updated_by.firstName,
+    });
   }
-  submitItem = ()=>{
-    this.props.setBottomBar(true);
-    this.props.navigation.navigate('List');
+  submitItem = async ()=>{
+    const {stuffTruck, stuff20Container, stuff40Container} = this.state;
+    const {stuff20ContainerDot1, stuff20ContainerDot2, stuff40ContainerDot1, stuff40ContainerDot2} = this.state;
+
+    let shipment = stuffTruck ? 1 : stuff20Container ? 2 : stuff40Container ? 3 : 0;
+    let shipmentpallet = 0;
+    if(stuff20Container){
+      if(stuff20ContainerDot1 && stuff20ContainerDot2){
+        shipmentpallet = 3;
+      } else {
+        if(stuff20ContainerDot1){
+          shipmentpallet = 1;
+        } else if(stuff20ContainerDot2){
+          shipmentpallet = 2;
+        }
+      }
+    } else if (stuff40Container){
+      if(stuff40ContainerDot1 && stuff40ContainerDot2){
+        shipmentpallet = 3;
+      } else {
+        if(stuff40ContainerDot1){
+          shipmentpallet = 1;
+        } else if(stuff40ContainerDot2){
+          shipmentpallet = 2;
+        }
+      }
+    }
+    let VAS = {
+      shipment:shipment,
+      shipmentPallet: shipmentpallet,
+      nCartoon : shipment === 1 ? parseInt(this.state.stuffTruckCarton) : shipment === 2 ? parseInt(this.state.stuff20ContainerCarton) : shipment === 3 ? parseInt(this.state.stuff40ContainerCarton) : 0,
+      nPallet  : shipment === 1 ? parseInt(this.state.stuffTruckPallet) : shipment === 2 ? parseInt(this.state.stuff20ContainerPallet) : shipment === 3 ? parseInt(this.state.stuff40ContainerPallet) : 0,
+      cartoonDimensionSKU : parseInt(this.state.takeCartonSKU),
+      other: this.state.takeOthersInput
+    };
+    const result = await putData('/inbounds/'+this.state.receivingNumber+'/shipmentVAS', VAS);
+    this.props.navigation.goBack();
   }
   checkedIcon = () => {
     return (
@@ -70,17 +137,23 @@ class Acknowledge extends React.Component {
   };
   toggleCheckBoxStuffTruck = () => {
     this.setState({
+      stuff20Container: false,
         stuffTruck: !this.state.stuffTruck,
+        stuff40Container: false,
     });
   };
   toggleCheckBoxStuffContainer20= () => {
     this.setState({
         stuff20Container: !this.state.stuff20Container,
+        stuffTruck: false,
+        stuff40Container: false,
     });
   };
 
   toggleCheckBoxStuffContainer40= () => {
     this.setState({
+      stuff20Container: false,
+      stuffTruck:false,
         stuff40Container: !this.state.stuff40Container,
     });
   };
@@ -104,39 +177,63 @@ class Acknowledge extends React.Component {
       takeOthers: !this.state.takeOthers,
   });
   }
+  stuffTruckPalletInput = (text) => {
+    this.setState({stuffTruckPallet:text});
+  }
+  stuffTruckCartonInput = (text) => {
+    this.setState({stuffTruckCarton:text});
+  }
+  stuff20ContainerPalletInput = (text) => {
+    this.setState({stuff20ContainerPallet :text});
+  }
+  stuff20ContainerCartonInput = (text) => {
+    this.setState({stuff20ContainerCarton :text});
+  }
+  stuff40ContainerPalletInput = (text) => {
+    this.setState({stuff40ContainerPallet :text});
+  }
+  stuff40ContainerCartonInput = (text) => {
+    this.setState({stuff40ContainerCarton :text});
+  }
+  takeCartonSKUInput = (text) => {
+    this.setState({takeCartonSKU :text});
+  }
+  takeOthersChangeInput = (text) => {
+    this.setState({takeOthersInput:text});
+  }
   render(){
     return (
         <ScrollView style={styles.body}>
-         <View style={[styles.sectionInput,{paddingHorizontal: 30,paddingTop: 40, paddingBottom:10}]}>
+       <View style={[styles.sectionInput,{paddingHorizontal: 30,paddingTop: 40, paddingBottom:10}]}>
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Client</Text>
              </View>
-             <Text style={styles.textHeadInput}>DSP -Dead Sea Preimer</Text>
+             <Text style={styles.textHeadInput}>{this.state.inboundData.company.company_name}</Text>
          </View>
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Ref #</Text>
              </View>
-             <Text style={styles.textHeadInput}>PO0001234</Text>
+             <Text style={styles.textHeadInput}>{this.state.inboundData.inbound_asn !== null ? this.state.inboundData.inbound_asn.reference_id : this.state.inboundData.inbound_grn !== null ? this.state.inboundData.inbound_grn.reference_id : '' }</Text>
          </View>
 
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Receipt #</Text>
              </View>
-             <Text style={styles.textHeadInput}>900812345</Text>
+             <Text style={styles.textHeadInput}>{this.state.inboundData.inbound_receipts.length > 0 ? this.state.inboundData.inbound_receipts[0].id : ''}</Text>
          </View>
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Date</Text>
              </View>
-             <Text style={styles.textHeadInput}>22-06-21</Text>
+             <Text style={styles.textHeadInput}>{moment(this.state.inboundData.created_on).format('DD-MM-YYYY')}</Text>
          </View>
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Recorded By</Text>
              </View>
-             <Text style={styles.textHeadInput}>Name</Text>
+             <Text style={styles.textHeadInput}>{this.state.recordedBy}</Text>
          </View>
          <Divider orientation="horizontal" color="#D5D5D5" style={{marginVertical: 15}}/>
         <View style={styles.sectionInbound}>
@@ -160,6 +257,8 @@ class Acknowledge extends React.Component {
                 inputStyle={(!this.state.stuffTruck) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuffTruck)}
+                onChangeText={this.stuffTruckPalletInput}
+                value={this.state.stuffTruckPallet}
             />
          </View>      
          <View style={styles.sectionInput}>
@@ -173,6 +272,8 @@ class Acknowledge extends React.Component {
                              
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuffTruck)}
+                onChangeText={this.stuffTruckCartonInput}
+                value={this.state.stuffTruckCarton}
             />
          </View> 
 
@@ -221,6 +322,8 @@ class Acknowledge extends React.Component {
                 inputStyle={(!this.state.stuff20Container) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuff20Container)}
+                onChangeText={this.stuff20ContainerPalletInput}
+                value={this.state.stuff20ContainerPallet}
             />
          </View>      
             <View style={styles.sectionInput}>
@@ -234,6 +337,8 @@ class Acknowledge extends React.Component {
                            
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuff20Container)}
+                onChangeText={this.stuff20ContainerCartonInput}
+                value={this.state.stuff20ContainerCarton}
             />
             </View> 
 
@@ -282,6 +387,8 @@ class Acknowledge extends React.Component {
                 inputStyle={(!this.state.stuff40Container) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuff40Container)}
+                onChangeText={this.stuff40ContainerPalletInput}
+                value={this.state.stuff40ContainerPallet}
             />
          </View> 
             <View style={styles.sectionInput}>
@@ -295,6 +402,8 @@ class Acknowledge extends React.Component {
 
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuff40Container)}
+                onChangeText={this.stuff40ContainerCartonInput}
+                value={this.state.stuff40ContainerCarton}
             />
             </View> 
         </View>
@@ -322,6 +431,8 @@ class Acknowledge extends React.Component {
                                  inputStyle={(!this.state.takeCartoon) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.takeCartoon)}
+                onChangeText={this.takeCartonSKUInput}
+                value={this.state.takeCartonSKU}
             />
             </View> 
             <CheckBox
@@ -339,6 +450,8 @@ class Acknowledge extends React.Component {
                     inputStyle={(!this.state.takeOthers) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
                 labelStyle={styles.textInput}
                 disabled={(!this.state.takeOthers)}
+                onChangeText={this.takeOthersChangeInput}
+                value={this.state.takeOthersInput}
             />
             </View> 
 
@@ -425,6 +538,7 @@ class Acknowledge extends React.Component {
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.submitItem}
+              disabled={ this.state.stuffTruck || this.state.stuff20Container || this.state.stuff40Container ? false : true}
               title="Update"
             />
         </ScrollView>
@@ -596,37 +710,14 @@ textInput :{
 };
 function mapStateToProps(state) {
   return {
-    todos: state.originReducer.todos,
-    textfield: state.originReducer.todos.name,
-    value: state.originReducer.todos.name,
-    userRole: state.originReducer.userRole,
-    isPhotoProofSubmitted: state.originReducer.filters.isPhotoProofSubmitted,
-    isSignatureSubmitted: state.originReducer.filters.isSignatureSubmitted,
-    manifestList: state.originReducer.manifestList,
+
+    inboundList: state.originReducer.inboundSPVList,
   };
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    decrement: () => dispatch({type: 'DECREMENT'}),
-    reset: () => dispatch({type: 'RESET'}),
-    onChange: (text) => {
-      return {type: 'todos', payload: text};
-    },
-    signatureSubmittedHandler: (signature) => dispatch({type: 'Signature', payload: signature}),
-    setBottomBar: (toggle) => dispatch({type: 'BottomBar', payload: toggle}),
-    setStartDelivered : (toggle) => {
-      return dispatch({type: 'startDelivered', payload: toggle});
-    },
-    setFromBarcode: (dataCode) => {
-      return dispatch({type: 'fromBarcode', payload: dataCode});
-    },
-    setManifestList: (data) => {
-      return dispatch({type: 'ManifestList', payload: data});
-    },
-    setBarcodeScanner: (toggle) => {
-      return dispatch({type: 'ScannerActive', payload: toggle});
-    },
+
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };

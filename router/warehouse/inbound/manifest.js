@@ -27,6 +27,7 @@ import InboundDetail from '../../../component/extend/ListItem-inbound-detail';
 import IconBarcodeMobile from '../../../assets/icon/iconmonstr-barcode-3 2mobile.svg';
 import moment from 'moment';
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
+import {getData, postData} from '../../../component/helper/network';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component{
@@ -38,6 +39,10 @@ class Warehouse extends React.Component{
       inboundCode: this.props.route.params?.code ?? '',
       _visibleOverlay : false,
       receivingNumber: null,
+      companyname : null,
+      shipmentVAS : true,
+      receiptid : null,
+      palletid:'',
       search: '',
       filtered : 0,
       _manifest: [],
@@ -46,21 +51,19 @@ class Warehouse extends React.Component{
     this.goToIVAS.bind(this);
     this.toggleOverlay.bind(this);
     this.setFiltered.bind(this);
+    this.generatePalletID.bind(this);
     this.updateSearch.bind(this);
   }
   static getDerivedStateFromProps(props,state){
     const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest, barcodeGrade} = props;
     const {receivingNumber, _manifest, search, filtered} = state;
-    if(manifestList.length === 0 && search === ''){
-      let manifest = manifestDummy.filter((element)=>element.name.indexOf(search) > -1);
-      props.setManifestList(manifest);
-      return {...state, _manifest : manifest};
-    } else if(manifestList.length > 0 && barcodeScanned.length > 0) {
+    if(manifestList.length > 0 && barcodeScanned.length > 0) {
       let manifest = Array.from({length: manifestList.length}).map((num, index) => {
         return {
             ...manifestList[index],
             grade : barcodeScanned.includes(manifestList[index].code) ? barcodeGrade : manifestList[index].grade,
             scanned: barcodeScanned.includes(manifestList[index].code) ? barcodeScanned.length : manifestList[index].scanned,
+            status : barcodeScanned.includes(manifestList[index].code) ? 2 : manifestList[index].status
         };
       });
       props.setItemGrade(null);
@@ -72,7 +75,8 @@ class Warehouse extends React.Component{
         return {
             ...manifestList[index],
             scanned: ReportedManifest === manifestList[index].code ? -1 : manifestList[index].scanned,
-        };
+            status : ReportedManifest === manifestList[index].code ? 4 : manifestList[index].status
+          };
       });
       props.setReportedManifest(null);
       props.setManifestList(manifest);
@@ -96,41 +100,72 @@ class Warehouse extends React.Component{
   componentDidUpdate(prevProps, prevState, snapshot) {
     const {manifestList} = this.props;
     
-    if(prevState.receivingNumber !== this.state.receivingNumber){
-      if(this.props.receivingNumber === null){
-        this.props.navigation.goBack();
-      } else {
-        this.setState({_manifest: []});
-       this.props.setManifestList([]);
-      }
-    } 
+    // if(prevState.receivingNumber !== this.state.receivingNumber){
+    //   if(this.props.receivingNumber === null){
+    //     this.props.navigation.goBack();
+    //   } else {
+    //     this.setState({_manifest: []});
+    //    this.props.setManifestList([]);
+    //   }
+    // } 
     let filtered = prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.updated !== this.state.updated ? this.state.filtered : null;
    
     if(filtered === 0) {
       this.setState({_manifest: manifestList.filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       } else if(filtered === 1){
-        this.setState({_manifest: manifestList.filter((element)=> element.scanned === -1).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
+        this.setState({_manifest: manifestList.filter((element)=> element.status === 1).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       } else if(filtered === 2){
-        this.setState({_manifest: manifestList.filter((element)=>  element.scanned === 0).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 2).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       }else if(filtered === 3){
-        this.setState({_manifest: manifestList.filter((element)=>  element.scanned < element.total_package && element.scanned > 0).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       }else if(filtered === 4){
-        this.setState({_manifest: manifestList.filter((element)=>  element.scanned === element.total_package).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 4).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       } 
    
   }
-  componentDidMount() {
+  async componentDidMount() {
     const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest} = this.props;
     const {receivingNumber, _manifest, search} = this.state;
     if(receivingNumber === null){
       const {routes, index} = navigation.dangerouslyGetState();
-      if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
-        this.setState({receivingNumber: routes[index].params.number})
-      } else if(currentASN !== null) {
-        this.setState({receivingNumber: currentASN})
-      } else {
-        navigation.popToTop();
-      }
+      // if(manifestList.length === 0 && search === ''){
+      //   let manifest = manifestDummy.filter((element)=>element.name.indexOf(search) > -1);
+      //   props.setManifestList(manifest);
+      //   return {...state, _manifest : manifest};
+      // } else
+        if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
+          const result = await getData('inbounds/'+routes[index].params.number);
+          if(typeof result === 'object' && result.error === undefined){
+            const shipmentVAS  = await getData('/inbounds/'+routes[index].params.number+'/shipmentVAS')
+            if(typeof shipmentVAS === 'object' && shipmentVAS.error !== undefined && shipmentVAS.error.indexOf('Not Found') !== -1){
+              this.setState({shipmentVAS: false});
+            }
+            let mergedDummy = Array.from({length: result.inbound_products.length}).map((num,index)=>{
+              return {...manifestDummy[index],...result.inbound_products[index]}
+            });
+            this.props.setManifestList(mergedDummy)
+            this.setState({receivingNumber: routes[index].params.number,_manifest:mergedDummy,companyname:result.company.company_name,receiptid: result.inbound_asn !== null ? result.inbound_asn.reference_id: result.inbound_grn.reference_id })
+          } else {
+            navigation.popToTop();
+          }
+        } else if(currentASN !== null) {
+          const result = await getData('inbounds/'+currentASN);
+          if(typeof result === 'object' && result.error === undefined){
+            const shipmentVAS  = await getData('/inbounds/'+currentASN+'/shipmentVAS')
+            if(typeof shipmentVAS === 'object' && shipmentVAS.error !== undefined && shipmentVAS.error.indexOf('dataValues') !== -1){
+              this.setState({shipmentVAS: false});
+            }
+            let mergedDummy = Array.from({length: result.inbound_products.length}).map((num,index)=>{
+              return {...manifestDummy[index],...result.inbound_products[index]}
+            });
+            this.props.setManifestList(mergedDummy)
+          this.setState({receivingNumber: currentASN, _manifest:mergedDummy, companyname:result.company.company_name,receiptid: result.inbound_asn !== null ? result.inbound_asn.reference_id: result.inbound_grn.reference_id })
+          } else {
+            navigation.popToTop();
+          }
+        } else {
+          navigation.popToTop();
+        }
     }
   }
   setFiltered = (num)=>{
@@ -155,11 +190,25 @@ class Warehouse extends React.Component{
     }
   }
   goToIVAS =() =>{
-    this.props.navigation.navigate('RecordIVAS');
+    this.props.navigation.navigate(    {
+      name: 'RecordIVAS',
+       params: {
+        number: this.state.receivingNumber,
+      },
+    });
   }
   updateSearch = (search) => {
     this.setState({search});
   };
+  generatePalletID = async () => {
+    const {receivingNumber} = this.state;
+    const result = await postData('/inbounds/'+receivingNumber+'/pallet')
+    if(typeof result === 'object' && result.error === undefined){
+      this.setState({palletid: result.id});
+    } else {
+
+    }
+  }
   render() {
     const {_visibleOverlay, _manifest,receivingNumber} = this.state;
     const {inboundList} = this.props;
@@ -173,7 +222,8 @@ class Warehouse extends React.Component{
             <View style={[styles.sectionContentTitle, {flexDirection: 'row'}]}>
             <View style={[styles.titleHead,{flexShrink :1,minWidth: 180}]}>
             <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{receivingNumber}</Text>
-            <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{currentASN !== undefined ? currentASN.transport : null}</Text>
+            <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{this.state.companyname}</Text>
+            <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{"Receipt #: "+ this.state.receiptid}</Text>
             </View>
             <View style={[styles.contentHead,{flexShrink: 1,alignSelf:'flex-end', flexDirection: 'column'}]}>
             <View style={[styles.headPallet,{flexDirection:'row', flexShrink:1}]}>
@@ -184,7 +234,7 @@ class Warehouse extends React.Component{
                                   paddingVertical: 0}} 
                                  inputStyle={{...Mixins.containedInputDefaultStyle,marginHorizontal: 0}}
             labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
-            placeholder="P0091"
+            value={this.state.palletid}
                 disabled={true}
             />
             </View>
@@ -192,7 +242,7 @@ class Warehouse extends React.Component{
               containerStyle={{width: '100%',justifyContent: 'center',height:20,marginTop:2}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0}]}
               titleStyle={[styles.deliveryText,{lineHeight:21,fontWeight:'400'}]}
-              onPress={this.toggleOverlay}
+              onPress={this.generatePalletID}
               title="New Pallet ID"
             />
               <Button
@@ -239,32 +289,32 @@ class Warehouse extends React.Component{
                     textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                       <Badge
-                    value="Reported"
+                    value="Pending"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(1)}
                     badgeStyle={this.state.filtered === 1 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
-                    value="Pending"
+                    value="Reported"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(4)}
+                    badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
+                          <Badge
+                    value="Processing"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(2)}
                     badgeStyle={this.state.filtered === 2 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
-                    value="Progress"
+                    value="Processed"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(3)}
                     badgeStyle={this.state.filtered === 3 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
-                    />
-                          <Badge
-                    value="Completed"
-                    containerStyle={styles.badgeSort}
-                    onPress={()=> this.setFiltered(4)}
-                    badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
             </View>
          
@@ -327,6 +377,7 @@ class Warehouse extends React.Component{
               containerStyle={{flex:1, marginRight:10}}
               buttonStyle={[styles.navigationButton, {paddingVertical: 10, backgroundColor: '#121C78'}]}
               titleStyle={styles.deliveryText}
+              disabled={this.state.shipmentVAS}
               onPress={this.goToIVAS}
               title="Shipment VA"
             />

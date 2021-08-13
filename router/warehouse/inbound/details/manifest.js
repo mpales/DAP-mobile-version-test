@@ -27,6 +27,7 @@ import InboundDraftDetail from '../../../../component/extend/ListItem-inbound-de
 import IconBarcodeMobile from '../../../../assets/icon/iconmonstr-barcode-3 2mobile.svg';
 import moment from 'moment';
 import IconSearchMobile from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
+import {getData} from '../../../../component/helper/network';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component{
@@ -37,6 +38,7 @@ class Warehouse extends React.Component{
     this.state = {
      _visibleOverlay : false,
       receivingNumber: null,
+      companyname : null,
       search: '',
       filtered : 0,
       _manifest: [],
@@ -47,15 +49,7 @@ class Warehouse extends React.Component{
     this.updateSearch.bind(this);
   }
   static getDerivedStateFromProps(props,state){
-    const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest, barcodeGrade} = props;
-    const {receivingNumber, _manifest, search, filtered} = state;
-    if(manifestList.length === 0 && search === ''){
-      let manifest = manifestDummy.filter((element)=>element.name.indexOf(search) > -1);
-      props.setManifestList(manifest);
-      return {...state, _manifest : manifest};
-    } else if(manifestList.length > 0 && _manifest.length === 0  && search === '' && filtered === 0 ) {
-      return {...state, _manifest: manifestList}
-    }
+  
     return {...state};
   }
   shouldComponentUpdate(nextProps, nextState) {
@@ -72,41 +66,60 @@ class Warehouse extends React.Component{
   componentDidUpdate(prevProps, prevState, snapshot) {
     const {manifestList} = this.props;
     
-    if(prevState.receivingNumber !== this.state.receivingNumber){
-      if(this.props.receivingNumber === null){
-        this.props.navigation.goBack();
-      } else {
-        this.setState({_manifest: []});
-       this.props.setManifestList([]);
-      }
-    } 
+ 
     let filtered = prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.updated !== this.state.updated ? this.state.filtered : null;
    
     if(filtered === 0) {
       this.setState({_manifest: manifestList.filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       } else if(filtered === 1){
-        this.setState({_manifest: manifestList.filter((element)=> element.scanned === -1).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
+        this.setState({_manifest: manifestList.filter((element)=> element.status === 1).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       } else if(filtered === 2){
-        this.setState({_manifest: manifestList.filter((element)=>  element.scanned === 0).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 2).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       }else if(filtered === 3){
-        this.setState({_manifest: manifestList.filter((element)=>  element.scanned < element.total_package && element.scanned > 0).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       }else if(filtered === 4){
-        this.setState({_manifest: manifestList.filter((element)=>  element.scanned === element.total_package).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 4).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
       } 
    
+   
   }
-  componentDidMount() {
+  async componentDidMount() {
     const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest} = this.props;
     const {receivingNumber, _manifest, search} = this.state;
     if(receivingNumber === null){
       const {routes, index} = navigation.dangerouslyGetState();
-      if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
-        this.setState({receivingNumber: routes[index].params.number})
-      } else if(currentASN !== null) {
-        this.setState({receivingNumber: currentASN})
-      } else {
-        navigation.popToTop();
-      }
+      // if(manifestList.length === 0 && search === ''){
+      //   let manifest = manifestDummy.filter((element)=>element.name.indexOf(search) > -1);
+      //   props.setManifestList(manifest);
+      //   return {...state, _manifest : manifest};
+      // } else
+        if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
+          const result = await getData('inbounds/'+routes[index].params.number);
+          if(typeof result === 'object' && result.error === undefined){
+          
+            let mergedDummy = Array.from({length: result.inbound_products.length}).map((num,index)=>{
+              return {...manifestDummy[index],...result.inbound_products[index]}
+            });
+            this.props.setManifestList(mergedDummy)
+            this.setState({receivingNumber: routes[index].params.number,_manifest:mergedDummy,companyname:result.company.company_name, })
+          } else {
+            navigation.popToTop();
+          }
+        } else if(currentASN !== null) {
+          const result = await getData('inbounds/'+currentASN);
+          if(typeof result === 'object' && result.error === undefined){
+          
+            let mergedDummy = Array.from({length: result.inbound_products.length}).map((num,index)=>{
+              return {...manifestDummy[index],...result.inbound_products[index]}
+            });
+            this.props.setManifestList(mergedDummy)
+          this.setState({receivingNumber: currentASN, _manifest:mergedDummy, companyname:result.company.company_name, })
+          } else {
+            navigation.popToTop();
+          }
+        } else {
+          navigation.popToTop();
+        }
     }
   }
   setFiltered = (num)=>{
@@ -119,7 +132,6 @@ class Warehouse extends React.Component{
   render() {
     const {_visibleOverlay, _manifest,receivingNumber} = this.state;
     const {inboundList} = this.props;
-    let currentASN = inboundList.find((element) => element.number === receivingNumber);
     return (
       <>
         <StatusBar barStyle="dark-content" /> 
@@ -129,7 +141,7 @@ class Warehouse extends React.Component{
             <View style={[styles.sectionContentTitle, {flexDirection: 'row'}]}>
             <View style={[styles.titleHead,{flexShrink :1,minWidth: 180}]}>
             <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{receivingNumber}</Text>
-            <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{currentASN !== undefined ? currentASN.transport : null}</Text>
+            <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{this.state.companyname}</Text>
             </View>
             <View style={[styles.contentHead,{flex: 1,alignSelf:'flex-end', flexDirection: 'column'}]}>
             <Button
@@ -223,6 +235,12 @@ class Warehouse extends React.Component{
                     navigation={this.props.navigation}
                     // for prototype only
                     // end
+                    toDetailsDraft={()=>{
+                      this.props.navigation.navigate(u.transit === 1 ? 'ItemTransitDraftDetail' : 'ItemDraftDetails',{
+                        dataCode: u.code,
+                        inboundId: this.state.receivingNumber
+                    })
+                    }}
                   />
                 ))}
               </Card>
@@ -393,7 +411,9 @@ const manifestDummy = [
     weight: 115,
     status: 'onProgress',
     sku: '221314123',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
+    posm: 1
   },
   {
     code: '9780312205195',
@@ -406,7 +426,9 @@ const manifestDummy = [
     CBM: 10.10,
     weight: 70,
     sku: '412321412',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
+    posm: 1
   },
   {
     code: '9780312205195',
@@ -419,7 +441,9 @@ const manifestDummy = [
     CBM: 15.10,
     weight: 90,
     sku: '1241231231',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
+    posm: 1
   },
   {
     code: '9780312205195',
@@ -432,7 +456,9 @@ const manifestDummy = [
     CBM: 20.10,
     weight: 115,
     sku : '12454634545',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
+    posm: 1
   },
   {
     code: '9780312205195',
@@ -445,7 +471,9 @@ const manifestDummy = [
     CBM: 10.10,
     weight: 90,
     sku: '430344390',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
+    posm: 1
   },
   {
     code: '9780312205195',
@@ -458,7 +486,9 @@ const manifestDummy = [
     CBM: 15.10,
     weight: 70,
     sku: '430958095',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
+    posm: 1
   },
   {
     code: '9780312205195',
@@ -471,7 +501,9 @@ const manifestDummy = [
     CBM: 20.10,
     weight: 115,
     sku: '430950345',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
+    posm: 1
   },
   {
     code: '9780099582113',
@@ -484,7 +516,9 @@ const manifestDummy = [
     CBM: 20.10,
     weight: 115,
     sku: '250345345',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
+    posm: 1
   },
   {
     code: '13140026927112',
@@ -497,7 +531,9 @@ const manifestDummy = [
     CBM: 20.10,
     weight: 115,
     sku: '4309583049',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
+    posm: 1
   },
   {
     code: '13140026927113',
@@ -510,7 +546,9 @@ const manifestDummy = [
     CBM: 20.10,
     weight: 115,
     sku: '3405934095',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
+    posm: 1
   },
   {
     code: '13140026927114',
@@ -523,7 +561,9 @@ const manifestDummy = [
     CBM: 20.10,
     weight: 115,
     sku: '4059304034',
-    grade: 'Pick'
+    grade: 'Pick',
+    transit : 0,
+    posm: 1
   },
 ];
 

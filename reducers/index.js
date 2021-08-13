@@ -6,6 +6,8 @@ const initialState = {
   todos: STRUCT,
   userRole: USER,
   photoProofPostpone: null,
+  photoReportPostpone: null,
+  photoReportID : null,
   photoProofID : null,
   photoProofList: [],
   route: ROUTE,
@@ -256,6 +258,29 @@ export default function appReducer(state = initialState, action) {
             ],
           };
         }
+        case 'PhotoReportPostpone':
+          if(action.payload === null ){
+            return {
+              ...state,
+              photoReportPostpone: initialState.photoReportPostpone,
+              photoReportID: initialState.photoReportID,
+            }
+          } else if(Array.isArray(state.photoReportPostpone)){
+            return {
+              ...state,
+              photoReportPostpone: [
+                ...state.photoReportPostpone,
+                action.payload
+              ],
+            };  
+          } else {
+            return {
+              ...state,
+              photoReportPostpone: [
+                action.payload
+              ],
+            };
+          }
         case 'POSMPostpone':
           if(action.payload === null ){
             return {
@@ -287,11 +312,16 @@ export default function appReducer(state = initialState, action) {
               }
             };
           }
-        case 'PhotoProofUpdate':
+        case 'PhotoReportUpdate':
           return {
             ...state,
-            photoProofPostpone: action.payload,
+            photoReportPostpone: action.payload,
           }
+          case 'PhotoProofUpdate':
+            return {
+              ...state,
+              photoProofPostpone: action.payload,
+            }
           case 'POSMUpdate':
             return {
               ...state,
@@ -304,6 +334,11 @@ export default function appReducer(state = initialState, action) {
           return {
             ...state,
             photoProofID: action.payload,
+          }
+          case 'addPhotoReportID': 
+          return {
+            ...state,
+            photoReportID: action.payload,
           }
     case 'PhotoProof':
       return {

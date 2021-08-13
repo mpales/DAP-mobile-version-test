@@ -14,19 +14,45 @@ import Checkmark from '../../../../assets/icon/iconmonstr-check-mark-7 1mobile.s
 // component
 import DetailList from '../../../../component/extend/Card-detail';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-
+import {getData, postData} from '../../../../component/helper/network';
+import Loading from '../../../../component/loading/loading';
+import moment from 'moment';
 class ConnoteReportDetails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      inboundID : null,
       acknowledged:false,
       title: 'Forklift',
       note: 'Item weight is over 10 kg',
       itemIVAS : null,
+      inboundData: null,
     };
+    this.acknowledgedSPVConfirm.bind(this);
   }
   static getDerivedStateFromProps(props,state){
+    const {navigation, manifestList, inboundList} = props;
+    const {inboundID, _itemDetail} = state;
+    if(inboundID === null){
+      const {routes, index} = navigation.dangerouslyGetState();
+      if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
+        let inboundData = inboundList.find((element) => element.id ===  routes[index].params.number);
+        if(inboundData !== undefined){
+          return {...state, inboundID: routes[index].params.number,inboundData: inboundData};
+        } else {
+          navigation.goBack();
+          return {...state, inboundID: routes[index].params.number};
+        }
+      }
+      return {...state};
+    } 
+    
     return {...state};
+  }
+  async componentDidMount(){
+    const {inboundID} = this.state;
+    const result = await getData('/inbounds/'+inboundID+'/shipmentVAS');
+   this.setState({itemIVAS:result, acknowledged:Boolean(Number(result.acknowledged))});
   }
   checkedIcon = () => {
     return (
@@ -38,11 +64,23 @@ class ConnoteReportDetails extends React.Component {
       </View>
     );
   };
-  
+  toggleCheckBox = () => {
+    this.setState({
+      acknowledged: !this.state.acknowledged,
+    });
+  };
+  acknowledgedSPVConfirm = async ()=>{
+    const {inboundID} = this.state;
+    let data = {acknowledge:this.state.acknowledged >>> 0}
+    const result = await postData('/inbounds/'+inboundID+'/shipmentVAS/acknowledge',data);
+  }
   uncheckedIcon = () => {
     return <View style={styles.unchecked} />;
   };
   render() {
+    const {inboundData,itemIVAS} = this.state;
+    if(inboundData === null || itemIVAS === null )
+    return (<Loading/>);
     return (
       <>
         <StatusBar barStyle="dark-content" />
@@ -54,16 +92,17 @@ class ConnoteReportDetails extends React.Component {
             <Card containerStyle={styles.cardContainer} style={styles.card}>
              
               <View style={styles.detail}>
-                <DetailList title="Client" value="Dead Sea Preimer" />
-                <DetailList title="Recorded By" value="Kim Tan" />
-                <DetailList title="Date and Time" value="12-03-21 13:05 P.M" />
+                <DetailList title="Client" value={inboundData.company.company_name} />
+                <DetailList title="Recorded By" value={itemIVAS.updated_by.firstName} />
+                <DetailList title="Date and Time" value={moment(itemIVAS.updated_on).format('DD/MM/YYY h:mm a')}/>
                
-                <Text
-                  style={{...Mixins.body1,lineHeight:20,fontWeight:'600',color:'#2D2C2C'}}>
-                Un-Stuffing From Truck
+              <View style={{marginVertical:10}}> 
+              <Text style={{...Mixins.body1,lineHeight:20,fontWeight:'700',color:'#2D2C2C'}}>
+               { itemIVAS.inbound_shipment === 1 ?  'Un-Stuffing From Truck' : itemIVAS.inbound_shipment === 2 ? 'Un-Stuffing From 20’ Container' : itemIVAS.inbound_shipment === 3 ? 'Un-Stuffing From 40’ Container' : null}
                 </Text>
-                <DetailList title="Number Pallet" value="32" />
-                <DetailList title="Number Cartons" value="20" />
+                </View>
+                <DetailList title="Number Pallet" value={itemIVAS.inbound_shipment_no_pallet} />
+                <DetailList title="Number Cartons" value={itemIVAS.inbound_shipment_no_carton} />
                 
               </View>
             </Card>
@@ -82,6 +121,8 @@ class ConnoteReportDetails extends React.Component {
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               title="Confirm"
+              onPress={this.acknowledgedSPVConfirm}
+              disabled={!this.state.acknowledged}
   
             />
               <Button
@@ -89,7 +130,7 @@ class ConnoteReportDetails extends React.Component {
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={()=>{
-                this.props.navigation.navigate('UpdateIVAS');
+                this.props.navigation.navigate('UpdateIVAS',{number:this.state.inboundID});
               }}
               title="Edit VAS"
 
@@ -204,6 +245,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
   return {
     manifestList: state.originReducer.manifestList,
+    inboundList: state.originReducer.inboundSPVList,
   };
 };
 

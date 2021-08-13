@@ -181,7 +181,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.company.company_code}
+                placeholder={data.company.company_name}
                 disabled={true}
             />
          </View>
@@ -194,7 +194,7 @@ class Acknowledge extends React.Component {
               inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
               inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
               labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={"test"}
+                placeholder={data.inbound_asn !== null ? data.inbound_asn.reference_id: data.inbound_grn !== null ? data.inbound_grn.reference_id :  '-' }
                 disabled={true}
             />
          </View>
@@ -220,7 +220,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput,{backgroundColor:'#F8B511'}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21,textTransform: 'uppercase', color:'#fff'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                value={''+data.status}
+                value={data.status === 1 ? 'Waiting' : data.status === 2 ? "Received" : data.status === 3 ? "Processing" : data.status === 4 ? "Processed" : "Reported" }
                 disabled={false}
             />
          </View>
@@ -234,7 +234,7 @@ class Acknowledge extends React.Component {
               inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.status === 1 ? data.eta : moment.unix(data.created_on).format("DD-MM-YYYY")}
+                placeholder={data.status === 1 ? moment(data.eta).format("DD-MM-YYYY") : moment.unix(data.created_on).format("DD-MM-YYYY")}
                 disabled={true}
             />
          </View>

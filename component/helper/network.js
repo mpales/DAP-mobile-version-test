@@ -174,7 +174,7 @@ export const getBlob = (path,data, callbackProgress) => {
       if (res.respInfo.headers['Content-Type'].includes('text/plain')) {
         return await responseBlobRawHandler(res,data);
       } else if (res.respInfo.headers['Content-Type'].includes('text/html')) {
-        return responseBlobHandler(res);
+        return await responseBlobRawHandler(res,data);
       } else if (res.respInfo.headers['Content-Type'].includes('image')) {
         return responseImageHandler(res,data);
       }
@@ -194,10 +194,10 @@ export const postData = (path, data) => {
         body: JSON.stringify(data),
       });
       if (res.headers.map['content-type'].includes('text/plain')) {
-        return responseBlobHandler(res);
+        return res.text();
       } else if (res.headers.map['content-type'].includes('text/html')) {
-        return res.path();
-      } 
+        return responseHandler(res);
+      }
       return res.json();
     } catch (err) {
       return err;
@@ -213,6 +213,11 @@ export const putData = (path, data) => {
         method: 'PUT',
         body: JSON.stringify(data),
       });
+      if (res.headers.map['content-type'].includes('text/plain')) {
+        return res.text();
+      } else if (res.headers.map['content-type'].includes('text/html')) {
+        return responseHandler(res);
+      }
       return res.json();
     } catch (err) {
       return err;

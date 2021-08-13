@@ -7,15 +7,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Card} from 'react-native-elements';
+import {Card, Divider} from 'react-native-elements';
 import {connect} from 'react-redux';
-import mixins from '../../../mixins';
+import mixins from '../../../../mixins';
 // component
-import DetailList from '../../../component/extend/Card-detail';
+import DetailList from '../../../../component/extend/Card-detail';
 // icon
-import ChevronRight from '../../../assets/icon/iconmonstr-arrow-66mobile-2.svg';
-import ChevronDown from '../../../assets/icon/iconmonstr-arrow-66mobile-1.svg';
-import {getData} from '../../../component/helper/network';
+import ChevronRight from '../../../../assets/icon/iconmonstr-arrow-66mobile-2.svg';
+import ChevronDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-1.svg';
+import {getData} from '../../../../component/helper/network';
 import moment from 'moment';
 class ConnoteDetails extends React.Component {
   constructor(props) {
@@ -24,10 +24,8 @@ class ConnoteDetails extends React.Component {
       sortBy: 'Name',
       dataCode : '0',
       dataActivities : [],
-      totalReports: 0,
       _itemDetail: null,
     };
-    this.navigateSeeReport.bind(this);
     this.renderHeader.bind(this);
   }
   static getDerivedStateFromProps(props,state){
@@ -50,64 +48,41 @@ class ConnoteDetails extends React.Component {
 
   async componentDidMount(){
     const {id} = this.state._itemDetail;
-    const result = await getData('/inbounds/'+this.props.currentASN+'/activities');
+    const result = await getData('/inbounds/'+id+'/activities');
     if(typeof result === 'object' && result.error === undefined){
       this.setState({dataActivities:result})
     } else {
 
     }
-    const resultTotalReport = await getData('/inbounds/'+this.props.currentASN+'/'+id+'/reports');
-    if(typeof resultTotalReport === 'object' && resultTotalReport.error === undefined){
-      this.setState({totalReports:resultTotalReport.length})
-    }
   }
   navigateSeeReport = () => {
-    const {id} = this.state._itemDetail;
-    this.props.navigation.navigate('ItemReportDetail',{number:id});
+    this.props.navigation.navigate('ItemReportDetail');
   };
 
   renderHeader = () => {
     const {_itemDetail} = this.state;
     return (
       <>
-       <Card containerStyle={styles.cardContainer} style={styles.card}>
-              <View style={styles.header}>
-                <View>
-                  <Text style={[styles.headerTitle, {flex: 0, fontSize: 20}]}>
-                    {_itemDetail.code}
-                  </Text>
-                  <Text style={[styles.detailText, {lineHeight: 24}]}>
-                    {_itemDetail.CBM + ' CBM'}
-                  </Text>
-                  <Text style={[styles.detailText, {lineHeight: 24}]}>
-                    {_itemDetail.weight + ' KG'}
-                  </Text>
-                </View>
-                <Text style={styles.packageCounterText}>{_itemDetail.scanned+'/'+_itemDetail.total_package}</Text>
-              </View>
-              <View style={styles.detail}>
-                <DetailList title="Description" value={_itemDetail.name} />
-                <DetailList title="Quantity" value={_itemDetail.total_package} />
-                <DetailList title="Color" value={_itemDetail.color} />
-                <DetailList title="UOM" value="Pair" />
-                <DetailList
-                  title="Country"
-                  value="America"
-                />
-                <DetailList title="EXP Date" value="-" />
-                <DetailList title="Banch" value="01" />
-                <DetailList title="Class" value="A2" />
-                <View style={styles.reportSection}>
-                  <Text style={styles.reportSectionTitle}>Report:</Text>
-                  <TouchableOpacity onPress={this.navigateSeeReport}>
-                  <DetailList
-                    title="Total Report"
-                    value={this.state.totalReports+" Report"}
-                    report={true}
-                  /></TouchableOpacity>
-                </View>
-              </View>
-            </Card>
+        <Card containerStyle={styles.cardContainer} style={styles.card}>
+             
+             <View style={styles.detail}>
+               <DetailList title="Container #" value="ADIDAS SHOES" />
+               <DetailList title="No. of Pallet" value="20" />
+               <DetailList title="No. of Carton" value="10" />
+               <DetailList title="CBM" value="0.68" />
+               <DetailList
+                 title="Weight"
+                 value="11 KG"
+               />
+               <Divider />
+               <View style={styles.header}>
+                 <Text style={[styles.detailText, {lineHeight: 24}]}>
+                 Delivery Information
+                 </Text>
+               </View>
+               <DetailList title="Delivery Type" value="SELF COLLECTION" />
+             </View>
+           </Card>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Log</Text>
           <View style={styles.sortContainer}>
@@ -128,6 +103,7 @@ class ConnoteDetails extends React.Component {
     );
   };
 
+  
   renderInner = (item) => {
     return (
       <View style={styles.header}>
@@ -145,16 +121,11 @@ class ConnoteDetails extends React.Component {
         <StatusBar barStyle="dark-content" />
         <View style={styles.container}>
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Item Details</Text>
-            <TouchableOpacity
-              style={styles.seeReportButton}
-              onPress={this.navigateSeeReport}>
-              <Text style={styles.seeReportText}>See Reports</Text>
-              <ChevronRight width="15" height="15" fill="#6C6B6B" />
-            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Transit Item Details</Text>
+            
           </View>
           <View style={styles.body}>
-           
+          
             <FlatList
               data={this.state.dataActivities}
               ListHeaderComponent={this.renderHeader}
@@ -257,7 +228,6 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
   return {
     manifestList: state.originReducer.manifestList,
-    currentASN : state.originReducer.filters.currentASN,
   };
 };
 
