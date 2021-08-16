@@ -751,6 +751,7 @@ export default function appReducer(state = initialState, action) {
     case 'resetLogin':
       return {
         ...initialState,
+        deviceSignature: state.deviceSignature,
       };
       case 'JWTToken':
         return {

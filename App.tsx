@@ -48,7 +48,8 @@ import {
   isReadyRef,
   navigationRef,
   switchLogged,
-  refreshLogin
+  refreshLogin,
+  setRootParams
 } from './component/helper/persist-login';
 import MenuWarehouse from './router/warehouse/detail/menu';
 
@@ -487,6 +488,12 @@ const NavigationWrapper = (props) => {
             switchLogged('MenuWarehouse', {});
           } else {
             switchLogged('Details', {});
+          }
+        }
+        if(state.routes[state.index].params !== undefined && state.routes[state.index].params.hardReset !== undefined){
+          if(state.routes[state.index].params.hardReset === true){
+            dispatch({type:'logout'})
+            setRootParams('hardReset',false);
           }
         }
       });

@@ -2,6 +2,11 @@ import * as React from 'react';
 import { StackActions, CommonActions} from '@react-navigation/native';
 import {Store,Dispatch} from 'redux';
 import {postData} from './network';
+
+export const isReadyRef = React.createRef();
+
+// current no object type for navigationRef inside react-navigation
+export const navigationRef = React.createRef();
 /**
  * Created on Sun Jun 20 2021
  *
@@ -32,7 +37,7 @@ import {postData} from './network';
       return Promise.reject(store.dispatch);
     }
   }
-
+ 
   export const loggedIn = () => ({
     type: 'loggedIn',
     payload: true,
@@ -40,12 +45,29 @@ import {postData} from './network';
   export const resetLog = () => ({
     type: 'resetLogin',
   });
+  
+  export function setRootParams(key,value){
+    if (navigationRef.current) {
+      // Perform navigation if the app has mounted
+      const state = navigationRef.current?.getRootState();
+      const changedState = Array.from({length:state.routes.length}).map((num,index)=>{
+          return {...state.routes[index],params:{
+            ...state.routes[index].params,
+            [key]:value,
+          }
+        };
+      });
+      navigationRef.current?.resetRoot({
+        index: state.index,
+        routes: changedState,
+      });
+   
+    } else {
+      // You can decide what to do if the app hasn't mounted
+      // You can ignore this, or add these actions to a queue you can call later
+    }
+  };
 
-
-  export const isReadyRef = React.createRef();
-
-  // current no object type for navigationRef inside react-navigation
-  export const navigationRef = React.createRef();
   
   export function switchLogged(screenName: any,props: any){
     if (isReadyRef.current && navigationRef.current) {

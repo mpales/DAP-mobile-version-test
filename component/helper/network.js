@@ -5,6 +5,7 @@ import fetchBlobDefault from './network-blob-mixins';
 import AsyncStorage from '@react-native-community/async-storage';
 import {getUserAgent} from 'react-native-device-info';
 import RNFetchBlob from 'rn-fetch-blob';
+import {setRootParams} from './persist-login';
 /**
  * Created on Tue May 11 2021
  *
@@ -99,9 +100,9 @@ export const getData = (path) => {
         method: 'GET',
       });
       if (res.headers.map['content-type'].includes('text/plain')) {
-        return res.text();
+        return  responseHandler(res);
       } else if (res.headers.map['content-type'].includes('text/html')) {
-        return responseHandler(res);
+        return  responseHandler(res);
       }
       return res.json();
     } catch (err) {
@@ -118,7 +119,7 @@ export const deleteData = (path) => {
         method: 'DELETE',
       });
       if (res.headers.map['content-type'].includes('text/plain')) {
-        return res.text();
+        return responseHandler(res);
       } else if (res.headers.map['content-type'].includes('text/html')) {
         return responseHandler(res);
       }
@@ -135,7 +136,7 @@ export const postBlob = (path, data, callbackUploadProgress, callbackProgress) =
     try {
       const res = await blobFetch(path,{method:'POST'},data,callbackUploadProgress,callbackProgress);
       if (res.respInfo.headers['Content-Type'].includes('text/plain')) {
-        return res.data;
+        return responseBlobHandler(res);
       } else if (res.respInfo.headers['Content-Type'].includes('text/html')) {
         return responseBlobHandler(res);
       }
@@ -153,7 +154,7 @@ export const putBlob = (path, data, callbackUploadProgress, callbackProgress) =>
     try {
       const res = await blobFetch(path,{method:'PUT'},data,callbackUploadProgress,callbackProgress);
       if (res.respInfo.headers['Content-Type'].includes('text/plain')) {
-        return res.data;
+        return responseBlobHandler(res);
       } else if (res.respInfo.headers['Content-Type'].includes('text/html')) {
         return responseBlobHandler(res);
       }
@@ -194,7 +195,7 @@ export const postData = (path, data) => {
         body: JSON.stringify(data),
       });
       if (res.headers.map['content-type'].includes('text/plain')) {
-        return res.text();
+        return responseHandler(res);
       } else if (res.headers.map['content-type'].includes('text/html')) {
         return responseHandler(res);
       }
@@ -214,7 +215,7 @@ export const putData = (path, data) => {
         body: JSON.stringify(data),
       });
       if (res.headers.map['content-type'].includes('text/plain')) {
-        return res.text();
+        return responseHandler(res);
       } else if (res.headers.map['content-type'].includes('text/html')) {
         return responseHandler(res);
       }
@@ -226,13 +227,16 @@ export const putData = (path, data) => {
   return result;
 };
 
-const responseHandler = (response) => {
+const responseHandler = async (response) => {
   const {status} = response;
   switch (status) {
     case 200:
       return response.text();
     case 404:
       return 'Not found';
+    case 401:
+      setRootParams('hardReset',true);
+      return response.text();
     case 403:
       return response.text();
     case 504:
@@ -249,6 +253,9 @@ const responseBlobHandler = (response) => {
       return response.text();
     case 404:
       return 'Not found';
+      case 401:
+        setRootParams('hardReset',true);
+        return response.text();
     case 403:
       return response.text();
     case 504:
@@ -271,6 +278,9 @@ const responseBlobRawHandler = async (response,data) => {
       }
     case 404:
       return 'Not found';
+      case 401:
+        setRootParams('hardReset',true);
+        return response.text();
     case 403:
       return response.text();
     case 504:
@@ -293,6 +303,9 @@ const responseImageHandler = async (response,data) => {
       }
     case 404:
       return 'Not found';
+      case 401:
+        setRootParams('hardReset',true);
+        return response.text();
     case 403:
       return response.text();
     case 504:
