@@ -56,7 +56,7 @@ class UpdatePhoto extends React.Component {
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
     
-    if(indexBottomBar === 1 ){
+    if(indexBottomBar === 0 ){
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }

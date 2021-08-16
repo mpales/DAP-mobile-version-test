@@ -59,7 +59,7 @@ class DetailsDraft extends React.Component {
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
     
-    if(indexBottomBar === 1 && key !== 'UpdatePhotos'){
+    if(indexBottomBar === 0 && key !== 'UpdatePhotos'){
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }

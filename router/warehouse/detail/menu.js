@@ -1,32 +1,51 @@
 import React from 'react';
-import {Text, Button,Image} from 'react-native-elements';
-import {View} from 'react-native';
+import {Text, Button,Image, Avatar} from 'react-native-elements';
+import {TextInput, View, Dimensions,TouchableOpacity, BackHandler, InteractionManager, Platform} from 'react-native';
 import Inbound from '../../../assets/icon/iconmonstr-shipping-box-8mobile.svg';
 import Outbound from '../../../assets/icon/iconmonstr-shipping-box-9mobile.svg';
 import Warehouse from '../../../assets/icon/iconmonstr-building-6mobile.svg';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
-
-class Acknowledge extends React.Component {
+import {createBottomTabNavigator,BottomTabBar } from '@react-navigation/bottom-tabs';
+import { createDrawerNavigator,DrawerContentScrollView,
+  DrawerItemList, DrawerItem} from '@react-navigation/drawer';
+  import {createCompatNavigatorFactory} from '@react-navigation/compat';
+import { CommonActions, NavigationRouteContext, NavigationContext} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import IconHome7Mobile from '../../../assets/icon/iconmonstr-home-7mobile.svg';
+import WarehouseDrawer from '../../../assets/icon/warehouse-bottom-drawer-mobile.svg';
+import IconBubble26Mobile from '../../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
+import IconGear2Mobile from '../../../assets/icon/iconmonstr-gear-2mobile.svg';
+import IconBell2Mobile from '../../../assets/icon/iconmonstr-bell-2mobile.svg';
+import IconTime17Mobile from '../../../assets/icon/iconmonstr-time-17 1mobile.svg';  
+import LogoSmall from '../../../assets/dap_logo_hires1-e1544435829468 5small.svg';
+import {popToLogout} from '../../../component/helper/persist-login';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import Notification from '../notification';
+const screen = Dimensions.get('window');
+const Drawer = createDrawerNavigator();
+class WarehouseMenu extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       bottomSheet: false,
       isShowSignature: false,
     };
+    this.drawerRef = React.createRef();
+   
+
+    this._CustomBottomTabContent.bind(this)
+    this._CustomDrawerContent.bind(this);
+
+    this.renderView.bind(this);
   }
 
 
-
-  render(){
-    this.props.setBottomBar(false);
+  renderView = ()=> {
     return (
-        <View style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
+      <View style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
           <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 100}}>
-          <Image
-              source={require('../../../assets/dap_logo_hires1thumb.png')}
-              style={{ width: 135, height: 70 }}
-            />
+             <LogoSmall width="135" height="70" style={{alignSelf:'center'}}/>
           </View>
            
           <Button
@@ -75,6 +94,171 @@ class Acknowledge extends React.Component {
                     />
         </View>
     );
+  }
+  _CustomDrawerContent = (props) =>  {
+    const {navigation,state} = props;
+    let {isDrawer} = this.props;
+    const isDrawerOpen = state.history.some(it => it.type === 'drawer');
+      if(this.drawerRef.current){
+        if(isDrawer){
+          navigation.openDrawer();
+        } else {
+          navigation.closeDrawer();
+        } 
+        this.drawerRef.current = false;
+      } else {
+        this.props.toggleDrawer(isDrawerOpen);
+      }
+
+  return (
+    <DrawerContentScrollView contentContainerStyle={{
+      paddingTop: 0,
+   }}
+  {...props} >
+      <SafeAreaView  edges={[ 'top']} style={{backgroundColor:'#F1811C'}}>
+      <View style={styles.drawerHead}>
+        <Avatar
+        size={43}
+        rounded 
+        containerStyle={styles.drawerAvatar}
+          source={{
+            uri:
+              'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
+          }}
+          >
+        </Avatar>
+        <Text style={styles.drawerText}>Driver Name</Text>
+        </View>
+        </SafeAreaView>
+      <DrawerItemList {...props} />
+      <DrawerItem
+        label="Logout"
+        onPress={() => {
+          this.props.removeJwtToken(null);
+          popToLogout();
+        }}
+      />
+    </DrawerContentScrollView> );
+  }
+ 
+  _CustomBottomTabContent = (props) => {
+    const {navigation,state,descriptors} = props;
+    const focusedOptions = descriptors[state.routes[state.index].key].options;
+
+    if (focusedOptions.tabBarVisible === false || this.props.bottomBar === false) {
+      return null;
+    }
+    return (<BottomTabBar  {...props}/>);
+  };
+
+  deliveryTab = createCompatNavigatorFactory(createBottomTabNavigator)(
+    {
+      Home: {
+        screen: this.renderView,
+        navigationOptions:  ({ navigation }) => ({
+          tabBarIcon: ({color, focused}) => (
+            <Button
+              buttonStyle={
+                focused
+                  ? {backgroundColor: '#F07120'}
+                  : {backgroundColor: 'transparent'}
+              }
+              onPress={()=> {
+                navigation.navigate('Home')}}
+              icon={() => (
+                <IconHome7Mobile height="22" width="24" fill={color} />
+              )}
+            />
+          ),
+        }),
+      },
+      Notification: {
+        screen: Notification,
+        navigationOptions:  ({ navigation }) => ({
+          tabBarIcon: ({color, focused}) => (
+            <Button
+              buttonStyle={
+                focused
+                  ? {backgroundColor: '#F07120'}
+                  : {backgroundColor: 'transparent'}
+              }
+              onPress={()=> navigation.navigate('Notification')}
+              icon={() => (
+                <IconBubble26Mobile height="22" width="24" fill={color} />
+              )}
+            />
+          ),
+        }),
+      },
+      Other: {
+        screen: Notification,
+        navigationOptions:  ({ navigation }) => ({
+          tabBarIcon: ({color, focused}) => (
+            <Button
+              buttonStyle={
+                focused
+                  ? {backgroundColor: '#F07120'}
+                  : {backgroundColor: 'transparent'}
+              }
+              onPress={()=> navigation.navigate('Other')}
+              icon={() => (
+                <IconGear2Mobile height="22" width="24" fill={color} />
+              )}
+            />
+          ),
+        }),
+      },
+    },
+    {
+      tabBar : (props)=> {
+        return this._CustomBottomTabContent(props)
+      },
+      initialRouteName: 'Home',
+      tabBarOptions: {
+        shifting: false,
+        showLabel: false,
+        activeTintColor: '#FFFFFF',
+        inactiveTintColor: '#6C6B6B',
+        tabStyle: {
+          paddingVertical: 10,
+          justifyContent: 'space-evenly',
+        },
+        style: {
+          height: Platform.OS === 'ios' ? 94 : 64,
+          borderWidth: 0.5,
+          borderBottomWidth: 1,
+          backgroundColor: '#F5F5FB',
+          borderTopLeftRadius: 15,
+          borderTopRightRadius: 15,
+          borderColor: 'transparent',
+          overflow: 'hidden',
+          paddingHorizontal: screen.width * 10 / 100,
+        },
+      },
+    },
+  );
+  render() {
+    return (<Drawer.Navigator 
+    initialRouteName="Home" 
+    drawerStyle={Mixins.verticalBarExpand}
+    drawerContent={this._CustomDrawerContent} 
+    contentContainerStyle={styles.drawerContainer} 
+    drawerContentOptions={{activeBackgroundColor: '#ffffff',inactiveBackgroundColor: '#ffffff',activeTintColor:'#6C6B6B',inactiveTintColor: '#6C6B6B',
+    labelStyle:Mixins.button,
+    itemStyle: Mixins.verticalBarMargin}}>
+    <Drawer.Screen name="Notifications" component={this.deliveryTab} 
+    options={{
+      drawerIcon:({ focused, color, size })=>(<IconBell2Mobile height="20" width="17" fill='#2D2C2C'/>),
+    }}/>
+    <Drawer.Screen name="History" component={this.deliveryTab} 
+    options={{
+      drawerIcon:({ focused, color, size })=>(<IconTime17Mobile height="20" width="17" fill="#2D2C2C"/>),
+    }}/>
+    <Drawer.Screen name="Settings" component={this.deliveryTab} 
+    options={{
+      drawerIcon:({ focused, color, size })=>(<IconGear2Mobile height="20" width="17" fill="#2D2C2C"/>),
+    }}/>
+  </Drawer.Navigator>);
   }
 }
 
@@ -174,6 +358,24 @@ const styles = {
     bottom: 62, 
     right: 16
   },
+  drawerContainer : {
+    paddingTop: 0,
+  },
+  drawerHead: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 25,
+    backgroundColor: '#F1811C',
+  },
+  drawerText : {
+    flexShrink: 1,
+    ...Mixins.verticalBarExpandText,
+    ...Mixins.button,
+    color: 'white',
+  },
+  drawerAvatar : {
+    flexShrink: 1,
+  },
 };
 function mapStateToProps(state) {
   return {
@@ -193,6 +395,9 @@ const mapDispatchToProps = (dispatch) => {
     onChange: (text) => {
       return {type: 'todos', payload: text};
     },
+    toggleDrawer: (bool) => {
+      return dispatch({type: 'ToggleDrawer', payload: bool});
+    },
     signatureSubmittedHandler: (signature) => dispatch({type: 'Signature', payload: signature}),
     setBottomBar: (toggle) => dispatch({type: 'BottomBar', payload: toggle}),
     setStartDelivered : (toggle) => {
@@ -200,10 +405,13 @@ const mapDispatchToProps = (dispatch) => {
     },
     setWarehouseModule : (toggle) => {
       return dispatch({type: 'warehouseModule', payload: toggle});
-    }
+    },
+    removeJwtToken: (token) => {
+      dispatch({type: 'JWTToken', payload: token});
+    },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Acknowledge);
+export default connect(mapStateToProps, mapDispatchToProps)(WarehouseMenu);
 

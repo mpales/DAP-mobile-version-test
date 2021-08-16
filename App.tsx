@@ -52,7 +52,7 @@ import {
   setRootParams
 } from './component/helper/persist-login';
 import MenuWarehouse from './router/warehouse/detail/menu';
-
+import LogoLarge from './assets/dap_logo_hires1-e1544435829468 5large.svg';
 enableScreens(false);
 class App extends React.Component<IProps, IState> {
   keyboardDidShowListener: any;
@@ -186,11 +186,8 @@ class App extends React.Component<IProps, IState> {
         <Signature deviceSignature={this.props.deviceSignature} />
         <View style={styles.body}>
           <View style={styles.sectionContainerIMG}>
-            <Image
-              source={require('./assets/dap_logo_hires1large.png')}
-              style={{ width: 176, height: 91 }}
-              containerStyle={styles.tinyLogo}
-            />
+
+            <LogoLarge width="179" height="91" style={{alignSelf:'center'}}/>
           </View>
           <FadeInView
             transition={this.state.transitionTo}
