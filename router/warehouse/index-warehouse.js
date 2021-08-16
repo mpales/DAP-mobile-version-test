@@ -1,8 +1,9 @@
 import React from 'react';
 import {TextInput, View, Text, Dimensions,TouchableOpacity, BackHandler, InteractionManager, Platform} from 'react-native';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
-import { CommonActions } from '@react-navigation/native';
+import { CommonActions, NavigationRouteContext, NavigationContext} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import BottomTabItem  from '@react-navigation/bottom-tabs/src/views/BottomTabItem';
 import {createBottomTabNavigator,BottomTabBar } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator,DrawerContentScrollView,
   DrawerItemList, DrawerItem} from '@react-navigation/drawer';
@@ -108,34 +109,34 @@ class WarehouseNavigator extends React.Component {
       } else if(this.props.indexBottomBar === 0 && this.props.keyStack !== 'MenuWarehouse'){
         this.props.setBottomBar(true);
        }
-        if(this.props.keyStack === 'List' && this.props.indexBottomBar === 1){
+        if(this.props.keyStack === 'List' && this.props.indexBottomBar === 0){
         this.props.setBottomBar(true);
        } 
-       if(this.props.keyStack === 'ReceivingDetail' && this.props.indexBottomBar === 1){
+       if(this.props.keyStack === 'ReceivingDetail' && this.props.indexBottomBar === 0){
         this.props.setBottomBar(true);
        } 
-       if(this.props.keyStack === 'Manifest' && this.props.indexBottomBar === 1){
+       if(this.props.keyStack === 'Manifest' && this.props.indexBottomBar === 0){
         this.props.setBottomBar(false);
        } 
-       if(this.props.keyStack === 'Barcode' && this.props.indexBottomBar === 1){
+       if(this.props.keyStack === 'Barcode' && this.props.indexBottomBar === 0){
         this.props.setBottomBar(false);
        } 
-       if(this.props.keyStack === 'itemDetail' && this.props.indexBottomBar === 1){
+       if(this.props.keyStack === 'itemDetail' && this.props.indexBottomBar === 0){
          this.props.setBottomBar(false);
         } 
-        if(this.props.keyStack === 'newItem' && this.props.indexBottomBar === 1){
+        if(this.props.keyStack === 'newItem' && this.props.indexBottomBar === 0){
          this.props.setBottomBar(false);
         }
-        if(this.props.keyStack === 'ReportManifest' && this.props.indexBottomBar === 1){
+        if(this.props.keyStack === 'ReportManifest' && this.props.indexBottomBar === 0){
           this.props.setBottomBar(true);
          }
-         if(this.props.keyStack === 'ManualInput' && this.props.indexBottomBar === 1){
+         if(this.props.keyStack === 'ManualInput' && this.props.indexBottomBar === 0){
           this.props.setBottomBar(true);
          }
-         if(this.props.keyStack === 'List' && this.props.indexBottomBar === 2){
+         if(this.props.keyStack === 'List' && this.props.indexBottomBar === 1){
           this.props.setBottomBar(true);
          } 
-         if(this.props.keyStack === 'Chat' && this.props.indexBottomBar === 2){
+         if(this.props.keyStack === 'Chat' && this.props.indexBottomBar === 1){
           this.props.setBottomBar(false);
          } 
     });
@@ -209,34 +210,115 @@ class WarehouseNavigator extends React.Component {
   }
   _CustomBottomTabContent = (props) => {
     const {navigation,state,descriptors} = props;
-    const focusedOptions = descriptors[state.routes[state.index].key].options;
-   
+    const focusedRoute = state.routes[state.index];
+    const focusedDescriptor = descriptors[focusedRoute.key];
+    const focusedOptions = focusedDescriptor.options;
+    const {
+      tabBarActiveBackgroundColor,
+      tabBarInactiveBackgroundColor,
+    } = focusedOptions;
+    const tabBarActiveTintColor = props.activeTintColor;
+    const tabBarInactiveTintColor = props.inactiveTintColor;
     this.setWrapperofNavigation(navigation,state.index,state.routes[state.index].name);
     if (focusedOptions.tabBarVisible === false || this.props.bottomBar === false) {
       return null;
     }
-    return (<BottomTabBar  {...props}/>);
+    
+    return (
+      <View style={{...props.style,flexDirection: 'row' }}>
+          <TouchableOpacity
+            style={{ flex: 1,   paddingVertical: 10,
+              justifyContent: 'space-evenly',}}
+          >
+          <Button
+              buttonStyle={
+                {backgroundColor: 'transparent'}
+              }
+              onPress={()=> navigation.navigate('MenuWarehouse')}
+              icon={() => (
+                <IconHome7Mobile height="22" width="24" fill={'#6C6B6B'} />
+              )}
+            />
+          </TouchableOpacity>
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+          const label =
+            options.tabBarLabel !== undefined
+              ? options.tabBarLabel
+              : options.title !== undefined
+              ? options.title
+              : route.name;
+  
+          const isFocused = state.index === index;
+  
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+  
+            if (!isFocused && !event.defaultPrevented) {
+              // The `merge: true` option makes sure that the params inside the tab screen are preserved
+              navigation.navigate({ name: route.name, merge: true });
+            }
+          };
+       
+          const onLongPress = () => {
+            navigation.emit({
+              type: 'tabLongPress',
+              target: route.key,
+            });
+          };
+
+          const accessibilityLabel =
+          options.tabBarAccessibilityLabel !== undefined
+            ? options.tabBarAccessibilityLabel
+            : typeof label === 'string' && Platform.OS === 'ios'
+            ? `${label}, tab, ${index + 1} of ${routes.length}`
+            : undefined;
+          return (
+            <NavigationContext.Provider
+            key={route.key}
+            value={descriptors[route.key].navigation}
+          >
+            <NavigationRouteContext.Provider value={route}>
+              <BottomTabItem
+                route={route}
+                focused={isFocused}
+                onPress={onPress}
+                onLongPress={onLongPress}
+                accessibilityLabel={accessibilityLabel}
+                testID={options.tabBarTestID}
+                allowFontScaling={options.tabBarAllowFontScaling}
+                activeTintColor={tabBarActiveTintColor}
+                inactiveTintColor={tabBarInactiveTintColor}
+                activeBackgroundColor={tabBarActiveBackgroundColor}
+                inactiveBackgroundColor={tabBarInactiveBackgroundColor}
+                button={options.tabBarButton}
+                icon={
+                  options.tabBarIcon ??
+                  (({ color, size }) => (
+                    <MissingIcon color={color} size={size} />
+                  ))
+                }
+                badge={options.tabBarBadge}
+                badgeStyle={options.tabBarBadgeStyle}
+                label={label}
+                showLabel={false}
+                labelStyle={options.tabBarLabelStyle}
+                iconStyle={options.tabBarIconStyle}
+                style={options.tabBarItemStyle}
+              />
+            </NavigationRouteContext.Provider>
+          </NavigationContext.Provider>
+          );
+        })}
+      </View>
+    );
   };
   deliveryTab = createCompatNavigatorFactory(createBottomTabNavigator)(
     {
-      Home: {
-        screen: this.props.component,
-        navigationOptions:  ({ navigation }) => ({
-          tabBarIcon: ({color, focused}) => (
-            <Button
-              buttonStyle={
-                focused
-                  ? {backgroundColor: '#F07120'}
-                  : {backgroundColor: 'transparent'}
-              }
-              onPress={()=> navigation.navigate('Home')}
-              icon={() => (
-                <IconHome7Mobile height="22" width="24" fill={color} />
-              )}
-            />
-          ),
-        }),
-      },
       Management: {
         screen: WMS,
         navigationOptions:  ({ navigation }) => ({
@@ -248,7 +330,7 @@ class WarehouseNavigator extends React.Component {
                   : {backgroundColor: 'transparent'}
               }
               onPress={()=> {
-                navigation.navigate('Management',{screen:"Stock"})}}
+                navigation.navigate('Management',{screen:"Warehouse"})}}
               icon={() => (
                 <WarehouseDrawer height="22" width="24" fill={color} />
               )}
@@ -275,7 +357,7 @@ class WarehouseNavigator extends React.Component {
         }),
       },
       Other: {
-        screen: this.props.component,
+        screen: Notification,
         navigationOptions:  ({ navigation }) => ({
           tabBarIcon: ({color, focused}) => (
             <Button

@@ -34,7 +34,7 @@ import DetailsDraft from './details/index';
 import SupervisorMode from './supervisor/index';
 import RegisterBarcode from '../peripheral/index-inbound-register';
 import POSMPhoto from '../peripheral/POSMPhoto/index';
-
+import WarehouseIn from '../detail/index-inbound';
 const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
   constructor(props) {
@@ -44,14 +44,14 @@ class HomeNavigator extends React.Component {
   }
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
-    if(indexBottomBar === 1 && key !== 'SupervisorMode' && key !== 'SupervisorMode' && key !== 'POSMPhoto'){
+    if(indexBottomBar === 0 && key !== 'SupervisorMode' && key !== 'SupervisorMode' && key !== 'POSMPhoto'){
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }
   }
   render() {
     return (
-      <Stack.Navigator initialRouteName="List" screenOptions={{
+      <Stack.Navigator initialRouteName="WarehouseIn" screenOptions={{
         headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
         headerBackTitleVisible:false,
         headerLeftContainerStyle:  Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
@@ -67,6 +67,36 @@ class HomeNavigator extends React.Component {
           );
         },
         }}>     
+         <Stack.Screen
+          name="WarehouseIn"
+          component={WarehouseIn}
+          options={{
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerShown: false,
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+            headerTitleAlign: 'left',
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar('true')
+                  this.props.navigation.navigate('Home');
+                }
+              }
+              />);
+            },
+          }}
+        />
         <Stack.Screen
           name="List"
           component={List}

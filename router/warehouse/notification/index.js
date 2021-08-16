@@ -47,7 +47,7 @@ class Notification extends React.Component {
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
     
-    if(indexBottomBar === 2 ){
+    if(indexBottomBar === 1 ){
 
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);

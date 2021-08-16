@@ -22,6 +22,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import IconLogout2Mobile from '../../assets/icon/iconmonstr-log-out-2 2mobile.svg';
 import {popToLogout} from '../../component/helper/persist-login';
 import Mixins from '../../mixins';
+import DetailDelivery from './detail/index';
 import { ReactReduxContext } from 'react-redux'
 
 const screen = Dimensions.get('window');
@@ -211,7 +212,7 @@ class DeliveryNavigator extends React.Component {
   deliveryTab = createCompatNavigatorFactory(createBottomTabNavigator)(
     {
       Home: {
-        screen: this.props.component,
+        screen: DetailDelivery,
         navigationOptions:  ({ navigation }) => ({
           tabBarIcon: ({color, focused}) => (
             <Button

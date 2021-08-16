@@ -468,70 +468,70 @@ class Details extends React.Component {
   
   }
   detailsRoute = () => {
-    let Route = '';
-    if (this.props.userRole.type === 'Warehouse') {
-      this.props.setBottomBar(true);
-      if(this.props.warehouse_module === 'WAREHOUSE'){
-        Route = 'Warehouse';
-      } else if(this.props.warehouse_module ==='INBOUND') {
-        Route = 'WarehouseIn';
-      } else if(this.props.warehouse_module ==='OUTBOUND'){
-        Route = 'WarehouseOut';
-      }
-    } else if (this.props.userRole.type === 'Delivery') {
-      this.props.setBottomBar(true);
-      Route = 'Delivery';
-    } else {
-      Route = 'Delivery';
-    }
-    return Route;
+    // let Route = '';
+    // if (this.props.userRole.type === 'Warehouse') {
+    //   this.props.setBottomBar(true);
+    //   if(this.props.warehouse_module === 'WAREHOUSE'){
+    //     Route = 'Warehouse';
+    //   } else if(this.props.warehouse_module ==='INBOUND') {
+    //     Route = 'WarehouseIn';
+    //   } else if(this.props.warehouse_module ==='OUTBOUND'){
+    //     Route = 'WarehouseOut';
+    //   }
+    // } else if (this.props.userRole.type === 'Delivery') {
+    //   this.props.setBottomBar(true);
+    //   Route = 'Delivery';
+    // } else {
+    //   Route = 'Delivery';
+    // }
+    // return Route;
   };
 
   detailPage = () => {
-    return (
-      <Stack.Navigator
-        initialRouteName={this.detailsRoute()}
-        headerMode="screen"
-        screenOptions={{
-          headerTintColor: 'white',
-          headerStyle: {backgroundColor: 'tomato'},
-          header: (props) => {
-            let state = props.navigation.dangerouslyGetState();
-            let key =  state.routes[state.index].name;
-            let index = state.index;
-            this.setWrapperofStack(index,key);
-          },
-        }}>
-        <Stack.Screen
-          name="Delivery"
-          component={Delivery}
-          options={{
-            title: 'Beranda app',
-          }}
-        />
-    <Stack.Screen
-        name="Warehouse"
-        component={Warehouse}
-        options={{
-          title: 'Beranda app',
-        }}
-      />
-        <Stack.Screen
-        name="WarehouseIn"
-        component={WarehouseIn}
-        options={{
-          title: 'Beranda app',
-        }}
-      />
-          <Stack.Screen
-        name="WarehouseOut"
-        component={WarehouseOut}
-        options={{
-          title: 'Beranda app',
-        }}
-      />
-      </Stack.Navigator>
-    );
+    // return (
+    //   <Stack.Navigator
+    //     initialRouteName={this.detailsRoute()}
+    //     headerMode="screen"
+    //     screenOptions={{
+    //       headerTintColor: 'white',
+    //       headerStyle: {backgroundColor: 'tomato'},
+    //       header: (props) => {
+    //         let state = props.navigation.dangerouslyGetState();
+    //         let key =  state.routes[state.index].name;
+    //         let index = state.index;
+    //         this.setWrapperofStack(index,key);
+    //       },
+    //     }}>
+    //     <Stack.Screen
+    //       name="Delivery"
+    //       component={Delivery}
+    //       options={{
+    //         title: 'Beranda app',
+    //       }}
+    //     />
+    // <Stack.Screen
+    //     name="Warehouse"
+    //     component={Warehouse}
+    //     options={{
+    //       title: 'Beranda app',
+    //     }}
+    //   />
+    //     <Stack.Screen
+    //     name="WarehouseIn"
+    //     component={WarehouseIn}
+    //     options={{
+    //       title: 'Beranda app',
+    //     }}
+    //   />
+    //       <Stack.Screen
+    //     name="WarehouseOut"
+    //     component={WarehouseOut}
+    //     options={{
+    //       title: 'Beranda app',
+    //     }}
+    //   />
+    //   </Stack.Navigator>
+    // );
   }
 
   render() {
@@ -540,7 +540,7 @@ class Details extends React.Component {
     if (this.props.userRole.type === 'Warehouse') {
       if(this.props.warehouse_module === 'INBOUND'){
 
-        Navigate = <><WarehouseInNavigator component={this.detailPage} />
+        Navigate = <><WarehouseInNavigator />
          <Overlay
           isVisible={visible}
           onBackdropPress={this.toggleOverlay}
@@ -591,7 +591,7 @@ class Details extends React.Component {
         </>;
       } else if(this.props.warehouse_module === 'OUTBOUND'){
 
-        Navigate = <><WarehouseOutNavigator component={this.detailPage} />
+        Navigate = <><WarehouseOutNavigator/>
          <Overlay
           isVisible={visible}
           onBackdropPress={this.toggleOverlay}
@@ -642,7 +642,7 @@ class Details extends React.Component {
         </>;
       } else if(this.props.warehouse_module === 'WAREHOUSE'){
 
-        Navigate = <><WarehouseNavigator component={this.detailPage} />
+        Navigate = <><WarehouseNavigator/>
          <Overlay
           isVisible={visible}
           onBackdropPress={this.toggleOverlay}
@@ -696,7 +696,7 @@ class Details extends React.Component {
         Navigate = <></>
       }
     } else if (this.props.userRole.type === 'Delivery') {
-      Navigate =  <><DeliveryNavigator component={this.detailPage} />
+      Navigate =  <><DeliveryNavigator />
        <Overlay
           isVisible={visible}
           onBackdropPress={this.toggleOverlay}

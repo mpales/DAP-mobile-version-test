@@ -20,6 +20,7 @@ import blindList from './blind-list';
 import SingleCamera from '../peripheral/cameraMulti';
 import EnlargeImage from '../peripheral/enlargeImage';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import Warehouse from '../detail/index-warehouse';
 const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
   constructor(props) {
@@ -29,14 +30,14 @@ class HomeNavigator extends React.Component {
   }
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
-    if(indexBottomBar === 1){
+    if(indexBottomBar === 0){
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }
   }
   render() {
     return (
-      <Stack.Navigator initialRouteName="Stock" screenOptions={{
+      <Stack.Navigator initialRouteName="Warehouse" screenOptions={{
         headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
         headerBackTitleVisible:false,
         headerLeftContainerStyle:  Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
@@ -52,6 +53,36 @@ class HomeNavigator extends React.Component {
           );
         },
         }}>     
+           <Stack.Screen
+          name="Warehouse"
+          component={Warehouse}
+          options={{
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerShown: false,
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+            headerTitleAlign: 'left',
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar('true')
+                  this.props.navigation.navigate('Home');
+                }
+              }
+              />);
+            },
+          }}
+        />
         <Stack.Screen
           name="Stock"
           component={Stock}

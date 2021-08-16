@@ -8,7 +8,7 @@ import Shipping from '../../../assets/icon/iconmonstr-airport-8mobile.svg';
 import Recycling from '../../../assets/icon/recycle-mobile.svg';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
-
+import LogoSmall from '../../../assets/dap_logo_hires1-e1544435829468 5small.svg';
 class Acknowledge extends React.Component {
   constructor(props) {
     super(props);
@@ -24,10 +24,7 @@ class Acknowledge extends React.Component {
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
           <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 50}}>
-          <Image
-              source={require('../../../assets/dap_logo_hires1thumb.png')}
-              style={{ width: 135, height: 70 }}
-            />
+          <LogoSmall width="135" height="70" style={{alignSelf:'center'}}/>
           </View>
           <View style={{flexDirection: 'row', flexShrink:1}}>
           <View style={styles.sectionContainer}>
