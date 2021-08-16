@@ -34,11 +34,13 @@ class List extends React.Component {
         this.state = {
             search: '',
             filtered : 0,
+            type: 0,
             renderGoBack : false,
         };
 
     this.updateASN.bind(this);
     this.setFiltered.bind(this);
+    this.setType.bind(this);
     this.updateSearch.bind(this);
     }
     updateSearch = (search) => {
@@ -47,9 +49,24 @@ class List extends React.Component {
     setFiltered = (num)=>{
         this.setState({filtered:num});
     }
-    updateASN = async ()=>{
+    setType = (num)=>{
+        this.setState({type:num});
+    }
+    updateASN = async (type)=>{
         this.setState({renderGoBack: false});
-        const result = ASN;
+
+        let string = '';
+        if(type === 0){
+            string = 'inbounds';
+        } else if(type === 1){
+            string = 'inbounds/type/asn';
+        } else if(type === 2){
+            string = 'inbounds/type/grn';
+        } else if(type === 3){
+            string = 'inbounds/type/others';
+        }
+        const result = await getData(string);
+        console.log(result);
         if(Array.isArray(result)){
             return result
         } else {
@@ -67,37 +84,32 @@ class List extends React.Component {
         return true;
     }
     async componentDidUpdate(prevProps, prevState, snapshot) {
-        let filtered = prevState.renderGoBack !== this.state.renderGoBack || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
+        const {type} = this.state;
+        let filtered = prevState.renderGoBack !== this.state.renderGoBack || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type ? this.state.filtered : null;
         if(filtered === 0) {
-            let AllASN = await this.updateASN();
-            this.props.setinboundList(AllASN.filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let AllASN = await this.updateASN(type);
+            this.props.setinboundList(AllASN.filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         } else if(filtered === 1){
-            let PendingASN = await this.updateASN();
-            this.props.setinboundList(PendingASN.filter((element)=> element.category === 'ASN').filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let PendingASN = await this.updateASN(type);
+            this.props.setinboundList(PendingASN.filter((element)=> element.status === 5).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
-            let ProgressASN = await this.updateASN();
-            this.props.setinboundList(ProgressASN.filter((element)=> element.category === 'GRN').filter((element)=> element.number.indexOf(this.state.search)> -1));
-        }else if(filtered === 3){
-            let CompleteASN = await this.updateASN();
-            this.props.setinboundList(CompleteASN.filter((element)=> element.category === 'OTHERS').filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let ProgressASN = await this.updateASN(type);
+            this.props.setinboundList(ProgressASN.filter((element)=> element.status === 2).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
         }
         
     }
     async componentDidMount() {
-
+        const {type} = this.state;
         const {filtered} = this.state;
         if(filtered === 0) {
-            let AllASN = await this.updateASN();
-            this.props.setinboundList(AllASN.filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let AllASN = await this.updateASN(type);
+            this.props.setinboundList(AllASN.filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         } else if(filtered === 1){
-            let PendingASN = await this.updateASN();
-            this.props.setinboundList(PendingASN.filter((element)=> element.category === 'ASN').filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let PendingASN = await this.updateASN(type);
+            this.props.setinboundList(PendingASN.filter((element)=> element.status === 5).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
-            let ProgressASN = await this.updateASN();
-            this.props.setinboundList(ProgressASN.filter((element)=> element.category === 'GRN').filter((element)=> element.number.indexOf(this.state.search)> -1));
-        }else if(filtered === 3){
-            let CompleteASN = await this.updateASN();
-            this.props.setinboundList(CompleteASN.filter((element)=> element.category === 'OTHERS').filter((element)=> element.number.indexOf(this.state.search) > -1));
+            let ProgressASN = await this.updateASN(type);
+            this.props.setinboundList(ProgressASN.filter((element)=> element.status === 2).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
         }
     }
     render() {
@@ -140,30 +152,30 @@ class List extends React.Component {
                         <Badge
                     value="All"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.setFiltered(0)}
-                    badgeStyle={this.state.filtered === 0 ? styles.badgeBigActive : styles.badgeBigInactive }
-                    textStyle={this.state.filtered === 0 ? styles.badgeBigActiveTint : styles.badgeBigInactiveTint }
+                    onPress={()=> this.setType(0)}
+                    badgeStyle={this.state.type === 0 ? styles.badgeBigActive : styles.badgeBigInactive }
+                    textStyle={this.state.type === 0 ? styles.badgeBigActiveTint : styles.badgeBigInactiveTint }
                     />
                       <Badge
                     value="ASN"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.setFiltered(1)}
-                    badgeStyle={this.state.filtered === 1 ? styles.badgeBigActive : styles.badgeBigInactive }
-                    textStyle={this.state.filtered === 1 ? styles.badgeBigActiveTint : styles.badgeBigInactiveTint }
+                    onPress={()=> this.setType(1)}
+                    badgeStyle={this.state.type === 1 ? styles.badgeBigActive : styles.badgeBigInactive }
+                    textStyle={this.state.type === 1 ? styles.badgeBigActiveTint : styles.badgeBigInactiveTint }
                />
                           <Badge
                     value="GRN"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.setFiltered(2)}
-                    badgeStyle={this.state.filtered === 2 ? styles.badgeBigActive : styles.badgeBigInactive }
-                    textStyle={this.state.filtered === 2 ? styles.badgeBigActiveTint : styles.badgeBigInactiveTint }
+                    onPress={()=> this.setType(2)}
+                    badgeStyle={this.state.type === 2 ? styles.badgeBigActive : styles.badgeBigInactive }
+                    textStyle={this.state.type === 2 ? styles.badgeBigActiveTint : styles.badgeBigInactiveTint }
              />
                           <Badge
                     value="OTHERS"
                     containerStyle={styles.badgeSort}
-                    onPress={()=> this.setFiltered(3)}
-                    badgeStyle={this.state.filtered === 3 ? styles.badgeBigActive : styles.badgeBigInactive }
-                    textStyle={this.state.filtered === 3 ? styles.badgeBigActiveTint : styles.badgeBigInactiveTint }
+                    onPress={()=> this.setType(3)}
+                    badgeStyle={this.state.type === 3 ? styles.badgeBigActive : styles.badgeBigInactive }
+                    textStyle={this.state.type === 3 ? styles.badgeBigActiveTint : styles.badgeBigInactiveTint }
            />
                             </View>
                             <View style={styles.headingCard}>
@@ -199,7 +211,7 @@ class List extends React.Component {
                                     ToManifest={()=>{
                                         this.props.setBottomBar(false);
                                         this.props.navigation.navigate('ManifestSupervisor',   {
-                                            number: data.number,
+                                            number: data.id,
                                         });
                                     }}
                                

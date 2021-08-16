@@ -15,15 +15,20 @@ import DetailList from '../../../../component/extend/Card-detail';
 // icon
 import ChevronRight from '../../../../assets/icon/iconmonstr-arrow-66mobile-2.svg';
 import ChevronDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-1.svg';
-
+import {getData} from '../../../../component/helper/network';
+import moment from 'moment';
 class ConnoteDetails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       sortBy: 'Name',
       dataCode : '0',
+      inboundID: null,
+      dataActivities : [],
       _itemDetail: null,
+      totalReports: 0,
     };
+    this.renderHeader.bind(this);
   }
   static getDerivedStateFromProps(props,state){
     const {navigation, manifestList} = props;
@@ -33,9 +38,9 @@ class ConnoteDetails extends React.Component {
       if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
         if( manifestList.some((element)=> element.code === routes[index].params.dataCode)){
           let manifest = manifestList.find((element)=>element.code === routes[index].params.dataCode);
-          return {...state, dataCode: routes[index].params.dataCode, _itemDetail:manifest};    
+          return {...state, dataCode: routes[index].params.dataCode, _itemDetail:manifest, inboundID:routes[index].params.inboundId };    
         }
-        return {...state, dataCode: routes[index].params.dataCode};
+        return {...state, dataCode: routes[index].params.dataCode, inboundID:routes[index].params.inboundId};
       }
       return {...state};
     } 
@@ -43,56 +48,28 @@ class ConnoteDetails extends React.Component {
     return {...state};
   }
 
-  componentDidMount(){
+  async componentDidMount(){
+    const {id} = this.state._itemDetail;
+    const result = await getData('/inbounds/'+this.state.inboundID+'/activities');
+    if(typeof result === 'object' && result.error === undefined){
+      this.setState({dataActivities:result})
+    } else {
+
+    }
+    const resultTotalReport = await getData('/inbounds/'+this.state.inboundID+'/'+id+'/reports');
+    if(typeof resultTotalReport === 'object' && resultTotalReport.error === undefined){
+      this.setState({totalReports:resultTotalReport.length})
+    }
   }
   navigateSeeReport = () => {
     this.props.navigation.navigate('ItemReportDetail');
   };
 
   renderHeader = () => {
-    return (
-      <>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Log</Text>
-          <View style={styles.sortContainer}>
-            <Text style={{...mixins.subtitle3, fontWeight: '700'}}>
-              Sort By Name
-            </Text>
-            <View style={styles.sortIconWrapper}>
-              <ChevronDown width="15" height="15" fill="#6C6B6B" />
-            </View>
-          </View>
-        </View>
-        <View style={[styles.header, {marginTop: 10}]}>
-          <Text style={styles.detailText}>Date and Time</Text>
-          <Text style={styles.detailText}>Name</Text>
-          <Text style={styles.detailText}>Activities</Text>
-        </View>
-      </>
-    );
-  };
-
-  renderInner = (item) => {
-    return (
-      <View style={styles.header}>
-        <Text style={styles.detailText}>{item.date}</Text>
-        <Text style={styles.detailText}>{item.name}</Text>
-        <Text style={styles.detailText}>{item.status}</Text>
-      </View>
-    );
-  };
-
-  render() {
     const {_itemDetail} = this.state;
     return (
       <>
-        <StatusBar barStyle="dark-content" />
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Item Details</Text>
-          </View>
-          <View style={styles.body}>
-            <Card containerStyle={styles.cardContainer} style={styles.card}>
+       <Card containerStyle={styles.cardContainer} style={styles.card}>
               <View style={styles.header}>
                 <View>
                   <Text style={[styles.headerTitle, {flex: 0, fontSize: 20}]}>
@@ -123,14 +100,56 @@ class ConnoteDetails extends React.Component {
                   <Text style={styles.reportSectionTitle}>Report:</Text>
                   <DetailList
                     title="Total Report"
-                    value="2 Report"
+                    value={this.state.totalReports+" Report"}
                     report={true}
                   />
                 </View>
               </View>
             </Card>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Log</Text>
+          <View style={styles.sortContainer}>
+            <Text style={{...mixins.subtitle3, fontWeight: '700'}}>
+              Sort By Name
+            </Text>
+            <View style={styles.sortIconWrapper}>
+              <ChevronDown width="15" height="15" fill="#6C6B6B" />
+            </View>
+          </View>
+        </View>
+        <View style={[styles.header, {marginTop: 10}]}>
+          <Text style={styles.detailText}>Date and Time</Text>
+          <Text style={styles.detailText}>Name</Text>
+          <Text style={styles.detailText}>Activities</Text>
+        </View>
+      </>
+    );
+  };
+
+  renderInner = (item) => {
+    return (
+      <View style={styles.header}>
+        <Text style={styles.detailText}>{moment(item.date).format('DD/MM/YYY h:mm a')}</Text>
+        <Text style={styles.detailText}>{item.name.firstName}</Text>
+        <Text style={styles.detailText}>{item.activity}</Text>
+      </View>
+    );
+  };
+
+  render() {
+    const {_itemDetail} = this.state;
+    return (
+      <>
+        <StatusBar barStyle="dark-content" />
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Item Details</Text>
+         
+          </View>
+          <View style={styles.body}>
+           
             <FlatList
-              data={[]}
+              data={this.state.dataActivities}
               ListHeaderComponent={this.renderHeader}
               renderItem={({item}) => this.renderInner(item)}
             />
@@ -140,7 +159,6 @@ class ConnoteDetails extends React.Component {
     );
   }
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

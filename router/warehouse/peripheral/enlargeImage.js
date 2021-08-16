@@ -20,34 +20,52 @@ class EnlargeImage extends React.Component {
     constructor(props) {
         super(props);
         this.state = ({
-            pictureData: this.props.photoProofPostpone,
+            pictureData: null,
             convertedPictureData: [],
             currentPictureIndex: 0,
             isShowDelete: false,
+            rootIDType : '',
         });
         this.convertPictureData.bind(this);
         this.handleDelete.bind(this);
     }
+
+    static getDerivedStateFromProps(props,state){
+        // only one instance of multi camera can exist before submited
+        if(props.route.params.index !== undefined && state.rootIDType === '') {
+            return {...state,currentPictureIndex: props.route.params.index,  rootIDType :  props.route.params.rootIDType,  pictureData:props.route.params.rootIDType === 'ReceivingDetail' ? props.photoProofPostpone : props.route.params.rootIDType === 'ReportManifest' ? props.photoReportPostpone : null,}
+         
+        }
+      
+       
+        return {...state};
+       }
     componentDidUpdate(prevProps, prevState){
         if(this.state.pictureData === null){
             this.props.navigation.navigate('SingleCamera');
         } else if(this.state.pictureData.length === 0) {
-            this.props.addPhotoProofPostpone(null);
+            if(this.state.rootIDType === 'ReceivingDetail'){
+                this.props.addPhotoProofPostpone(null);
+            } else if(this.state.rootIDType === 'ReportManifest'){
+                this.props.addPhotoReportPostpone(null);
+            }
             this.props.navigation.navigate('SingleCamera');
         } else {
             if(prevState.pictureData.length !== this.state.pictureData.length){
-                this.props.addPhotoProofUpdate(this.state.pictureData);
+                if(this.state.rootIDType === 'ReceivingDetail'){
+                    this.props.addPhotoProofUpdate(this.state.pictureData);
+                } else if(this.state.rootIDType === 'ReportManifest'){
+                    this.props.addPhotoReportUpdate(this.state.pictureData);
+                }
             }
         }
     }
     componentDidMount() {
         if(this.props.route.params.index !== undefined) {
-            this.setState({
-                currentPictureIndex: this.props.route.params.index ,
-            });     
+      
+            this.convertPictureData();
         }
       
-        this.convertPictureData();
     }
 
     convertPictureData = () => {
@@ -208,6 +226,7 @@ function mapStateToProps(state) {
     return {
         photoProofList: state.originReducer.photoProofList,
         photoProofPostpone: state.originReducer.photoProofPostpone,
+        photoReportPostpone: state.originReducer.photoReportPostpone,
     };
 }
   
@@ -218,6 +237,8 @@ const mapDispatchToProps = (dispatch) => {
         addPhotoProofList: (uri) => dispatch({type: 'PhotoProofList', payload: uri}),
         addPhotoProofPostpone: (uri) => dispatch({type: 'PhotoProofPostpone', payload: uri}),
         addPhotoProofUpdate: (data) => dispatch({type: 'PhotoProofUpdate', payload: data}),
+        addPhotoReportPostpone: (uri) => dispatch({type: 'PhotoReportPostpone', payload: uri}),
+        addPhotoReportUpdate: (data) => dispatch({type: 'PhotoReportUpdate', payload: data}),
     };
 };
 

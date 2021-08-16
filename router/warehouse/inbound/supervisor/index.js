@@ -35,7 +35,7 @@ import ReportDetailsSPV from './itemReportDetails';
 import IVASDetailsSPV from './IVASDetails';
 import UpdateIVAS from './updateIVAS';
 import Mixins from '../../../../mixins';
-
+import UpdatePhotos from '../../peripheral/updatePhoto/index';
 const window = Dimensions.get('window');
 
 class SupervisorInbound extends React.Component {
@@ -44,13 +44,11 @@ class SupervisorInbound extends React.Component {
     this.StackSelector.bind(this);
         this.setWrapperofStack.bind(this);
   }
-  static getDerivedStateFromProps(props,state){
- 
-  }
+
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
     
-    if(indexBottomBar === 1 ){
+    if(indexBottomBar === 1 && key !== 'UpdatePhotosSPV' ){
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }
@@ -109,6 +107,25 @@ class SupervisorInbound extends React.Component {
           },
           headerTintColor: '#fff',
           headerTitle: 'Chat',
+        }),
+      },
+      UpdatePhotosSPV: {
+        screen: UpdatePhotos,
+        navigationOptions:  ({ navigation }) => ({
+          headerStyle: {
+            backgroundColor: '#121C78',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+            ...Platform.select({
+              android: {
+                height: 45,
+              },
+            })
+          },
+          headerShown: false,
+          headerTintColor: '#fff',
+          headerTitle: 'Contact',
         }),
       },
       ReportDetailsSPV: {

@@ -58,7 +58,7 @@ export default ImageLoading = forwardRef((props, ref) => {
         return imageURI !== null ? false : true;
     },
     }));
-
+    
     return (
     <View style={{...props.containerStyle}}>
     <Animated.View style={[{...props.style, ...StyleSheet.absoluteFillObject, justifyContent:'center',alignItems:'center'},{transform:[  { scale: value.interpolate( {

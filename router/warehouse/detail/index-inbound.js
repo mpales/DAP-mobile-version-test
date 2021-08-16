@@ -43,7 +43,7 @@ class Acknowledge extends React.Component {
                   }}
                   title="ASN"
                   overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle]}
-               
+                  onPress={()=> this.props.navigation.navigate('Inbound',{screen:"List", params:{type:'asn'}})}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
@@ -63,7 +63,7 @@ class Acknowledge extends React.Component {
                   }}
                   title="GRN"
                   overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
-             
+                  onPress={()=> this.props.navigation.navigate('Inbound',{screen:"List", params:{type:'grn'}})}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
@@ -85,7 +85,7 @@ class Acknowledge extends React.Component {
                   }}
                   title="OTHERS"
                   overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle]}
-                
+                  onPress={()=> this.props.navigation.navigate('Inbound',{screen:"List", params:{type:'others'}})}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}

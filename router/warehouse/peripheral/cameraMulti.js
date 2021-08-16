@@ -23,7 +23,8 @@ class CameraSingle extends React.Component {
             pictureData: null,
             isShowImagePreview: false,
             isFlashActive: false,
-            pictureGallery: this.props.photoProofPostpone,
+            pictureGallery: null,
+            rootIDType : '',
         }
   
         this.handleShowImagePreview.bind(this);
@@ -32,21 +33,22 @@ class CameraSingle extends React.Component {
     }
     
     static getDerivedStateFromProps(props,state){
-     const {addPhotoProofID, navigation} = props;
+     const {addPhotoProofID, addPhotoReportID, navigation, photoProofPostpone, photoReportPostpone} = props;
      const {pictureGallery} = state;
      // only one instance of multi camera can exist before submited
-     if(pictureGallery !== null){
+     if(pictureGallery === null){
          const {routes, index} = navigation.dangerouslyGetState();
         if(routes[index-1] !== undefined && routes[index-1].name === "ReceivingDetail"){
            addPhotoProofID(routes[index-1].params.number)
-        } 
-        if(routes[index-1] !== undefined && routes[index-1].name === "ReportManifest"){
+            return {...state,pictureGallery: photoProofPostpone,rootIDType: routes[index-1].name}
+        } else if(routes[index-1] !== undefined && routes[index-1].name === "ReportManifest"){
              if(routes[index-1].params !== undefined && routes[index-1].params.dataCode !== undefined){
-                addPhotoProofID(routes[index-1].params.dataCode)
+            addPhotoReportID(routes[index-1].params.dataCode)
+            return {...state,pictureGallery: photoReportPostpone,rootIDType: routes[index-1].name}
             }
+         } else {
+            navigation.goBack();
          } 
-     } else {
-        addPhotoProofID(null)
      }
     
      return {...state};
@@ -54,19 +56,24 @@ class CameraSingle extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {
         if(this.props.keyStack !== nextProps.keyStack){
           if(nextProps.keyStack === 'SingleCamera' && this.props.keyStack ==='EnlargeImage'){
-            this.setState({pictureGallery: this.props.photoProofPostpone});
-            return true;
+            this.setState({pictureGallery: null});
+            return false;
           } 
         }
         return true;
       }
     componentDidUpdate(prevProps, prevState) {
-       if(Array.isArray(this.props.photoProofPostpone) && ((prevProps.photoProofPostpone === null && this.props.photoProofPostpone !== prevProps.photoProofPostpone) || this.props.photoProofPostpone.length !== prevProps.photoProofPostpone.length)){
+       if(this.state.rootIDType === 'ReceivingDetail' && Array.isArray(this.props.photoProofPostpone) && ((prevProps.photoProofPostpone === null && this.props.photoProofPostpone !== prevProps.photoProofPostpone) || this.props.photoProofPostpone.length !== prevProps.photoProofPostpone.length)){
             this.setState({pictureGallery : this.props.photoProofPostpone});
             if(this.state.isShowImagePreview && this.state.pictureGallery !== null) {
                 this.flatlist.scrollToEnd();
             }
-       }
+       } else if(this.state.rootIDType === 'ReportManifest' && Array.isArray(this.props.photoReportPostpone) && ((prevProps.photoReportPostpone === null && this.props.photoReportPostpone !== prevProps.photoReportPostpone) || this.props.photoReportPostpone.length !== prevProps.photoReportPostpone.length)){
+            this.setState({pictureGallery : this.props.photoReportPostpone});
+            if(this.state.isShowImagePreview && this.state.pictureGallery !== null) {
+                this.flatlist.scrollToEnd();
+            }
+        }
 
     }
 
@@ -92,9 +99,13 @@ class CameraSingle extends React.Component {
 
 
     handlePhotoConfirmation = confirm => {
-        const {pictureData} = this.state;
+        const {pictureData, rootIDType} = this.state;
         if(confirm) {
-            this.props.addPhotoProofPostpone( pictureData);
+            if(rootIDType === 'ReceivingDetail'){
+                this.props.addPhotoProofPostpone( pictureData);
+            } else if(rootIDType === 'ReportManifest') {
+                this.props.addPhotoReportPostpone( pictureData);
+            }
         } else {
 
         }
@@ -113,7 +124,7 @@ class CameraSingle extends React.Component {
         const renderItem = ({ item, index }) => (
             <TouchableOpacity
                 style={styles.pictureSize}
-                onPress={()=> this.props.navigation.navigate('EnlargeImage', {index: index})}
+                onPress={()=> this.props.navigation.navigate('EnlargeImage', {index: index, rootIDType: this.state.rootIDType})}
             >
                 <Image style={{width: '100%', height: '100%'}} source={{ uri: item }} />
             </TouchableOpacity>
@@ -274,6 +285,7 @@ const styles = StyleSheet.create({
 function mapStateToProps(state) {
     return {
         photoProofPostpone: state.originReducer.photoProofPostpone,
+        photoReportPostpone: state.originReducer.photoReportPostpone,
         keyStack: state.originReducer.filters.keyStack,
     };
 }
@@ -282,6 +294,8 @@ const mapDispatchToProps = (dispatch) => {
     return {
         addPhotoProofID: (id) => dispatch({type:'addPhotoProofID', payload: id}),
         addPhotoProofPostpone: (uri) => dispatch({type: 'PhotoProofPostpone', payload: uri}),
+        addPhotoReportID: (id) => dispatch({type:'addPhotoReportID', payload: id}),
+        addPhotoReportPostpone: (uri) => dispatch({type: 'PhotoReportPostpone', payload: uri}),
     };
 };
   
