@@ -134,9 +134,9 @@ class Warehouse extends React.Component{
       //   return {...state, _manifest : manifest};
       // } else
         if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
-          const result = await getData('inbounds/'+routes[index].params.number);
+          const result = await getData('inboundsMobile/'+routes[index].params.number);
           if(typeof result === 'object' && result.error === undefined){
-            const shipmentVAS  = await getData('/inbounds/'+routes[index].params.number+'/shipmentVAS')
+            const shipmentVAS  = await getData('/inboundsMobile/'+routes[index].params.number+'/shipmentVAS')
             if(typeof shipmentVAS === 'object' && shipmentVAS.error !== undefined && shipmentVAS.error.indexOf('Not Found') !== -1){
               this.setState({shipmentVAS: false});
             }
@@ -149,9 +149,9 @@ class Warehouse extends React.Component{
             navigation.popToTop();
           }
         } else if(currentASN !== null) {
-          const result = await getData('inbounds/'+currentASN);
+          const result = await getData('inboundsMobile/'+currentASN);
           if(typeof result === 'object' && result.error === undefined){
-            const shipmentVAS  = await getData('/inbounds/'+currentASN+'/shipmentVAS')
+            const shipmentVAS  = await getData('/inboundsMobile/'+currentASN+'/shipmentVAS')
             if(typeof shipmentVAS === 'object' && shipmentVAS.error !== undefined && shipmentVAS.error.indexOf('dataValues') !== -1){
               this.setState({shipmentVAS: false});
             }
@@ -202,7 +202,7 @@ class Warehouse extends React.Component{
   };
   generatePalletID = async () => {
     const {receivingNumber} = this.state;
-    const result = await postData('/inbounds/'+receivingNumber+'/pallet')
+    const result = await postData('/inboundsMobile/'+receivingNumber+'/pallet')
     if(typeof result === 'object' && result.error === undefined){
       this.setState({palletid: result.id});
     } else {

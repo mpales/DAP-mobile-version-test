@@ -64,6 +64,11 @@ class DetailsDraft extends React.Component {
       this.props.setCurrentStackIndex(index);
     }
   }
+  componentWillUnmount() {
+    this.props.setBottomBar(false);
+    this.props.setCurrentStackKey('ReceivingDetail');
+    this.props.setCurrentStackIndex(0);
+  }
   StackSelector = createCompatNavigatorFactory(createStackNavigator)(
     {
       ManifestDetails: {
@@ -84,7 +89,7 @@ class DetailsDraft extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Chat',
+          headerTitle: this.state.params.type !== undefined ? this.state.params.type.toUpperCase() : 'Manifest',
         }),
       },
       PhotosDraft: {
@@ -105,7 +110,7 @@ class DetailsDraft extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Chat',
+          headerTitle: 'Photo',
         }),
       },
       ItemDraftDetails: {
@@ -123,7 +128,7 @@ class DetailsDraft extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Contact',
+          headerTitle: 'Product Details',
         }),
       },
       ItemTransitDraftDetail: {
@@ -141,7 +146,7 @@ class DetailsDraft extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Contact',
+          headerTitle: 'Transit Item Details',
         }),
       },
       UpdatePhotos: {
@@ -220,6 +225,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setCurrentStackIndex: (num) => {
       return dispatch({type: 'indexStack', payload: num});
+    },
+    setBottomBar: (toggle) => {
+      return dispatch({type: 'BottomBar', payload: toggle});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };

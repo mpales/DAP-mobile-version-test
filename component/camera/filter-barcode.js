@@ -393,8 +393,7 @@ class CameraScreen extends React.Component {
             </View>
           </View>
         </View>
-{/*         
-        <View
+      { this.props.useManualMenu === true && (<View
           style={{
             flexShrink: 1,
             backgroundColor: 'transparent',
@@ -411,7 +410,7 @@ class CameraScreen extends React.Component {
                 this.props.navigation.navigate('ManualInput')}}
               title="Manual Input"
             />
-        </View> */}
+        </View>)}
         {!!canDetectFaces && this.renderFaces()}
         {!!canDetectFaces && this.renderLandmarks()}
         {!!canDetectText && this.renderTextBlocks()}

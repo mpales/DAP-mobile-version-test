@@ -53,6 +53,11 @@ class SupervisorInbound extends React.Component {
       this.props.setCurrentStackIndex(index);
     }
   }
+  componentWillUnmount(){
+    this.props.setBottomBar(true);
+    this.props.setCurrentStackKey('WarehouseIn');
+    this.props.setCurrentStackIndex(0);
+  }
   StackSelector = createCompatNavigatorFactory(createStackNavigator)(
     {
       ListSupervisor: {
@@ -70,7 +75,7 @@ class SupervisorInbound extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Chat',
+          headerTitle: 'Inbound Supervisor',
         }),
       },
       ManifestSupervisor: {
@@ -88,7 +93,8 @@ class SupervisorInbound extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Chat',
+          // react-navigation 6 drop dangerously so its fine to use
+          headerTitle: navigation.dangerouslyGetState().params !== undefined && navigation.dangerouslyGetState().params.type !== undefined ? navigation.dangerouslyGetState().params.type : 'Manifest' ,
         }),
       },
       PhotosDraftSPV: {
@@ -106,7 +112,7 @@ class SupervisorInbound extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Chat',
+          headerTitle: 'Photo',
         }),
       },
       UpdatePhotosSPV: {
@@ -125,7 +131,6 @@ class SupervisorInbound extends React.Component {
           },
           headerShown: false,
           headerTintColor: '#fff',
-          headerTitle: 'Contact',
         }),
       },
       ReportDetailsSPV: {
@@ -143,7 +148,7 @@ class SupervisorInbound extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Contact',
+          headerTitle: 'Report Details',
         }),
       },
       IVASDetailsSPV: {
@@ -161,7 +166,7 @@ class SupervisorInbound extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Contact',
+          headerTitle: 'Shipment VA',
         }),
       },
       UpdateIVAS : {
@@ -179,7 +184,7 @@ class SupervisorInbound extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Contact',
+          headerTitle: 'Shipment VAS',
         }),
       },
     },
@@ -239,6 +244,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setCurrentStackIndex: (num) => {
       return dispatch({type: 'indexStack', payload: num});
+    },
+    setBottomBar: (toggle) => {
+      return dispatch({type: 'BottomBar', payload: toggle});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };

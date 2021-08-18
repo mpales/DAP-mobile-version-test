@@ -70,7 +70,7 @@ class CameraSingle extends React.Component {
       }
     async componentDidUpdate(prevProps, prevState) {
         if(this.state.updateGallery === true){
-            const result = await getData('inbounds/'+this.state.inboundId+'/photosIds');
+            const result = await getData('inboundsMobile/'+this.state.inboundId+'/photosIds');
               if(typeof result === 'object' && result.errors === undefined){
                 let galleryIDDump = [];
                 for (let index = 0; index < result.inbound_photos.length; index++) {
@@ -151,8 +151,8 @@ class CameraSingle extends React.Component {
         let FormData = await this.getPhotoToFormdata();
         let uploadCategory = this.state.typeGallery === 'received' ? 'processing' : 'receiving' ;
         if(confirm) {
-            console.log('/inbounds/'+this.state.inboundId +'/'+ uploadCategory);
-            putBlob('/inbounds/'+this.state.inboundId +'/'+ uploadCategory, [
+            console.log('/inboundsMobile/'+this.state.inboundId +'/'+ uploadCategory);
+            putBlob('/inboundsMobile/'+this.state.inboundId +'/'+ uploadCategory, [
                 FormData,
               ], this.listenToProgressUpload).then(result=>{
                 if(typeof result !== 'object'){
@@ -187,7 +187,7 @@ class CameraSingle extends React.Component {
             this.flatlistImageRef[index] = ref;
         }} 
         callbackToFetch={async (indicatorTick)=>{
-            return await getBlob('/inbounds/'+this.state.inboundId+'/'+typeAPI+'/'+item,{filename:item+'.jpg'},(received, total) => {
+            return await getBlob('/inboundsMobile/'+this.state.inboundId+'/'+typeAPI+'/'+item,{filename:item+'.jpg'},(received, total) => {
                 // if(this.flatlistImageRef[index] !== null)
                 // this.flatlistImageRef[index].
                 indicatorTick(received)
@@ -265,7 +265,7 @@ class CameraSingle extends React.Component {
                                 this.thumbRef = ref
                             }} 
                             callbackToFetch={async (indicatorTick)=>{
-                                return await getBlob('/inbounds/'+this.state.inboundId+'/'+( this.state.typeGallery ==='received' ? 'receiveThumb' : 'processingThumb')+'/'+this.state.pictureGallery[this.state.pictureGallery.length -1],{filename:this.state.pictureGallery[this.state.pictureGallery.length -1]+'.jpg'},(received, total) => {
+                                return await getBlob('/inboundsMobile/'+this.state.inboundId+'/'+( this.state.typeGallery ==='received' ? 'receiveThumb' : 'processingThumb')+'/'+this.state.pictureGallery[this.state.pictureGallery.length -1],{filename:this.state.pictureGallery[this.state.pictureGallery.length -1]+'.jpg'},(received, total) => {
                                     // if(this.thumbRef !== null)
                                     // this.thumbRef.
                                     indicatorTick(received)

@@ -57,13 +57,13 @@ class List extends React.Component {
 
         let string = '';
         if(type === 0){
-            string = 'inbounds';
+            string = 'inboundsMobile';
         } else if(type === 1){
-            string = 'inbounds/type/asn';
+            string = 'inboundsMobile/type/asn';
         } else if(type === 2){
-            string = 'inbounds/type/grn';
+            string = 'inboundsMobile/type/grn';
         } else if(type === 3){
-            string = 'inbounds/type/others';
+            string = 'inboundsMobile/type/others';
         }
         const result = await getData(string);
         console.log(result);
@@ -212,6 +212,7 @@ class List extends React.Component {
                                         this.props.setBottomBar(false);
                                         this.props.navigation.navigate('ManifestSupervisor',   {
                                             number: data.id,
+                                            type : data.inbound_asn !== null ? 'ASN' : data.inbound_grn !== null ? 'GRN' : 'Others',
                                         });
                                     }}
                                

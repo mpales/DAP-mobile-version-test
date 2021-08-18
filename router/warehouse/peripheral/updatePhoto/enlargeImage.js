@@ -106,7 +106,7 @@ class EnlargeImage extends React.Component {
         let respondbackend = '';
         const {pictureData, convertedPictureData, currentPictureIndex} = this.state;
         let typeAPI = this.state.typeGallery === 'received' ? 'receivePhoto' : 'processingPhoto';
-        const result = await deleteData('/inbounds/'+this.state.inboundId+'/'+typeAPI+'/'+convertedPictureData[currentPictureIndex]);
+        const result = await deleteData('/inboundsMobile/'+this.state.inboundId+'/'+typeAPI+'/'+convertedPictureData[currentPictureIndex]);
         if(typeof result === 'object' && result.error === undefined){
             respondbackend = result;
           } else {
@@ -142,7 +142,7 @@ class EnlargeImage extends React.Component {
                 this.viewerImageRef[index] = ref;
             }} 
             callbackToFetch={async (indicatorTick)=>{
-                return await getBlob('/inbounds/'+this.state.inboundId+'/'+typeAPI+'/'+item,{filename:item+'.png'},(received, total) => {
+                return await getBlob('/inboundsMobile/'+this.state.inboundId+'/'+typeAPI+'/'+item,{filename:item+'.png'},(received, total) => {
                     // if(this.viewerImageRef[index] !== null)
                     // this.viewerImageRef[index].
                     indicatorTick(received)

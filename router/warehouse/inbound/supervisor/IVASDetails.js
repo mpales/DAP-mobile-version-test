@@ -51,7 +51,7 @@ class ConnoteReportDetails extends React.Component {
   }
   async componentDidMount(){
     const {inboundID} = this.state;
-    const result = await getData('/inbounds/'+inboundID+'/shipmentVAS');
+    const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS');
    this.setState({itemIVAS:result, acknowledged:Boolean(Number(result.acknowledged))});
   }
   checkedIcon = () => {
@@ -72,7 +72,7 @@ class ConnoteReportDetails extends React.Component {
   acknowledgedSPVConfirm = async ()=>{
     const {inboundID} = this.state;
     let data = {acknowledge:this.state.acknowledged >>> 0}
-    const result = await postData('/inbounds/'+inboundID+'/shipmentVAS/acknowledge',data);
+    const result = await postData('/inboundsMobile/'+inboundID+'/shipmentVAS/acknowledge',data);
   }
   uncheckedIcon = () => {
     return <View style={styles.unchecked} />;

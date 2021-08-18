@@ -18,7 +18,7 @@ class Acknowledge extends React.Component {
     };
   }
 
-
+  
 
   render(){
     return (
@@ -40,7 +40,7 @@ class Acknowledge extends React.Component {
                   }}
                   title="ASN"
                   overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle]}
-                  onPress={()=> this.props.navigation.navigate('Inbound',{screen:"List", params:{type:'asn'}})}
+                  onPress={()=> this.props.navigation.navigate('Inbound',{screen:"List", type:'asn'})}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
@@ -60,7 +60,7 @@ class Acknowledge extends React.Component {
                   }}
                   title="GRN"
                   overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
-                  onPress={()=> this.props.navigation.navigate('Inbound',{screen:"List", params:{type:'grn'}})}
+                  onPress={()=> this.props.navigation.navigate('Inbound',{screen:"List", type:'grn'})}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
@@ -82,7 +82,7 @@ class Acknowledge extends React.Component {
                   }}
                   title="OTHERS"
                   overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle]}
-                  onPress={()=> this.props.navigation.navigate('Inbound',{screen:"List", params:{type:'others'}})}
+                  onPress={()=> this.props.navigation.navigate('Inbound',{screen:"List",type:'others'})}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}

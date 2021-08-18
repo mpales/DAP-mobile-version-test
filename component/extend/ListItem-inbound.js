@@ -145,7 +145,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         {item.id}
         </ListItem.Subtitle>
         <Text style={styles.descText}>{item.company.company_name}</Text>
-        <Text style={styles.descText}>                    {item.inbound_products.filter((element)=>element.status !== 1).length+'/'+item.inbound_products.length+' Lines Complete'}</Text>
+        <Text style={styles.descText}>{item.inbound_products.filter((element)=>element.status !== 1).length+'/'+item.inbound_products.length+' Lines Complete'}</Text>
         </ListItem.Content>
         <View style={styles.labelContainer}>
         <Badge value={labelstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />

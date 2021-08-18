@@ -755,9 +755,10 @@ class Example extends React.Component {
     const {detectBarcode} = this.props;
     return (
       <View style={styles.container}>
-        {detectBarcode === false ? (
+        {detectBarcode === false && (
           <this.renderModal/>
-        ) : (          <Modalize 
+        ) }
+        {/* (          <Modalize 
           ref={this.modalizeRef}
           handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
           handlePosition={'inside'}
@@ -767,9 +768,9 @@ class Example extends React.Component {
           HeaderComponent={<this.renderHeader />}
         >
           <this.renderInner />
-        </Modalize>)}
+        </Modalize>)} */}
         <TouchableWithoutFeedback onPress={() => {}}>
-          <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} />
+          <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} useManualMenu={true}/>
         </TouchableWithoutFeedback>
       </View>
     );

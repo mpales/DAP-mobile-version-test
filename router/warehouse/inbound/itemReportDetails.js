@@ -67,7 +67,7 @@ class ConnoteReportDetails extends React.Component {
   async componentDidMount(){
     const {receivingNumber} = this.state;
     const {currentASN} = this.props;
-    const result = await getData('/inbounds/'+currentASN+'/'+receivingNumber+'/reports');
+    const result = await getData('/inboundsMobile/'+currentASN+'/'+receivingNumber+'/reports');
     if(typeof result === 'object' && result.error === undefined){
       this.setState({dataReports:result})
     } else {
@@ -78,7 +78,7 @@ class ConnoteReportDetails extends React.Component {
     const {overlayImage} = this.state;
     this.setState({
       overlayImage: !overlayImage,
-      overlayImageString : item !== undefined ? '/inbounds/'+item.inbound_id+'/'+item.inbound_product_id+'/reports/'+item.report_id+'/photo/'+item.id : null,
+      overlayImageString : item !== undefined ? '/inboundsMobile/'+item.inbound_id+'/'+item.inbound_product_id+'/reports/'+item.report_id+'/photo/'+item.id : null,
       overlayImageFilename: item !== undefined ? ''+item.inbound_id+''+item.inbound_product_id+''+item.report_id+''+item.id+'.png' : null,
     });
   }
@@ -88,7 +88,7 @@ class ConnoteReportDetails extends React.Component {
         this.arrayImageProcessingRef[item.id] = ref
       }} 
       callbackToFetch={async (indicatorTick)=>{
-        return await getBlob('/inbounds/'+item.inbound_id+'/'+item.inbound_product_id+'/reports/'+item.report_id+'/thumb/'+item.id,{filename:''+item.inbound_id+''+item.inbound_product_id+''+item.report_id+''+item.id+'.jpg'},(received, total) => {
+        return await getBlob('/inboundsMobile/'+item.inbound_id+'/'+item.inbound_product_id+'/reports/'+item.report_id+'/thumb/'+item.id,{filename:''+item.inbound_id+''+item.inbound_product_id+''+item.report_id+''+item.id+'.jpg'},(received, total) => {
           // if(this.arrayImageProcessingRef.length > 0 && this.arrayImageProcessingRef[item.id] !== undefined && this.arrayImageProcessingRef[item.id] !== null)
           // this.arrayImageProcessingRef[item.id].
           indicatorTick(received)

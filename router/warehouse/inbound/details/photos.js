@@ -73,7 +73,7 @@ class Photos extends React.Component {
   async componentDidUpdate(prevProps, prevState, snapshot) {
     
     if(this.state.updateData === true){
-      const result = await getData('inbounds/'+this.state.receivingNumber+'/photosIds');
+      const result = await getData('inboundsMobile/'+this.state.receivingNumber+'/photosIds');
       if(typeof result === 'object' && result.error === undefined){
         let dumpPath = [];
         let dumpreceivedPhotoId =[];
@@ -85,7 +85,7 @@ class Photos extends React.Component {
           } else if(result.inbound_photos[index].status === 3){
             dumpprocessingPhotoId.push(element);
           }
-         // let respath = await getBlob('/inbounds/'+this.state.receivingNumber+'/processingThumb/'+element,{filename:element+'.jpg'});
+         // let respath = await getBlob('/inboundsMobile/'+this.state.receivingNumber+'/processingThumb/'+element,{filename:element+'.jpg'});
         //  dumpPath.push(respath);
         }
         this.setState({updateData:false, receivedPhotoId: dumpreceivedPhotoId, processingPhotoId: dumpprocessingPhotoId});
@@ -114,7 +114,7 @@ class Photos extends React.Component {
   }
   
   async componentDidMount(){
-    const result = await getData('inbounds/'+this.state.receivingNumber+'/photosIds');
+    const result = await getData('inboundsMobile/'+this.state.receivingNumber+'/photosIds');
     if(typeof result === 'object' && result.error === undefined){
       let dumpPath = [];
       let dumpreceivedPhotoId =[];
@@ -140,7 +140,7 @@ class Photos extends React.Component {
         this.arrayImageReceivedRef[index] = ref
       }} 
       callbackToFetch={async (indicatorTick)=>{
-        return await getBlob('/inbounds/'+this.state.receivingNumber+'/receiveThumb/'+item,{filename:item+'.jpg'},(received, total) => {
+        return await getBlob('/inboundsMobile/'+this.state.receivingNumber+'/receiveThumb/'+item,{filename:item+'.jpg'},(received, total) => {
           // if(this.arrayImageProcessingRef[index] !== undefined)
           // this.arrayImageReceivedRef[index].
           indicatorTick(received)
@@ -159,7 +159,7 @@ class Photos extends React.Component {
         this.arrayImageProcessingRef[index] = ref
       }} 
       callbackToFetch={async (indicatorTick)=>{
-        return await getBlob('/inbounds/'+this.state.receivingNumber+'/processingThumb/'+item,{filename:item+'.jpg'},(received, total) => {
+        return await getBlob('/inboundsMobile/'+this.state.receivingNumber+'/processingThumb/'+item,{filename:item+'.jpg'},(received, total) => {
           // if(this.arrayImageProcessingRef[index] !== undefined)
           // this.arrayImageProcessingRef[index].
           indicatorTick(received)

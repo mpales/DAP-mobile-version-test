@@ -50,8 +50,6 @@ class List extends React.Component {
             if(routes[index].params !== undefined && routes[index].params.type !== undefined && type !== routes[index].params.type){
                 //if multiple sku
                return {...state, type : routes[index].params.type,};
-            } else {
-                return {...state, type : 'asn',};
             }
         return {...state};
       }
@@ -64,7 +62,7 @@ class List extends React.Component {
     updateASN = async ()=>{
         const {type} = this.state;
         this.setState({renderGoBack: false});
-        const result = await getData('inbounds/type/'+type);
+        const result = await getData('inboundsMobile/type/'+type);
         if(Array.isArray(result)){
             return result;
         } else {

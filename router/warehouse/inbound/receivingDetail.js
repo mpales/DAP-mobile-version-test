@@ -21,6 +21,7 @@ class Acknowledge extends React.Component {
       errors: '',
       progressLinearVal : 0,
       updateData: false,
+      submitPhoto:false,
     };
     this.toggleCheckBox.bind(this);
     this.startProcessing.bind(this);
@@ -45,8 +46,13 @@ class Acknowledge extends React.Component {
     }
     if(this.props.keyStack !== nextProps.keyStack){
       if(nextProps.keyStack === 'ReceivingDetail'){
-        this.setState({updateData:true});
-        this.props.setBottomBar(true);
+        const {routes, index} = nextProps.navigation.dangerouslyGetState();
+        if(routes[index].params !== undefined &&  routes[index].params.submitPhoto !== undefined && routes[index].params.submitPhoto === true){
+          this.setState({updateData:true, submitPhoto : true});
+        } else {
+          this.setState({updateData:true});
+        }
+        this.props.setBottomBar(false);
         return false;
       }
     }
@@ -55,17 +61,22 @@ class Acknowledge extends React.Component {
   async componentDidUpdate(prevProps, prevState, snapshot) {
     
     if(this.state.updateData === true){
-      const result = await getData('inbounds/'+this.state.receivingNumber);
+      const result = await getData('inboundsMobile/'+this.state.receivingNumber);
       if(typeof result === 'object' && result.errors === undefined){
         this.setState({updateData:false,data: result});
       } else {
         this.props.navigation.goBack();
       }
     } 
+    if(prevState.submitPhoto !== this.state.submitPhoto && this.state.submitPhoto === true){
+      console.log('trigger submit');
+      await this.startProcessing();
+      this.setState({submitPhoto:false});
+    }
   }
   
   async componentDidMount(){
-    const result = await getData('inbounds/'+this.state.receivingNumber);
+    const result = await getData('inboundsMobile/'+this.state.receivingNumber);
     if(typeof result === 'object' && result.error === undefined){
       this.setState({data: result});
     } else {
@@ -109,7 +120,7 @@ class Acknowledge extends React.Component {
         type = FSStat.type;
       });
       if(type === 'file')
-      formdata.push({ name : 'photos', filename : filename, data: RNFetchBlob.wrap(path)})
+      formdata.push({ name : 'photos', filename : filename, type:'image/jpg', data: RNFetchBlob.wrap(path)})
     }
     return formdata;
   }
@@ -131,7 +142,7 @@ class Acknowledge extends React.Component {
     const {photoProofPostpone} = this.props;
     let FormData = await this.getPhotoReceivingGoods();
     let uploadCategory = this.state.data.status === 1 ? 'receiving' : 'processing';
-    postBlob('/inbounds/'+this.state.receivingNumber +'/'+ uploadCategory, [
+    postBlob('/inboundsMobile/'+this.state.receivingNumber +'/'+ uploadCategory, [
       // element with property `filename` will be transformed into `file` in form data
       { name : 'receiptNumber', data: this.state.data.inbound_asn !== null ? ''+this.state.data.inbound_asn.reference_id :  ''+this.state.data.inbound_grn.reference_id},
       // custom content type

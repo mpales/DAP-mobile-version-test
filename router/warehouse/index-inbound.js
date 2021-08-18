@@ -94,7 +94,10 @@ class WarehouseNavigator extends React.Component {
       "hardwareBackPress",
       ()=>{
          this._refreshFromBackHandle();
-         if (this.props.keyStack === 'Manifest' && this.props.indexBottomBar === 0) {
+         if (this.props.keyStack === 'List' && this.props.indexBottomBar === 0) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'WarehouseIn'})
+          return true;
+          } else if (this.props.keyStack === 'Manifest' && this.props.indexBottomBar === 0) {
           this.navigationRef.current.navigate('Inbound', {screen: 'List'})
           return true;
           } else if (this.props.keyStack === 'ReceivingDetail' && this.props.indexBottomBar === 0) {
@@ -115,6 +118,9 @@ class WarehouseNavigator extends React.Component {
           } else if(this.props.keyStack === 'ItemDetail' && this.props.indexBottomBar === 0){
             this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'})
             return true;    
+          } else if(this.props.keyStack === 'ItemTransitDetail' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'})
+            return true;    
           } else if(this.props.keyStack === 'ItemReportDetail' && this.props.indexBottomBar === 0){
             this.navigationRef.current.navigate('Inbound', {screen: 'ItemDetail'})
             return true;    
@@ -133,7 +139,52 @@ class WarehouseNavigator extends React.Component {
           }else if(prevProps.keyStack === 'ReportManifest' && this.props.keyStack === 'SingleCamera' && this.props.indexBottomBar === 0){
             this.navigationRef.current.navigate('Inbound', {screen: 'ReportManifest'})
             return true;    
-          }
+          } else if(this.props.keyStack === 'PalletScanner' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('Inbound', {screen: 'PalletDetails'})
+            return true;    
+          }  else if(this.props.keyStack === 'PalletDetails' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('Inbound', {screen: 'PalletList'})
+            return true;    
+          }  else if(this.props.keyStack === 'PalletList' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('Inbound', {screen: 'WarehouseIn'})
+            return true;    
+          }  else if(this.props.keyStack === 'ListSupervisor' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('Inbound', {screen: 'WarehouseIn'})
+            return true;    
+          }  else if(this.props.keyStack === 'ManifestSupervisor' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('SupervisorMode', {screen: 'ListSupervisor'})
+            return true;    
+          }  else if(this.props.keyStack === 'PhotosDraftSPV' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('SupervisorMode', {screen: 'ManifestSupervisor'})
+            return true;    
+          }  else if(this.props.keyStack === 'UpdatePhotosSPV' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('SupervisorMode', {screen: 'ManifestSupervisor'})
+            return true;    
+          }  else if(this.props.keyStack === 'ReportDetailsSPV' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('SupervisorMode', {screen: 'ManifestSupervisor'})
+            return true;    
+          }  else if(this.props.keyStack === 'IVASDetailsSPV' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('SupervisorMode', {screen: 'ManifestSupervisor'})
+            return true;    
+          } else if(this.props.keyStack === 'UpdateIVAS' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('SupervisorMode', {screen: 'IVASDetailsSPV'})
+            return true;    
+          }  else if(this.props.keyStack === 'ManifestDetails' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('Inbound', {screen: 'ReceivingDetail'})
+            return true;    
+          } else if(this.props.keyStack === 'PhotosDraft' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('DetailsDraft', {screen: 'ManifestDetails'})
+            return true;    
+          } else if(this.props.keyStack === 'ItemDraftDetails' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('DetailsDraft', {screen: 'ManifestDetails'})
+            return true;    
+          } else if(this.props.keyStack === 'UpdatePhotos' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('DetailsDraft', {screen: 'PhotosDraft'})
+            return true;    
+          } else if(this.props.keyStack === 'ItemTransitDraftDetail' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('DetailsDraft', {screen: 'ManifestDetails'})
+            return true;    
+          } 
          return false;
        }
     );
@@ -142,11 +193,12 @@ class WarehouseNavigator extends React.Component {
   _refreshFromBackHandle = () =>{
     const interactionPromise = InteractionManager.runAfterInteractions(() => {
       if(this.props.keyStack === 'MenuWarehouse'){
-        this.props.setBottomBar(false);
+        this.props.setBottomBar(true);
         if(this._backHandlerRegisterToBottomBar !== null){
           this._backHandlerRegisterToBottomBar.remove();
         }
-      } else if(this.props.indexBottomBar === 0 && this.props.keyStack !== 'MenuWarehouse'){
+      } 
+      if(this.props.indexBottomBar === 0 && this.props.keyStack === 'WarehouseIn'){
         this.props.setBottomBar(true);
        }
         if(this.props.keyStack === 'List' && this.props.indexBottomBar === 0){
@@ -171,7 +223,7 @@ class WarehouseNavigator extends React.Component {
           this.props.setBottomBar(false);
          }
          if(this.props.keyStack === 'ManualInput' && this.props.indexBottomBar === 0){
-          this.props.setBottomBar(true);
+          this.props.setBottomBar(false);
          }
          if(this.props.keyStack === 'List' && this.props.indexBottomBar === 1){
           this.props.setBottomBar(true);
@@ -179,6 +231,59 @@ class WarehouseNavigator extends React.Component {
          if(this.props.keyStack === 'Chat' && this.props.indexBottomBar === 1){
           this.props.setBottomBar(false);
          } 
+         if(this.props.keyStack === 'PalletScanner' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+         if(this.props.keyStack === 'PalletDetails' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+         if(this.props.keyStack === 'PalletList' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+         if(this.props.keyStack === 'ListSupervisor' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+         if(this.props.keyStack === 'ManifestSupervisor' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+         if(this.props.keyStack === 'PhotosDraftSPV' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+
+         if(this.props.keyStack === 'UpdatePhotosSPV'  && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+
+         if(this.props.keyStack === 'ReportDetailsSPV' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+
+         if(this.props.keyStack === 'IVASDetailsSPV' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+
+         if(this.props.keyStack === 'UpdateIVAS' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+
+         if(this.props.keyStack === 'ManifestDetails' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+         if(this.props.keyStack === 'PhotosDraft' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+         if(this.props.keyStack === 'ItemDraftDetails' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+         if(this.props.keyStack === 'UpdatePhotos' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+         if(this.props.keyStack === 'ItemTransitDraftDetail' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+      
+
+
     });
     return () => interactionPromise.cancel();
   }

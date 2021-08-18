@@ -81,7 +81,7 @@ class UpdatePhoto extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Chat',
+          headerTitle: '',
         }),
       },
       enlargeImage: {
@@ -102,7 +102,7 @@ class UpdatePhoto extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Chat',
+          headerTitle: '',
         }),
       },
     },
