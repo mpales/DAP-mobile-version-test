@@ -27,13 +27,21 @@ export default ImageLoading = forwardRef((props, ref) => {
     const save = React.useCallback(async () => {
         setURI(null);
         const currentValue = await getValue() // when frame drop detected because rn-reanimated use synchronous 
-        let uri = await props.callbackToFetch();
+        let uri = await props.callbackToFetch(indicatorTick);
         setURI(Platform.OS === 'android' ? 'file://' + uri : '' + uri );
         value.setValue(1); // set different value
     }, [getValue])
     const [progressLinearVal, setTick] = useState(0);
     const [progressLinearType, setOpt] = useState('indeterminate');
-  
+    const indicatorTick = React.useCallback((val)=>{
+        console.log(val);
+        if(val > 1){
+            setOpt('indeterminate');
+        } else {
+            setOpt('determinate');
+            setTick(val)
+        }
+    });
     useImperativeHandle(ref, () => ({
       refresh: () => {
         value.setValue(0); // reset to default

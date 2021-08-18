@@ -186,10 +186,11 @@ class CameraSingle extends React.Component {
         ref={ ref => {
             this.flatlistImageRef[index] = ref;
         }} 
-        callbackToFetch={async ()=>{
+        callbackToFetch={async (indicatorTick)=>{
             return await getBlob('/inbounds/'+this.state.inboundId+'/'+typeAPI+'/'+item,{filename:item+'.jpg'},(received, total) => {
-                if(this.flatlistImageRef[index] !== null)
-                this.flatlistImageRef[index].indicatorTick(received)
+                // if(this.flatlistImageRef[index] !== null)
+                // this.flatlistImageRef[index].
+                indicatorTick(received)
             })
         }}
         containerStyle={{width: '100%', height: '100%',}}
@@ -263,10 +264,11 @@ class CameraSingle extends React.Component {
                             ref={ ref => {
                                 this.thumbRef = ref
                             }} 
-                            callbackToFetch={async ()=>{
+                            callbackToFetch={async (indicatorTick)=>{
                                 return await getBlob('/inbounds/'+this.state.inboundId+'/'+( this.state.typeGallery ==='received' ? 'receiveThumb' : 'processingThumb')+'/'+this.state.pictureGallery[this.state.pictureGallery.length -1],{filename:this.state.pictureGallery[this.state.pictureGallery.length -1]+'.jpg'},(received, total) => {
-                                    if(this.thumbRef !== null)
-                                    this.thumbRef.indicatorTick(received)
+                                    // if(this.thumbRef !== null)
+                                    // this.thumbRef.
+                                    indicatorTick(received)
                                 })
                             }}
                             containerStyle={styles.imagePreviewButton}

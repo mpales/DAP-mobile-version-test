@@ -87,10 +87,11 @@ class ConnoteReportDetails extends React.Component {
       ref={ ref => {
         this.arrayImageProcessingRef[item.id] = ref
       }} 
-      callbackToFetch={async ()=>{
+      callbackToFetch={async (indicatorTick)=>{
         return await getBlob('/inbounds/'+item.inbound_id+'/'+item.inbound_product_id+'/reports/'+item.report_id+'/thumb/'+item.id,{filename:''+item.inbound_id+''+item.inbound_product_id+''+item.report_id+''+item.id+'.jpg'},(received, total) => {
-          if(this.arrayImageProcessingRef.length > 0 && this.arrayImageProcessingRef[item.id] !== undefined && this.arrayImageProcessingRef[item.id] !== null)
-          this.arrayImageProcessingRef[item.id].indicatorTick(received)
+          // if(this.arrayImageProcessingRef.length > 0 && this.arrayImageProcessingRef[item.id] !== undefined && this.arrayImageProcessingRef[item.id] !== null)
+          // this.arrayImageProcessingRef[item.id].
+          indicatorTick(received)
         })
       }}
       containerStyle={{width:65,height:65, margin:5}}
@@ -148,10 +149,11 @@ class ConnoteReportDetails extends React.Component {
             ref={ ref => {
               this.overlayThumb = ref
             }} 
-            callbackToFetch={async ()=>{
+            callbackToFetch={async (indicatorTick)=>{
               return await getBlob(this.state.overlayImageString,{filename:this.state.overlayImageFilename},(received, total) => {
-                if(this.overlayThumb !== undefined)
-                this.overlayThumb.indicatorTick(received)
+                // if(this.overlayThumb !== undefined)
+                // this.overlayThumb.indicatorTick(received)
+                indicatorTick(received)
               })
             }}
             containerStyle={{width:window.width * 0.8,height:window.width * 0.8,}}

@@ -139,10 +139,11 @@ class Photos extends React.Component {
       ref={ ref => {
         this.arrayImageReceivedRef[index] = ref
       }} 
-      callbackToFetch={async ()=>{
+      callbackToFetch={async (indicatorTick)=>{
         return await getBlob('/inbounds/'+this.state.receivingNumber+'/receiveThumb/'+item,{filename:item+'.jpg'},(received, total) => {
-          if(this.arrayImageProcessingRef[index] !== undefined)
-          this.arrayImageReceivedRef[index].indicatorTick(received)
+          // if(this.arrayImageProcessingRef[index] !== undefined)
+          // this.arrayImageReceivedRef[index].
+          indicatorTick(received)
         })
       }}
       containerStyle={{width:78,height:78, margin:5}}
@@ -157,10 +158,11 @@ class Photos extends React.Component {
       ref={ ref => {
         this.arrayImageProcessingRef[index] = ref
       }} 
-      callbackToFetch={async ()=>{
+      callbackToFetch={async (indicatorTick)=>{
         return await getBlob('/inbounds/'+this.state.receivingNumber+'/processingThumb/'+item,{filename:item+'.jpg'},(received, total) => {
-          if(this.arrayImageProcessingRef[index] !== undefined)
-          this.arrayImageProcessingRef[index].indicatorTick(received)
+          // if(this.arrayImageProcessingRef[index] !== undefined)
+          // this.arrayImageProcessingRef[index].
+          indicatorTick(received)
         })
       }}
       containerStyle={{width:78,height:78, margin:5}}
@@ -188,7 +190,7 @@ class Photos extends React.Component {
                         buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
                         titleStyle={styles.deliveryText}
                         onPress={()=>{
-                          this.props.navigation.navigate('UpdatePhotos',{
+                          this.props.navigation.navigate('UpdatePhotosSPV',{
                             photoId: this.state.receivedPhotoId,
                             inboundId : this.state.receivingNumber,
                             type : 'received',
@@ -211,7 +213,7 @@ class Photos extends React.Component {
                         buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
                         titleStyle={styles.deliveryText}
                         onPress={()=>{
-                          this.props.navigation.navigate('UpdatePhotos',{
+                          this.props.navigation.navigate('UpdatePhotosSPV',{
                             photoId: this.state.processingPhotoId,
                             inboundId : this.state.receivingNumber,
                             type : 'processing',

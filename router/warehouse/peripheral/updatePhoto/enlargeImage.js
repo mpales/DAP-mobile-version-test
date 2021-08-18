@@ -141,10 +141,11 @@ class EnlargeImage extends React.Component {
             ref={ ref => {
                 this.viewerImageRef[index] = ref;
             }} 
-            callbackToFetch={async ()=>{
+            callbackToFetch={async (indicatorTick)=>{
                 return await getBlob('/inbounds/'+this.state.inboundId+'/'+typeAPI+'/'+item,{filename:item+'.png'},(received, total) => {
-                    if(this.viewerImageRef[index] !== null)
-                    this.viewerImageRef[index].indicatorTick(received)
+                    // if(this.viewerImageRef[index] !== null)
+                    // this.viewerImageRef[index].
+                    indicatorTick(received)
                 })
             }}
             containerStyle={{width: window.width, height: window.height/2}}
