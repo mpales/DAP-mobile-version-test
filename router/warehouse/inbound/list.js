@@ -86,19 +86,19 @@ class List extends React.Component {
             this.props.setInboundLIst(AllASN.filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         } else if(filtered === 1){
             let PendingASN = await this.updateASN();
-            this.props.setInboundLIst(PendingASN.filter((element)=> element.status === 1).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(PendingASN.filter((element)=> element.status === 3).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
             let ProgressASN = await this.updateASN();
-            this.props.setInboundLIst(ProgressASN.filter((element)=> element.status === 2).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
+            this.props.setInboundLIst(ProgressASN.filter((element)=> element.status === 4).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
         }else if(filtered === 3){
             let CompleteASN = await this.updateASN();
-            this.props.setInboundLIst(CompleteASN.filter((element)=> element.status === 3).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(CompleteASN.filter((element)=> element.status === 5).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         }else if(filtered === 4){
             let ReportedASN = await this.updateASN();
-            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 4).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 6).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         }else if(filtered === 5){
             let ReportedASN = await this.updateASN();
-            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 5).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 7).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         }
         
         
@@ -111,19 +111,19 @@ class List extends React.Component {
             this.props.setInboundLIst(AllASN.filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         }else if(filtered === 1){
             let PendingASN = await this.updateASN();
-            this.props.setInboundLIst(PendingASN.filter((element)=> element.status === 1).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(PendingASN.filter((element)=> element.status === 3).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
             let ProgressASN = await this.updateASN();
-            this.props.setInboundLIst(ProgressASN.filter((element)=> element.status === 2).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
+            this.props.setInboundLIst(ProgressASN.filter((element)=> element.status === 4).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
         }else if(filtered === 3){
             let CompleteASN = await this.updateASN();
-            this.props.setInboundLIst(CompleteASN.filter((element)=> element.status === 3).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(CompleteASN.filter((element)=> element.status === 5).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         }else if(filtered === 4){
             let ReportedASN = await this.updateASN();
-            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 4).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 6).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         }else if(filtered === 5){
             let ReportedASN = await this.updateASN();
-            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 5).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+            this.props.setInboundLIst(ReportedASN.filter((element)=> element.status === 7).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         }
     }
     render() {
@@ -214,11 +214,12 @@ class List extends React.Component {
                                     item={data} 
                                     ToManifest={()=>{
                                         this.props.setBottomBar(false);
-                                       if(data.status === 1 || data.status === 2){
+                                       if(data.status === 3 || data.status === 4){
                                             this.props.navigation.navigate(   {
                                                 name: 'ReceivingDetail',
                                                 params: {
                                                   number: data.id,
+                                                  submitPhoto:false,
                                                 },
                                               });
                                         } else {

@@ -91,10 +91,10 @@ class List extends React.Component {
             this.props.setinboundList(AllASN.filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         } else if(filtered === 1){
             let PendingASN = await this.updateASN(type);
-            this.props.setinboundList(PendingASN.filter((element)=> element.status === 5).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+            this.props.setinboundList(PendingASN.filter((element)=> element.status === 7).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
             let ProgressASN = await this.updateASN(type);
-            this.props.setinboundList(ProgressASN.filter((element)=> element.status === 2).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
+            this.props.setinboundList(ProgressASN.filter((element)=> element.status === 4).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
         }
         
     }
@@ -106,10 +106,10 @@ class List extends React.Component {
             this.props.setinboundList(AllASN.filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         } else if(filtered === 1){
             let PendingASN = await this.updateASN(type);
-            this.props.setinboundList(PendingASN.filter((element)=> element.status === 5).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+            this.props.setinboundList(PendingASN.filter((element)=> element.status === 7).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
             let ProgressASN = await this.updateASN(type);
-            this.props.setinboundList(ProgressASN.filter((element)=> element.status === 2).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
+            this.props.setinboundList(ProgressASN.filter((element)=> element.status === 4).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
         }
     }
     render() {

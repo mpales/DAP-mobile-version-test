@@ -25,6 +25,7 @@ class CameraSingle extends React.Component {
             isFlashActive: false,
             pictureGallery: null,
             rootIDType : '',
+            rootIDnumber: null,
         }
   
         this.handleShowImagePreview.bind(this);
@@ -39,16 +40,18 @@ class CameraSingle extends React.Component {
      if(pictureGallery === null){
          const {routes, index} = navigation.dangerouslyGetState();
         if(routes[index-1] !== undefined && routes[index-1].name === "ReceivingDetail"){
-           addPhotoProofID(routes[index-1].params.number)
-            return {...state,pictureGallery: photoProofPostpone,rootIDType: routes[index-1].name}
+            if(photoProofPostpone !== null ) addPhotoProofID(routes[index-1].params.number)
+            return {...state,pictureGallery: photoProofPostpone,rootIDType: routes[index-1].name, rootIDnumber:routes[index-1].params.number }
         } else if(routes[index-1] !== undefined && routes[index-1].name === "ReportManifest"){
              if(routes[index-1].params !== undefined && routes[index-1].params.dataCode !== undefined){
-            addPhotoReportID(routes[index-1].params.dataCode)
-            return {...state,pictureGallery: photoReportPostpone,rootIDType: routes[index-1].name}
+            if(photoReportPostpone !== null) addPhotoReportID(routes[index-1].params.dataCode)
+            return {...state,pictureGallery: photoReportPostpone,rootIDType: routes[index-1].name, rootIDnumber: routes[index-1].params.number}
             }
          } else {
             navigation.goBack();
          } 
+     } else {
+         
      }
     
      return {...state};
@@ -64,11 +67,13 @@ class CameraSingle extends React.Component {
       }
     componentDidUpdate(prevProps, prevState) {
        if(this.state.rootIDType === 'ReceivingDetail' && Array.isArray(this.props.photoProofPostpone) && ((prevProps.photoProofPostpone === null && this.props.photoProofPostpone !== prevProps.photoProofPostpone) || this.props.photoProofPostpone.length !== prevProps.photoProofPostpone.length)){
+            this.props.addPhotoProofID(this.state.rootIDnumber)
             this.setState({pictureGallery : this.props.photoProofPostpone});
             if(this.state.isShowImagePreview && this.state.pictureGallery !== null) {
                 this.flatlist.scrollToEnd();
             }
        } else if(this.state.rootIDType === 'ReportManifest' && Array.isArray(this.props.photoReportPostpone) && ((prevProps.photoReportPostpone === null && this.props.photoReportPostpone !== prevProps.photoReportPostpone) || this.props.photoReportPostpone.length !== prevProps.photoReportPostpone.length)){
+            this.props.addPhotoReportID(this.state.rootIDnumber)
             this.setState({pictureGallery : this.props.photoReportPostpone});
             if(this.state.isShowImagePreview && this.state.pictureGallery !== null) {
                 this.flatlist.scrollToEnd();

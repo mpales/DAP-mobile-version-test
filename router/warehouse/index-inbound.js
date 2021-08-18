@@ -134,7 +134,7 @@ class WarehouseNavigator extends React.Component {
             this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'})
             return true;    
           }  else if(prevProps.keyStack === 'ReceivingDetail' && this.props.keyStack === 'SingleCamera' && this.props.indexBottomBar === 0){
-            this.navigationRef.current.navigate('Inbound', {screen: 'ReceivingDetail'})
+            this.navigationRef.current.navigate('Inbound', {screen: 'ReceivingDetail', params:{submitPhoto:false}})
             return true;    
           }else if(prevProps.keyStack === 'ReportManifest' && this.props.keyStack === 'SingleCamera' && this.props.indexBottomBar === 0){
             this.navigationRef.current.navigate('Inbound', {screen: 'ReportManifest'})
