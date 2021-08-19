@@ -100,7 +100,7 @@ class ReportManifest extends React.Component {
         const {currentASN} = this.props;
         const {dataCode, _manifest} = this.state;
         let FormData = await this.getPhotoReceivingGoods();
-        postBlob('/inbounds/'+currentASN+'/'+_manifest.id+'/reports', [
+        postBlob('/inboundsMobile/'+currentASN+'/'+_manifest.id+'/reports', [
             // element with property `filename` will be transformed into `file` in form data
             { name : 'report', data: this.state.reasonOption},
             {name :'description', data : this.state.otherReason},

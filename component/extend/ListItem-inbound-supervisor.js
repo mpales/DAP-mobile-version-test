@@ -131,23 +131,23 @@ const Manifest = ({item, index, ToManifest}) => {
   let status = 'grey';
   let labelstatus = '';
   switch (item.status) {
-    case 1:
+    case 3:
       status = '#ABABAB';
       labelstatus = 'Waiting';
       break;
-      case 2:
+      case 4:
         status = '#F1811C';
         labelstatus = 'Received';
         break;
-        case 3:
+        case 5:
           status = '#F1811C';
           labelstatus = 'Processing';
           break;
-          case 4:
+          case 6:
             status = '#17B055';
             labelstatus = 'Processed'
             break;
-            case 4:
+            case 7:
               status = '#E03B3B';
               labelstatus = 'Reported'
               break;
@@ -178,7 +178,7 @@ const Manifest = ({item, index, ToManifest}) => {
                     {item.company.company_name}
                     </Text>
                     <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '400'}}>
-                    {item.inbound_products.filter((element)=>element.status !== 1).length+'/'+item.inbound_products.length+' Lines Complete'}
+                    {item.inbound_products.filter((element)=>element.status !== 3).length+'/'+item.inbound_products.length+' Lines Complete'}
                     </Text>
     
         </ListItem.Content>

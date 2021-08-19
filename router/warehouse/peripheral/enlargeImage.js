@@ -46,8 +46,10 @@ class EnlargeImage extends React.Component {
         } else if(this.state.pictureData.length === 0) {
             if(this.state.rootIDType === 'ReceivingDetail'){
                 this.props.addPhotoProofPostpone(null);
+                this.props.addPhotoProofID(null);
             } else if(this.state.rootIDType === 'ReportManifest'){
                 this.props.addPhotoReportPostpone(null);
+                this.props.addPhotoReportID(null);
             }
             this.props.navigation.navigate('SingleCamera');
         } else {
@@ -239,6 +241,8 @@ const mapDispatchToProps = (dispatch) => {
         addPhotoProofUpdate: (data) => dispatch({type: 'PhotoProofUpdate', payload: data}),
         addPhotoReportPostpone: (uri) => dispatch({type: 'PhotoReportPostpone', payload: uri}),
         addPhotoReportUpdate: (data) => dispatch({type: 'PhotoReportUpdate', payload: data}),
+        addPhotoProofID: (id) => dispatch({type:'addPhotoProofID', payload: id}),
+        addPhotoReportID: (id) => dispatch({type:'addPhotoReportID', payload: id}),
     };
 };
 

@@ -68,7 +68,7 @@ class UpdatePhoto extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Chat',
+          headerTitle: '',
           headerRight: () => (
             <Button
               type="clear"
@@ -103,7 +103,7 @@ class UpdatePhoto extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Chat',
+          headerTitle: '',
         }),
       },
     },

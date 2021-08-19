@@ -59,7 +59,7 @@ class Acknowledge extends React.Component {
 
   async componentDidMount(){
     const {receivingNumber} = this.state;
-    const result = await getData('/inbounds/'+receivingNumber+'/shipmentVAS');
+    const result = await getData('/inboundsMobile/'+receivingNumber+'/shipmentVAS');
     this.setState({
       stuffTruck: result.inbound_shipment === 1 ? true : false,
       stuffTruckPallet: result.inbound_shipment === 1 ? ''+result.inbound_shipment_no_pallet : '',
@@ -118,7 +118,7 @@ class Acknowledge extends React.Component {
       cartoonDimensionSKU : parseInt(this.state.takeCartonSKU),
       other: this.state.takeOthersInput
     };
-    const result = await putData('/inbounds/'+this.state.receivingNumber+'/shipmentVAS', VAS);
+    const result = await putData('/inboundsMobile/'+this.state.receivingNumber+'/shipmentVAS', VAS);
     this.props.navigation.goBack();
   }
   checkedIcon = () => {

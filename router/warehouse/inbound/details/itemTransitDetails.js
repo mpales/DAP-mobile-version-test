@@ -48,7 +48,7 @@ class ConnoteDetails extends React.Component {
 
   async componentDidMount(){
     const {id} = this.state._itemDetail;
-    const result = await getData('/inbounds/'+id+'/activities');
+    const result = await getData('/inboundsMobile/'+id+'/activities');
     if(typeof result === 'object' && result.error === undefined){
       this.setState({dataActivities:result})
     } else {

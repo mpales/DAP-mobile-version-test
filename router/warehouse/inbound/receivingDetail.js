@@ -21,6 +21,8 @@ class Acknowledge extends React.Component {
       errors: '',
       progressLinearVal : 0,
       updateData: false,
+      submitPhoto:false,
+      updateParams: false,
     };
     this.toggleCheckBox.bind(this);
     this.startProcessing.bind(this);
@@ -36,6 +38,7 @@ class Acknowledge extends React.Component {
     if(receivingNumber === null &&  routes[index].params !== undefined &&  routes[index].params.number !== undefined ){
         return {...state, receivingNumber: routes[index].params.number};
     }
+   
     return {...state};
   }
   shouldComponentUpdate(nextProps, nextState) {
@@ -45,8 +48,13 @@ class Acknowledge extends React.Component {
     }
     if(this.props.keyStack !== nextProps.keyStack){
       if(nextProps.keyStack === 'ReceivingDetail'){
-        this.setState({updateData:true});
-        this.props.setBottomBar(true);
+        const {routes, index} = nextProps.navigation.dangerouslyGetState();
+        if(routes[index].params !== undefined &&  routes[index].params.submitPhoto !== undefined && routes[index].params.submitPhoto === true){
+           this.setState({updateData:true, submitPhoto : true});
+        } else {
+          this.setState({updateData:true});
+        }
+        this.props.setBottomBar(false);
         return false;
       }
     }
@@ -55,17 +63,21 @@ class Acknowledge extends React.Component {
   async componentDidUpdate(prevProps, prevState, snapshot) {
     
     if(this.state.updateData === true){
-      const result = await getData('inbounds/'+this.state.receivingNumber);
+      const result = await getData('inboundsMobile/'+this.state.receivingNumber);
       if(typeof result === 'object' && result.errors === undefined){
         this.setState({updateData:false,data: result});
       } else {
         this.props.navigation.goBack();
       }
     } 
+    if(prevState.submitPhoto !== this.state.submitPhoto && this.state.submitPhoto === true){
+      this.setState({submitPhoto:false});
+      await this.startProcessing();
+    }
   }
   
   async componentDidMount(){
-    const result = await getData('inbounds/'+this.state.receivingNumber);
+    const result = await getData('inboundsMobile/'+this.state.receivingNumber);
     if(typeof result === 'object' && result.error === undefined){
       this.setState({data: result});
     } else {
@@ -109,7 +121,7 @@ class Acknowledge extends React.Component {
         type = FSStat.type;
       });
       if(type === 'file')
-      formdata.push({ name : 'photos', filename : filename, data: RNFetchBlob.wrap(path)})
+      formdata.push({ name : 'photos', filename : filename, type:'image/jpg', data: RNFetchBlob.wrap(path)})
     }
     return formdata;
   }
@@ -130,14 +142,15 @@ class Acknowledge extends React.Component {
   startProcessing = async () => {
     const {photoProofPostpone} = this.props;
     let FormData = await this.getPhotoReceivingGoods();
-    let uploadCategory = this.state.data.status === 1 ? 'receiving' : 'processing';
-    postBlob('/inbounds/'+this.state.receivingNumber +'/'+ uploadCategory, [
+    let uploadCategory = this.state.data.status === 3 ? 'receiving' : 'processing';
+    postBlob('/inboundsMobile/'+this.state.receivingNumber +'/'+ uploadCategory, [
       // element with property `filename` will be transformed into `file` in form data
-      { name : 'receiptNumber', data: this.state.data.inbound_asn !== null ? ''+this.state.data.inbound_asn.reference_id :  ''+this.state.data.inbound_grn.reference_id},
+      //{ name : 'receiptNumber', data: this.state.data.inbound_asn !== null ? this.state.data.inbound_asn.reference_id :  this.state.data.inbound_grn !== null ?  this.state.data.inbound_grn.reference_id : this.state.data.inbound_other.reference_id},
       // custom content type
       ...FormData,
     ], this.listenToProgressUpload).then(result=>{
-      if(typeof result === 'object' && result.error === undefined){
+      console.log(result);
+      if(typeof result !== 'object' && result === 'Inbound status changed to received'){
         this.props.addPhotoProofPostpone( null );
         this.props.setBottomBar(false);
         this.props.setActiveASN(this.state.receivingNumber);
@@ -145,7 +158,7 @@ class Acknowledge extends React.Component {
         this.props.setReportedManifest(null);
         this.props.setItemScanned([]);
         this.props.setManifestList([]);
-        if(this.state.data.status === 1){
+        if(this.state.data.status === 3){
           this.setState({updateData:true});
         } else {
           this.setState({updateData:true});
@@ -194,11 +207,11 @@ class Acknowledge extends React.Component {
               inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
               inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
               labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.inbound_asn !== null ? data.inbound_asn.reference_id: data.inbound_grn !== null ? data.inbound_grn.reference_id :  '-' }
+                placeholder={data.inbound_asn !== null ? ''+data.inbound_asn.reference_id: data.inbound_grn !== null ? ''+data.inbound_grn.reference_id :  data.inbound_other !== null ? ''+data.inbound_other.reference_id : 'NONE' }
                 disabled={true}
             />
          </View>
-         {data.status === 1 && (<View style={{flexDirection:'row', flexShrink:1}}>
+         {data.status === 3 && (<View style={{flexDirection:'row', flexShrink:1}}>
              <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
                  <Text>Container  #</Text>
              </View>
@@ -207,7 +220,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={"1"}
+                placeholder={data.inbound_asn !== null ? data.inbound_asn.container_no: data.inbound_grn !== null ? data.inbound_grn.container_no :  data.inbound_other !== null ? data.inbound_other.container_no : 'NONE' }
                 disabled={true}
             />
          </View>)}
@@ -220,13 +233,13 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput,{backgroundColor:'#F8B511'}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21,textTransform: 'uppercase', color:'#fff'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                value={data.status === 1 ? 'Waiting' : data.status === 2 ? "Received" : data.status === 3 ? "Processing" : data.status === 4 ? "Processed" : "Reported" }
+                value={data.status === 3 ? 'Waiting' : data.status === 4 ? "Received" : data.status === 5 ? "Processing" : data.status === 6 ? "Processed" : "Reported" }
                 disabled={false}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
-         <Text>{data.status === 1 ? "ETA Date" : "Received Date"}</Text>
+         <Text>{data.status === 3 ? "ETA Date" : "Received Date"}</Text>
          
            </View>
              <Input 
@@ -234,12 +247,12 @@ class Acknowledge extends React.Component {
               inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.status === 1 ? moment(data.eta).format("DD-MM-YYYY") : moment.unix(data.created_on).format("DD-MM-YYYY")}
+                placeholder={data.status === 3 ? moment(data.eta).format("DD-MM-YYYY") : moment.unix(data.created_on).format("DD-MM-YYYY")}
                 disabled={true}
             />
          </View>
         <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
-        {(data.status === 1 || data.status === 2) && ( <>
+        {(data.status === 3 || data.status === 4) && ( <>
          <Avatar
           onPress={()=>{
             if(this.props.photoProofID === null || this.props.photoProofID === data.id){
@@ -288,8 +301,8 @@ class Acknowledge extends React.Component {
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.startProcessing}
-              title={data.status === 1 ? 'Receive Goods' : 'Start Processing'}
-              disabled={(this.props.photoProofPostpone === null || (this.props.photoProofID !== null && this.props.photoProofID !== data.id)) && (data.status === 1 || data.status === 2) ? true : false}
+              title={data.status === 3 ? 'Receive Goods' : 'Start Processing'}
+              disabled={(this.props.photoProofPostpone === null || (this.props.photoProofID !== null && this.props.photoProofID !== data.id)) && (data.status === 3 || data.status === 4) ? true : false}
             />
           <Button
               containerStyle={{flexShrink:1, marginRight: 0,}}

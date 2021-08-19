@@ -95,7 +95,7 @@ class Acknowledge extends React.Component {
       cartoonDimensionSKU : parseInt(this.state.takeCartonSKU),
       other: this.state.takeOthersInput
     };
-    const result = await postData('/inbounds/'+this.state.receivingNumber+'/shipmentVAS', VAS);
+    const result = await postData('/inboundsMobile/'+this.state.receivingNumber+'/shipmentVAS', VAS);
     this.props.navigation.goBack();
   }
   checkedIcon = () => {

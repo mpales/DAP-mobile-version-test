@@ -73,19 +73,19 @@ class Photos extends React.Component {
   async componentDidUpdate(prevProps, prevState, snapshot) {
     
     if(this.state.updateData === true){
-      const result = await getData('inbounds/'+this.state.receivingNumber+'/photosIds');
+      const result = await getData('inboundsMobile/'+this.state.receivingNumber+'/photosIds');
       if(typeof result === 'object' && result.error === undefined){
         let dumpPath = [];
         let dumpreceivedPhotoId =[];
         let dumpprocessingPhotoId = [];
         for (let index = 0; index < result.inbound_photos.length; index++) {
           const element = result.inbound_photos[index].photoId;
-          if(result.inbound_photos[index].status === 2){
+          if(result.inbound_photos[index].status === 4){
             dumpreceivedPhotoId.push(element);
-          } else if(result.inbound_photos[index].status === 3){
+          } else if(result.inbound_photos[index].status === 5){
             dumpprocessingPhotoId.push(element);
           }
-         // let respath = await getBlob('/inbounds/'+this.state.receivingNumber+'/processingThumb/'+element,{filename:element+'.jpg'});
+         // let respath = await getBlob('/inboundsMobile/'+this.state.receivingNumber+'/processingThumb/'+element,{filename:element+'.jpg'});
         //  dumpPath.push(respath);
         }
         this.setState({updateData:false, receivedPhotoId: dumpreceivedPhotoId, processingPhotoId: dumpprocessingPhotoId});
@@ -114,16 +114,16 @@ class Photos extends React.Component {
   }
   
   async componentDidMount(){
-    const result = await getData('inbounds/'+this.state.receivingNumber+'/photosIds');
+    const result = await getData('inboundsMobile/'+this.state.receivingNumber+'/photosIds');
     if(typeof result === 'object' && result.error === undefined){
       let dumpPath = [];
       let dumpreceivedPhotoId =[];
       let dumpprocessingPhotoId = [];
       for (let index = 0; index < result.inbound_photos.length; index++) {
         const element = result.inbound_photos[index].photoId;
-        if(result.inbound_photos[index].status === 2){
+        if(result.inbound_photos[index].status === 4){
           dumpreceivedPhotoId.push(element);
-        } else if(result.inbound_photos[index].status === 3){
+        } else if(result.inbound_photos[index].status === 5){
           dumpprocessingPhotoId.push(element);
         }
       }
@@ -140,7 +140,7 @@ class Photos extends React.Component {
         this.arrayImageReceivedRef[index] = ref
       }} 
       callbackToFetch={async (indicatorTick)=>{
-        return await getBlob('/inbounds/'+this.state.receivingNumber+'/receiveThumb/'+item,{filename:item+'.jpg'},(received, total) => {
+        return await getBlob('/inboundsMobile/'+this.state.receivingNumber+'/receiveThumb/'+item,{filename:item+'.jpg'},(received, total) => {
           // if(this.arrayImageProcessingRef[index] !== undefined)
           // this.arrayImageReceivedRef[index].
           indicatorTick(received)
@@ -159,7 +159,7 @@ class Photos extends React.Component {
         this.arrayImageProcessingRef[index] = ref
       }} 
       callbackToFetch={async (indicatorTick)=>{
-        return await getBlob('/inbounds/'+this.state.receivingNumber+'/processingThumb/'+item,{filename:item+'.jpg'},(received, total) => {
+        return await getBlob('/inboundsMobile/'+this.state.receivingNumber+'/processingThumb/'+item,{filename:item+'.jpg'},(received, total) => {
           // if(this.arrayImageProcessingRef[index] !== undefined)
           // this.arrayImageProcessingRef[index].
           indicatorTick(received)

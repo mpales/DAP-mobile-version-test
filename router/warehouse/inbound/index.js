@@ -35,12 +35,23 @@ import SupervisorMode from './supervisor/index';
 import RegisterBarcode from '../peripheral/index-inbound-register';
 import POSMPhoto from '../peripheral/POSMPhoto/index';
 import WarehouseIn from '../detail/index-inbound';
+import updatePhoto from '../peripheral/updatePhoto';
 const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
   constructor(props) {
     super(props);
-    
+    this.state = {
+      type: 'ASN',
+    };
     this.setWrapperofStack.bind(this);
+  }
+  static getDerivedStateFromProps(props,state){
+    const {navigation} = props;
+    const {routes,index} =  navigation.dangerouslyGetState();
+    if(routes[index].params !== undefined && routes[index].params.type !== undefined){
+      return {...state, type:routes[index].params.type  }
+    }
+    return {...state};
   }
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
@@ -53,7 +64,9 @@ class HomeNavigator extends React.Component {
     return (
       <Stack.Navigator initialRouteName="WarehouseIn" screenOptions={{
         headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
-        headerBackTitleVisible:false,
+        headerBackTitleVisible:true,
+        headerBackTitle:'Back',
+        headerTitleAlign:'center',
         headerLeftContainerStyle:  Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
         header: (props) => {
           let state = props.navigation.dangerouslyGetState();
@@ -85,7 +98,6 @@ class HomeNavigator extends React.Component {
             headerShown: false,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitleAlign: 'left',
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
@@ -99,6 +111,7 @@ class HomeNavigator extends React.Component {
         />
         <Stack.Screen
           name="List"
+          initialParams={{type:this.state.type}}
           component={List}
           options={{
             headerStyle: {
@@ -113,8 +126,8 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
+            headerTitle: this.state.type.toUpperCase(),
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitleAlign: 'left',
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
@@ -142,7 +155,7 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
+            headerTitle: this.state.type.toUpperCase(),
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
         
             headerLeft: (props) => {
@@ -172,9 +185,8 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
+            headerTitle: 'Put-Away',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
@@ -202,7 +214,7 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
+            headerTitle: 'Pallet Details',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
         
             headerLeft: (props) => {
@@ -232,7 +244,7 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
+            headerTitle: 'Product Details',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
         
             headerLeft: (props) => {
@@ -262,7 +274,7 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
+            headerTitle: 'Transit Item Details',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
         
             headerLeft: (props) => {
@@ -292,7 +304,7 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
+            headerTitle: 'Report Details',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
         
             headerLeft: (props) => {
@@ -321,11 +333,10 @@ class HomeNavigator extends React.Component {
                 },
               })
             },
+            headerTitle:'',
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
-            headerTitle: 'Back',
           })}
         />
         <Stack.Screen
@@ -343,11 +354,10 @@ class HomeNavigator extends React.Component {
                 },
               })
             },
+            headerTitle:'',
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
-            headerTitle: 'Back',
           })}
         />
          <Stack.Screen
@@ -365,11 +375,10 @@ class HomeNavigator extends React.Component {
                 },
               })
             },
+            headerTitle:'',
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
-            headerTitle: 'Back',
           })}
         />
         <Stack.Screen
@@ -388,7 +397,7 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
+            headerTitle: 'Manual Barcode',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
         
             headerLeft: (props) => {
@@ -426,13 +435,14 @@ class HomeNavigator extends React.Component {
               />);
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
+            headerTitle: 'Report',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
         
           })}
         />
           <Stack.Screen
           name="DetailsDraft"
+          initialParams={{type:this.state.type}}
           component={DetailsDraft}
           options={() => ({
             headerStyle: {
@@ -491,7 +501,7 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
+            headerTitle: this.state.type.toUpperCase(),
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
         
           })}
@@ -534,7 +544,7 @@ class HomeNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
+            headerTitle:'New Product Attributes'
           })}
         />
              <Stack.Screen
@@ -582,6 +592,7 @@ class HomeNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+            headerTitle:'Shipment VAS'
         
           })}
         />
@@ -644,7 +655,7 @@ class HomeNavigator extends React.Component {
           <Stack.Screen
           name="SingleCamera"
           component={SingleCamera}
-          options={() => ({
+          options={(props) => ({
             headerStyle: {
               backgroundColor: '#121C78',
               elevation: 0,
@@ -656,6 +667,26 @@ class HomeNavigator extends React.Component {
                 },
               })
             },
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.navigation.navigate('ReceivingDetail',{ submitPhoto: false });
+                }
+              }
+              />);
+            },
+            headerRight: () => (
+              <Button
+                type="clear"
+                title="Submit"
+                buttonStyle={{paddingHorizontal: 20, margin: 0}}
+                iconContainerStyle={{padding: 0, margin: 0}}
+                titleStyle={{padding: 0, margin: 0, color: '#fff'}}
+                onPress={() =>
+                  props.navigation.navigate('ReceivingDetail',{ submitPhoto: true })}
+              />
+            ),
+            headerTitle:'',
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
@@ -677,6 +708,7 @@ class HomeNavigator extends React.Component {
                 },
               })
             },
+            headerTitle:'',
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},

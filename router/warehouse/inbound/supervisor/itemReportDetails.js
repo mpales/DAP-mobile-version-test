@@ -72,7 +72,7 @@ class ConnoteReportDetails extends React.Component {
    async componentDidMount(){
     const {receivingNumber, inboundID} = this.state;
     const {currentASN} = this.props;
-    const result = await getData('/inbounds/'+inboundID+'/'+receivingNumber+'/reports');
+    const result = await getData('/inboundsMobile/'+inboundID+'/'+receivingNumber+'/reports');
     if(typeof result === 'object' && result.error === undefined){
       this.setState({dataReports:result})
     } else {
@@ -83,7 +83,7 @@ class ConnoteReportDetails extends React.Component {
     const {overlayImage} = this.state;
     this.setState({
       overlayImage: !overlayImage,
-      overlayImageString : item !== undefined ? '/inbounds/'+item.inbound_id+'/'+item.inbound_product_id+'/reports/'+item.report_id+'/photo/'+item.id : null,
+      overlayImageString : item !== undefined ? '/inboundsMobile/'+item.inbound_id+'/'+item.inbound_product_id+'/reports/'+item.report_id+'/photo/'+item.id : null,
       overlayImageFilename: item !== undefined ? ''+item.inbound_id+''+item.inbound_product_id+''+item.report_id+''+item.id+'.png' : null,
     });
   }
@@ -93,7 +93,7 @@ class ConnoteReportDetails extends React.Component {
           this.arrayImageProcessingRef[item.id] = ref
         }} 
         callbackToFetch={async (indicatorTick)=>{
-          return await getBlob('/inbounds/'+item.inbound_id+'/'+item.inbound_product_id+'/reports/'+item.report_id+'/thumb/'+item.id,{filename:''+item.inbound_id+''+item.inbound_product_id+''+item.report_id+''+item.id+'.jpg'},(received, total) => {
+          return await getBlob('/inboundsMobile/'+item.inbound_id+'/'+item.inbound_product_id+'/reports/'+item.report_id+'/thumb/'+item.id,{filename:''+item.inbound_id+''+item.inbound_product_id+''+item.report_id+''+item.id+'.jpg'},(received, total) => {
             // if(this.arrayImageProcessingRef.length > 0 && this.arrayImageProcessingRef[item.id] !== undefined && this.arrayImageProcessingRef[item.id] !== null)
             // this.arrayImageProcessingRef[item.id].
             indicatorTick(received)
@@ -160,7 +160,7 @@ class ConnoteReportDetails extends React.Component {
     let data = {acknowledge: acknowledged >>> 0};
     for (let index = 0; index < dataReports.length; index++) {
       const element = dataReports[index];
-      let result = await postBlob('/inbounds/'+inboundID+'/'+receivingNumber+'/reports/'+element.id,data); 
+      let result = await postBlob('/inboundsMobile/'+inboundID+'/'+receivingNumber+'/reports/'+element.id,data); 
       console.log(result);
     }
     this.props.navigation.goBack();

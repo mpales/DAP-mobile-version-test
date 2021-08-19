@@ -94,7 +94,7 @@ class Warehouse extends React.Component{
       //   return {...state, _manifest : manifest};
       // } else
         if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
-          const result = await getData('inbounds/'+routes[index].params.number);
+          const result = await getData('inboundsMobile/'+routes[index].params.number);
           if(typeof result === 'object' && result.error === undefined){
           
             let mergedDummy = Array.from({length: result.inbound_products.length}).map((num,index)=>{
@@ -106,7 +106,7 @@ class Warehouse extends React.Component{
             navigation.popToTop();
           }
         } else if(currentASN !== null) {
-          const result = await getData('inbounds/'+currentASN);
+          const result = await getData('inboundsMobile/'+currentASN);
           if(typeof result === 'object' && result.error === undefined){
           
             let mergedDummy = Array.from({length: result.inbound_products.length}).map((num,index)=>{
