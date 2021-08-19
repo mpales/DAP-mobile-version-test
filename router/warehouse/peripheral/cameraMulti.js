@@ -45,10 +45,8 @@ class CameraSingle extends React.Component {
         } else if(routes[index-1] !== undefined && routes[index-1].name === "ReportManifest"){
              if(routes[index-1].params !== undefined && routes[index-1].params.dataCode !== undefined){
             if(photoReportPostpone !== null) addPhotoReportID(routes[index-1].params.dataCode)
-            return {...state,pictureGallery: photoReportPostpone,rootIDType: routes[index-1].name, rootIDnumber: routes[index-1].params.number}
+            return {...state,pictureGallery: photoReportPostpone,rootIDType: routes[index-1].name, rootIDnumber: routes[index-1].params.dataCode}
             }
-         } else {
-            navigation.goBack();
          } 
      } else {
          

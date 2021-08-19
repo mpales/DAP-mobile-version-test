@@ -655,7 +655,7 @@ class HomeNavigator extends React.Component {
           <Stack.Screen
           name="SingleCamera"
           component={SingleCamera}
-          options={(props) => ({
+          options={({navigation}) => ({
             headerStyle: {
               backgroundColor: '#121C78',
               elevation: 0,
@@ -668,14 +668,17 @@ class HomeNavigator extends React.Component {
               })
             },
             headerLeft: (props) => {
+              const {routes, index} = navigation.dangerouslyGetState();
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.navigation.navigate('ReceivingDetail',{ submitPhoto: false });
+                  navigation.navigate(routes[index-1].name,{ submitPhoto: false });
                 }
               }
               />);
             },
-            headerRight: () => (
+            headerRight: () => {
+              const {routes, index} = navigation.dangerouslyGetState();
+              return (
               <Button
                 type="clear"
                 title="Submit"
@@ -683,9 +686,9 @@ class HomeNavigator extends React.Component {
                 iconContainerStyle={{padding: 0, margin: 0}}
                 titleStyle={{padding: 0, margin: 0, color: '#fff'}}
                 onPress={() =>
-                  props.navigation.navigate('ReceivingDetail',{ submitPhoto: true })}
+                  navigation.navigate(routes[index-1].name,{ submitPhoto: true })}
               />
-            ),
+            )},
             headerTitle:'',
             headerTransparent: true,
             headerTintColor: '#fff',

@@ -9,7 +9,6 @@ import {
   FlatList,
   Dimensions,
   TouchableOpacity,
-  TouchableHighlight
 } from 'react-native';
 import {Card, CheckBox, Button, Overlay} from 'react-native-elements';
 import {connect} from 'react-redux';
@@ -18,6 +17,7 @@ import Checkmark from '../../../../assets/icon/iconmonstr-check-mark-7 1mobile.s
 // component
 import DetailList from '../../../../component/extend/Card-detail';
 import ImageLoading from '../../../../component/loading/image';
+import Loading from '../../../../component/loading/loading';
 import {getData, getBlob,postData, postBlob} from '../../../../component/helper/network';
 import moment from 'moment';
 const window = Dimensions.get('screen');
@@ -29,19 +29,24 @@ class ConnoteReportDetails extends React.Component {
     this.state = {
       receivingNumber: null,
       inboundID : null,
+      reportID : null,
       acknowledged:false,
       title: 'Damage Item',
       note: 'Theres some crack on packages',
       resolution: '',
       dataReports : null,
+      arrayPhotoID: null,
+      photoData : null,
       overlayImage : false,
       overlayImageString: null,
       overlayImageFilename : null,
+      error: '',
     };
     this.toggleOverlay.bind(this);
     this.renderPhotoProof.bind(this);
-    this.renderInner.bind(this)
-    this._onPressSingleReports.bind(this);
+    this.acknowledgedReport.bind(this);
+    this.toggleCheckBox.bind(this);
+    this.changeResolutionToReports.bind(this);
   }
   static getDerivedStateFromProps(props,state){
     const {navigation} = props;
@@ -49,7 +54,17 @@ class ConnoteReportDetails extends React.Component {
     if(receivingNumber === null){
       const {routes, index} = navigation.dangerouslyGetState();
       if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
-        return {...state, inboundID: routes[index].params.number, receivingNumber:  routes[index].params.productID};
+        const photoData = Array.from({length:routes[index].params.arrayPhotoID.length}).map((num,i)=>{
+          return {...routes[index].params.arrayPhotoID[i],report_id:routes[index].params.reportID,inbound_id:routes[index].params.number,inbound_product_id: routes[index].params.productID}
+        });
+        return {
+          ...state, 
+          inboundID: routes[index].params.number, 
+          receivingNumber:  routes[index].params.productID, 
+          reportID: routes[index].params.reportID,
+          arrayPhotoID:  routes[index].params.arrayPhotoID,
+          photoData:photoData,
+        };
       }
       return {...state};
     } 
@@ -71,9 +86,9 @@ class ConnoteReportDetails extends React.Component {
     } 
    }
    async componentDidMount(){
-    const {receivingNumber, inboundID} = this.state;
+    const {receivingNumber, inboundID, reportID} = this.state;
     const {currentASN} = this.props;
-    const result = await getData('/inboundsMobile/'+inboundID+'/'+receivingNumber+'/reports');
+    const result = await getData('/inboundsMobile/'+inboundID+'/'+receivingNumber+'/reports/'+reportID);
     if(typeof result === 'object' && result.error === undefined){
       this.setState({dataReports:result})
     } else {
@@ -100,64 +115,13 @@ class ConnoteReportDetails extends React.Component {
             indicatorTick(received)
           })
         }}
-        containerStyle={{width:65,height:65, margin:5}}
-        style={{width:65,height:65,backgroundColor:'black'}}
-        imageStyle={{width:65,height:65}}
+        containerStyle={{width:105,height:105, margin:5}}
+        style={{width:105,height:105,backgroundColor:'black'}}
+        imageStyle={{width:105,height:105}}
         imageContainerStyle={{}}
         /></TouchableOpacity>)
     }
-    _onPressSingleReports = (item)=>{
-      this.props.navigation.navigate('ReportSingleDetailsSPV',
-      {
-        number:item.inbound_id, 
-        productID : item.inbound_product_id,
-        reportID : item.id,
-        arrayPhotoID: item.inbound_report_photos,
-      });
-    }
-    renderInner = ({item, separators }) =>{
-      let photoData = Array.from({length:item.inbound_report_photos.length}).map((num,index)=>{
-        return {...item.inbound_report_photos[index],report_id:item.id,inbound_id:item.inbound_id,inbound_product_id:item.inbound_product_id}
-      });
-      return (
-        <TouchableHighlight
-        key={item.key}
-        onPress={() => this._onPressSingleReports(item)}
-        onShowUnderlay={separators.highlight}
-        onHideUnderlay={separators.unhighlight}>
-          <Card containerStyle={styles.cardContainer} style={styles.card}>
-          <View style={styles.header}>
-            <Text
-              style={[
-                styles.headerTitle,
-                {marginBottom: 10, color: '#E03B3B', fontSize: 20},
-              ]}>
-              {item.report}
-            </Text>
-          </View>
-          <View style={styles.detail}>
-            <DetailList title="Report By" value={item.reported_by.firstName} />
-            <DetailList title="Date and Time" value={moment(item.reported_on).format('DD/MM/YYY h:mm a')} />
-            <DetailList title="Photo Proof" value={''} />
-            <FlatList
-                  horizontal={true}
-                  keyExtractor={(item,index)=>index}
-                  data={photoData}
-                  renderItem={this.renderPhotoProof}
-            />
-            <Text style={styles.detailText}>Note</Text>
-            <TextInput
-              style={styles.note}
-              multiline={true}
-              numberOfLines={3}
-              textAlignVertical="top"
-              value={item.description}
-              editable={false}
-            />
-          </View>
-        </Card> 
-    </TouchableHighlight>);
-    }
+   
   checkedIcon = () => {
     return (
       <View
@@ -172,13 +136,47 @@ class ConnoteReportDetails extends React.Component {
   uncheckedIcon = () => {
     return <View style={styles.unchecked} />;
   };
-  
-  
+  acknowledgedReport = async ()=>{
+    const {receivingNumber, inboundID, reportID, acknowledged,resolution} = this.state;
+    let data = {
+      acknowledge: acknowledged >>> 0,
+      resolution: resolution,
+    };
+    let result = await postData('/inboundsMobile/'+inboundID+'/'+receivingNumber+'/reports/'+reportID,data); 
+    if(result !== 'object'){
+      console.log(result);
+      this.props.navigation.goBack();
+    } else {
+      if(result.errors !== undefined){
+        let dumpError = '';
+        result.errors.forEach(element => {
+          dumpError += element.msg + ' ';
+        });
+        this.setState({error:dumpError});
+      } else if(result.error !== undefined){
+        this.setState({error:result.error});
+      }
+    }
+  }
+  toggleCheckBox = () => {
+    this.setState({
+      acknowledged: !this.state.acknowledged,
+    });
+  };
+  changeResolutionToReports = (text) =>{
+    this.setState({
+      resolution: text,
+    });
+  };
   render() {
+    const {dataReports, photoData} = this.state;
+    if(dataReports === null)
+    return (<Loading />);
+
     return (
       <>
         <StatusBar barStyle="dark-content" />
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Report Details</Text>
           </View>
@@ -201,14 +199,67 @@ class ConnoteReportDetails extends React.Component {
             />
           </Overlay>
           <View style={styles.body}>
-          <FlatList
-            keyExtractor={(item,index)=>index}
-              data={this.state.dataReports}
-              renderItem={this.renderInner}
-            />
+            <Card containerStyle={styles.cardContainer} style={styles.card}>
+                <View style={styles.header}>
+                  <Text
+                    style={[
+                      styles.headerTitle,
+                      {marginBottom: 10, color: '#E03B3B', fontSize: 20},
+                    ]}>
+                    {dataReports.report}
+                  </Text>
+                </View>
+                <View style={styles.detail}>
+                  <DetailList title="Report By" value={dataReports.reported_by.firstName} />
+                  <DetailList title="Date and Time" value={moment(dataReports.reported_on).format('DD/MM/YYY h:mm a')} />
+                  <DetailList title="Photo Proof" value={''} />
+                  <FlatList
+                        horizontal={true}
+                        keyExtractor={(item,index)=>index}
+                        data={photoData}
+                        renderItem={this.renderPhotoProof}
+                  />
+                  <Text style={styles.detailText}>Note</Text>
+                  <TextInput
+                    style={styles.note}
+                    multiline={true}
+                    numberOfLines={3}
+                    textAlignVertical="top"
+                    value={dataReports.description}
+                    editable={false}
+                  />
+                </View>
+              </Card>
+              {this.state.error !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.error}</Text>)}
+              <Text style={styles.detailText}>Resolution</Text>
+                <TextInput
+                  style={styles.note}
+                  multiline={true}
+                  numberOfLines={3}
+                  textAlignVertical="top"
+                  onChangeText={this.changeResolutionToReports}
+                  value={this.state.resolution}
+                />
+                <CheckBox
+                      title="I Acknowledge"
+                      textStyle={styles.textCheckbox}
+                      containerStyle={styles.checkboxContainer}
+                      checked={this.state.acknowledged}
+                      onPress={this.toggleCheckBox}
+                      checkedIcon={this.checkedIcon()}
+                      uncheckedIcon={this.uncheckedIcon()}
+                    />
+                <Button
+                    containerStyle={{flex:1, marginRight: 0,}}
+                    buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
+                    titleStyle={styles.deliveryText}
+                    title="Confirm"
+                    onPress={this.acknowledgedReport}
+                    disabled={(this.state.acknowledged === false || this.state.resolution.length === 0)}
+                  />
           </View>
          
-        </View>
+        </ScrollView>
       </>
     );
   }

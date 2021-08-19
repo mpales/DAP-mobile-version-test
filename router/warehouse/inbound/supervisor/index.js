@@ -32,6 +32,7 @@ import SupervisorList from './list';
 import SupervisorManifest from './manifest';
 import PhotosDraftSPV from './photos';
 import ReportDetailsSPV from './itemReportDetails';
+import ReportSingleDetailsSPV from './singleReportDetails';
 import IVASDetailsSPV from './IVASDetails';
 import UpdateIVAS from './updateIVAS';
 import Mixins from '../../../../mixins';
@@ -135,6 +136,24 @@ class SupervisorInbound extends React.Component {
       },
       ReportDetailsSPV: {
         screen: ReportDetailsSPV,
+        navigationOptions:  ({ navigation }) => ({
+          headerStyle: {
+            backgroundColor: '#121C78',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+            ...Platform.select({
+              android: {
+                height: 45,
+              },
+            })
+          },
+          headerTintColor: '#fff',
+          headerTitle: 'Report Details',
+        }),
+      },
+      ReportSingleDetailsSPV: {
+        screen: ReportSingleDetailsSPV,
         navigationOptions:  ({ navigation }) => ({
           headerStyle: {
             backgroundColor: '#121C78',

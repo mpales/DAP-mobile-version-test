@@ -28,6 +28,7 @@ import IconBarcodeMobile from '../../../assets/icon/iconmonstr-barcode-3 2mobile
 import moment from 'moment';
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import {getData, postData} from '../../../component/helper/network';
+import Banner from '../../../component/banner/banner';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component{
@@ -47,12 +48,15 @@ class Warehouse extends React.Component{
       filtered : 0,
       _manifest: [],
       updated: false,
+      notifbanner : '',
     };
     this.goToIVAS.bind(this);
     this.toggleOverlay.bind(this);
     this.setFiltered.bind(this);
     this.generatePalletID.bind(this);
     this.updateSearch.bind(this);
+    this.closeNotifBanner.bind(this);
+    this.handleConfirm.bind(this);
   }
   static getDerivedStateFromProps(props,state){
     const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest, barcodeGrade} = props;
@@ -176,18 +180,27 @@ class Warehouse extends React.Component{
     this.setState({_visibleOverlay: !_visibleOverlay})
   }
 
-  handleConfirm = ({action}) => {
+  handleConfirm = async ({action}) => {
+    const {receivingNumber} = this.state;
     const {currentASN} = this.props;
     this.toggleOverlay();
     if(action) {
-      this.props.setBottomBar(true);
       // for prototype only
+      const result = await postData('/inboundsMobile/'+receivingNumber+'/complete-receiving')
+      if(result !== 'object'){
+        this.setState({notifbanner:result});
+      } else {
+        if(result.error !== undefined) this.setState({notifbanner:result.error});
+      }
       this.props.addCompleteASN(currentASN);
       this.props.completedInboundList.push(this.state.inboundCode);
       // end
 
-      this.props.navigation.navigate('containerDetail');
+     // this.props.navigation.navigate('containerDetail');
     }
+  }
+  closeNotifBanner = ()=>{
+    this.setState({notifbanner:''});
   }
   goToIVAS =() =>{
     this.props.navigation.navigate(    {
@@ -217,6 +230,11 @@ class Warehouse extends React.Component{
       <>
         <StatusBar barStyle="dark-content" /> 
         <SafeAreaProvider>
+        {this.state.notifbanner !== '' && (<Banner
+            title={this.state.notifbanner}
+            backgroundColor="#F1811C"
+            closeBanner={this.closeNotifBanner}
+          />)}
           <ScrollView style={styles.body}>
             <View style={[styles.sectionContent,{marginTop: 20}]}>
             <View style={[styles.sectionContentTitle, {flexDirection: 'row'}]}>
@@ -280,7 +298,7 @@ class Warehouse extends React.Component{
               }}
               leftIconContainerStyle={{backgroundColor: 'white'}}
             />
-             <View style={{flexDirection:'row',marginVertical: 10}}>
+             <ScrollView style={{flexDirection:'row',paddingTop:5, paddingBottom:15}} horizontal={true}>
             <Badge
                     value="All"
                     containerStyle={styles.badgeSort}
@@ -316,7 +334,7 @@ class Warehouse extends React.Component{
                     badgeStyle={this.state.filtered === 3 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
-            </View>
+            </ScrollView>
          
               <Card containerStyle={styles.cardContainer}>
                 {_manifest.map((u, i) => (

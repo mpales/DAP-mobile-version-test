@@ -162,7 +162,7 @@ class List extends React.Component {
             />
                     <View style={styles.sectionContent}>
                         <Card containerStyle={styles.cardContainer}>
-                        <View style={styles.headingCard}>
+                        <ScrollView style={styles.headingCard} horizontal={true}>
                         <Badge
                     value="All"
                     containerStyle={styles.badgeSort}
@@ -205,7 +205,7 @@ class List extends React.Component {
                     badgeStyle={this.state.filtered === 5 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 5 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
-                     </View>
+                     </ScrollView>
                             {this.props.inboundList.map((data, i, arr) => {
                                 return (
                                     <Inbound 
@@ -254,7 +254,8 @@ const styles = StyleSheet.create({
     },
     headingCard: {
         flexDirection: 'row',
-        marginBottom: 20,
+        paddingTop:5,
+        paddingBottom:15,
     },
     badgeSort: {
         marginRight: 5,

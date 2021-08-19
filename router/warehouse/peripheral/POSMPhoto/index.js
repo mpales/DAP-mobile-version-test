@@ -29,7 +29,7 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import IconSearchMobile from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
-import {createStackNavigator,Header} from '@react-navigation/stack';
+import {createStackNavigator,Header, HeaderBackButton} from '@react-navigation/stack';
 import CameraMulti from './cameraMulti';
 import enlargeImage from './enlargeImage';
 import Mixins from '../../../../mixins';
@@ -69,6 +69,19 @@ class UpdatePhoto extends React.Component {
           },
           headerTintColor: '#fff',
           headerTitle: '',
+          headerLeft: (props) => {
+            return(
+              <HeaderBackButton  {...props} onPress={()=>{
+                navigation.navigate('Inbound',{
+                  screen: 'Barcode',
+                  params: {
+                    upload : false,
+                  },
+                });
+              }
+            }
+            />);
+          },
           headerRight: () => (
             <Button
               type="clear"

@@ -112,6 +112,7 @@ class UpdatePhoto extends React.Component {
       defaultNavigationOptions: {
         headerBackTitleVisible:true,
         headerBackTitle: 'Back',
+        headerTransparent: true,
         headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22,textAlign:'center',paddingRight:40},
         headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
         headerLeftContainerStyle:  Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,

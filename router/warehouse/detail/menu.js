@@ -22,6 +22,7 @@ import LogoSmall from '../../../assets/dap_logo_hires1-e1544435829468 5small.svg
 import {popToLogout} from '../../../component/helper/persist-login';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Notification from '../notification';
+import {postData} from '../../../component/helper/network';
 const screen = Dimensions.get('window');
 const Drawer = createDrawerNavigator();
 class WarehouseMenu extends React.Component {
@@ -36,7 +37,7 @@ class WarehouseMenu extends React.Component {
 
     this._CustomBottomTabContent.bind(this)
     this._CustomDrawerContent.bind(this);
-
+    this.drawerLogout.bind(this);
     this.renderView.bind(this);
   }
 
@@ -95,6 +96,11 @@ class WarehouseMenu extends React.Component {
         </View>
     );
   }
+  drawerLogout = async ()=>{
+    await postData('/auth/logout');
+    this.props.removeJwtToken(null);
+    popToLogout();
+  };
   _CustomDrawerContent = (props) =>  {
     const {navigation,state} = props;
     let {isDrawer} = this.props;
@@ -133,10 +139,7 @@ class WarehouseMenu extends React.Component {
       <DrawerItemList {...props} />
       <DrawerItem
         label="Logout"
-        onPress={() => {
-          this.props.removeJwtToken(null);
-          popToLogout();
-        }}
+        onPress={this.drawerLogout}
       />
     </DrawerContentScrollView> );
   }

@@ -80,9 +80,9 @@ class Photos extends React.Component {
         let dumpprocessingPhotoId = [];
         for (let index = 0; index < result.inbound_photos.length; index++) {
           const element = result.inbound_photos[index].photoId;
-          if(result.inbound_photos[index].status === 4){
+          if(result.inbound_photos[index].status === 2){
             dumpreceivedPhotoId.push(element);
-          } else if(result.inbound_photos[index].status === 5){
+          } else if(result.inbound_photos[index].status === 3){
             dumpprocessingPhotoId.push(element);
           }
          // let respath = await getBlob('/inboundsMobile/'+this.state.receivingNumber+'/processingThumb/'+element,{filename:element+'.jpg'});
@@ -121,9 +121,9 @@ class Photos extends React.Component {
       let dumpprocessingPhotoId = [];
       for (let index = 0; index < result.inbound_photos.length; index++) {
         const element = result.inbound_photos[index].photoId;
-        if(result.inbound_photos[index].status === 4){
+        if(result.inbound_photos[index].status === 2){
           dumpreceivedPhotoId.push(element);
-        } else if(result.inbound_photos[index].status === 5){
+        } else if(result.inbound_photos[index].status === 3){
           dumpprocessingPhotoId.push(element);
         }
       }
