@@ -149,6 +149,7 @@ class Warehouse extends React.Component{
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0}]}
               titleStyle={[styles.deliveryText,{lineHeight:21,fontWeight:'400'}]}
               onPress={()=>{
+                this.props.setBottomBar(false);
                 this.props.navigation.navigate('PhotosDraft')
               }}
               title="Inbound Photos"
@@ -188,7 +189,7 @@ class Warehouse extends React.Component{
               }}
               leftIconContainerStyle={{backgroundColor: 'white'}}
             />
-             <View style={{flexDirection:'row',marginVertical: 10}}>
+             <ScrollView style={{flexDirection:'row',paddingBottom:15,paddingTop:5}} horizontal={true}>
             <Badge
                     value="All"
                     containerStyle={styles.badgeSort}
@@ -224,7 +225,7 @@ class Warehouse extends React.Component{
                     badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
-            </View>
+            </ScrollView>
          
               <Card containerStyle={styles.cardContainer}>
                 {_manifest.map((u, i) => (

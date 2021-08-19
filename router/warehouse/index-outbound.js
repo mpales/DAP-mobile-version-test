@@ -23,7 +23,7 @@ import Mixins from '../../mixins';
 import { ReactReduxContext } from 'react-redux'
 import {popToLogout} from '../../component/helper/persist-login';
 import {SafeAreaView} from 'react-native-safe-area-context';
-
+import {postData} from '../../component/helper/network';
 const screen = Dimensions.get('window');
 const Drawer = createDrawerNavigator();
 
@@ -41,6 +41,7 @@ class WarehouseNavigator extends React.Component {
     this.setWrapperofNavigation.bind(this);
     this.backActionFilterBottomBar.bind(this);
     this._refreshFromBackHandle.bind(this);
+    this.drawerLogout.bind(this);
   }
 
   deliveryRoute = () => {
@@ -165,7 +166,11 @@ class WarehouseNavigator extends React.Component {
     return () => interactionPromise.cancel();
   }
   
-  
+  drawerLogout = async ()=>{
+    await postData('/auth/logout');
+    this.props.removeJwtToken(null);
+    popToLogout();
+  };
   _CustomDrawerContent = (props) =>  {
     const {navigation,state} = props;
     let {isDrawer} = this.props;
@@ -204,10 +209,7 @@ class WarehouseNavigator extends React.Component {
       <DrawerItemList {...props} />
       <DrawerItem
         label="Logout"
-        onPress={() => {
-          this.props.removeJwtToken(null);
-          popToLogout();
-        }}
+        onPress={this.drawerLogout}
       />
     </DrawerContentScrollView> );
   }

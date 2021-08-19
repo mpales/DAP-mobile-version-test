@@ -50,9 +50,9 @@ class Acknowledge extends React.Component {
       if(nextProps.keyStack === 'ReceivingDetail'){
         const {routes, index} = nextProps.navigation.dangerouslyGetState();
         if(routes[index].params !== undefined &&  routes[index].params.submitPhoto !== undefined && routes[index].params.submitPhoto === true){
-           this.setState({updateData:true, submitPhoto : true});
+           this.setState({updateData:true, submitPhoto : true, errors: ''});
         } else {
-          this.setState({updateData:true});
+          this.setState({updateData:true, errors:''});
         }
         this.props.setBottomBar(false);
         return false;
@@ -71,8 +71,13 @@ class Acknowledge extends React.Component {
       }
     } 
     if(prevState.submitPhoto !== this.state.submitPhoto && this.state.submitPhoto === true){
-      this.setState({submitPhoto:false});
-      await this.startProcessing();
+      if(this.props.photoProofPostpone !== null){
+        this.setState({submitPhoto:false});
+        await this.startProcessing();
+      } else {
+        this.setState({submitPhoto:false,errors:'take a Photo Proof before continue process'})
+      }
+
     }
   }
   
@@ -143,6 +148,7 @@ class Acknowledge extends React.Component {
     const {photoProofPostpone} = this.props;
     let FormData = await this.getPhotoReceivingGoods();
     let uploadCategory = this.state.data.status === 3 ? 'receiving' : 'processing';
+    console.log(uploadCategory);
     postBlob('/inboundsMobile/'+this.state.receivingNumber +'/'+ uploadCategory, [
       // element with property `filename` will be transformed into `file` in form data
       //{ name : 'receiptNumber', data: this.state.data.inbound_asn !== null ? this.state.data.inbound_asn.reference_id :  this.state.data.inbound_grn !== null ?  this.state.data.inbound_grn.reference_id : this.state.data.inbound_other.reference_id},
@@ -150,7 +156,7 @@ class Acknowledge extends React.Component {
       ...FormData,
     ], this.listenToProgressUpload).then(result=>{
       console.log(result);
-      if(typeof result !== 'object' && result === 'Inbound status changed to received'){
+      if(typeof result !== 'object' && (result === 'Inbound status changed to received' || result === 'Inbound status changed to processing')){
         this.props.addPhotoProofPostpone( null );
         this.props.setBottomBar(false);
         this.props.setActiveASN(this.state.receivingNumber);
@@ -159,7 +165,7 @@ class Acknowledge extends React.Component {
         this.props.setItemScanned([]);
         this.props.setManifestList([]);
         if(this.state.data.status === 3){
-          this.setState({updateData:true});
+          this.setState({updateData:true, progressLinearVal:0});
         } else {
           this.setState({updateData:true});
           this.props.navigation.navigate(  {
@@ -186,7 +192,7 @@ class Acknowledge extends React.Component {
     return (
         <View style={{flexGrow: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
          <View style={{flexDirection:'row', flexShrink:1}}>
-             <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+             <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 130, alignItems: 'flex-start',marginRight: 20}}>
                  <Text>Client</Text>
              </View>
              <Input 
@@ -199,7 +205,7 @@ class Acknowledge extends React.Component {
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
-              <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+              <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 130, alignItems: 'flex-start',marginRight: 20}}>
                    <Text>Ref #</Text>
              </View>
              <Input 
@@ -212,7 +218,7 @@ class Acknowledge extends React.Component {
             />
          </View>
          {data.status === 3 && (<View style={{flexDirection:'row', flexShrink:1}}>
-             <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+             <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 130, alignItems: 'flex-start',marginRight: 20}}>
                  <Text>Container  #</Text>
              </View>
              <Input 
@@ -225,7 +231,7 @@ class Acknowledge extends React.Component {
             />
          </View>)}
          <View style={{flexDirection:'row', flexShrink:1}}>
-         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>            
+         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 130, alignItems: 'flex-start',marginRight: 20}}>            
          <Text>Status</Text>
              </View>
              <Input 
@@ -238,7 +244,7 @@ class Acknowledge extends React.Component {
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
-         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 130, alignItems: 'flex-start',marginRight: 20}}>
          <Text>{data.status === 3 ? "ETA Date" : "Received Date"}</Text>
          
            </View>
@@ -309,6 +315,7 @@ class Acknowledge extends React.Component {
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={()=>{
+                this.props.setBottomBar(true);
                 this.props.navigation.navigate(  {
                   name: 'DetailsDraft',
                   params: {

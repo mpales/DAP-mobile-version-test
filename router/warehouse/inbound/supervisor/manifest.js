@@ -27,7 +27,8 @@ import InboundSupervisorDetail from '../../../../component/extend/ListItem-inbou
 import IconBarcodeMobile from '../../../../assets/icon/iconmonstr-barcode-3 2mobile.svg';
 import moment from 'moment';
 import IconSearchMobile from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
-import {getData} from '../../../../component/helper/network';
+import {getData, postData} from '../../../../component/helper/network';
+import Banner from '../../../../component/banner/banner';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component{
@@ -43,10 +44,14 @@ class Warehouse extends React.Component{
       filtered : 0,
       _manifest: [],
       updated: false,
+      notifbanner : '',
     };
 
     this.setFiltered.bind(this);
     this.updateSearch.bind(this);
+    this.closeNotifBanner.bind(this);
+    this.toggleOverlay.bind(this);
+    this.handleConfirm.bind(this);
   }
   static getDerivedStateFromProps(props,state){
 
@@ -117,7 +122,33 @@ class Warehouse extends React.Component{
         }
     }
   }
- 
+  toggleOverlay =()=> {
+    const {_visibleOverlay} = this.state;
+    this.setState({_visibleOverlay: !_visibleOverlay})
+  }
+
+  handleConfirm = async ({action}) => {
+    const {receivingNumber} = this.state;
+    const {currentASN} = this.props;
+    this.toggleOverlay();
+    if(action) {
+      // for prototype only
+      const result = await postData('/inboundsMobile/'+receivingNumber+'/complete-receiving')
+      if(result !== 'object'){
+        this.setState({notifbanner:result});
+      } else {
+        if(result.error !== undefined) this.setState({notifbanner:result.error});
+      }
+      this.props.addCompleteASN(currentASN);
+      this.props.completedInboundList.push(this.state.inboundCode);
+      // end
+
+     // this.props.navigation.navigate('containerDetail');
+    }
+  }
+  closeNotifBanner = ()=>{
+    this.setState({notifbanner:''});
+  }
   setFiltered = (num)=>{
     this.setState({filtered:num});
 }
@@ -132,6 +163,11 @@ class Warehouse extends React.Component{
       <>
         <StatusBar barStyle="dark-content" /> 
         <SafeAreaProvider>
+        {this.state.notifbanner !== '' && (<Banner
+            title={this.state.notifbanner}
+            backgroundColor="#F1811C"
+            closeBanner={this.closeNotifBanner}
+          />)}
           <ScrollView style={styles.body}>
             <View style={[styles.sectionContent,{marginTop: 20}]}>
             <View style={[styles.sectionContentTitle, {flexDirection: 'row'}]}>
@@ -226,6 +262,23 @@ class Warehouse extends React.Component{
               </Card>
             </View>
           </ScrollView>
+          <Overlay fullScreen={false} overlayStyle={styles.overlayContainerStyle} isVisible={_visibleOverlay} onBackdropPress={this.toggleOverlay}>
+            <Text style={styles.confirmText}>Are you sure you want to Submit ?</Text>
+            <View style={styles.cancelButtonContainer}>
+              <TouchableOpacity 
+                style={[styles.cancelButton, {borderWidth: 1, borderColor: '#ABABAB'}]}
+                onPress={() => this.handleConfirm({action: false})}
+              >
+              <Text style={[styles.cancelText, {color: '#6C6B6B'}]}>No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.cancelButton, {backgroundColor: '#F07120'}]}
+                onPress={() => this.handleConfirm({action: true})}
+              >
+                <Text style={[styles.cancelText, {color: '#fff'}]}>Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </Overlay>
           <View style={styles.bottomTabContainer}>
           <Button
               containerStyle={{flex:1, marginRight:10}}
@@ -240,6 +293,7 @@ class Warehouse extends React.Component{
               containerStyle={{flex:1}}
               buttonStyle={[styles.navigationButton, {paddingVertical: 10}]}
               titleStyle={styles.deliveryText}
+              onPress={this.toggleOverlay}
               title="Comfirm & Putaway"
             />
           </View>

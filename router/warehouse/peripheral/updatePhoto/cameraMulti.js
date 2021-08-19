@@ -75,9 +75,9 @@ class CameraSingle extends React.Component {
                 let galleryIDDump = [];
                 for (let index = 0; index < result.inbound_photos.length; index++) {
                     const element = result.inbound_photos[index].photoId;
-                    if(result.inbound_photos[index].status === 4 && this.state.typeGallery === 'received'){
+                    if(result.inbound_photos[index].status === 2 && this.state.typeGallery === 'received'){
                         galleryIDDump.push(element);
-                    } else if (result.inbound_photos[index].status === 5 && this.state.typeGallery === 'processing'){
+                    } else if (result.inbound_photos[index].status === 3 && this.state.typeGallery === 'processing'){
                         galleryIDDump.push(element);
                     }
                 }
@@ -140,7 +140,7 @@ class CameraSingle extends React.Component {
             type = FSStat.type;
           });
           if(type === 'file')
-         return { name : 'photos', filename : filename, data: RNFetchBlob.wrap(path)};
+         return { name : 'photos', filename : filename, data: RNFetchBlob.wrap(path), type:'image/jpg', };
         
       }
       listenToProgressUpload = (written, total) => {

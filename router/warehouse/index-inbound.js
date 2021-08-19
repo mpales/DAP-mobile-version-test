@@ -23,7 +23,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {popToLogout} from '../../component/helper/persist-login';
 import Mixins from '../../mixins';
 import { ReactReduxContext } from 'react-redux'
-
+import {postData} from '../../component/helper/network';
 const screen = Dimensions.get('window');
 const Drawer = createDrawerNavigator();
 
@@ -41,6 +41,7 @@ class WarehouseNavigator extends React.Component {
     this.setWrapperofNavigation.bind(this);
     this.backActionFilterBottomBar.bind(this);
     this._refreshFromBackHandle.bind(this);
+    this.drawerLogout.bind(this);
   }
 
   deliveryRoute = () => {
@@ -137,12 +138,15 @@ class WarehouseNavigator extends React.Component {
             this.navigationRef.current.navigate('Inbound', {screen: 'ReceivingDetail', params:{submitPhoto:false}})
             return true;    
           }else if(prevProps.keyStack === 'ReportManifest' && this.props.keyStack === 'SingleCamera' && this.props.indexBottomBar === 0){
-            this.navigationRef.current.navigate('Inbound', {screen: 'ReportManifest'})
+            this.navigationRef.current.navigate('Inbound', {screen: 'ReportManifest', params:{submitPhoto:false}})
             return true;    
           } else if(this.props.keyStack === 'PalletScanner' && this.props.indexBottomBar === 0){
             this.navigationRef.current.navigate('Inbound', {screen: 'PalletDetails'})
             return true;    
-          }  else if(this.props.keyStack === 'PalletDetails' && this.props.indexBottomBar === 0){
+          } else if(this.props.keyStack === 'POSMCameraMulti' && this.props.indexBottomBar === 0){
+            this.navigationRef.current.navigate('Inbound', {screen: 'Barcode',  params:{upload:false}})
+            return true;    
+          } else if(this.props.keyStack === 'PalletDetails' && this.props.indexBottomBar === 0){
             this.navigationRef.current.navigate('Inbound', {screen: 'PalletList'})
             return true;    
           }  else if(this.props.keyStack === 'PalletList' && this.props.indexBottomBar === 0){
@@ -178,9 +182,8 @@ class WarehouseNavigator extends React.Component {
           } else if(this.props.keyStack === 'ItemDraftDetails' && this.props.indexBottomBar === 0){
             this.navigationRef.current.navigate('DetailsDraft', {screen: 'ManifestDetails'})
             return true;    
-          } else if(this.props.keyStack === 'UpdatePhotos' && this.props.indexBottomBar === 0){
-            this.navigationRef.current.navigate('DetailsDraft', {screen: 'PhotosDraft'})
-            return true;    
+          } else if(this.props.keyStack === 'CameraMulti' && this.props.indexBottomBar === 0){
+            return false;
           } else if(this.props.keyStack === 'ItemTransitDraftDetail' && this.props.indexBottomBar === 0){
             this.navigationRef.current.navigate('DetailsDraft', {screen: 'ManifestDetails'})
             return true;    
@@ -267,9 +270,12 @@ class WarehouseNavigator extends React.Component {
          }
 
          if(this.props.keyStack === 'ManifestDetails' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(true);
+         }
+         if(this.props.keyStack === 'CameraMulti' && this.props.indexBottomBar === 0){
           this.props.setBottomBar(false);
          }
-         if(this.props.keyStack === 'PhotosDraft' && this.props.indexBottomBar === 0){
+         if(this.props.keyStack === 'enlargeImage' && this.props.indexBottomBar === 0){
           this.props.setBottomBar(false);
          }
          if(this.props.keyStack === 'ItemDraftDetails' && this.props.indexBottomBar === 0){
@@ -281,14 +287,22 @@ class WarehouseNavigator extends React.Component {
          if(this.props.keyStack === 'ItemTransitDraftDetail' && this.props.indexBottomBar === 0){
           this.props.setBottomBar(false);
          }
-      
+         if(this.props.keyStack === 'POSMEnlargeImage' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
+         if(this.props.keyStack === 'POSMCameraMulti' && this.props.indexBottomBar === 0){
+          this.props.setBottomBar(false);
+         }
 
 
     });
     return () => interactionPromise.cancel();
   }
-  
-  
+  drawerLogout = async ()=>{
+    await postData('/auth/logout');
+    this.props.removeJwtToken(null);
+    popToLogout();
+  };
   _CustomDrawerContent = (props) =>  {
     const {navigation,state} = props;
     let {isDrawer} = this.props;
@@ -327,10 +341,7 @@ class WarehouseNavigator extends React.Component {
       <DrawerItemList {...props} />
       <DrawerItem
         label="Logout"
-        onPress={() => {
-          this.props.removeJwtToken(null);
-          popToLogout();
-        }}
+        onPress={this.drawerLogout}
       />
     </DrawerContentScrollView> );
   }

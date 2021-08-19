@@ -29,6 +29,7 @@ class ReportManifest extends React.Component {
             _manifest : null,
             errors: '',
             progressLinearVal : 0,
+            submitPhoto:false,
         };
         this.getPhotoReceivingGoods.bind(this);
         this.listenToProgressUpload.bind(this);
@@ -51,16 +52,28 @@ class ReportManifest extends React.Component {
         if(this.props.keyStack !== nextProps.keyStack){
           if(nextProps.keyStack === 'ReportManifest'){
             this.props.setBottomBar(false);
-            return true;
+            const {routes, index} = nextProps.navigation.dangerouslyGetState();
+            if(routes[index].params !== undefined &&  routes[index].params.submitPhoto !== undefined && routes[index].params.submitPhoto === true){
+               this.setState({submitPhoto : true});
+            }
+            return false;
           }
         }
         return true;
       }
-      componentDidUpdate(prevProps, prevState, snapshot) {
+      async componentDidUpdate(prevProps, prevState, snapshot) {
        
         if(prevState.dataCode !== this.state.dataCode){
           this.props.addPhotoReportPostpone(null);
         }
+        if(prevState.submitPhoto !== this.state.submitPhoto && this.state.submitPhoto === true){
+            if(this.props.photoReportPostpone !== null){
+                this.setState({submitPhoto:false});
+                await this.handleSubmit();
+            } else {
+                this.setState({submitPhoto:false,errors:'take a Photo Report before continue process'})
+            }
+          }
       }
     handleDeliveryOptions = (selectedValue) => {
         this.setState({
@@ -367,6 +380,7 @@ const mapStateToProps = (state) => {
         photoReportPostpone: state.originReducer.photoReportPostpone,
         currentASN : state.originReducer.filters.currentASN,
         photoReportID: state.originReducer.photoReportID,
+        keyStack: state.originReducer.filters.keyStack,
     };
 }
 
