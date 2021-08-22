@@ -17,6 +17,7 @@ import {
   Dimensions,
   Text,
   TouchableOpacity,
+  RefreshControl
 } from 'react-native';
 import {Avatar, Card, Overlay, Button, SearchBar, Badge, Input} from 'react-native-elements';
 
@@ -45,6 +46,7 @@ class Warehouse extends React.Component{
       _manifest: [],
       updated: false,
       notifbanner : '',
+      renderRefresh:false
     };
 
     this.setFiltered.bind(this);
@@ -72,14 +74,14 @@ class Warehouse extends React.Component{
     const {manifestList} = this.props;
     
  
-    let filtered = prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.updated !== this.state.updated ? this.state.filtered : null;
+    let filtered = prevState.renderRefresh !== this.state.renderRefresh || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.updated !== this.state.updated ? this.state.filtered : null;
    
     if(filtered === 0) {
-      this.setState({_manifest: manifestList.filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
+      this.setState({_manifest: manifestList.filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false, renderRefresh:false});
       } else if(filtered === 1){
-        this.setState({_manifest: manifestList.filter((element)=> element.status === 4).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
+        this.setState({_manifest: manifestList.filter((element)=> element.status === 4).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false, renderRefresh:false});
       } else if(filtered === 2){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false, renderRefresh:false});
       } 
    
   }
@@ -156,6 +158,9 @@ class Warehouse extends React.Component{
   updateSearch = (search) => {
     this.setState({search});
   };
+  _onRefresh = () => {
+    this.setState({renderRefresh: true});
+}
   render() {
     const {_visibleOverlay, _manifest,receivingNumber} = this.state;
     const {inboundList} = this.props;
@@ -168,7 +173,14 @@ class Warehouse extends React.Component{
             backgroundColor="#F1811C"
             closeBanner={this.closeNotifBanner}
           />)}
-          <ScrollView style={styles.body}>
+          <ScrollView 
+            refreshControl={<RefreshControl
+                      colors={["#9Bd35A", "#689F38"]}
+                      refreshing={this.state.renderRefresh}
+                      onRefresh={this._onRefresh.bind(this)}
+                  />
+              }
+          style={styles.body}>
             <View style={[styles.sectionContent,{marginTop: 20}]}>
             <View style={[styles.sectionContentTitle, {flexDirection: 'row'}]}>
             <View style={[styles.titleHead,{flexShrink :1,minWidth: 180}]}>

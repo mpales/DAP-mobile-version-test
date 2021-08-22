@@ -139,10 +139,17 @@ class App extends React.Component<IProps, IState> {
       if (
         result.userRights.includes('m1') ||
         result.userRights.includes('m2') ||
-        result.userRights.includes('m3')
+        result.userRights.includes('m3') ||
+        result.userRights.includes('m6') ||
+        result.userRights.includes('m7') ||
+        result.userRights.includes('m8') ||
+        result.userRights.includes('m9') ||
+        result.userRights.includes('m11') ||
+        result.userRights.includes('m10') ||
+        result.userRights.includes('m12')
       ) {
         type = 'Warehouse';
-        if( result.userRights.includes('m4') || result.userRights.includes('m5') ){
+        if( result.userRights.includes('m6') || result.userRights.includes('m7') || result.userRights.includes('m8')  || result.userRights.includes('m9')  || result.userRights.includes('m11') || result.userRights.includes('m12')  ){
           role = 'SPV';
         } else {
           role = 'default';
