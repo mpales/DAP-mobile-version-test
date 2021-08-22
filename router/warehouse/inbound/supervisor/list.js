@@ -6,7 +6,8 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View, 
+    RefreshControl
 } from 'react-native';
 import {
     Card,
@@ -36,6 +37,7 @@ class List extends React.Component {
             filtered : 0,
             type: 0,
             renderGoBack : false,
+            renderRefresh: false,
         };
 
     this.updateASN.bind(this);
@@ -53,7 +55,7 @@ class List extends React.Component {
         this.setState({type:num});
     }
     updateASN = async (type)=>{
-        this.setState({renderGoBack: false});
+        this.setState({renderGoBack: false, renderRefresh: false});
 
         let string = '';
         if(type === 0){
@@ -85,7 +87,7 @@ class List extends React.Component {
     }
     async componentDidUpdate(prevProps, prevState, snapshot) {
         const {type} = this.state;
-        let filtered = prevState.renderGoBack !== this.state.renderGoBack || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type ? this.state.filtered : null;
+        let filtered =  prevState.renderRefresh !== this.state.renderRefresh || prevState.renderGoBack !== this.state.renderGoBack || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type ? this.state.filtered : null;
         if(filtered === 0) {
             let AllASN = await this.updateASN(type);
             this.props.setinboundList(AllASN.filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
@@ -112,11 +114,20 @@ class List extends React.Component {
             this.props.setinboundList(ProgressASN.filter((element)=> element.status === 4).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
         }
     }
+    _onRefresh = () => {
+        this.setState({renderRefresh: true});
+    }
     render() {
         return(
             <SafeAreaProvider>
                 <StatusBar barStyle="dark-content" />
                 <ScrollView 
+                    refreshControl={<RefreshControl
+                            colors={["#9Bd35A", "#689F38"]}
+                            refreshing={this.state.renderRefresh}
+                            onRefresh={this._onRefresh.bind(this)}
+                        />
+                    }
                     style={styles.body} 
                     showsVerticalScrollIndicator={false}
                 >
