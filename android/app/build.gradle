@@ -136,6 +136,7 @@ android {
         versionName "1.0"
         multiDexEnabled true
         missingDimensionStrategy 'react-native-camera', 'mlkit'
+        resValue "string", "mauron85_bgloc_content_authority", "${applicationId}.mauron85.bgloc.provider"
     }
     splits {
         abi {
