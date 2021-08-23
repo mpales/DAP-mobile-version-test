@@ -136,7 +136,7 @@ class List extends React.Component {
                             </View>
                     <View style={styles.sectionContent}>
                         <Card containerStyle={styles.cardContainer}>
-                        <View style={{flexDirection:'row',paddingBottom:10}}>
+                        <ScrollView style={{flexDirection:'row',paddingBottom:10}} horizontal={true}>
                         <Badge
                     value="All"
                     containerStyle={styles.badgeSort}
@@ -172,14 +172,14 @@ class List extends React.Component {
                     badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
-                            </View>
+                            </ScrollView>
                             {this.props.outboundTask.map((data, i) => (
                                 <Outbound 
                                     key={i} 
                                     index={i} 
                                     item={data} 
                                     ToManifest={()=>{
-                                        this.props.setBottomBar(false);
+                                        this.props.setBottomBar(true);
                                         this.props.setCurrentTask(data.code);
                                         this.props.setActiveTask(data.code);
                                         this.props.navigation.navigate(   {

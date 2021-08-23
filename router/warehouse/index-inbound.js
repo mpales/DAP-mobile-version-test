@@ -13,7 +13,7 @@ import CCM from './inbound'
 import Notification from './notification'
 import {Button, Avatar} from 'react-native-elements';
 import IconHome7Mobile from '../../assets/icon/iconmonstr-home-7mobile.svg';
-import IconNote19Mobile from '../../assets/icon/iconmonstr-note-19mobile.svg';
+import IconNote19Mobile from '../../assets/icon/iconmonstr-shipping-box-8mobile.svg';
 import IconBubble26Mobile from '../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import IconGear2Mobile from '../../assets/icon/iconmonstr-gear-2mobile.svg';
 import IconBell2Mobile from '../../assets/icon/iconmonstr-bell-2mobile.svg';
@@ -108,7 +108,7 @@ class WarehouseNavigator extends React.Component {
             this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'})
             return true;    
           } else if(prevProps.keyStack === 'WarehouseIn' && this.props.keyStack === 'Barcode' && this.props.indexBottomBar === 0){
-            this.navigationRef.current.navigate('Home', {screen: 'WarehouseIn'})
+            this.navigationRef.current.navigate('Inbound', {screen: 'WarehouseIn'})
             return true;    
           } else if(this.props.keyStack === 'Barcode' && this.props.indexBottomBar === 0){
             this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'})

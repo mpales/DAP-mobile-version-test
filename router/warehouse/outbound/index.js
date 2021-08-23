@@ -39,7 +39,8 @@ class HomeNavigator extends React.Component {
     return (
       <Stack.Navigator initialRouteName="WarehouseOut" screenOptions={{
         headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
-        headerBackTitleVisible:false,
+        headerBackTitleVisible:true,
+        headerBackTitle:'Back',
         headerLeftContainerStyle:  Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
         header: (props) => {
           let state = props.navigation.dangerouslyGetState();
@@ -70,7 +71,6 @@ class HomeNavigator extends React.Component {
             headerShown: false,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitleAlign: 'left',
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
@@ -99,13 +99,13 @@ class HomeNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitle:'Back',
-            headerTitleAlign: 'left',
+            headerTitle:'Pick Task',
+            headerTitleAlign:'center',
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
                   this.props.setBottomBar('true')
-                  this.props.navigation.navigate('Home');
+                  this.props.navigation.navigate('WarehouseOut');
                 }
               }
               />);
@@ -128,9 +128,9 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
+            headerTitle: 'Pick List',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22,},
-     
+            headerTitleAlign:'center',
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
@@ -158,9 +158,9 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
+            headerTitle: 'Product Details',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
+            headerTitleAlign:'center',
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
@@ -188,9 +188,9 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
+            headerTitle: 'Report Details',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
+            headerTitleAlign:'center',
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
@@ -218,8 +218,9 @@ class HomeNavigator extends React.Component {
               })
             },
             headerTintColor: '#fff',
-            headerTitle: 'Back',
+            headerTitle: 'Input Manual',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+            headerTitleAlign:'center',
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
@@ -254,8 +255,9 @@ class HomeNavigator extends React.Component {
               }
               />);
             },
-            headerTitle: 'Back',
+            headerTitle: 'Report',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+            headerTitleAlign:'center',
           })}
         />
          <Stack.Screen
@@ -277,7 +279,7 @@ class HomeNavigator extends React.Component {
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
         
-            headerTitle: 'Back',
+            headerTitle: '',
             headerRight: () => (
               <View style={{display: 'flex', flexDirection: 'row'}}>
                 <TouchableOpacity
@@ -310,7 +312,7 @@ class HomeNavigator extends React.Component {
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
+            headerTitle:''
           })}
         />
             <Stack.Screen
@@ -331,7 +333,7 @@ class HomeNavigator extends React.Component {
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
+            headerTitle:''
           })}
         />
       </Stack.Navigator>

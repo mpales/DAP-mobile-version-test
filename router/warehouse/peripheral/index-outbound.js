@@ -57,7 +57,7 @@ class Example extends React.Component {
         let item = outboundList.find((element)=>element.barcode === routes[index].params.manualCode && element.location_bay === routes[index].params.bayCode);
         return {...state, dataCode: routes[index].params.bayCode,bayCode: routes[index].params.bayCode, dataItem: item, itemCode : routes[index].params.manualCode, qty: item.scanned};
       }
-    } else if(bayCode !== null && scanItem !== null && routes[index].params !== undefined && routes[index].params.manualCode !== undefined && scanItem === routes[index].params.manualCode) {
+    } else if(bayCode !== null && scanItem !== null && itemCode === null && routes[index].params !== undefined && routes[index].params.manualCode !== undefined && scanItem === routes[index].params.manualCode) {
       setBarcodeScanner(false);
       let item = outboundList.find((element)=>element.barcode === routes[index].params.manualCode && element.location_bay === routes[index].params.bayCode);
       return {...state, dataCode: routes[index].params.bayCode,bayCode: routes[index].params.bayCode, dataItem: item, itemCode : routes[index].params.manualCode, qty: item.scanned};
@@ -229,7 +229,7 @@ class Example extends React.Component {
                           </View>
                           <View style={styles.dividerInput}>
                           <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
-                          this.setState({qty:  qty < dataItem.total_qty ? qty+1: qty});
+                         this.setState({qty:  qty < dataItem.total_qty ? qty+1: qty});
                           }}  
                           containerStyle={{flexShrink:1, marginVertical: 5}}
                           badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
@@ -411,7 +411,7 @@ class Example extends React.Component {
             </View>
             
         </View>
-        <View style={[styles.buttonSheet,{marginVertical:40}]}>
+        <View style={[styles.buttonSheet,{marginVertical:10}]}>
         
         {this.state.scanItem !== null ? (<><Button
           containerStyle={{flex:1, marginTop: 10,marginRight: 5,}}
@@ -443,7 +443,7 @@ class Example extends React.Component {
             })}}
           title="Input Manual"
         /></>) : (<Button
-          containerStyle={{flex:1, marginTop: 10}}
+          containerStyle={{flex:1, marginTop: 0}}
           buttonStyle={styles.cancelButton}
                       titleStyle={styles.reportText}
           onPress={() => {
@@ -504,8 +504,8 @@ class Example extends React.Component {
           handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
           handlePosition={'inside'}
           disableScrollIfPossible={true}
-          modalHeight={this.state.itemCode !== null ? 370 : 320}
-          alwaysOpen={this.state.itemCode !== null ? 370 : 320}
+          modalHeight={this.state.scanItem !== null ? 320 : 280}
+          alwaysOpen={this.state.scanItem !== null ? 320 : 280}
           HeaderComponent={<this.renderHeader />}
         >
           <this.renderInner />
