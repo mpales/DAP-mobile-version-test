@@ -7,7 +7,7 @@ import {
     View,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { CheckBox, Input, Avatar, Button} from 'react-native-elements';
+import { CheckBox, Input, Avatar, Button, LinearProgress} from 'react-native-elements';
 import { connect } from 'react-redux';
 //icon
 import Mixins from '../../../mixins';
@@ -22,10 +22,13 @@ class ReportManifest extends React.Component {
             isShowConfirm: false,
             picker: "",
             deliveryOption: null,
-            reasonOption: null,
+            reasonOption: '',
             otherReason: "",
             dataCode : '0',
-            bayCode : '0',
+            _manifest : null,
+            errors: '',
+            progressLinearVal : 0,
+            submitPhoto:false,
         };
         this.handleSubmit.bind(this);
     }
@@ -75,7 +78,7 @@ class ReportManifest extends React.Component {
         let list = outboundList.find((element)=>element.location_bay === bayCode && element.barcode === dataCode)
         this.props.setBottomBar(false);
         this.props.setReportedTask(currentTask);
-        this.props.addPhotoProofPostpone(null);
+        this.props.addPhotoReportPostpone(null);
         this.props.setReportedList(list.id);
         this.props.navigation.navigate('List');
     }
@@ -89,111 +92,115 @@ class ReportManifest extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <View style={styles.contentContainer}>
-                    <Text style={styles.title}>Report</Text>
-                    <CheckBox
-                        title='Damage goods'
-                        checkedIcon='dot-circle-o'
-                        uncheckedIcon='circle-o'
-                        checkedColor='#2A3386'
-                        uncheckedColor='#6C6B6B'
-                        size={25}
-                        containerStyle={styles.checkbox}
-                        checked={this.state.reasonOption === 'missing-item'}
-                        onPress={() => this.handleReasonOptions('missing-item')}
-                    />
-                    <CheckBox
-                        title='Item missing'
-                        checkedIcon='dot-circle-o'
-                        uncheckedIcon='circle-o'
-                        checkedColor='#2A3386'
-                        uncheckedColor='#6C6B6B'
-                        size={25}
-                        containerStyle={styles.checkbox}
-                        checked={this.state.reasonOption === 'wrong-item'}
-                        onPress={() => this.handleReasonOptions('wrong-item')}
-                    />
-                                        <CheckBox
-                        title='Expired Date'
-                        checkedIcon='dot-circle-o'
-                        uncheckedIcon='circle-o'
-                        checkedColor='#2A3386'
-                        uncheckedColor='#6C6B6B'
-                        size={25}
-                        containerStyle={styles.checkbox}
-                        checked={this.state.reasonOption === 'wrong-item'}
-                        onPress={() => this.handleReasonOptions('wrong-item')}
-                    />
-                                        <CheckBox
-                        title='Other'
-                        checkedIcon='dot-circle-o'
-                        uncheckedIcon='circle-o'
-                        checkedColor='#2A3386'
-                        uncheckedColor='#6C6B6B'
-                        size={25}
-                        containerStyle={styles.checkbox}
-                        checked={this.state.reasonOption === 'wrong-item'}
-                        onPress={() => this.handleReasonOptions('wrong-item')}
-                    />
-                </View>
-                <View style={styles.contentContainer}>
-                    <Text style={[styles.title, {marginBottom: 5}]}>Description :</Text>
-                    <TextInput
-                            style={styles.textInput}
-                            onChange={(value) => this.onChangeReasonInput(value)}
-                            multiline={true}
-                            numberOfLines={3}
-                            textAlignVertical="top"
-                            value={this.state.otherReason}
-                        />
-
-                        <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
-                        <Avatar onPress={()=>{
-                                       if(this.props.photoProofID === null || this.props.photoProofID === this.state.dataCode){
-                                    this.props.setBottomBar(false);
-                                    this.props.navigation.navigate('SingleCamera')              
-                                    }
-                                }}
-                                        size={79}
-                                        ImageComponent={() => (
-                                        <>
-                                            <IconPhoto5 height="40" width="40" fill="#fff" />
-                                            {(this.props.photoProofPostpone !== null && (this.props.photoProofID !== null && this.props.photoProofID === this.state.dataCode)) && (
-                                            <Checkmark
-                                                height="20"
-                                                width="20"
-                                                fill="#fff"
-                                                style={styles.checkmark}
-                                            />
-                                            )}
-                                        </>
-                                        )}
-                                        imageProps={{
-                                        containerStyle: {
-                                            alignItems: 'center',
-                                            paddingTop: 18,
-                                            paddingBottom: 21,
-                                        },
-                                        }}
-                                        overlayContainerStyle={{
-                                        backgroundColor: this.props.photoProofID !== null && this.props.photoProofID !== this.state.dataCode ? 'grey' : this.props.photoProofPostpone !== null 
-                                            ? '#17B055'
-                                            : '#F07120',
-                                        flex: 2,
-                                        borderRadius: 5,
-                                        }}/>
-                                        <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Photo Proof Container</Text>
-                                </View>
-                                <Button
-              containerStyle={{flexShrink:1}}
-              buttonStyle={styles.navigationButton}
-              titleStyle={styles.deliveryText}
-              onPress={() => this.handleSubmit()}
-              title="Submit"
-              disabled={this.props.photoProofPostpone === null || (this.props.photoProofID !== null && this.props.photoProofID !== this.state.dataCode) ? true : false}
-              />
-                </View>
+            <View style={styles.contentContainer}>
+                <Text style={styles.title}>Report</Text>
+                <CheckBox
+                    title='Damage goods'
+                    checkedIcon='dot-circle-o'
+                    uncheckedIcon='circle-o'
+                    checkedColor='#2A3386'
+                    uncheckedColor='#6C6B6B'
+                    size={25}
+                    containerStyle={styles.checkbox}
+                    checked={this.state.reasonOption === 'damage-goods'}
+                    onPress={() => this.handleReasonOptions('damage-goods')}
+                />
+                <CheckBox
+                    title='Item missing'
+                    checkedIcon='dot-circle-o'
+                    uncheckedIcon='circle-o'
+                    checkedColor='#2A3386'
+                    uncheckedColor='#6C6B6B'
+                    size={25}
+                    containerStyle={styles.checkbox}
+                    checked={this.state.reasonOption === 'missing-item'}
+                    onPress={() => this.handleReasonOptions('missing-item')}
+                />
+                                    <CheckBox
+                    title='Expired Date'
+                    checkedIcon='dot-circle-o'
+                    uncheckedIcon='circle-o'
+                    checkedColor='#2A3386'
+                    uncheckedColor='#6C6B6B'
+                    size={25}
+                    containerStyle={styles.checkbox}
+                    checked={this.state.reasonOption === 'exp-date'}
+                    onPress={() => this.handleReasonOptions('exp-date')}
+                />
+                                    <CheckBox
+                    title='Other'
+                    checkedIcon='dot-circle-o'
+                    uncheckedIcon='circle-o'
+                    checkedColor='#2A3386'
+                    uncheckedColor='#6C6B6B'
+                    size={25}
+                    containerStyle={styles.checkbox}
+                    checked={this.state.reasonOption === 'other'}
+                    onPress={() => this.handleReasonOptions('other')}
+                />
             </View>
+            <View style={styles.contentContainer}>
+                <Text style={[styles.title, {marginBottom: 5}]}>Description :</Text>
+                <TextInput
+                        style={styles.textInput}
+                        onChangeText={this.onChangeReasonInput}
+                        multiline={true}
+                        numberOfLines={3}
+                        textAlignVertical="top"
+                        value={this.state.otherReason}
+                    />
+
+                    <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
+                    <Avatar onPress={()=>{
+                                   if(this.props.photoReportID === null || this.props.photoReportID === this.state.dataCode){
+                                this.props.setBottomBar(false);
+                                this.props.navigation.navigate('SingleCamera')              
+                                }
+                            }}
+                                    size={79}
+                                    ImageComponent={() => (
+                                    <>
+                                        <IconPhoto5 height="40" width="40" fill="#fff" />
+                                        {(this.props.photoReportPostpone !== null && (this.props.photoReportID !== null && this.props.photoReportID === this.state.dataCode)) && (
+                                        <Checkmark
+                                            height="20"
+                                            width="20"
+                                            fill="#fff"
+                                            style={styles.checkmark}
+                                        />
+                                        )}
+                                    </>
+                                    )}
+                                    imageProps={{
+                                    containerStyle: {
+                                        alignItems: 'center',
+                                        paddingTop: 18,
+                                        paddingBottom: 21,
+                                    },
+                                    }}
+                                    overlayContainerStyle={{
+                                    backgroundColor: this.props.photoReportID !== null && this.props.photoReportID !== this.state.dataCode ? 'grey' : this.props.photoReportPostpone !== null 
+                                        ? '#17B055'
+                                        : '#F07120',
+                                    flex: 2,
+                                    borderRadius: 5,
+                                    }}/>
+                                    <View style={{marginVertical: 5}}>
+                                    <LinearProgress value={this.state.progressLinearVal} color="primary" style={{width:80}} variant="determinate"/>
+                                    </View>
+                                    <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Photo Proof Container</Text>
+                                    {this.state.errors !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.errors}</Text>)}
+                            </View>
+                            <Button
+          containerStyle={{flexShrink:1}}
+          buttonStyle={styles.navigationButton}
+          titleStyle={styles.deliveryText}
+          onPress={this.handleSubmit}
+          title="Submit"
+          disabled={this.props.photoReportPostpone === null || (this.props.photoReportID !== null && this.props.photoReportID !== this.state.dataCode) || this.state.reasonOption === '' ? true : false}
+          />
+            </View>
+        </View>
         )
     }
 }
@@ -309,9 +316,9 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
     return {
         outboundList: state.originReducer.outboundList,
-        photoProofPostpone: state.originReducer.photoProofPostpone,
+        photoReportPostpone: state.originReducer.photoReportPostpone,
         currentTask : state.originReducer.filters.currentTask,
-        photoProofID: state.originReducer.photoProofID,
+        photoReportID: state.originReducer.photoReportID,
     };
 }
 
@@ -326,7 +333,7 @@ const mapDispatchToProps = (dispatch) => {
         setReportedTask: (data) => {
             return dispatch({type:'ReportedTask', payload: data});
         },
-        addPhotoProofPostpone: (uri) => dispatch({type: 'PhotoProofPostpone', payload: uri}),
+        addPhotoReportPostpone: (uri) => dispatch({type: 'PhotoReportPostpone', payload: uri}),
     };
 };
 

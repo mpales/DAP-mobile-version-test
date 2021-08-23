@@ -50,7 +50,7 @@ class ManualInput extends React.Component {
         return (
             <View style={styles.container}>
             <View style={{padding:20}}>
-            <Text style={styles.title}>Input Manual Barcode</Text>
+            <Text style={styles.title}>Input Manual Item Barcode</Text>
             <TextInput
                 style={styles.textInput}
                 onChangeText={(value) => this.setState({inputCode: value})}

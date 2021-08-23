@@ -22,8 +22,13 @@ class Acknowledge extends React.Component {
   render(){
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
-          <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 100}}>
+          <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginTop:100, marginBottom:20}}>
           <LogoSmall width="135" height="70" style={{alignSelf:'center'}}/>
+          </View>
+          <View style={{flexDirection:'column',flexShrink:1, alignItems:'center',justifyContent:'center',marginBottom:30,marginTop:10}}>
+            <Text style={{...Mixins.h1,lineHeight:36,fontWeight:'700',color:'#fff'}}>
+            OUTBOUND
+            </Text>
           </View>
           <View style={{flexDirection: 'row', flexShrink:1}}>
           <View style={styles.sectionContainer}>
@@ -49,7 +54,7 @@ class Acknowledge extends React.Component {
                 />
               </View>
               <View style={styles.sectionContainer}>
-                <Avatar
+                {/* <Avatar
                   size={140}
                   ImageComponent={() => (
                     <Return height="70" width="70" fill="#6C6B6B" />
@@ -68,11 +73,11 @@ class Acknowledge extends React.Component {
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
                   titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}]}
-                />
+                /> */}
               </View>
           </View>
           
-          <View style={{flexDirection: 'row', flexShrink:1}}>
+          {/* <View style={{flexDirection: 'row', flexShrink:1}}>
           <View style={styles.sectionContainer}>
                 <Avatar
                   size={140}
@@ -113,7 +118,7 @@ class Acknowledge extends React.Component {
                   titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}]}
                 />
               </View>
-          </View>
+          </View> */}
           
         </View>
     );

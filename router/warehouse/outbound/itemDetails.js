@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Card} from 'react-native-elements';
+import {Card, Divider} from 'react-native-elements';
 import {connect} from 'react-redux';
 import mixins from '../../../mixins';
 // component
@@ -15,7 +15,7 @@ import DetailList from '../../../component/extend/Card-detail';
 // icon
 import ChevronRight from '../../../assets/icon/iconmonstr-arrow-66mobile-2.svg';
 import ChevronDown from '../../../assets/icon/iconmonstr-arrow-66mobile-1.svg';
-
+import Loading from '../../../component/loading/loading';
 class ConnoteDetails extends React.Component {
   constructor(props) {
     super(props);
@@ -25,6 +25,7 @@ class ConnoteDetails extends React.Component {
       bayCode :'0',
       _itemDetail: null,
     };
+    this.renderHeader.bind(this);
   }
   static getDerivedStateFromProps(props,state){
     const {navigation, manifestList} = props;
@@ -54,8 +55,49 @@ class ConnoteDetails extends React.Component {
   };
 
   renderHeader = () => {
+    const {_itemDetail} = this.state;
     return (
       <>
+      <Card containerStyle={[styles.cardContainer,{paddingHorizontal:0,paddingVertical:10}]} style={styles.card}>
+              <View style={[styles.header,{paddingHorizontal:20}]}>
+                <View>
+                  <Text style={[styles.headerTitle, {flex: 0, fontSize: 20}]}>
+                    {_itemDetail.barcode}
+                  </Text>
+                </View>
+                {/* <Text style={styles.packageCounterText}>{_itemDetail.scanned+'/'+_itemDetail.total_qty}</Text> */}
+              </View>
+              <View style={[styles.detail,{paddingVertical:10}]}>
+                <View style={[styles.detailSection,{paddingBottom:10}]}>
+                <DetailList title="Description" value={_itemDetail.description} />
+                <DetailList title="Barcode" value={_itemDetail.barcode} />
+                <DetailList title="UOM" value={_itemDetail.UOM} />
+                <DetailList title="Quantity" value={_itemDetail.total_qty} />
+                <DetailList title="Product Class" value="-" />
+                <DetailList title="CBM" value="-" />
+                <DetailList title="Weight" value="-" />
+                </View>
+                <Divider/>
+                <View style={[styles.detailSection,{paddingVertical:10}]}>
+                  <Text style={styles.reportSectionTitle}>Product Category : Fashion</Text>
+                  <DetailList title="Color" value="BLACK" />
+                  <DetailList title="EXP Date" value="-" />
+                  <DetailList title="Banch" value="-" />
+                </View>
+                <View style={[styles.reportSection,{paddingHorizontal:20}]}>
+                  <Text style={styles.reportSectionTitle}>Report:</Text>
+                  <TouchableOpacity
+              style={styles.seeReportButton}
+              onPress={this.navigateSeeReport}>
+                  <DetailList
+                    title="Total Report"
+                    value="2 Report"
+                    report={true}
+                  />
+                   </TouchableOpacity>
+                </View>
+              </View>
+            </Card>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Log</Text>
           <View style={styles.sortContainer}>
@@ -88,55 +130,21 @@ class ConnoteDetails extends React.Component {
 
   render() {
     const {_itemDetail} = this.state;
+    if(_itemDetail === null){
+      return (<Loading/>)
+    }
     return (
       <>
         <StatusBar barStyle="dark-content" />
         <View style={styles.container}>
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Item Details</Text>
-            <TouchableOpacity
-              style={styles.seeReportButton}
-              onPress={this.navigateSeeReport}>
-              <Text style={styles.seeReportText}>See Reports</Text>
-              <ChevronRight width="15" height="15" fill="#6C6B6B" />
-            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Product Details</Text>
+        
           </View>
           <View style={styles.body}>
-            <Card containerStyle={styles.cardContainer} style={styles.card}>
-              <View style={styles.header}>
-                <View>
-                  <Text style={[styles.headerTitle, {flex: 0, fontSize: 20}]}>
-                    {_itemDetail.code}
-                  </Text>
-                  <Text style={[styles.detailText, {lineHeight: 24}]}>
-                    {_itemDetail.UOM}
-                  </Text>
-                  <Text style={[styles.detailText, {lineHeight: 24}]}>
-                    {_itemDetail.whole_qty}
-                  </Text>
-                </View>
-                {/* <Text style={styles.packageCounterText}>{_itemDetail.scanned+'/'+_itemDetail.total_qty}</Text> */}
-              </View>
-              <View style={styles.detail}>
-                <DetailList title="Description" value={_itemDetail.description} />
-                <DetailList title="Quantity" value={_itemDetail.total_qty} />
-                <DetailList title="Phone Number" value={_itemDetail.phoneNumber} />
-                <DetailList title="Name" value={_itemDetail.name} />
-                <DetailList title="Address" value={_itemDetail.address} />
-                <DetailList title="Zip Code" value={_itemDetail.zipcode} />
-                <DetailList title="Cage" value={_itemDetail.location_bay} />
-                <View style={styles.reportSection}>
-                  <Text style={styles.reportSectionTitle}>Report:</Text>
-                  <DetailList
-                    title="Total Report"
-                    value="2 Report"
-                    report={true}
-                  />
-                </View>
-              </View>
-            </Card>
             <FlatList
               data={[]}
+              style={{padding:0}}
               ListHeaderComponent={this.renderHeader}
               renderItem={({item}) => this.renderInner(item)}
             />
@@ -151,12 +159,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    padding: 20,
+    paddingVertical: 20,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal:20,
   },
   headerTitle: {
     ...mixins.subtitle3,
@@ -182,7 +191,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     borderRadius: 5,
     backgroundColor: '#fff',
-    marginHorizontal: 0,
+    marginHorizontal: 15,
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: {
@@ -205,6 +214,10 @@ const styles = StyleSheet.create({
   detailText: {
     ...mixins.subtitle3,
     color: '#6C6B6B',
+  },
+  detailSection: {
+    flexDirection: 'column',
+    paddingHorizontal:20,
   },
   reportSection: {
     flexDirection: 'column',

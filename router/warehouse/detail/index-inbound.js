@@ -23,8 +23,13 @@ class Acknowledge extends React.Component {
   render(){
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
-          <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 40}}>
+          <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginTop:20,marginBottom:10}}>
           <LogoSmall width="135" height="70" style={{alignSelf:'center'}}/>
+          </View>
+          <View style={{flexDirection:'column',flexShrink:1, alignItems:'center',justifyContent:'center',marginVertical:10}}>
+            <Text style={{...Mixins.h1,lineHeight:36,fontWeight:'700',color:'#fff'}}>
+            INBOUND
+            </Text>
           </View>
           <View style={{flexDirection: 'row', flexShrink:1}}>
               <View style={styles.sectionContainer}>

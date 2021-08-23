@@ -193,7 +193,7 @@ class List extends React.Component {
             />
                     <View style={styles.sectionContent}>
                         <Card containerStyle={styles.cardContainer}>
-                        <View style={styles.headingCard}>
+                        <ScrollView style={styles.headingCard} horizontal={true}>
                         <Badge
                     value="All"
                     containerStyle={styles.badgeSort}
@@ -229,7 +229,7 @@ class List extends React.Component {
                     badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
-                            </View>
+                            </ScrollView>
                             {_list.map((data, i, arr) =>   {
                               let status = 'grey';
                               let textstatus = 'pending';
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     },
     headingCard: {
         flexDirection: 'row',
-        marginBottom: 20,
+        paddingBottom: 20,
     },
     badgeSort: {
         marginRight: 5,
@@ -414,10 +414,10 @@ const styles = StyleSheet.create({
 const outboundListDummy = [
     {
         id: 1,
-       sku : 'ISO00012345',
-       location_bay: '8993175536820',
+       sku : 'COCA00012345',
+       location_bay: '8992761145019',
        location_rack: ['J R21-15', 'J R21-01'],
-       barcode: '9780312205195',
+       barcode: '8998768568882',
        description: 'ERGOBLOM V2 BLUE DESK  (HTH-512W LARGE TABLE/SHELF )',
        category: '-',
        grade : '01',
@@ -435,10 +435,10 @@ const outboundListDummy = [
     },
     {
       id: 2,
-        sku : 'ISO00034434',
-        location_bay: '9780312205195',
+        sku : 'CICI0002323',
+        location_bay: '8998768568882',
        location_rack: ['J R21-15', 'J R21-01'],
-       barcode: '8993175536820',
+       barcode: '8992761145019',
        description: 'ERGOBLOM V2 BLUE DESK  (HTH-512W LARGE TABLE/SHELF )',
        category: '-',
        grade : '01',
