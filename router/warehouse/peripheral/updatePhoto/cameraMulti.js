@@ -149,9 +149,8 @@ class CameraSingle extends React.Component {
     handlePhotoConfirmation = async (confirm) => {
         const {pictureData, pictureGallery} = this.state;
         let FormData = await this.getPhotoToFormdata();
-        let uploadCategory = this.state.typeGallery === 'received' ? 'processing' : 'receiving' ;
+        let uploadCategory = this.state.typeGallery === 'received' ? 'receiving' : 'processing' ;
         if(confirm) {
-            console.log('/inboundsMobile/'+this.state.inboundId +'/'+ uploadCategory);
             putBlob('/inboundsMobile/'+this.state.inboundId +'/'+ uploadCategory, [
                 FormData,
               ], this.listenToProgressUpload).then(result=>{

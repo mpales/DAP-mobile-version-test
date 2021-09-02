@@ -7,7 +7,7 @@ import moment from 'moment';
 import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import WarehouseIlustration from '../../../assets/icon/Group 4968warehouse_ilustrate_mobile.svg'
-import {getData, postBlob} from '../../../component/helper/network';
+import {getData, putBlob, postData} from '../../../component/helper/network';
 import Loading from '../../../component/loading/loading';
 import RNFetchBlob from 'rn-fetch-blob';
 class Acknowledge extends React.Component {
@@ -22,14 +22,16 @@ class Acknowledge extends React.Component {
       progressLinearVal : 0,
       updateData: false,
       submitPhoto:false,
+      submitDetail:false,
       updateParams: false,
     };
     this.toggleCheckBox.bind(this);
-    this.startProcessing.bind(this);
+    this.uploadSubmittedPhoto.bind(this);
     this.getPhotoReceivingGoods.bind(this);
     this.listenToProgressUpload.bind(this);
     this.goToList.bind(this);
     this.toggleStartReceiving.bind(this);
+    this.detailSubmited.bind(this);
   }
   static getDerivedStateFromProps(props,state){
     const {inboundList, navigation} = props;
@@ -69,11 +71,24 @@ class Acknowledge extends React.Component {
       } else {
         this.props.navigation.goBack();
       }
+      const resultphoto = await getData('inboundsMobile/'+this.state.receivingNumber+'/photosIds');
+      if(typeof resultphoto === 'object' && resultphoto.error === undefined){
+        let submitDetail = false;
+        for (let index = 0; index < resultphoto.inbound_photos.length; index++) {
+          const element = resultphoto.inbound_photos[index].photoId;
+          if(resultphoto.inbound_photos[index].status === 2 && result.status === 3){
+            submitDetail = true;
+          } else if(resultphoto.inbound_photos[index].status === 3 && result.status === 4){
+            submitDetail = true;
+          }
+        }
+        this.setState({submitDetail: submitDetail})
+      }
     } 
     if(prevState.submitPhoto !== this.state.submitPhoto && this.state.submitPhoto === true){
       if(this.props.photoProofPostpone !== null){
         this.setState({submitPhoto:false});
-        await this.startProcessing();
+        await this.uploadSubmittedPhoto();
       } else {
         this.setState({submitPhoto:false,errors:'take a Photo Proof before continue process'})
       }
@@ -87,6 +102,19 @@ class Acknowledge extends React.Component {
       this.setState({data: result});
     } else {
       this.props.navigation.goBack();
+    }
+    const resultphoto = await getData('inboundsMobile/'+this.state.receivingNumber+'/photosIds');
+    if(typeof resultphoto === 'object' && resultphoto.error === undefined){
+      let submitDetail = false;
+      for (let index = 0; index < resultphoto.inbound_photos.length; index++) {
+        const element = resultphoto.inbound_photos[index].photoId;
+        if(resultphoto.inbound_photos[index].status === 2 && result.status === 3){
+          submitDetail = true;
+        } else if(resultphoto.inbound_photos[index].status === 3 && result.status === 4){
+          submitDetail = true;
+        }
+      }
+      this.setState({submitDetail: submitDetail})
     }
   }
 
@@ -144,34 +172,24 @@ class Acknowledge extends React.Component {
   listenToProgressUpload = (written, total) => {
     this.setState({progressLinearVal:(1/total)*written});
   }
-  startProcessing = async () => {
-    const {photoProofPostpone} = this.props;
-    let FormData = await this.getPhotoReceivingGoods();
-    let uploadCategory = this.state.data.status === 3 ? 'receiving' : 'processing';
-    console.log(uploadCategory);
-    postBlob('/inboundsMobile/'+this.state.receivingNumber +'/'+ uploadCategory, [
-      // element with property `filename` will be transformed into `file` in form data
-      //{ name : 'receiptNumber', data: this.state.data.inbound_asn !== null ? this.state.data.inbound_asn.reference_id :  this.state.data.inbound_grn !== null ?  this.state.data.inbound_grn.reference_id : this.state.data.inbound_other.reference_id},
-      // custom content type
-      ...FormData,
-    ], this.listenToProgressUpload).then(result=>{
-      console.log(result);
+  detailSubmited = async () => {
+      const {receivingNumber} = this.state;
+      let uploadCategory = this.state.data.status === 3 ? 'receiving' : 'processing';
+      const result = await postData('inboundsMobile/'+ receivingNumber + '/'+uploadCategory);
       if(typeof result !== 'object' && (result === 'Inbound status changed to received' || result === 'Inbound status changed to processing')){
-        this.props.addPhotoProofPostpone( null );
-        this.props.setBottomBar(false);
-        this.props.setActiveASN(this.state.receivingNumber);
-        this.props.setCurrentASN(this.state.receivingNumber);
-        this.props.setReportedManifest(null);
-        this.props.setItemScanned([]);
-        this.props.setManifestList([]);
         if(this.state.data.status === 3){
-          this.setState({updateData:true, progressLinearVal:0});
+          this.setState({updateData:true, submitDetail:false});
         } else {
-          this.setState({updateData:true});
+          this.props.setActiveASN(receivingNumber);
+          this.props.setCurrentASN(receivingNumber);
+          this.props.setReportedManifest(null);
+          this.props.setItemScanned([]);
+          this.props.setManifestList([]);
+          this.setState({updateData:true, submitDetail:false});
           this.props.navigation.navigate(  {
             name: 'Manifest',
             params: {
-              number: this.state.receivingNumber,
+              number: receivingNumber,
             },
           })
         }
@@ -182,6 +200,25 @@ class Acknowledge extends React.Component {
           this.setState({errors: result});
         }
       }
+  }
+  uploadSubmittedPhoto = async () => {
+    const {photoProofPostpone} = this.props;
+    let FormData = await this.getPhotoReceivingGoods();
+    let uploadCategory = this.state.data.status === 3 ? 'receiving' : 'processing';
+    putBlob('/inboundsMobile/'+this.state.receivingNumber +'/'+ uploadCategory, [
+      // element with property `filename` will be transformed into `file` in form data
+      //{ name : 'receiptNumber', data: this.state.data.inbound_asn !== null ? this.state.data.inbound_asn.reference_id :  this.state.data.inbound_grn !== null ?  this.state.data.inbound_grn.reference_id : this.state.data.inbound_other.reference_id},
+      // custom content type
+      ...FormData,
+    ], this.listenToProgressUpload).then(result=>{
+      if(typeof result !== 'object'){
+        this.props.addPhotoProofPostpone( null );
+        this.setState({updateData:true, progressLinearVal:0, errors:result, submitDetail: true});         
+    } else {       
+      if(typeof result === 'object'){
+        this.setState({errors: result.error,progressLinearVal:0});
+      }
+    }
     });
   };
   render(){
@@ -306,9 +343,9 @@ class Acknowledge extends React.Component {
               containerStyle={{flexShrink:1, marginVertical: 10,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
-              onPress={this.startProcessing}
+              onPress={this.detailSubmited}
               title={data.status === 3 ? 'Receive Goods' : 'Start Processing'}
-              disabled={(this.props.photoProofPostpone === null || (this.props.photoProofID !== null && this.props.photoProofID !== data.id)) && (data.status === 3 || data.status === 4) ? true : false}
+              disabled={!this.state.submitDetail}
             />
           <Button
               containerStyle={{flexShrink:1, marginRight: 0,}}

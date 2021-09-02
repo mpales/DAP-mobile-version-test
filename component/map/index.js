@@ -40,6 +40,7 @@ import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import {showLocation} from './link';
 const {RNFusedLocation} = NativeModules;
+const ForegroundServiceModule = NativeModules.ForegroundService;
 const screen = Dimensions.get('window');
 
 const ASPECT_RATIO = screen.width / screen.height;
@@ -285,6 +286,12 @@ class NavigationalMap extends React.Component {
     );
   }
   componentWillUnmount() {
+    if (Platform.OS === 'android') {
+      ForegroundServiceModule.stopService();
+    } else {
+      PushNotificationIOS.cancelLocalNotifications();
+      PushNotificationIOS.removeAllDeliveredNotifications();
+    }
     Geolocation.clearWatch(this.locatorID);
   }
   static _handlebackgroundgeolocation = async (
@@ -367,6 +374,7 @@ class NavigationalMap extends React.Component {
                 id: 144,
                 title: 'CCM Transport Service',
                 message: 'your are arrived !',
+                importance: 'high',
                 mainOnPress: async () => {
                   await ReactNativeForegroundService.stopService();
                   await ReactNativeForegroundService.stopServiceAll();
@@ -401,6 +409,7 @@ class NavigationalMap extends React.Component {
                     L.latLng(location.latitude, location.longitude),
                   ) +
                   'meters',
+                  importance: 'min',
                 mainOnPress: async () => {
                   await ReactNativeForegroundService.stopService();
                   await ReactNativeForegroundService.stopServiceAll();
@@ -442,6 +451,7 @@ class NavigationalMap extends React.Component {
             id: 144,
             title: 'CCM Transport Service',
             message: 'your are already in App',
+            importance: 'high',
             mainOnPress: async () => {
               await ReactNativeForegroundService.stopService();
               await ReactNativeForegroundService.stopServiceAll();
@@ -464,6 +474,7 @@ class NavigationalMap extends React.Component {
               id: 144,
               title: 'CCM Transport Service',
               message: 'you are using navigational maps to destination!',
+              importance: 'high',
               mainOnPress: async () => {
                 await ReactNativeForegroundService.stopService();
                 await ReactNativeForegroundService.stopServiceAll();
