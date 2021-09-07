@@ -1,1 +1,1 @@
-export const SERVER_DOMAIN = 'https://sailapp.dev:81/';
+export const SERVER_DOMAIN = 'https://sailapp.studio:81';

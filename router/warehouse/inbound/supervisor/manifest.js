@@ -297,7 +297,7 @@ class Warehouse extends React.Component{
               buttonStyle={[styles.navigationButton, {paddingVertical: 10, backgroundColor: '#121C78'}]}
               titleStyle={styles.deliveryText}
               onPress={()=>{
-                this.props.navigation.navigate('IVASDetailsSPV', {number:this.state.receivingNumber})
+                this.props.navigation.navigate('IVASListSPV', {number:this.state.receivingNumber})
               }}
               title="Shipment VA"
             />

@@ -6,6 +6,8 @@ import {
   Text,
   TextInput,
   View,
+  FlatList,
+  TouchableHighlight
 } from 'react-native';
 import {Card, CheckBox, Button} from 'react-native-elements';
 import {connect} from 'react-redux';
@@ -22,14 +24,14 @@ class ConnoteReportDetails extends React.Component {
     super(props);
     this.state = {
       inboundID : null,
-      acknowledged:false,
       title: 'Forklift',
       note: 'Item weight is over 10 kg',
       itemIVAS : null,
       inboundData: null,
-      shipmentID: null,
     };
-    this.acknowledgedSPVConfirm.bind(this);
+    this._onPressSingleReports.bind(this);
+    this.renderHeaderListVAS.bind(this);
+    this.renderListVAS.bind(this);
   }
   static getDerivedStateFromProps(props,state){
     const {navigation, manifestList, inboundList} = props;
@@ -38,8 +40,8 @@ class ConnoteReportDetails extends React.Component {
       const {routes, index} = navigation.dangerouslyGetState();
       if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
         let inboundData = inboundList.find((element) => element.id ===  routes[index].params.number);
-        if(inboundData !== undefined && routes[index].params.shipmentID !== undefined){
-          return {...state, inboundID: routes[index].params.number,inboundData: inboundData, shipmentID: routes[index].params.shipmentID};
+        if(inboundData !== undefined){
+          return {...state, inboundID: routes[index].params.number,inboundData: inboundData};
         } else {
           navigation.goBack();
           return {...state, inboundID: routes[index].params.number};
@@ -51,35 +53,51 @@ class ConnoteReportDetails extends React.Component {
     return {...state};
   }
   async componentDidMount(){
-    const {inboundID, shipmentID} = this.state;
-    const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+ shipmentID );
-  console.log(result);
-    this.setState({itemIVAS:result, acknowledged:Boolean(Number(result.acknowledged))});
+    const {inboundID} = this.state;
+    const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS');
+    this.setState({itemIVAS:result});
   }
-  checkedIcon = () => {
+
+  renderHeaderListVAS = ()=>{
     return (
-      <View
-        style={
-          styles.checked
-        }>
-        <Checkmark height="14" width="14" fill="#FFFFFF" />
-      </View>
+      <View style={styles.header}>
+      <Text style={styles.headerTitle}>Shipment VAS Details</Text>
+    </View>
     );
-  };
-  toggleCheckBox = () => {
-    this.setState({
-      acknowledged: !this.state.acknowledged,
-    });
-  };
-  acknowledgedSPVConfirm = async ()=>{
-    const {inboundID, shipmentID} = this.state;
-    let data = {acknowledge:this.state.acknowledged >>> 0}
-    const result = await postData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+shipmentID,data);
-    
   }
-  uncheckedIcon = () => {
-    return <View style={styles.unchecked} />;
-  };
+  _onPressSingleReports = (item)=>{ 
+    this.props.navigation.navigate('IVASDetailsSPV',{number:this.state.inboundID, shipmentID: item.inbound_shipment_va.id});
+  }
+  renderListVAS = ({item,index, separators})=>{
+
+    return (
+      <TouchableHighlight
+      key={item.key}
+      onPress={() => this._onPressSingleReports(item)}
+      onShowUnderlay={separators.highlight}
+      onHideUnderlay={separators.unhighlight}>
+      <View style={styles.body}>
+      <Card containerStyle={styles.cardContainer} style={styles.card}>
+       
+        <View style={styles.detail}>
+          <DetailList title="Client" value={item.inbound.company.company_name} />
+          <DetailList title="Recorded By" value={item.inbound_shipment_va.created_by  !== undefined ? item.inbound_shipment_va.created_by.firstName : null} />
+          <DetailList title="Date and Time" value={item.inbound_shipment_va.created_on  !== undefined && item.inbound_shipment_va.created_on  !== null ? moment(item.inbound_shipment_va.created_on).format('DD/MM/YYY h:mm a') : null}/>
+         
+        <View style={{marginVertical:10}}> 
+        <Text style={{...Mixins.body1,lineHeight:20,fontWeight:'700',color:'#2D2C2C'}}>
+         { item.inbound_shipment_va.inbound_shipment === 1 ?  'Un-Stuffing From Truck' : item.inbound_shipment_va.inbound_shipment === 2 ? 'Un-Stuffing From 20’ Container' : item.inbound_shipment_va.inbound_shipment === 3 ? 'Un-Stuffing From 40’ Container' : null}
+          </Text>
+          </View>
+          <DetailList title="Number Pallet" value={item.inbound_shipment_va.inbound_shipment_no_pallet} />
+          <DetailList title="Number Cartons" value={item.inbound_shipment_va.inbound_shipment_no_carton} />
+          
+        </View>
+      </Card>
+    </View>
+    </TouchableHighlight>
+    );
+  }
   render() {
     const {inboundData,itemIVAS} = this.state;
     if(inboundData === null || itemIVAS === null )
@@ -87,58 +105,18 @@ class ConnoteReportDetails extends React.Component {
     return (
       <>
         <StatusBar barStyle="dark-content" />
-        <ScrollView style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Shipment VAS Details</Text>
-          </View>
-          <View style={styles.body}>
-            <Card containerStyle={styles.cardContainer} style={styles.card}>
-             
-              <View style={styles.detail}>
-                <DetailList title="Client" value={inboundData.company.company_name} />
-                <DetailList title="Recorded By" value={ itemIVAS.created_by !== undefined ? itemIVAS.created_by.firstName : null} />
-                <DetailList title="Date and Time" value={ itemIVAS.created_on  !== null ? moment(itemIVAS.created_on).format('DD/MM/YYY h:mm a') : null}/>
-               
-              <View style={{marginVertical:10}}> 
-              <Text style={{...Mixins.body1,lineHeight:20,fontWeight:'700',color:'#2D2C2C'}}>
-               { itemIVAS.inbound_shipment === 1 ?  'Un-Stuffing From Truck' : itemIVAS.inbound_shipment === 2 ? 'Un-Stuffing From 20’ Container' : itemIVAS.inbound_shipment === 3 ? 'Un-Stuffing From 40’ Container' : null}
-                </Text>
-                </View>
-                <DetailList title="Number Pallet" value={itemIVAS.inbound_shipment_no_pallet} />
-                <DetailList title="Number Cartons" value={itemIVAS.inbound_shipment_no_carton} />
-                
-              </View>
-            </Card>
-          </View>
-          <CheckBox
-                title="I Acknowledge"
-                textStyle={styles.textCheckbox}
-                containerStyle={styles.checkboxContainer}
-                checked={this.state.acknowledged}
-                onPress={this.toggleCheckBox}
-                checkedIcon={this.checkedIcon()}
-                uncheckedIcon={this.uncheckedIcon()}
-              />
-          <Button
-              containerStyle={{flex:1, marginRight: 0,marginVertical:20}}
-              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
-              titleStyle={styles.deliveryText}
-              title="Confirm"
-              onPress={this.acknowledgedSPVConfirm}
-              disabled={!this.state.acknowledged}
-  
+        <View style={styles.container}>
+         
+        <FlatList
+            horizontal={false}
+            ListHeaderComponent={this.renderHeaderListVAS}
+            keyExtractor={(item,index)=>index}
+            data={this.state.itemIVAS}
+            renderItem={this.renderListVAS}
             />
-              <Button
-              containerStyle={{flex:1, marginRight: 0,}}
-              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
-              titleStyle={styles.deliveryText}
-              onPress={()=>{
-                this.props.navigation.navigate('UpdateIVAS',{number:this.state.inboundID, shipmentID: this.state.shipmentID});
-              }}
-              title="Edit VAS"
-
-            />
-        </ScrollView>
+       
+        
+        </View>
       </>
     );
   }

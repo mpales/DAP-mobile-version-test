@@ -6,12 +6,15 @@ import moment from 'moment';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import Mixins from '../../../mixins';
 import {postData} from '../../../component/helper/network';
+import Loading from '../../../component/loading/loading';
+import Banner from '../../../component/banner/banner';
 class Acknowledge extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       receivingNumber: null,
       inboundData : null,
+      error : '',
       stuffTruck: false,
       stuffTruckPallet: '',
       stuffTruckCarton : '',
@@ -48,8 +51,15 @@ class Acknowledge extends React.Component {
     if(receivingNumber === null){
       const {routes, index} = navigation.dangerouslyGetState();
        if(routes[index].params !== undefined && routes[index].params.number !== undefined){
+         console.log('state params',routes[index].params.number);
         let inboundData = inboundList.find((element) => element.id === routes[index].params.number);
-        return {...state, receivingNumber: routes[index].params.number,inboundData: inboundData};
+        console.log('array data',inboundData);
+        if(inboundData !== undefined){
+          return {...state, receivingNumber: routes[index].params.number,inboundData: inboundData};
+        } else {
+          navigation.goBack();
+          return {...state, receivingNumber: routes[index].params.number};
+        }
       }
       return {...state};
     } 
@@ -96,7 +106,20 @@ class Acknowledge extends React.Component {
       other: this.state.takeOthersInput
     };
     const result = await postData('/inboundsMobile/'+this.state.receivingNumber+'/shipmentVAS', VAS);
-    this.props.navigation.goBack();
+    if(result === 'IVAS succesfully created'){
+      this.props.navigation.goBack();
+    } else {
+      if(result.error){
+        this.setState({error:result.error})
+      } else if (result.errors !== undefined){
+        console.log(result.errors);
+        let error = '';
+        result.errors.forEach(element => {
+          error += element.msg + ' ' + element.param +', ';
+        });
+        this.setState({error:error});
+      }
+    }
   }
   checkedIcon = () => {
     return (
@@ -179,8 +202,16 @@ class Acknowledge extends React.Component {
     this.setState({takeOthersInput:text});
   }
   render(){
+    if(this.state.inboundData === null) return <Loading/>
     return (
         <ScrollView style={styles.body}>
+            {this.state.error !== '' && (<Banner
+            title={this.state.error}
+            backgroundColor="#F1811C"
+            closeBanner={()=>{
+              this.setState({error:''});
+            }}
+          />)}
        <View style={[styles.sectionInput,{paddingHorizontal: 30,paddingTop: 40, paddingBottom:10}]}>
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Client</Text>
@@ -191,7 +222,7 @@ class Acknowledge extends React.Component {
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Ref #</Text>
              </View>
-             <Text style={styles.textHeadInput}>{this.state.inboundData.inbound_asn !== null ? this.state.inboundData.inbound_asn.reference_id : this.state.inboundData.inbound_grn !== null ? this.state.inboundData.inbound_grn.reference_id : '' }</Text>
+             <Text style={styles.textHeadInput}>{this.state.inboundData.inbound_asn !== null && this.state.inboundData.inbound_asn !== undefined ? this.state.inboundData.inbound_asn.reference_id : this.state.inboundData.inbound_grn !== null && this.state.inboundData.inbound_grn !== undefined ? this.state.inboundData.inbound_grn.reference_id : '' }</Text>
          </View>
 
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
