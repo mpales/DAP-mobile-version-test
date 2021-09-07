@@ -223,7 +223,7 @@ class List extends React.Component {
                                         this.props.setBottomBar(false);
                                         this.props.navigation.navigate('ManifestSupervisor',   {
                                             number: data.id,
-                                            type : data.inbound_asn !== null ? 'ASN' : data.inbound_grn !== null ? 'GRN' : 'Others',
+                                            type : data.inbound_asn !== null && data.inbound_asn !== undefined ? 'ASN' : data.inbound_grn !== null && data.inbound_grn !== undefined ? 'GRN' : 'Others',
                                         });
                                     }}
                                

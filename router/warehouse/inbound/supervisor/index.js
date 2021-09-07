@@ -34,6 +34,7 @@ import PhotosDraftSPV from './photos';
 import ReportDetailsSPV from './itemReportDetails';
 import ReportSingleDetailsSPV from './singleReportDetails';
 import IVASDetailsSPV from './IVASDetails';
+import IVASListSPV from './IVASList';
 import UpdateIVAS from './updateIVAS';
 import Mixins from '../../../../mixins';
 import UpdatePhotos from '../../peripheral/updatePhoto/index';
@@ -168,6 +169,24 @@ class SupervisorInbound extends React.Component {
           },
           headerTintColor: '#fff',
           headerTitle: 'Report Details',
+        }),
+      },
+      IVASListSPV: {
+        screen: IVASListSPV,
+        navigationOptions:  ({ navigation }) => ({
+          headerStyle: {
+            backgroundColor: '#121C78',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+            ...Platform.select({
+              android: {
+                height: 45,
+              },
+            })
+          },
+          headerTintColor: '#fff',
+          headerTitle: 'Shipment VA',
         }),
       },
       IVASDetailsSPV: {

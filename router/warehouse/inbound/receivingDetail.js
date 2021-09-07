@@ -250,7 +250,7 @@ class Acknowledge extends React.Component {
               inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
               inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
               labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.inbound_asn !== null ? ''+data.inbound_asn.reference_id: data.inbound_grn !== null ? ''+data.inbound_grn.reference_id :  data.inbound_other !== null ? ''+data.inbound_other.reference_id : 'NONE' }
+                placeholder={data.inbound_asn !== null && data.inbound_asn !== undefined ? ''+data.inbound_asn.reference_id: data.inbound_grn !== null && data.inbound_grn !== undefined ? ''+data.inbound_grn.reference_id :  data.inbound_other !== null &&  data.inbound_other !== undefined ? ''+data.inbound_other.reference_id : 'NONE' }
                 disabled={true}
             />
          </View>
@@ -263,7 +263,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.inbound_asn !== null ? data.inbound_asn.container_no: data.inbound_grn !== null ? data.inbound_grn.container_no :  data.inbound_other !== null ? data.inbound_other.container_no : 'NONE' }
+                placeholder={data.inbound_asn !== null && data.inbound_asn !== undefined ? data.inbound_asn.container_no: data.inbound_grn !== null && data.inbound_grn !== undefined ? data.inbound_grn.container_no :  data.inbound_other !== null && data.inbound_other !== undefined ? data.inbound_other.container_no : 'NONE' }
                 disabled={true}
             />
          </View>)}

@@ -126,8 +126,8 @@ const theme = {
   
 };
 const Manifest = ({item, index, ToManifest}) => {
-  let category = item.inbound_asn !== null ? 'ASN' : item.inbound_grn !== null ? 'GRN' : 'Others';
-  let categorycolor = item.inbound_asn !== null ? '#121C78' : item.inbound_grn !== null ? '#F07120' : '#F07120';;
+  let category = item.inbound_asn !== null && item.inbound_asn !== undefined ? 'ASN' : item.inbound_grn !== null && item.inbound_grn !== undefined ? 'GRN' : 'Others';
+  let categorycolor = item.inbound_asn !== null && item.inbound_asn !== undefined ? '#121C78' : item.inbound_grn !== null && item.inbound_grn !== undefined ? '#F07120' : '#F07120';;
   let status = 'grey';
   let labelstatus = '';
   switch (item.status) {

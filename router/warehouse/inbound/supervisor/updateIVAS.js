@@ -11,6 +11,7 @@ class Acknowledge extends React.Component {
     super(props);
     this.state = {
       receivingNumber: null,
+      shipmentID : null,
       inboundData : null,
       stuffTruck: false,
       stuffTruckPallet: '',
@@ -49,7 +50,7 @@ class Acknowledge extends React.Component {
       const {routes, index} = navigation.dangerouslyGetState();
        if(routes[index].params !== undefined && routes[index].params.number !== undefined){
         let inboundData = inboundList.find((element) => element.id === routes[index].params.number);
-        return {...state, receivingNumber: routes[index].params.number,inboundData: inboundData};
+        return {...state, receivingNumber: routes[index].params.number,inboundData: inboundData, shipmentID : routes[index].params.shipmentID};
       }
       return {...state};
     } 
@@ -58,8 +59,9 @@ class Acknowledge extends React.Component {
   }
 
   async componentDidMount(){
-    const {receivingNumber} = this.state;
-    const result = await getData('/inboundsMobile/'+receivingNumber+'/shipmentVAS');
+    const {receivingNumber, shipmentID} = this.state;
+    const result = await getData('/inboundsMobile/'+receivingNumber+'/shipmentVAS/'+shipmentID);
+    console.log(result);
     this.setState({
       stuffTruck: result.inbound_shipment === 1 ? true : false,
       stuffTruckPallet: result.inbound_shipment === 1 ? ''+result.inbound_shipment_no_pallet : '',
@@ -80,7 +82,7 @@ class Acknowledge extends React.Component {
       takePacking: false,
       takeOthers: result.other === 1 ? true : false,
       takeOthersInput : '',
-      recordedBy: result.updated_by.firstName,
+      recordedBy: result.created_by !== undefined ? result.created_by.firstName : null,
     });
   }
   submitItem = async ()=>{
@@ -118,7 +120,7 @@ class Acknowledge extends React.Component {
       cartoonDimensionSKU : parseInt(this.state.takeCartonSKU),
       other: this.state.takeOthersInput
     };
-    const result = await putData('/inboundsMobile/'+this.state.receivingNumber+'/shipmentVAS', VAS);
+    const result = await putData('/inboundsMobile/'+this.state.receivingNumber+'/shipmentVAS/'+this.state.shipmentID, VAS);
     this.props.navigation.goBack();
   }
   checkedIcon = () => {
@@ -214,7 +216,7 @@ class Acknowledge extends React.Component {
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Ref #</Text>
              </View>
-             <Text style={styles.textHeadInput}>{this.state.inboundData.inbound_asn !== null ? this.state.inboundData.inbound_asn.reference_id : this.state.inboundData.inbound_grn !== null ? this.state.inboundData.inbound_grn.reference_id : '' }</Text>
+             <Text style={styles.textHeadInput}>{this.state.inboundData.inbound_asn !== null && this.state.inboundData.inbound_asn !== undefined ? this.state.inboundData.inbound_asn.reference_id : this.state.inboundData.inbound_grn !== null && this.state.inboundData.inbound_grn !== undefined ? this.state.inboundData.inbound_grn.reference_id : '' }</Text>
          </View>
 
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
@@ -227,7 +229,7 @@ class Acknowledge extends React.Component {
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Date</Text>
              </View>
-             <Text style={styles.textHeadInput}>{moment(this.state.inboundData.created_on).format('DD-MM-YYYY')}</Text>
+             <Text style={styles.textHeadInput}>{this.state.inboundData.created_on !== null ? moment(this.state.inboundData.created_on).format('DD-MM-YYYY') : null}</Text>
          </View>
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>

@@ -139,18 +139,20 @@ class Warehouse extends React.Component{
       //   props.setManifestList(manifest);
       //   return {...state, _manifest : manifest};
       // } else
+
+      
         if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
           const result = await getData('inboundsMobile/'+routes[index].params.number);
           if(typeof result === 'object' && result.error === undefined){
             const shipmentVAS  = await getData('/inboundsMobile/'+routes[index].params.number+'/shipmentVAS')
-            if(typeof shipmentVAS === 'object' && shipmentVAS.error !== undefined && shipmentVAS.error.indexOf('Not Found') !== -1){
+            if(typeof shipmentVAS === 'object' && shipmentVAS.error !== undefined && shipmentVAS.error.indexOf('Not Found') !== -1 && shipmentVAS.some((o)=> result.inbound_receipts.includes(o.receipt_id) === false) === true){
               this.setState({shipmentVAS: false});
             }
             let mergedDummy = Array.from({length: result.inbound_products.length}).map((num,index)=>{
               return {...manifestDummy[index],...result.inbound_products[index]}
             });
             this.props.setManifestList(mergedDummy)
-            this.setState({receivingNumber: routes[index].params.number,_manifest:mergedDummy,companyname:result.company.company_name,receiptid: result.inbound_asn !== null ? result.inbound_asn.reference_id: result.inbound_grn.reference_id })
+            this.setState({receivingNumber: routes[index].params.number,_manifest:mergedDummy,companyname:result.company.company_name,receiptid: result.inbound_asn !== null && result.inbound_asn !== undefined ? result.inbound_asn.reference_id : result.inbound_grn !== null && result.inbound_grn !== undefined ? result.inbound_grn.reference_id : result.inbound_other !== null && result.inbound_other !== undefined ? result.inbound_other.reference_id : null  })
           } else {
             navigation.popToTop();
           }
@@ -158,14 +160,14 @@ class Warehouse extends React.Component{
           const result = await getData('inboundsMobile/'+currentASN);
           if(typeof result === 'object' && result.error === undefined){
             const shipmentVAS  = await getData('/inboundsMobile/'+currentASN+'/shipmentVAS')
-            if(typeof shipmentVAS === 'object' && shipmentVAS.error !== undefined && shipmentVAS.error.indexOf('dataValues') !== -1){
+            if(typeof shipmentVAS === 'object' && shipmentVAS.error !== undefined &&  shipmentVAS.error.indexOf('Not Found') !== -1 && shipmentVAS.some((o)=> result.inbound_receipts.includes(o.receipt_id) === false) === true){
               this.setState({shipmentVAS: false});
             }
             let mergedDummy = Array.from({length: result.inbound_products.length}).map((num,index)=>{
               return {...manifestDummy[index],...result.inbound_products[index]}
             });
             this.props.setManifestList(mergedDummy)
-          this.setState({receivingNumber: currentASN, _manifest:mergedDummy, companyname:result.company.company_name,receiptid: result.inbound_asn !== null ? result.inbound_asn.reference_id: result.inbound_grn.reference_id })
+          this.setState({receivingNumber: currentASN, _manifest:mergedDummy, companyname:result.company.company_name,receiptid: result.inbound_asn !== null && result.inbound_asn !== undefined ? result.inbound_asn.reference_id : result.inbound_grn !== null && result.inbound_grn !== undefined ? result.inbound_grn.reference_id : result.inbound_other !== null && result.inbound_other !== undefined ? result.inbound_other.reference_id : null })
           } else {
             navigation.popToTop();
           }
@@ -189,6 +191,7 @@ class Warehouse extends React.Component{
     if(action) {
       // for prototype only
       const result = await postData('/inboundsMobile/'+receivingNumber+'/complete-receiving')
+      console.log(result);
       if(result !== 'object'){
         this.setState({notifbanner:result});
       } else {
@@ -408,8 +411,8 @@ class Warehouse extends React.Component{
               containerStyle={{flex:1, marginRight:10}}
               buttonStyle={[styles.navigationButton, {paddingVertical: 10, backgroundColor: '#121C78'}]}
               titleStyle={styles.deliveryText}
-              disabled={this.state.shipmentVAS}
               onPress={this.goToIVAS}
+              disabled={this.state.shipmentVAS}
               title="Shipment VA"
             />
             <Button
