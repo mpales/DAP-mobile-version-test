@@ -7,7 +7,8 @@ import IconDelivery2Mobile from '../../../assets/icon/deliveryMobile.svg';
 import AnnotedMobile from '../../../assets/icon/Annoted.svg';
 import IconLocation5Mobile from '../../../assets/icon/iconmonstr-location-5mobile.svg';
 import {useSelector} from 'react-redux';
-
+import {deliveryStatusColor} from '../../helper/status-color';
+import Mixins from '../../../mixins';
 export const makeOverlays = (features) => {
   const points = features
     .filter(
@@ -114,71 +115,105 @@ const Geojson = (props) => {
   return (
     <>
       {overlays.map((overlay) => {
-        if (overlay.type === 'point' && ( props.dataPackage === undefined || (props.dataPackage !== undefined && props.dataPackage[overlay.num].status === 'pending'))) {
+        if (
+          overlay.type === 'point'
+        ) {
+          let colorMarker = props.dataPackage !== undefined && props.dataPackage[overlay.num] !== undefined ? deliveryStatusColor(props.dataPackage[overlay.num].deliveryStatus) : '#2A3386'; 
           return (
             <MapView.Marker
               key={overlay.id}
               coordinate={overlay.coordinates}
               tracksViewChanges={false}>
-                {props.maptype === 'delivery' ? (
-                <>{isDeliveryStarted ? (
-                  <>{overlay.num === 0 ? (
-                    <View style={styles.iconContaner}>
-                    <IconLocation5Mobile
-                      height="25"
-                      width="25"
-                      fill={'#2A3386'}
-                      style={styles.iconSVG}
-                    />
-                    <Text style={styles.iconNumeric}>{overlay.num + 1}</Text>
-                  </View>
+              {props.maptype === 'delivery' ? (
+                <>
+                  {isDeliveryStarted ? (
+                    <>
+                      {overlay.num === 0 ? (
+                        <View style={styles.iconContaner}>
+                          <IconLocation5Mobile
+                            height="30"
+                            width="30"
+                            fill={'#2A3386'}
+                            style={styles.iconSVG}
+                          />
+                           <View style={styles.containerNumeric}>
+                          <Text style={styles.iconNumeric}>
+                          {props.markernum+1}
+                          </Text>
+                          </View>
+                        </View>
+                      ) : (
+                        <View style={styles.iconContanerSVG}>
+                          <AnnotedMobile
+                            height="55"
+                            width="39"
+                            fill="#00BB87"
+                            style={[
+                              styles.iconSVG,
+                              {transform: [{scaleX: -1}]},
+                            ]}
+                          />
+                        </View>
+                      )}
+                    </>
                   ) : (
-                    <View style={styles.iconContanerSVG}>
-                    <AnnotedMobile height="55" width="39" fill="#00BB87" style={[styles.iconSVG, {transform: [{scaleX: -1}]}]} />
-                  </View>
+                    <>
+                      {overlay.num === 0 ? (
+                        <View style={styles.iconContaner}>
+                          <IconLocation5Mobile
+                            height="30"
+                            width="30"
+                            fill={'#2A3386'}
+                            style={styles.iconSVG}
+                          />
+                             <View style={styles.containerNumeric}>
+                          <Text style={styles.iconNumeric}>
+                            {props.markernum+1}
+                          </Text>
+                          </View>
+                        </View>
+                      ) : (
+                        <View style={styles.iconContanerSVG}>
+                          <IconDelivery2Mobile
+                            height="55"
+                            width="39"
+                            fill="#00BB87"
+                            style={[
+                              styles.iconSVG,
+                              {transform: [{scaleX: -1}]},
+                            ]}
+                          />
+                        </View>
+                      )}
+                    </>
                   )}
-       
                 </>
-                ) : (  
-                  <>{overlay.num === 0 ? (
-                    <View style={styles.iconContaner}>
-                    <IconLocation5Mobile
-                      height="25"
-                      width="25"
-                      fill={'#2A3386'}
-                      style={styles.iconSVG}
-                    />
-                    <Text style={styles.iconNumeric}>{overlay.num + 1}</Text>
-                  </View>
-                  ) : (
-                    <View style={styles.iconContanerSVG}>
-                    <IconDelivery2Mobile height="55" width="39" fill="#00BB87" style={[styles.iconSVG, {transform: [{scaleX: -1}]}]} />
-                  </View>
-                  )}
-       
-                </>
-                )}
-                </>
-              ) : props.maptype === 'list' ?  (
+              ) : props.maptype === 'list' ? (
                 <View style={styles.iconContaner}>
-                <IconLocation5Mobile
-                  height="25"
-                  width="25"
-                  fill={ overlay.num === currentDeliveringAddress ? '#FF0000': '#2A3386'}
-                  style={styles.iconSVG}
-                />
-                <Text style={styles.iconNumeric}>{overlay.num + 1}</Text>
-              </View>
+                  <IconLocation5Mobile
+                    height="30"
+                    width="30"
+                    fill={
+                      colorMarker
+                    }
+                    style={styles.iconSVG}
+                  />
+                  <View style={styles.containerNumeric}>
+                  <Text style={styles.iconNumeric}>{overlay.num + 1}</Text>
+                  </View>
+                </View>
               ) : (
                 <View style={styles.iconContaner}>
-                    <IconLocation5Mobile
-                      height="25"
-                      width="25"
-                      fill={'#2A3386'}
-                      style={styles.iconSVG}
-                    />
-                    <Text style={styles.iconNumeric}>{overlay.num + 1}</Text>
+                  <IconLocation5Mobile
+                    height="30"
+                    width="30"
+                    fill={'#2A3386'}
+                    style={styles.iconSVG}
+                  />
+                     <View style={styles.containerNumeric}>
+                  <Text style={styles.iconNumeric}>{overlay.num + 1}</Text>
                   </View>
+                </View>
               )}
             </MapView.Marker>
           );
@@ -212,27 +247,31 @@ const Geojson = (props) => {
 
 const styles = StyleSheet.create({
   iconContaner: {
-    width: 25,
-    height: 25,
+    width: 30,
+    height: 30,
   },
   iconContanerSVG: {
     width: 39,
     height: 55,
-},
-  iconNumeric: {
-    height: 13,
-    width: 16,
+  },
+  containerNumeric:{
+    height: 18,
+    width: 21,
+    backgroundColor: 'white',
     marginHorizontal: 3,
     borderRadius: 15,
-    backgroundColor: 'white',
-    textAlign: 'center',
-    fontWeight: '800',
-    lineHeight: 14,
-    fontSize: 10,
     position: 'absolute',
     top: 1,
     left: 1.5,
     elevation: 5,
+    justifyContent:'center',
+    alignItems:'center',
+  },
+  iconNumeric: {
+    ...Mixins.small3,
+    fontWeight: '800',
+    lineHeight: 16,
+    fontSize: 9,
   },
   iconSVG: {
     elevation: 6,

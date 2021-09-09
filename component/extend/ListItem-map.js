@@ -14,7 +14,7 @@ import IconCursor20Mobile from '../../assets/icon/iconmonstr-cursor-20 1mobile.s
 import IconTime2Mobile from '../../assets/icon/iconmonstr-time-2 1mobile.svg';
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
 import Mixins from '../../mixins';
-
+import FormatHelper from '../helper/format';
 
 const styles = {
   sectionContainer: {
@@ -113,15 +113,7 @@ const theme = {
   },
 };
 const Manifest = ({item, index, drag, isActive, navigation}) => {
-  let secDiffinTraffic = item.duration_in_trafficAPI - item.durationAPI;
-  let translateFromTraffic = item.chrono + secDiffinTraffic;
-  var durationAPI = "";
-  if (translateFromTraffic >= 3600) durationAPI += Math.floor(translateFromTraffic / 3600) + "h";
-  translateFromTraffic %= 3600;
-  if (translateFromTraffic >= 60) durationAPI += Math.floor(translateFromTraffic / 60) + "m";
-  translateFromTraffic %= 60;
-  durationAPI += Math.round(translateFromTraffic) + "s";
-  
+
   return (
     <ThemeProvider theme={theme}>
       <ListItem
@@ -138,25 +130,18 @@ const Manifest = ({item, index, drag, isActive, navigation}) => {
         friction={90} //
         tension={100} // These props are passed to the parent component (here TouchableScale)
         activeScale={0.95}>
-        <TouchableOpacity style={styles.leftList}>
+        <View style={styles.leftList}>
           <Text
             style={{...Mixins.body3,lineHeight: 18,fontWeight: '600', color: '#424141', textAlign: 'center'}}>
-            {index}
+            {index+1}
           </Text>
-          <Button
-            icon={() => (
-              <IconCursor20Mobile height="9" width="15" fill="#6C6B6B" />
-            )}
-            onLongPress={drag}
-            type="clear"
-          />
-        </TouchableOpacity>
+        </View>
         <ListItem.Content>
         <ListItem.Title style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
         {item.named}
           </ListItem.Title>
           <ListItem.Subtitle style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
-         Distant : Location { item.distance } Km | Legs : {Number.parseFloat(item.distanceAPI/1000).toFixed(0)} Km
+          Distant Location {FormatHelper.calculateDistance(item.distanceAPI)} Km
           </ListItem.Subtitle>
           <View style={styles.legend}>
             <View style={styles.legendLabel}>
@@ -168,13 +153,17 @@ const Manifest = ({item, index, drag, isActive, navigation}) => {
           </View>
         </ListItem.Content>
         <View style={styles.rightList}>
-          <Text style={styles.eta}>ETA : {(item.hasOwnProperty('durationAPI') ?  durationAPI : item.eta)}</Text>
+          <Text style={styles.eta}>ETA : {' '}
+              {FormatHelper.formatETATime(item.durationAPI, 0)}</Text>
           <Button
-            title={item.hour}
+            title={FormatHelper.ETATime2Current(
+              item.durationAPI,
+            0,
+            )}
             type="clear"
             titleStyle={{marginLeft: 9, fontSize: 10, color: '#000000'}}
             icon={() => (
-              <IconTime2Mobile height="15" width="15" fill={secDiffinTraffic > 0 ? ("red") : ("#ABABAB")} />
+              <IconTime2Mobile height="15" width="15" fill={"#ABABAB"} />
             )}
           />
           <ListItem.Chevron

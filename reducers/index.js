@@ -69,6 +69,7 @@ const initialState = {
     currentList: null,
     currentIVAS: [],
     logged: false,
+    ApplicationNavigational: null,
   },
 };
 
@@ -495,26 +496,102 @@ export default function appReducer(state = initialState, action) {
           },
         }
       };
+   
+      case 'UpdateDirectionsPoint':
+      let savedmarkers = [];
+      let savedstatsAPI = [];
+      let savedstepsuuid = [];
+      let savedsteps = {};
+      for (let index = 0; index < action.payload.stepsuuid.length; index++) {
+        const UUID = action.payload.stepsuuid[index];
+        if (UUID === null) {
+          let fileteredUUID = action.payload.markers[index];
+          let savedstepsUUIDIndex = state.route.stepsuuid.findIndex(
+            (o) => o === fileteredUUID,
+          );
+          savedmarkers[index] = state.route.markers[savedstepsUUIDIndex];
+          savedstatsAPI[index] = state.route.statAPI[savedstepsUUIDIndex];
+          savedsteps[fileteredUUID] = state.route.steps[fileteredUUID];
+          savedstepsuuid[index] = state.route.stepsuuid[savedstepsUUIDIndex];
+        } else {
+          savedmarkers[index] = action.payload.markers[index];
+          savedstatsAPI[index] = action.payload.statsAPI[index];
+          savedsteps[UUID] = action.payload.steps[UUID];
+          savedstepsuuid[index] = UUID;
+        }
+      }
+      return {
+        ...state,
+        route: {
+          ...state.route,
+          id: action.payload.uuid,
+          markers: savedmarkers,
+          steps: savedsteps,
+          stepsuuid: savedstepsuuid,
+          orders: savedmarkers,
+          routes: {
+            ...state.route.routes,
+            [action.payload.uuid]: savedsteps,
+          },
+          statsAPI: {
+            ...state.route.statsAPI,
+            [action.payload.uuid]: savedstatsAPI,
+          },
+          statAPI: savedstatsAPI,
+        },
+        currentDeliveringAddress:
+        state.deliveryDestinationData.destinationid !== null &&
+        action.payload.stepsuuid.includes(
+          state.deliveryDestinationData.destinationid,
+        ) && state.currentDeliveringAddress !== null
+          ?  savedstepsuuid.findIndex((o)=> o === state.deliveryDestinationData.destinationid) ===  state.currentDeliveringAddress ? state.currentDeliveringAddress : savedstepsuuid.findIndex((o)=> o === state.deliveryDestinationData.destinationid)
+          : state.route.dataPackage.findIndex((o)=> o.deliveryStatus === 'On Delivery') !== -1 ? state.route.dataPackage.findIndex((o)=> o.deliveryStatus === 'On Delivery') : initialState.currentDeliveringAddress,
+        deliveryDestinationData:
+          state.deliveryDestinationData.destinationid !== null &&
+          savedstepsuuid.includes(state.deliveryDestinationData.destinationid)
+            ? state.deliveryDestinationData
+            : initialState.deliveryDestinationData,
+        filters: {
+          ...state.filters,
+          isGetDirectionWithApiLoaded: true,
+        },
+      };
+
     case 'DirectionsPoint':
       return {
-          ...state,
-          route:{
-            ...state.route,
-            id: action.payload.uuid, 
-            markers: action.payload.markers,
-            steps: action.payload.steps,
-            orders: action.payload.markers,
-            routes : {
-              ...state.route.routes,
-              [action.payload.uuid]: action.payload.steps,
-            },
-            statsAPI : {
-              ...state.route.statsAPI,
-              [action.payload.uuid]: action.payload.statsAPI,
-            },
-            statAPI : action.payload.statsAPI, 
-          }
-        };
+        ...state,
+        route: {
+          ...state.route,
+          id: action.payload.uuid,
+          markers: action.payload.markers,
+          steps: action.payload.steps,
+          stepsuuid: action.payload.stepsuuid,
+          orders: action.payload.markers,
+          routes: {
+            ...state.route.routes,
+            [action.payload.uuid]: action.payload.steps,
+          },
+          statsAPI: {
+            ...state.route.statsAPI,
+            [action.payload.uuid]: action.payload.statsAPI,
+          },
+          statAPI: action.payload.statsAPI,
+        },
+        currentDeliveringAddress:
+          state.deliveryDestinationData.destinationid !== null &&
+          action.payload.stepsuuid.includes(
+            state.deliveryDestinationData.destinationid,
+          ) && state.currentDeliveringAddress !== null
+            ?  action.payload.stepsuuid.findIndex((o)=> o === state.deliveryDestinationData.destinationid) ===  state.currentDeliveringAddress ? state.currentDeliveringAddress : action.payload.stepsuuid.findIndex((o)=> o === state.deliveryDestinationData.destinationid)
+            : state.route.dataPackage.findIndex((o)=> o.deliveryStatus === 'On Delivery') !== -1 ? state.route.dataPackage.findIndex((o)=> o.deliveryStatus === 'On Delivery') : initialState.currentDeliveringAddress,
+        deliveryDestinationData:
+          state.deliveryDestinationData.destinationid !== null &&
+          action.payload.stepsuuid.includes(
+            state.deliveryDestinationData.destinationid,
+          )
+            ? state.deliveryDestinationData
+            : initialState.deliveryDestinationData,
+      };
     case 'RouteStats':
       return {
         ...state,
@@ -564,11 +641,10 @@ export default function appReducer(state = initialState, action) {
           ...state,
           route:{
             ...state.route,
-            id: state.route.routes.hasOwnProperty(action.payload.uuid) ? action.payload.uuid : state.route.id, //might be id of backend markers array
+            id: action.payload.uuid, //might be id of backend markers array
             orders: action.payload.orders,
-            steps : state.route.routes.hasOwnProperty(action.payload.uuid) ? state.route.routes[action.payload.uuid] : false, 
             markers : action.payload.orders,
-            stat :  state.route.stats.hasOwnProperty(action.payload.uuid) ? state.route.stats[action.payload.uuid] : [],
+            stat : [],
           },
           deliveryDestinationData: {
             ...initialState.deliveryDestinationData,
@@ -700,41 +776,49 @@ export default function appReducer(state = initialState, action) {
               ...state,
               currentPositionData: action.payload,
             };
-          case 'DeliveryDestinationData':
-            if (action.payload === null) {
+            case 'CurrentApplicationNavigational':
               return {
                 ...state,
-                deliveryDestinationData: initialState.deliveryDestinationData,
-              };
-            } else {
-              let statIndex = state.route.dataPackage.findIndex(
-                (o) =>
-                  o.coords.lat === action.payload.destinationCoords.latitude &&
-                  o.coords.lng === action.payload.destinationCoords.longitude,
-              );
-             // state.route.statAPI[statIndex] = action.payload.statAPI;
-              return {
-                ...state,
-                deliveryDestinationData: {
-                  ...action.payload,
+                filters: {
+                  ...state.filters,
+                  ApplicationNavigational: action.payload,
                 },
-                route: {
-                  ...state.route,
-                  steps: {
-                    ...state.route.steps,
-                  //  [action.payload.destinationid]: action.payload.steps,
+              };
+            case 'DeliveryDestinationData':
+              if (action.payload === null) {
+                return {
+                  ...state,
+                  deliveryDestinationData: initialState.deliveryDestinationData,
+                };
+              } else {
+                let statIndex = state.route.dataPackage.findIndex(
+                  (o) =>
+                    o.coords.lat === action.payload.destinationCoords.latitude &&
+                    o.coords.lng === action.payload.destinationCoords.longitude,
+                );
+                state.route.statAPI[statIndex] = action.payload.statAPI;
+                return {
+                  ...state,
+                  deliveryDestinationData: {
+                    ...action.payload,
                   },
-                  statsAPI: {
-                    ...state.route.statsAPI,
-                    [state.route.id]: {
-                      ...state.route.statsAPI[state.route.id],
-                     // [statIndex]: action.payload.statAPI,
+                  route: {
+                    ...state.route,
+                    steps: {
+                      ...state.route.steps,
+                      [action.payload.destinationid]: action.payload.steps,
                     },
+                    statsAPI: {
+                      ...state.route.statsAPI,
+                      [state.route.id]: {
+                        ...state.route.statsAPI[state.route.id],
+                        [statIndex]: action.payload.statAPI,
+                      },
+                    },
+                    statAPI: [...state.route.statAPI],
                   },
-                  //statAPI: [...state.route.statAPI],
-                },
-              };
-            }
+                };
+              }
           case 'CurrentDeliveringAddress':
             return {
               ...state,

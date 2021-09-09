@@ -33,7 +33,9 @@ class Completed extends React.Component {
               buttonStyle={styles.navigationButton}
               titleStyle={styles.deliveryText}
               title="Back to delivery list"
-              onPress={()=> this.props.navigation.navigate('Manifest')}
+              onPress={()=> this.props.navigation.navigate('Deliveries',{
+                screen: 'List',
+              })}
             />
           </View>
         </View>

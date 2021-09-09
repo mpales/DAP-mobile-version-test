@@ -225,8 +225,12 @@ export default class Util {
         return this.layerGroup;
     };
     setLayersGroup = (items,markers) => {
-
-    return L.layerGroup(this.setMarkers(markers)).addLayer(L.polyline(this.setLatLng(items),{color:'blue'}));
+        let base = L.layerGroup(this.setMarkers(markers));
+        if(items && items !== null) {
+            base.addLayer(L.polyline(this.setLatLng(items),{color:'blue'}));
+        }
+    return base;
     };
+    
     
 }

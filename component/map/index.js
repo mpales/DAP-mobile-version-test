@@ -3,185 +3,263 @@ import {
   StyleSheet,
   View,
   Dimensions,
-  Animated,
-  TouchableOpacity,
-  Switch,
   NativeModules,
   AppState,
   Platform,
-  ActivityIndicator
+  ActivityIndicator,
 } from 'react-native';
-import {Input, Avatar} from 'react-native-elements';
-import {Text, Button} from 'react-native-elements';
-import PanController from './pan-controller';
-import { bindActionCreators } from 'redux'
+import Geolocation from 'react-native-geolocation-service';
+import {Avatar} from 'react-native-elements';
+import {default as Reanimated, EasingNode} from 'react-native-reanimated';
+import {bindActionCreators} from 'redux';
+import {getDeliveryDirections} from '../../action/direction';
+import {reverseGeoCoding} from '../../action/geolocation';
+Geolocation.setRNConfiguration({
+  skipPermissionRequests: false,
+  authorizationLevel: 'always',
+});
+const {RNFusedLocation} = NativeModules;
 import {
   ProviderPropType,
   Animated as AnimatedMap,
   AnimatedRegion,
-  Marker,
-  PROVIDER_GOOGLE 
+  PROVIDER_GOOGLE,
 } from 'react-native-maps';
-import {getDeliveryDirections} from '../../action/direction';
-import {reverseGeoCoding} from '../../action/geolocation';
-import Geolocation from 'react-native-geolocation-service';
 import IconDelivery13 from '../../assets/icon/iconmonstr-delivery-13.svg';
 import IconDelivery6 from '../../assets/icon/iconmonstr-delivery-6mobile.svg';
 import {connect} from 'react-redux';
 import Util from './interface/leafletPolygon';
-import Location from './interface/geoCoordinate'
+import Location from './interface/geoCoordinate';
 import Distance from './interface/spatialIterative';
-import Geojsonhistory from './section/GeoJSONHistory';
 import Geojson from './section/GeoJSON';
+import Geojsonhistory from './section/GeoJSONHistory';
 import Mixins from '../../mixins';
-import {default as Reanimated} from 'react-native-reanimated';
 import BackgroundGeolocation from '@darron1217/react-native-background-geolocation';
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
-import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import {showLocation} from './link';
-const {RNFusedLocation} = NativeModules;
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
 const ForegroundServiceModule = NativeModules.ForegroundService;
 const screen = Dimensions.get('window');
 
 const ASPECT_RATIO = screen.width / screen.height;
 
-
+const LATITUDE_DELTA = 0.0922;
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 class NavigationalMap extends React.Component {
   _appState = React.createRef();
   locatorID = null;
+  callbackModeChange = new Reanimated.Value(0);
   static Beacon = null;
- 
   constructor(props) {
     super(props);
+
     if (!this._appState.current) {
       this._appState.current = AppState.currentState;
     }
-    const {index, markers, data} = this.props;
-    const LATITUDE = 1.3287109;
-    const LONGITUDE = 103.8476682;
-    const LATITUDE_DELTA = 0.0922;
-    const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
+
+    const {data, index} = this.props;
+
+    // route coords are from backend, markers are from google
+    const route = Array.from({length: data.length}).map((num, index) => {
+      return {
+        id: index,
+        coordinate: {
+          latitude: data[index].coords.lat,
+          longitude: data[index].coords.lng,
+        },
+      };
+    });
 
     const currentCoords = {
       latitude: this.props.currentPositionData.coords.lat,
       longitude: this.props.currentPositionData.coords.lng,
     };
-    // route coords are from backend, markers are from google
-    const route = Array.from({length: data.length}).map((num, index) => {
-      return {
-        id: index,
-        ammount: index * 10,
-        coordinate: {latitude: data[index].coords.lat, longitude: data[index].coords.lng},
-      };
-    });
-    
+
     this.state = {
       route,
       region: new AnimatedRegion({
-        latitude: markers[index][0],
-        longitude:  markers[index][1],
+        latitude: parseFloat(route[index].coordinate.latitude),
+        longitude: parseFloat(route[index].coordinate.longitude),
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LONGITUDE_DELTA,
       }),
       GeoJSON: null,
       trafficLayer: false,
-      currentCoords: currentCoords,
       updateToRenderMap: false,
+      currentCoords: currentCoords,
       history_polyline: null,
       camera_option: null,
       panned_view: false,
       foregroundService: false,
       ApplicationNavigational: null,
       loadingLayer: true,
+      showLocationOnce : false,
     };
-    this.toggleCamera.bind(this)
+    this.fadeAnimatedMode.bind(this);
+    this.toggleCamera.bind(this);
   }
- 
-  static getDerivedStateFromProps(props,state){
-    const {navigation, index, markers, data, trafficLayer,ApplicationNavigational, foregroundService} = props;
+  static getDerivedStateFromProps(props, state) {
+    const {
+      index,
+      markers,
+      trafficLayer,
+      ApplicationNavigational,
+      foregroundService,
+    } = props;
     const {currentCoords, route, updateToRenderMap, region} = state;
     const destination = new Location(markers[index][0], markers[index][1]);
     if (NavigationalMap.Beacon instanceof Distance === false) {
       NavigationalMap.Beacon = new Distance(destination);
       props.getDeliveryDirections(route[index].coordinate, currentCoords);
       props.reverseGeoCoding(currentCoords);
-      let initialCamera = NavigationalMap.Beacon.camera(ASPECT_RATIO,currentCoords);
-      region
-      .setValue({
+      let initialCamera = NavigationalMap.Beacon.camera(
+        ASPECT_RATIO,
+        currentCoords,
+      );
+      region.setValue({
         latitudeDelta: initialCamera.latitudeDelta,
         longitudeDelta: initialCamera.longitudeDelta,
         latitude: initialCamera.latitude,
         longitude: initialCamera.longitude,
       });
-      return {...state, loadingLayer: true,region: region, trafficLayer: trafficLayer,ApplicationNavigational: ApplicationNavigational, foregroundService: foregroundService, updateToRenderMap: false};
+      return {
+        ...state,
+        loadingLayer: true,
+        region: region,
+        trafficLayer: trafficLayer,
+        ApplicationNavigational: ApplicationNavigational,
+        foregroundService: foregroundService,
+        updateToRenderMap: false,
+      };
     } else if (
-      NavigationalMap.Beacon.checkDestination(destination) === false || updateToRenderMap === true
+      NavigationalMap.Beacon.checkDestination(destination) === false ||
+      updateToRenderMap === true
     ) {
       NavigationalMap.Beacon = new Distance(destination);
       props.getDeliveryDirections(route[index].coordinate, currentCoords);
       props.reverseGeoCoding(currentCoords);
-      let initialCamera = NavigationalMap.Beacon.camera(ASPECT_RATIO,currentCoords);
-      region
-      .setValue({
+      let initialCamera = NavigationalMap.Beacon.camera(
+        ASPECT_RATIO,
+        currentCoords,
+      );
+      region.setValue({
         latitudeDelta: initialCamera.latitudeDelta,
         longitudeDelta: initialCamera.longitudeDelta,
         latitude: initialCamera.latitude,
         longitude: initialCamera.longitude,
-      })
-      return {...state, loadingLayer: true,region: region, trafficLayer: trafficLayer,ApplicationNavigational: ApplicationNavigational, foregroundService: foregroundService, updateToRenderMap: false};
+      });
+      return {
+        ...state,
+        loadingLayer: true,
+        region: region,
+        trafficLayer: trafficLayer,
+        ApplicationNavigational: ApplicationNavigational,
+        foregroundService: foregroundService,
+        updateToRenderMap: false,
+      };
     }
 
-    return {...state, region: region, trafficLayer: trafficLayer,ApplicationNavigational: ApplicationNavigational, foregroundService: foregroundService, updateToRenderMap: false};
+    return {
+      ...state,
+      region: region,
+      trafficLayer: trafficLayer,
+      ApplicationNavigational: ApplicationNavigational,
+      foregroundService: foregroundService,
+      updateToRenderMap: false,
+    };
   }
-  shouldComponentUpdate(nextProps, nextState){
-   
-    return true;
-  }
-  componentDidUpdate(prevProps, prevState, snapshot)
-  {
-    
-    if (
-      this.props.destinationid !==
-      prevProps.destinationid
-    ) {
-        if(this.props.destinationid === null ){
-          this.setState({updateToRenderMap:true})
-        } else {
-          this.getDeliveryDirection();
-        }
-    } 
-     
-  }
-  componentDidMount() {
  
-      if (this.props.destinationid !== null) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.props.destinationid !== prevProps.destinationid) {
+      if (this.props.destinationid === null) {
+        this.setState({updateToRenderMap: true});
+      } else {
         this.getDeliveryDirection();
       }
-      
-      if (Platform.OS === 'ios') {
-        PushNotificationIOS.setNotificationCategories([
-          {
-            id: 'DELIVERY_NOTIFICATION',
-            actions: [
-              {id: 'open', title: 'Open', options: {foreground: true}},
-              {
-                id: 'ignore',
-                title: 'Desruptive',
-                options: {foreground: true, destructive: true},
-              },
-              {
-                id: 'text',
-                title: 'Text Input',
-                options: {foreground: true},
-                textInput: {buttonTitle: 'Send'},
-              },
-            ],
-          },
-        ]);
+    }
+    if(this.props.startDelivered !== prevProps.startDelivered){
+      if(this.props.startDelivered === false && this.state.history_polyline !== null){
+        this.setState({history_polyline:null,showLocationOnce:false});
       }
+    }
+    if(this.props.keyStack !== prevProps.keyStack){
+      if(this.props.keyStack === 'Map'){
+        this.callbackModeChange.setValue(1);
+        if(this.props.startDelivered === true){
+          RNFusedLocation.startObserving({
+            timeout: 300,
+            maximumAge: 50,
+            enableHighAccuracy: true,
+            useSignificantChanges: false,
+            distanceFilter: 0,
+          });
+        }
+      }
+    }
+    if(this.state.foregroundService !== prevState.foregroundService){
+      if(this.state.foregroundService === true){
+        this.setState({
+          showLocationOnce: true,
+        });   
+      }
+    }
+    if (this.props.startDelivered === true && this.props.ApplicationNavigational !== null && this.props.destinationid !== null && this.state.showLocationOnce === false) {
+      this.setState({
+        showLocationOnce: true,
+      });
+      showLocation({
+        latitude:
+          this.props.deliveryDestinationData.steps[
+            this.props.deliveryDestinationData.steps.length - 1
+          ][0],
+        longitude:
+        this.props.deliveryDestinationData.steps[
+          this.props.deliveryDestinationData.steps.length - 1
+          ][1],
+        sourceLatitude: -8.0870631, // optionally specify starting location for directions
+        sourceLongitude: -34.8941619, // not optional if sourceLatitude is specified
+        //title: 'The White House', // optional
+        googleForceLatLon: false, // optionally force GoogleMaps to use the latlon for the query instead of the title
+        googlePlaceId: 'ChIJGVtI4by3t4kRr51d_Qm_x58', // optionally specify the google-place-id
+        alwaysIncludeGoogle: true, // optional, true will always add Google Maps to iOS and open in Safari, even if app is not installed (default: false)
+        dialogTitle: 'This is the dialog Title', // optional (default: 'Open in Maps')
+        dialogMessage: 'This is the amazing dialog Message', // optional (default: 'What app would you like to use?')
+        cancelText: 'This is the cancel button text', // optional (default: 'Cancel')
+        appsWhiteList: ['google-maps'], // optionally you can set which apps to show (default: will show all supported apps installed on device)
+        naverCallerName: 'com.example.myapp', // to link into Naver Map You should provide your appname which is the bundle ID in iOS and applicationId in android.
+        app: this.props.ApplicationNavigational, // optionally specify specific app to use
+      });
+    } 
+  }
+  componentDidMount() {
+    this.callbackModeChange.setValue(1);
+    if (this.props.destinationid !== null) {
+      this.getDeliveryDirection();
+    }
 
-      AppState.addEventListener('change', (state) =>
+    if (Platform.OS === 'ios') {
+      PushNotificationIOS.setNotificationCategories([
+        {
+          id: 'DELIVERY_NOTIFICATION',
+          actions: [
+            {id: 'open', title: 'Open', options: {foreground: true}},
+            {
+              id: 'ignore',
+              title: 'Desruptive',
+              options: {foreground: true, destructive: true},
+            },
+            {
+              id: 'text',
+              title: 'Text Input',
+              options: {foreground: true},
+              textInput: {buttonTitle: 'Send'},
+            },
+          ],
+        },
+      ]);
+    }
+    AppState.addEventListener('change', (state) =>
       NavigationalMap._handlebackgroundgeolocation(
         state,
         this.props.currentPositionData,
@@ -203,7 +281,6 @@ class NavigationalMap extends React.Component {
           latitude: coords.latitude,
           longitude: coords.longitude,
         };
-
         const {markers, index} = this.props;
         let destination = new Location(markers[index][0], markers[index][1]);
 
@@ -214,6 +291,7 @@ class NavigationalMap extends React.Component {
         ) {
           NavigationalMap.Beacon = new Distance(destination);
         }
+
         if (
           startDelivered &&
           currentPositionData !== null &&
@@ -248,9 +326,14 @@ class NavigationalMap extends React.Component {
                     ASPECT_RATIO,
                     latLng,
                     this.props.deliveryDestinationData.steps,
-                    camera_option === null ? 'bottom-pad' : camera_option ,
+                    camera_option === null ? 'bottom-pad' : camera_option,
                   )
-                : NavigationalMap.Beacon.camera(ASPECT_RATIO, latLng,null,'bottom-pad');
+                : NavigationalMap.Beacon.camera(
+                    ASPECT_RATIO,
+                    latLng,
+                    null,
+                    'bottom-pad',
+                  );
             if (panned_view === false) {
               region.setValue({
                 latitudeDelta: camera.latitudeDelta,
@@ -285,6 +368,7 @@ class NavigationalMap extends React.Component {
       },
     );
   }
+
   componentWillUnmount() {
     if (Platform.OS === 'android') {
       ForegroundServiceModule.stopService();
@@ -292,7 +376,10 @@ class NavigationalMap extends React.Component {
       PushNotificationIOS.cancelLocalNotifications();
       PushNotificationIOS.removeAllDeliveredNotifications();
     }
+    RNFusedLocation.stopObserving()
     Geolocation.clearWatch(this.locatorID);
+    BackgroundGeolocation.removeAllListeners();
+    BackgroundGeolocation.stop();
   }
   static _handlebackgroundgeolocation = async (
     nextAppState,
@@ -374,7 +461,7 @@ class NavigationalMap extends React.Component {
                 id: 144,
                 title: 'CCM Transport Service',
                 message: 'your are arrived !',
-                importance: 'high',
+                importance: 'min',
                 mainOnPress: async () => {
                   await ReactNativeForegroundService.stopService();
                   await ReactNativeForegroundService.stopServiceAll();
@@ -396,8 +483,9 @@ class NavigationalMap extends React.Component {
               ReactNativeForegroundService.update({
                 id: 144,
                 title: 'CCM Transport Service',
+                importance: 'min',
                 message:
-                  'your are calculated to distant about ' +
+                  'Your calculated distance to destination is about ' +
                   L.latLng(
                     deliveryDestinationData.steps[
                       deliveryDestinationData.steps.length - 1
@@ -407,9 +495,8 @@ class NavigationalMap extends React.Component {
                     ][1],
                   ).distanceTo(
                     L.latLng(location.latitude, location.longitude),
-                  ) +
-                  'meters',
-                  importance: 'min',
+                  ).toFixed(0) +
+                  ' metres',
                 mainOnPress: async () => {
                   await ReactNativeForegroundService.stopService();
                   await ReactNativeForegroundService.stopServiceAll();
@@ -422,7 +509,7 @@ class NavigationalMap extends React.Component {
               PushNotificationIOS.addNotificationRequest({
                 id: new Date().toString(),
                 body:
-                  'your are calculated to distant about ' +
+                  'Your calculated distance to destination is about ' +
                   L.latLng(
                     deliveryDestinationData.steps[
                       deliveryDestinationData.steps.length - 1
@@ -432,8 +519,8 @@ class NavigationalMap extends React.Component {
                     ][1],
                   ).distanceTo(
                     L.latLng(location.latitude, location.longitude),
-                  ) +
-                  'meters',
+                  ).toFixed(0) +
+                  ' metres',
                 title: 'CCM Transport Service',
                 silent: true,
                 category: 'DELIVERY_NOTIFICATION',
@@ -451,7 +538,7 @@ class NavigationalMap extends React.Component {
             id: 144,
             title: 'CCM Transport Service',
             message: 'your are already in App',
-            importance: 'high',
+            importance: 'default',
             mainOnPress: async () => {
               await ReactNativeForegroundService.stopService();
               await ReactNativeForegroundService.stopServiceAll();
@@ -474,7 +561,7 @@ class NavigationalMap extends React.Component {
               id: 144,
               title: 'CCM Transport Service',
               message: 'you are using navigational maps to destination!',
-              importance: 'high',
+              importance: 'default',
               mainOnPress: async () => {
                 await ReactNativeForegroundService.stopService();
                 await ReactNativeForegroundService.stopServiceAll();
@@ -499,33 +586,35 @@ class NavigationalMap extends React.Component {
 
   getDeliveryDirection = async () => {
     const {
-      steps,
       markers,
       currentPositionData,
       deliveryDestinationData,
-      currentDeliveringAddress,
       startDelivered,
-      index, ApplicationNavigational
+      currentDeliveringAddress,
+      index,
+      ApplicationNavigational,
     } = this.props;
     let LatLngs = [];
     let marker = [];
     let latLng;
-    if(startDelivered || currentDeliveringAddress !== null){
-    // push next location marker
-    latLng = new Location(markers[currentDeliveringAddress][0], markers[currentDeliveringAddress][1]);
+
+    if (startDelivered || currentDeliveringAddress !== null) {
+      // push next location marker
+      latLng = new Location(
+        markers[currentDeliveringAddress][0],
+        markers[currentDeliveringAddress][1],
+      );
     } else {
-    // push next location marker
-    latLng = new Location(markers[index][0], markers[index][1]);
+      // push next location marker
+      latLng = new Location(markers[index][0], markers[index][1]);
     }
     marker.push(latLng.location());
-
     // push current location marker
     latLng = new Location(
       currentPositionData.coords.lat,
       currentPositionData.coords.lng,
     );
     marker.push(latLng.location());
-
     // push polyline steps
     LatLngs = Array.from({length: deliveryDestinationData.steps.length}).map(
       (num, index) => {
@@ -540,40 +629,17 @@ class NavigationalMap extends React.Component {
     const Polygon = new Util();
     let LayerGroup = Polygon.setLayersGroup(LatLngs, marker);
     const GeoJSON = LayerGroup.toGeoJSON();
-
-    if (ApplicationNavigational !== null) {
-      showLocation({
-        latitude:
-          deliveryDestinationData.steps[
-            deliveryDestinationData.steps.length - 1
-          ][0],
-        longitude:
-          deliveryDestinationData.steps[
-            deliveryDestinationData.steps.length - 1
-          ][1],
-        sourceLatitude: -8.0870631, // optionally specify starting location for directions
-        sourceLongitude: -34.8941619, // not optional if sourceLatitude is specified
-        title: 'The White House', // optional
-        googleForceLatLon: false, // optionally force GoogleMaps to use the latlon for the query instead of the title
-        googlePlaceId: 'ChIJGVtI4by3t4kRr51d_Qm_x58', // optionally specify the google-place-id
-        alwaysIncludeGoogle: true, // optional, true will always add Google Maps to iOS and open in Safari, even if app is not installed (default: false)
-        dialogTitle: 'This is the dialog Title', // optional (default: 'Open in Maps')
-        dialogMessage: 'This is the amazing dialog Message', // optional (default: 'What app would you like to use?')
-        cancelText: 'This is the cancel button text', // optional (default: 'Cancel')
-        appsWhiteList: ['google-maps'], // optionally you can set which apps to show (default: will show all supported apps installed on device)
-        naverCallerName: 'com.example.myapp', // to link into Naver Map You should provide your appname which is the bundle ID in iOS and applicationId in android.
-        app: ApplicationNavigational, // optionally specify specific app to use
-      });
-      this.setState({GeoJSON: GeoJSON,   startForegroundService: true,   loadingLayer: false,});
-    } else {
+    
       this.setState({
         GeoJSON: GeoJSON,
         loadingLayer: false,
       });
-    }
-    
   };
- 
+
+  onRegionChange(/* region */) {}
+  onPanMapEvent() {
+    this.setState({panned_view: true});
+  }
   toggleCamera = () => {
     const {camera_option, panned_view} = this.state;
     if (panned_view === true) {
@@ -587,6 +653,7 @@ class NavigationalMap extends React.Component {
         loadingLayer: true,
       });
     }
+    this.callbackModeChange.setValue(1);
     //trigger native module to reset init
     RNFusedLocation.stopObserving();
     RNFusedLocation.startObserving({
@@ -597,27 +664,49 @@ class NavigationalMap extends React.Component {
       distanceFilter: 0,
     });
   };
-  
-  onRegionChange = (region) => {
- 
-  };
-  
+  fadeAnimatedMode = ()=>{
+    const {loadingLayer} = this.state;
+    if(loadingLayer === false){
+      Reanimated.timing(this.callbackModeChange,{
+        duration: 5000,
+        toValue: 0,
+        easing: EasingNode.bezier(0,0,4,0),
+      }).start()
+    }
+  }
   render() {
     const {
       region,
+      toggleContainer,
       GeoJSON,
-      index,
       trafficLayer,
-      trafficButton,
-      loadingLayer,
+      currentCoords,
     } = this.state;
-   
+    const {index} = this.props;
     return (
       <View style={StyleSheet.absoluteFillObject}>
         <AnimatedMap
           showsTraffic={trafficLayer}
           provider={PROVIDER_GOOGLE}
           style={styles.map}
+          customMapStyle={[
+            {
+              featureType: 'poi',
+              stylers: [
+                {
+                  visibility: 'off',
+                },
+              ],
+            },
+            {
+              featureType: 'transit',
+              stylers: [
+                {
+                  visibility: 'off',
+                },
+              ],
+            },
+          ]}
           region={region}
           onRegionChange={(regionToAnimate, {isGesture}) => {
             if (isGesture || this.state.panned_view) {
@@ -627,13 +716,13 @@ class NavigationalMap extends React.Component {
           onRegionChangeComplete={(regionToAnimate, {isGesture}) => {
             if (isGesture) {
               region.stopAnimation();
+              this.callbackModeChange.setValue(1);
               this.setState({panned_view: true});
-            } 
+            }
             if (!this.props.startDelivered) {
               region.stopAnimation();
             }
           }}
-          onMapReady={() => this.setState({isLoading: false})}
           scrollEnabled={Platform.OS === 'ios' ? true : true}>
           {GeoJSON !== null && (
             <Geojson
@@ -641,6 +730,7 @@ class NavigationalMap extends React.Component {
               strokeWidth={3}
               strokeColor={'#2A3386'}
               maptype="delivery"
+              markernum={index}
             />
           )}
 
@@ -649,19 +739,38 @@ class NavigationalMap extends React.Component {
               geojson={this.state.history_polyline}
               strokeWidth={6}
               strokeColor={'#F1811C'}
+              markernum={index}
             />
           )}
         </AnimatedMap>
 
-     
         <View
           style={{
             alignSelf: 'flex-end',
             marginHorizontal: 15,
             marginVertical: 10,
-            flexDirection: 'column'
+            flexDirection:'column'
           }}>
-          <Avatar
+            <View style={{justifyContent:'center',flexDirection:'row',alignItems:'flex-start'}}>
+            <Reanimated.Code
+                exec={() =>
+                  Reanimated.onChange(
+                    this.callbackModeChange,
+                    Reanimated.block([
+                      Reanimated.cond(Reanimated.eq(this.callbackModeChange,1),
+                        this.fadeAnimatedMode(),
+                        0),
+                    ]),
+                  )
+                }
+              />
+            <Reanimated.Text style={[{...Mixins.small3,lineHeight:15,fontWeight:'400',color:'#6C6B6B',paddingVertical:13,paddingHorizontal:5},{ transform: [
+              { scale: this.callbackModeChange },
+            ]}]}>
+              {this.state.panned_view ? 'Free Mode' : this.state.camera_option ? 'Driver Mode' : 'Delivering Route Mode'}
+            </Reanimated.Text>
+            <View style={{flexDirection:'column',alignItems:'center'}}>
+            <Avatar
             size={40}
             ImageComponent={() => {
               return this.state.camera_option ? (
@@ -697,12 +806,14 @@ class NavigationalMap extends React.Component {
             activeOpacity={0.7}
             containerStyle={Mixins.buttonAvatarDefaultContainerStyle}
           />
+          
           {this.state.loadingLayer && (
             <ActivityIndicator size="large" color="#0000ff" />
           )}
+            </View>
+         
+            </View>
         </View>
-       
-     
       </View>
     );
   }
@@ -719,48 +830,25 @@ const styles = StyleSheet.create({
   },
 });
 
-
 function mapStateToProps(state) {
   return {
-    isConnected : state.network.isConnected,
     bottomBar: state.originReducer.filters.bottomBar,
-    startDelivered : state.originReducer.filters.onStartDelivered,
-    stat : state.originReducer.route.stat,
-    statAPI : state.originReducer.route.statAPI,
+    startDelivered: state.originReducer.filters.onStartDelivered,
+    stat: state.originReducer.route.stat,
     steps: state.originReducer.route.steps,
-    isTraffic: state.originReducer.filters.isTraffic,
-    indexStack : state.originReducer.filters.indexStack,
-    keyStack : state.originReducer.filters.keyStack,
-    isActionQueue : state.network.actionQueue,
-    dataPackage: state.originReducer.route.dataPackage,
     currentPositionData: state.originReducer.currentPositionData,
     deliveryDestinationData: state.originReducer.deliveryDestinationData,
-    destinationid : state.originReducer.deliveryDestinationData.destinationid,
-    route_id: state.originReducer.route.id,
+    destinationid: state.originReducer.deliveryDestinationData.destinationid,
     currentDeliveringAddress: state.originReducer.currentDeliveringAddress,
+    keyStack: state.originReducer.filters.keyStack,
+    ApplicationNavigational : state.originReducer.filters.ApplicationNavigational,
   };
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-    setStartDelivered : (toggle) => {
-      return dispatch({type: 'startDelivered', payload: toggle});
-    },
-    setCurrentDeliveringAddress: (data) => {
-      return dispatch({type: 'CurrentDeliveringAddress', payload: data});
-    },
-    setRouteData: (data) => {
-      return dispatch({type: 'RouteData', payload: data});
-    },
-    resetDeliveryDestinationData: () => {
-      return dispatch({type: 'DeliveryDestinationData', payload: null});
-    },
     ...bindActionCreators({getDeliveryDirections, reverseGeoCoding}, dispatch),
   };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(NavigationalMap);
-

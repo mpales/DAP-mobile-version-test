@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, TouchableOpacity, Text, PermissionsAndroid, NativeModules} from 'react-native';
+import {View, TouchableOpacity, Text, PermissionsAndroid, NativeModules, FlatList, ScrollView} from 'react-native';
 import {SearchBar, Badge} from 'react-native-elements';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import AddressList from '../../../component/extend/ListItem-address';
@@ -19,34 +19,34 @@ class List extends Component {
     super(props);
     
     const namedOrder = [
-      {named: 'Ginny', coords:{lat: 1.3143394,lng:103.7038231},packages:15,Address:'Chang i 26th, Singapore', list: [
+      {named: 'Ginny', status : 'Pending', coords:{lat: 1.3143394,lng:103.7038231},packages:15,Address:'Chang i 26th, Singapore', list: [
         {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323344567553' },
         {package:'6',weight:'64.00 Kg',CBM:'0.50', id: '#323344342342' },
         {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323312312312' },
         {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323344897815'},
       ]},
-      {named: 'Tho',coords: {lat:1.3287109, lng:103.8476682}, packages:4,Address:'639 Balestier Rd, Singapura 329922', list: [
+      {named: 'Tho',  status : 'Pending', coords: {lat:1.3287109, lng:103.8476682}, packages:4,Address:'639 Balestier Rd, Singapura 329922', list: [
         {package:'1',weight:'23.00 Kg',CBM:'0.18' , id: '#12544457577'},
         {package:'3',weight:'64.00 Kg',CBM:'0.50' , id: '#67785464564'},
       ]},
-      {named: 'West', coords : {lat:1.2895404, lng:103.8081271}, packages:4,Address:'2 Orchard Turn, Singapura 238801', list: [
+      {named: 'West', status : 'Complete', coords : {lat:1.2895404, lng:103.8081271}, packages:4,Address:'2 Orchard Turn, Singapura 238801', list: [
         {package:'1',weight:'23.00 Kg',CBM:'0.18' , id: '#988786767666'},
         {package:'3',weight:'64.00 Kg',CBM:'0.50' , id: '#455645645688'},
       ]},
-      {named: 'Go', coords: {lat:1.3250369, lng:103.6973209}, packages:1,Address:'221A Boon Lay Pl, Singapura 641221', list: [
+      {named: 'Go',  status : 'Complete', coords: {lat:1.3250369, lng:103.6973209}, packages:1,Address:'221A Boon Lay Pl, Singapura 641221', list: [
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#768565463455'},
       ]},
-      {named: 'Dolittle', coords: {lat:1.3691909, lng:103.8436772}, packages:5,Address:'16 Ang Mo Kio Central 3, Singapore 567748', list: [
+      {named: 'Dolittle', status : 'Complete', coords: {lat:1.3691909, lng:103.8436772}, packages:5,Address:'16 Ang Mo Kio Central 3, Singapore 567748', list: [
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#879755465377'},
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#345344234677'},
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#345345436435'},
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#213125432423'},
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#856756534555'},
       ]},
-      {named: 'Cumberbatch', coords: {lat:1.330895, lng:103.8375949}, packages:1,Address:'510 Thomson Rd, Singapura 298135', list: [
+      {named: 'Cumberbatch', status : 'On Delivery', coords: {lat:1.330895, lng:103.8375949}, packages:1,Address:'510 Thomson Rd, Singapura 298135', list: [
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#323344897815'},
       ]},
-      {named: 'Bram',packages:1,coords: {lat: 1.3911178, lng:103.7664461}, Address:'27 Woodlands Link, #01-01 Chang Cheng HQ, Singapura 738732', list: [
+      {named: 'Bram', status : 'On Delivery',packages:1,coords: {lat: 1.3911178, lng:103.7664461}, Address:'27 Woodlands Link, #01-01 Chang Cheng HQ, Singapura 738732', list: [
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#456456456542'},
       ]},
     ];
@@ -57,7 +57,7 @@ class List extends Component {
     namedOrder,
     locationPermission : false,
   };
-  this.props.dataPackage.length > 0 ? null :   this.props.setDataOrder(namedOrder);
+  this.props.setDataOrder(namedOrder);
 
   this.translateOrders.bind(this);
   this.translateOrdersTraffic.bind(this);
@@ -70,23 +70,30 @@ class List extends Component {
   };
   componentDidMount() {
      let {locationPermission} = this.props;
-    if (locationPermission && this.props.currentPositionData === null) {
-        let watchID = Geolocation.watchPosition(
+    if (locationPermission) {
+      console.log(locationPermission); 
+      let watchID = Geolocation.watchPosition(
          ({coords}) => {
+           console.log('mount coords',coords);
            let latLng = {
              lat: coords.latitude,
              lng: coords.longitude,
            };
            this.props.reverseGeoCoding(coords);
            this.props.setGeoLocation(latLng);
-           Geolocation.clearWatch(watchID);
-           if(this.props.isTraffic){
-            this.props.getDirectionsAPIWithTraffic([{lat: 1.3143394,lng:103.7038231},{lat:1.3287109, lng:103.8476682},{lat:1.2895404, lng:103.8081271},{lat:1.3250369, lng:103.6973209},{lat:1.3691909, lng:103.8436772},{lat:1.330895, lng:103.8375949},{lat: 1.3911178, lng:103.7664461}], latLng);
-          } else {
+           //prototype list cords
+           let listCords = Array.from({length:this.state.namedOrder.length}).map((num,index) => {
+            return {lat: this.state.namedOrder[index].coords.lat, lng: this.state.namedOrder[index].coords.lng};
+           });
+          // for active subscribed geoLocation please see the conditional within props.step to update;
+         //  if(this.props.isTraffic){
+            this.props.getDirectionsAPIWithTraffic(listCords, coords);
+         // } else {
         
-            this.props.getDirectionsAPI([{lat: 1.3143394,lng:103.7038231},{lat: 1.3911178, lng:103.7664461},{lat:1.3287109, lng:103.8476682},{lat:1.2895404, lng:103.8081271},{lat:1.3250369, lng:103.6973209},{lat:1.3691909, lng:103.8436772},{lat:1.330895, lng:103.8375949}], latLng);
-          }
-           RNFusedLocation.stopObserving();
+         //   this.props.getDirectionsAPI([{lat: 1.3143394,lng:103.7038231},{lat: 1.3911178, lng:103.7664461},{lat:1.3287109, lng:103.8476682},{lat:1.2895404, lng:103.8081271},{lat:1.3250369, lng:103.6973209},{lat:1.3691909, lng:103.8436772},{lat:1.330895, lng:103.8375949}], latLng);
+         // }
+         RNFusedLocation.stopObserving();
+         Geolocation.clearWatch(watchID);
          },
          () => {},
          {
@@ -97,6 +104,13 @@ class List extends Component {
            distanceFilter: 0,
          },
        );
+       RNFusedLocation.startObserving({
+        timeout: 300,
+        maximumAge: 50,
+        enableHighAccuracy: true,
+        useSignificantChanges: false,
+        distanceFilter: 0,
+      });
     }
     this.updateStateData();
   }
@@ -120,16 +134,16 @@ class List extends Component {
   }
   
   updateStateData = () => {
-    this.setState({data: Array.from({length: this.props.statAPI.length}).map((element,index)=>{
-      let statSingleOffline = this.props.stat[index];
+    this.setState({data: Array.from({length: this.props.dataPackage.length}).map((element,index)=>{
+    //  let statSingleOffline = this.props.stat[index];
       let statSingleAPI = this.props.statAPI[index];
       let namedData = this.props.dataPackage.length > 0 ? this.props.dataPackage[index] : this.state.namedOrder[index];
-      return {...statSingleOffline,...statSingleAPI,...namedData};
+      return {...statSingleAPI,...namedData};
     })})
   }
   componentDidUpdate(prevProps, prevState, snapshot) {
 
-    if( prevProps.statAPI.length !== this.props.statAPI.length || prevProps.stat.length === 0 && this.props.stat.length > 0 ||  prevProps.route_id !== this.props.route_id || prevProps.isActionQueue.length !== this.props.isActionQueue.length || prevProps.isConnected !== this.props.isConnected ){
+    if( prevProps.statAPI.length !== this.props.statAPI.length ||  prevProps.route_id !== this.props.route_id || prevProps.isActionQueue.length !== this.props.isActionQueue.length || prevProps.isConnected !== this.props.isConnected || prevProps.isFiltered !== this.props.isFiltered ){
       this.updateStateData();
     }
      let {locationPermission} = this.props;
@@ -154,46 +168,49 @@ class List extends Component {
             distanceFilter: 0,
           },
         );
+        RNFusedLocation.startObserving({
+          timeout: 300,
+          maximumAge: 50,
+          enableHighAccuracy: true,
+          useSignificantChanges: false,
+          distanceFilter: 0,
+        });
      }
 
-     if(!this.props.steps){
-      if(this.props.isTraffic){
-        let {coords} = this.props.currentPositionData;
-        let orders = this.translateOrdersTraffic();
-        this.props.getDirectionsAPIWithTraffic(orders, coords);  
-      } else {
-        let orders = this.translateOrders();
-        this.props.getDirectionsAPI(orders);  
-      }
+    if(prevProps.route_id !== this.props.route_id){
+         let {coords} = this.props.currentPositionData;
+         let orders = this.translateOrdersTraffic();
+         this.props.getDirectionsAPIWithTraffic(orders, coords);  
     }
-   // for active subscribed geoLocation please see the conditional within props.step to update;
-   if((prevProps.location === undefined && this.props.location !== undefined ) || (prevProps.route_id !== this.props.route_id && this.props.stat.length === 0)){
-    let COORDINATES = this.props.steps;
-    let markers = this.props.markers;
-    let LatLngs =  Array.from({length: COORDINATES.length}).map((num, index) => {
-      let latLng = new Location(COORDINATES[index][0],COORDINATES[index][1]);
-      return latLng.location();
-    });
-    let marker = Array.from({length:markers.length}).map((num,index)=>{
-      let latLng = new Location(markers[index][0],markers[index][1]);
-    return  latLng.location(); 
-    });
+    // stop using own routestat calculation, will be using google api stats.
+    //  // for active subscribed geoLocation please see the conditional within props.step to update;
+  //  if((prevProps.location === undefined && this.props.location !== undefined ) || (prevProps.route_id !== this.props.route_id && this.props.stat.length === 0)){
+  //   let COORDINATES = this.props.steps;
+  //   let markers = this.props.markers;
+  //   let LatLngs =  Array.from({length: COORDINATES.length}).map((num, index) => {
+  //     let latLng = new Location(COORDINATES[index][0],COORDINATES[index][1]);
+  //     return latLng.location();
+  //   });
+  //   let marker = Array.from({length:markers.length}).map((num,index)=>{
+  //     let latLng = new Location(markers[index][0],markers[index][1]);
+  //   return  latLng.location(); 
+  //   });
 
-    const Polygon = new Util;
+  //   const Polygon = new Util;
 
-    Polygon.setGeoLocation(this.props.location);
-    let LayerGroup = Polygon.setLayerStats(LatLngs,marker);
-    let stats = Polygon.translateToStats(marker);
+  //   Polygon.setGeoLocation(this.props.location);
+  //   let LayerGroup = Polygon.setLayerStats(LatLngs,marker);
+  //   let stats = Polygon.translateToStats(marker);
 
-    this.props.setRouteStats(markers,stats)
-    }
+  //   this.props.setRouteStats(markers,stats)
+  //   }
   }
   translatePressTimeToOrder = () => {
-    let {stat,markers, dataPackage} = this.props;
-    let copyStat = [...stat];
+    let {statAPI,markers, dataPackage} = this.props;
+    let copyStat = [...statAPI];
     let changedNamed = [];
     let order = Array.from({length:markers.length}).map((num,index)=>{
-      let prop = copyStat.reduce((prev, curr) => prev.chrono < curr.chrono ? prev : curr);
+      let prop = copyStat.reduce((prev, curr, index) => prev.durationAPI < curr.durationAPI ? prev : curr);
       delete copyStat[prop.key];
       changedNamed.push(dataPackage[prop.key]);
       return markers[prop.key]
@@ -205,11 +222,11 @@ class List extends Component {
   };
   translatePressPickupToOrder = () => {
    
-    let {stat,markers, dataPackage} = this.props;
-    let copyStat = [...stat];
+    let {statAPI,markers, dataPackage} = this.props;
+    let copyStat = [...statAPI];
     let changedNamed = [];
     let order = Array.from({length:markers.length}).map((num,index)=>{
-      let prop = copyStat.reduce((prev, curr) => prev.dist < curr.dist ? prev : curr);
+      let prop = copyStat.reduce((prev, curr) => prev.distanceAPI < curr.distanceAPI ? prev : curr);
       delete copyStat[prop.key];
       changedNamed.push(dataPackage[prop.key]);
       return markers[prop.key]
@@ -246,16 +263,14 @@ class List extends Component {
     const {search} = this.state;
     return (
       <View style={{flex: 1, backgroundColor: 'white'}}>
-        <DraggableFlatList
-          autoscrollSpeed={700}
+        <FlatList
           data={this.state.data}
           renderItem={(props) => {
             return (
               <AddressList {...props} navigation={this.navigateToDelivery} />
             );
           }}
-          keyExtractor={(item, index) => `draggable-item-${index}`}
-          onDragEnd={({data,from,to}) => this.translateDragToOrder(from,to)}
+          keyExtractor={(item, index) => index}
           ListHeaderComponent={() => {
             return (
               <View style={styles.filterContainer}>
@@ -284,7 +299,7 @@ class List extends Component {
                   }}
                   leftIconContainerStyle={{backgroundColor: 'white'}}
                 />
-                <View style={styles.sectionSort}>
+                <ScrollView style={styles.sectionSort} horizontal={true} contentContainerStyle={{paddingTop:5,paddingBottom:10}} style={{marginHorizontal:25}}>
                   <Badge
                     value="All"
                     containerStyle={styles.badgeSort}
@@ -294,35 +309,37 @@ class List extends Component {
                   />
 
                   <Badge
-                    value="Time"
+                    value="Pending"
                     containerStyle={styles.badgeSort}
-                    onPress={this.translatePressTimeToOrder}
+                    onPress={()=> this.props.setFilter(1)}
                     badgeStyle={this.props.isFiltered === 1 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.props.isFiltered === 1 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                   />
 
                   <Badge
-                    value="Pickup"
+                    value="Delivering"
                     containerStyle={styles.badgeSort}
-                    onPress={this.translatePressPickupToOrder}
+                    onPress={()=> this.props.setFilter(2)}
                     badgeStyle={this.props.isFiltered === 2 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.props.isFiltered === 2 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                   />
 
                   <Badge
-                    value="Company"
+                    value="Completed"
                     containerStyle={styles.badgeSort}
+                    onPress={()=> this.props.setFilter(3)}
                     badgeStyle={this.props.isFiltered === 3 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.props.isFiltered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                   />
 
                   <Badge
-                    value="Warehouse"
+                    value="Reported"
                     containerStyle={styles.badgeSort}
+                    onPress={()=> this.props.setFilter(4)}
                     badgeStyle={this.props.isFiltered === 4 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.props.isFiltered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                   />
-                </View>
+                </ScrollView>
               </View>
             );
           }}
@@ -409,7 +426,7 @@ const mapDispatchToProps = (dispatch) => {
     setFilter: (num) => {
       return dispatch({type: 'filtered_sort',payload: num});
     },
-    ...bindActionCreators({ setDataOrder,getDirectionsAPI,setDirections,setGeoLocation,setRouteStats, getDirectionsAPIWithTraffic, reverseGeoCoding}, dispatch),
+    ...bindActionCreators({ setDataOrder,getDirectionsAPI,setDirections,setGeoLocation,setRouteStats, getDirectionsAPIWithTraffic,reverseGeoCoding}, dispatch),
   };
 };
 
