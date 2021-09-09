@@ -1,6 +1,6 @@
 import React from 'react';
 import {Avatar, Text, Button, Input, Badge,Overlay} from 'react-native-elements';
-import {View,TouchableOpacity, Dimensions} from 'react-native';
+import {View,TouchableOpacity, Dimensions, ScrollView} from 'react-native';
 import IconSpeech26 from '../../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
 import IconPen7 from '../../../assets/icon/iconmonstr-pen-7 1mobile.svg';
@@ -9,7 +9,7 @@ import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg'
 import Signature from '../peripheral/signature';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
-
+import ContactClient from '../../../component/linked/contactClient';
 import OfflineMode from '../../../component/linked/offlinemode';
 const window = Dimensions.get('window');
 
@@ -24,12 +24,20 @@ class POD extends React.Component {
       bottomSheet: false,
       isShowSignature: false,
       _visibleOverlay : false,
+      _visibleOverlayContact: false,
       indexPackage : routes[index].params.index,
+      _isShowCancel: false,
+      _isShowPostpone: false,
     };
     this.navigateToCamera.bind(this);
     this.submitSignature.bind(this);
     this.toggleOverlay.bind(this);
+    this.toggleOverlayContact.bind(this);
     this.onLihatDetail.bind(this);
+    this.handleShowCancel.bind(this);
+    this.handleCancelConfirm.bind(this);
+    this.handleShowPostpone.bind(this);
+    this.handlePostponeConfirm.bind(this);
   }
   onLihatDetail = () => {
     this.props.setBottomBar(true);
@@ -60,6 +68,12 @@ class POD extends React.Component {
     this.setState({_visibleOverlay: !_visibleOverlay})
   }
 
+
+  toggleOverlayContact = () => {
+    const {_visibleOverlayContact} = this.state;
+    this.setState({_visibleOverlayContact: !_visibleOverlayContact});
+  };
+
   handleConfirm = ({action}) => {
     this.toggleOverlay();
     if(action) {
@@ -67,6 +81,35 @@ class POD extends React.Component {
       this.props.navigation.navigate('Completed');
     }
   }
+
+  
+
+  handleShowCancel = () => {
+    this.setState({
+      _isShowCancel: !this.state._isShowCancel,
+    });
+  };
+
+  handleCancelConfirm = async ({action}) => {
+    this.handleShowCancel();
+    if(action){
+      this.props.navigation.navigate('List');
+    }
+  };
+
+  handleShowPostpone = () => {
+    this.setState({
+      _isShowPostpone: !this.state._isShowPostpone,
+    });
+  };
+
+  handlePostponeConfirm = ({action}) => {
+    this.handleShowPostpone();
+    if (action) {
+      this.props.navigation.navigate('Cancel');
+    }
+  };
+
   componentDidMount(){
     const {routes, index} = this.props.navigation.dangerouslyGetState();
     const singleData = this.props.dataPackage[routes[index].params.index];
@@ -83,7 +126,8 @@ class POD extends React.Component {
     const {named,packages,Address,list} = this.state.singleData;
     return (
       <>
-        <View style={{flex: 1, backgroundColor: 'white', paddingHorizontal: 22}}>
+        <ScrollView style={{flex: 1, backgroundColor: 'white'}}>
+          <View style={{paddingHorizontal: 22}}>
           <OfflineMode/>
           <View style={styles.sectionInput}>
             <View style={styles.inputContainer}>
@@ -215,36 +259,44 @@ class POD extends React.Component {
             <Button
               buttonStyle={styles.navigationButton}
               titleStyle={styles.deliveryText}
-              title="Submit"
+              title="Complete Delivery"
               onPress={()=>{
                 this.toggleOverlay();
               }}
+            />
+            
+            <Button
+              buttonStyle={[styles.postponeButton, {marginTop: 10}]}
+              titleStyle={styles.postponeText}
+              disabledStyle={this.state.isSubmitting}
+              title="Postpone"
+              onPress={this.handleShowPostpone}
             />
             <View style={[styles.sectionDividier, {marginVertical: 12}]}>
               <Button
                 containerStyle={[styles.buttonDivider, {marginRight: 10}]}
                 title="Cancel"
                 type="outline"
+                onPress={this.handleShowCancel}
                 titleStyle={{color: '#ABABAB', ...Mixins.subtitle3, lineHeight: 21}}
               />
 
-              <Button
+            
+                <Button
                 containerStyle={[styles.buttonDivider, {marginLeft: 10}]}
-                icon={() => (
-                  <View style={{marginRight: 6}}>
-                    <IconSpeech26 height="15" width="15" fill="#fff" />
-                  </View>
-                )}
-                title="Chat Client"
-                titleStyle={{color: '#fff', ...Mixins.subtitle3, lineHeight: 21}}
-                onPress={()=>{
-                  this.props.setBottomBar(false);
-                  this.props.navigation.navigate('Notification', { screen: 'Single' })}}
+                title="Contact"
+                titleStyle={{
+                  color: '#fff',
+                  ...Mixins.subtitle3,
+                  lineHeight: 21,
+                }}
+                onPress={this.toggleOverlayContact}
                 buttonStyle={{backgroundColor: '#F07120'}}
               />
             </View>
           </View>
-        </View>
+          </View>
+        </ScrollView>
         {this.state.isShowSignature && 
           <Signature
             showSignatureHandler={this.showSignatureHandler}
@@ -269,6 +321,58 @@ Submit the POD?</Text>
             </TouchableOpacity>
           </View>
         </Overlay>
+        <Overlay
+          fullScreen={false}
+          overlayStyle={styles.containerStyleOverlay}
+          isVisible={this.state._isShowCancel}
+          onBackdropPress={this.handleShowCancel}>
+          <Text style={styles.confirmText}>
+            Are you sure you want to cancel the deliver?
+          </Text>
+          <View style={styles.cancelButtonContainer}>
+            <TouchableOpacity
+              style={[
+                styles.cancelButton,
+                {borderWidth: 1, borderColor: '#ABABAB'},
+              ]}
+              onPress={() => this.handleCancelConfirm({action: false})}>
+              <Text style={[styles.cancelText, {color: '#6C6B6B'}]}>No</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.cancelButton, {backgroundColor: '#F07120'}]}
+              onPress={() => this.handleCancelConfirm({action: true})}>
+              <Text style={[styles.cancelText, {color: '#fff'}]}>Yes</Text>
+            </TouchableOpacity>
+          </View>
+        </Overlay>
+        <Overlay
+          fullScreen={false}
+          overlayStyle={styles.containerStyleOverlay}
+          isVisible={this.state._isShowPostpone}
+          onBackdropPress={this.handleShowPostpone}>
+          <Text style={styles.confirmText}>
+            Are you sure you want to postpone the deliver?
+          </Text>
+          <View style={styles.cancelButtonContainer}>
+            <TouchableOpacity
+              style={[
+                styles.cancelButton,
+                {borderWidth: 1, borderColor: '#ABABAB'},
+              ]}
+              onPress={() => this.handlePostponeConfirm({action: false})}>
+              <Text style={[styles.cancelText, {color: '#6C6B6B'}]}>No</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.cancelButton, {backgroundColor: '#F07120'}]}
+              onPress={() => this.handlePostponeConfirm({action: true})}>
+              <Text style={[styles.cancelText, {color: '#fff'}]}>Yes</Text>
+            </TouchableOpacity>
+          </View>
+        </Overlay>
+        <ContactClient
+          overlayState={this.state._visibleOverlayContact}
+          toggleOverlay={this.toggleOverlayContact}
+        />
       </>
     );
   }
@@ -415,6 +519,17 @@ const styles = {
 lineHeight: 12,
     fontWeight: '600',
     color: 'white',
+  },
+  postponeText: {
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#F1811C',
+  },
+  postponeButton: {
+    borderWidth: 1,
+    borderColor: '#D5D5D5',
+    backgroundColor: '#ffffff',
+    borderRadius: 5,
   },
 };
 function mapStateToProps(state) {

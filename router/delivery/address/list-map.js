@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, TouchableOpacity, PermissionsAndroid, Switch, Dimensions, NativeModules} from 'react-native';
+import {View, TouchableOpacity, PermissionsAndroid, Switch, Dimensions, NativeModules, FlatList} from 'react-native';
 import {SearchBar, Badge, Divider, Text, FAB} from 'react-native-elements';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import AddressList from '../../../component/extend/ListItem-map';
@@ -90,46 +90,42 @@ class ListMap extends Component {
       );
     }
 
-    if(!this.props.steps){
-      if(this.props.isTraffic){
-        let {coords} = this.props.currentPositionData;
-        let orders = this.translateOrdersTraffic();
-        this.props.getDirectionsAPIWithTraffic(orders, coords);  
-      } else {
-        let orders = this.translateOrders();
-        this.props.getDirectionsAPI(orders);  
-      }
-    }
+   
+    if(prevProps.route_id !== this.props.route_id){
+      let {coords} = this.props.currentPositionData;
+      let orders = this.translateOrdersTraffic();
+      this.props.getDirectionsAPIWithTraffic(orders, coords);  
+  }
   // for active subscribed geoLocation please see the conditional within props.step to update;
-  if((prevProps.location === undefined && this.props.location !== undefined ) || (prevProps.route_id !== this.props.route_id && this.props.stat.length === 0)){
-    let COORDINATES = this.props.steps;
-    let markers = this.props.markers;
-    let location = this.props.location;
-    let LatLngs =  Array.from({length: COORDINATES.length}).map((num, index) => {
-      let latLng = new Location(COORDINATES[index][0],COORDINATES[index][1]);
-      return latLng.location();
-    });
-    let marker = Array.from({length:markers.length}).map((num,index)=>{
-      let latLng = new Location(markers[index][0],markers[index][1]);
-    return  latLng.location(); 
-    });
+  // if((prevProps.location === undefined && this.props.location !== undefined ) || (prevProps.route_id !== this.props.route_id && this.props.stat.length === 0)){
+  //   let COORDINATES = this.props.steps;
+  //   let markers = this.props.markers;
+  //   let location = this.props.location;
+  //   let LatLngs =  Array.from({length: COORDINATES.length}).map((num, index) => {
+  //     let latLng = new Location(COORDINATES[index][0],COORDINATES[index][1]);
+  //     return latLng.location();
+  //   });
+  //   let marker = Array.from({length:markers.length}).map((num,index)=>{
+  //     let latLng = new Location(markers[index][0],markers[index][1]);
+  //   return  latLng.location(); 
+  //   });
 
-    const Polygon = new Util;
+  //   const Polygon = new Util;
     
-    Polygon.setGeoLocation(this.props.location);
-    let LayerGroup = Polygon.setLayerStats(LatLngs,marker);
-    let stats = Polygon.translateToStats(marker);
+  //   Polygon.setGeoLocation(this.props.location);
+  //   let LayerGroup = Polygon.setLayerStats(LatLngs,marker);
+  //   let stats = Polygon.translateToStats(marker);
 
-    this.props.setRouteStats(markers,stats)
-    }
+  //   this.props.setRouteStats(markers,stats)
+  //   }
   }
 
   updateStateData = () => {
     this.setState({data: Array.from({length: this.props.statAPI.length}).map((element,index)=>{
-      let statSingleOffline = this.props.stat[index];
+      //let statSingleOffline = this.props.stat[index];
       let statSingleAPI = this.props.statAPI[index];
       let namedData = this.props.dataPackage[index] ;
-      return {...statSingleOffline,...statSingleAPI,...namedData};
+      return {...statSingleAPI,...namedData};
     })})
   }
 
@@ -187,14 +183,12 @@ class ListMap extends Component {
                 </View>
           </View>
         </View>
-        <DraggableFlatList
+        <FlatList
           data={this.state.data}
-          autoscrollSpeed={700}
           renderItem={(props) => (
             <AddressList {...props} navigation={this.navigateToDelivery} />
           )}
-          keyExtractor={(item, index) => `draggable-item-${index}`}
-          onDragEnd={({data,from,to}) => this.translateDragToOrder(from,to)}
+          keyExtractor={(item, index) => index}
         />
                 <FAB 
             onPress={()=>{

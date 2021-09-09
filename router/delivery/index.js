@@ -16,13 +16,15 @@ import IconHome7Mobile from '../../assets/icon/iconmonstr-home-7mobile.svg';
 import IconDelivery6Mobile from '../../assets/icon/iconmonstr-delivery-6mobile.svg';
 import IconBubble26Mobile from '../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import IconGear2Mobile from '../../assets/icon/iconmonstr-gear-2mobile.svg';
-import IconBell2Mobile from '../../assets/icon/iconmonstr-bell-2mobile.svg';
+import IconDelivery4Mobile from '../../assets/icon/iconmonstr-delivery-4 1mobile.svg';
 import IconTime17Mobile from '../../assets/icon/iconmonstr-time-17 1mobile.svg';  
+import IconLogoutMobile from '../../assets/icon/iconmonstr-log-out-2 1mobile.svg';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import IconLogout2Mobile from '../../assets/icon/iconmonstr-log-out-2 2mobile.svg';
 import {popToLogout} from '../../component/helper/persist-login';
 import Mixins from '../../mixins';
 import DetailDelivery from './detail/index';
+import NoDelivery from './detail/noDelivery';
 import { ReactReduxContext } from 'react-redux'
 
 const screen = Dimensions.get('window');
@@ -149,9 +151,18 @@ class DeliveryNavigator extends React.Component {
       } else {
         this.props.toggleDrawer(isDrawerOpen);
       }
-
+      const filteredProps = {
+        ...props,
+        state: {
+          ...props.state,
+          routeNames: props.state.routeNames.filter(routeName => {
+            routeName !== 'HomeDrawer';
+          }),
+          routes: props.state.routes.filter(route => route.name !== 'HomeDrawer'),
+        },
+      };
   return (
-    <DrawerContentScrollView contentContainerStyle={{
+    <DrawerContentScrollView {...filteredProps} contentContainerStyle={{
       paddingTop: 0,
    }}
   {...props} >
@@ -170,13 +181,16 @@ class DeliveryNavigator extends React.Component {
         <Text style={styles.drawerText}>Driver Name</Text>
         </View>
         </SafeAreaView>
-      <DrawerItemList {...props} />
+      <DrawerItemList {...filteredProps} />
       <DrawerItem
         label="Logout"
+        icon={({ focused, color, size }) => <IconLogoutMobile height="20" width="17" fill="#2D2C2C"/>}
         onPress={() => {
           this.props.removeJwtToken(null);
           popToLogout();
         }}
+        labelStyle={Mixins.button}
+        style={Mixins.verticalBarMargin}
       />
     </DrawerContentScrollView> );
   }
@@ -312,7 +326,7 @@ class DeliveryNavigator extends React.Component {
   render() {
     return (
       <Drawer.Navigator 
-        initialRouteName="Home" 
+        initialRouteName="HomeDrawer" 
         drawerStyle={Mixins.verticalBarExpand}
         drawerContent={this._CustomDrawerContent} 
         contentContainerStyle={styles.drawerContainer} 
@@ -320,22 +334,22 @@ class DeliveryNavigator extends React.Component {
         labelStyle:Mixins.button,
         itemStyle: Mixins.verticalBarMargin}}
       >
-        <Drawer.Screen name="Notifications"
-          component={this.deliveryTab} a
+        <Drawer.Screen name="End of Day Delivery"
+          component={NoDelivery}
           options={{
             drawerIcon:({ focused, color, size })=>(
-              <IconBell2Mobile height="20" width="17" fill='#2D2C2C'/>
-            ),
-          }}
-        />
-        <Drawer.Screen name="History" component={this.deliveryTab} 
-          options={{
-            drawerIcon:({ focused, color, size })=>(
-              <IconTime17Mobile height="20" width="17" fill="#2D2C2C"/>
+              <IconDelivery4Mobile height="20" width="17" fill='#2D2C2C'/>
             ),
           }}
         />
         <Drawer.Screen name="Settings" component={this.deliveryTab} 
+          options={{
+            drawerIcon:({ focused, color, size })=>(
+              <IconGear2Mobile height="20" width="17" fill="#2D2C2C"/>
+            ),
+          }}
+        />
+            <Drawer.Screen name="HomeDrawer" component={this.deliveryTab} 
           options={{
             drawerIcon:({ focused, color, size })=>(
               <IconGear2Mobile height="20" width="17" fill="#2D2C2C"/>

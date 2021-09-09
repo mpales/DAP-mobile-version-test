@@ -11,6 +11,7 @@ import {
   Platform,
   ActivityIndicator,
   FlatList,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import {Input, Avatar} from 'react-native-elements';
 import {Text, Button} from 'react-native-elements';
@@ -29,6 +30,7 @@ import XMarkIcon from '../../../assets/icon/iconmonstr-x-mark-1 1mobile.svg';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
 import Loading from '../../../component/loading/loading';
+import ContactClient from '../../../component/linked/contactClient';
 import OfflineMode from '../../../component/linked/offlinemode'
 import {
   SafeAreaView,
@@ -36,6 +38,7 @@ import {
 } from 'react-native-safe-area-context';
 import NavigationalMap from '../../../component/map';
 import Popup from '../../../component/map/link/components/Popup';
+import FormatHelper from '../../../component/helper/format';
 const {RNFusedLocation} = NativeModules;
 const screen = Dimensions.get('window');
 const ITEM_SPACING = 10;
@@ -63,18 +66,21 @@ class AnimatedMarkers extends React.Component {
       trafficLayer: false,
       trafficButton : false,
       isShowSeeDetails: true,
+      isShowPostponeOrder: false,
       isShowCancelOrder: false,
       isLoading: true,
       loadingLayer: false,
       isThirdPartyNavigational: false,
       startForegroundService: false,
       ApplicationNavigational: null,
+      _visibleOverlayContact: false,
     };
     this.renderCard.bind(this);
     this.onPressedTraffic.bind(this);
     this.onLihatRincian.bind(this);
     this.onLihatDetail.bind(this);
     this.onCompleteDelivery.bind(this);
+    this.toggleOverlayContact.bind(this);
   }
  
   static getDerivedStateFromProps(props,state){
@@ -134,6 +140,10 @@ class AnimatedMarkers extends React.Component {
   componentWillUnmount() {
     this.props.setStartDelivered(false);
   }
+  toggleOverlayContact = () => {
+    const {_visibleOverlayContact} = this.state;
+    this.setState({_visibleOverlayContact: !_visibleOverlayContact});
+  };
   onLihatRincian = ({toggle, bottomBar}) => {
     const {carousel, index} = this.state;
     Animated.timing(carousel, {
@@ -209,54 +219,91 @@ class AnimatedMarkers extends React.Component {
   };
 
   renderCard =({ item, index, separators })=>{
-    const {current,eta,to,distance,hour} = this.props.stat[index];
     const {named,packages, Address} = this.props.dataPackage[index];
+ 
     return (
-      <Animated.View
+      <TouchableWithoutFeedback
         key={index}
-        style={styles.item}>
-        <View style={styles.sectionContentTitle}>
-          <Text style={styles.orderTitleItem}>{named}</Text>
-          <Text style={styles.chrono}>Distant Location {distance} Km</Text>
-        </View>
-        <View style={styles.sectionContent}>
-          <View style={styles.contentList}>
-            <Text style={styles.listLabel}>To</Text>
-            <Text style={styles.listContent}>{Address}</Text>
+        onPress={() => this.onSeeDetails(this.state.isShowSeeDetails, index)}>
+        <Animated.View
+          style={
+            index === this.state.index
+              ? [
+                  styles.item,
+                  {
+                    borderWidth: 2.5,
+                    borderColor: '#F1811C',
+                  },
+                ]
+              : [styles.item]
+          }>
+          <View style={styles.sectionContentTitle}>
+            <Text style={styles.orderTitleItem}>
+              {index + 1 + '. '}
+              {named}
+            </Text>
+            <Text style={styles.chrono}>
+              Distance{' '}
+              {FormatHelper.calculateDistance(
+                this.props.statAPI[index]?.distanceAPI ?? null,
+              )}{' '}
+              Km
+            </Text>
           </View>
-          <View style={styles.contentList}>
-            <Text style={styles.listLabel}>Package</Text>
-            <Text style={styles.listContent}>{packages}</Text>
+          <View style={styles.sectionContent}>
+            <View style={styles.contentList}>
+              <Text style={[styles.listLabel, {flex: 0.4}]}>To</Text>
+              <Text style={styles.listContent}>
+                {Address}, 
+              </Text>
+            </View>
           </View>
-        </View>
-        <View style={styles.sectionContentButton}>
-          <Button
-            buttonStyle={styles.contentButton}
-            onPress={() => this.onSeeDetails(true,index)}
-            titleStyle={styles.contentButtonText}
-            title="See details"
-          />
-        </View>
-      </Animated.View>
+          <View style={styles.sectionContentButton}>
+            <Button
+              buttonStyle={styles.contentButton}
+              onPress={() => this.onSeeDetails(true, index)}
+              titleStyle={styles.contentButtonText}
+              title="Show Deliver"
+            />
+          </View>
+        </Animated.View>
+      </TouchableWithoutFeedback>
     );
   }
   renderInner = () => {
     const {route, index} = this.state;
-    let {distance,to,current,hour,eta} = this.props.stat[index];
+    const to = '-';
+    const current = '-';
+    const durationAPI = this.props.statAPI[index] !== undefined ? this.props.statAPI[index].durationAPI : undefined;
+    const distanceAPI = this.props.statAPI[index] !== undefined ? this.props.statAPI[index].distanceAPI : undefined;
     const {named,packages, Address, list} = this.props.dataPackage[index];
     return (
       <View style={styles.sheetContainer}>
           <SafeAreaView edges={['bottom']} style={{backgroundColor: '#fff'}}>
+          <View style={styles.trafficButton}>
+            <Text style={styles.buttonText}>Traffic</Text>
+            <Switch
+              onValueChange={(value) => this.onPressedTraffic(value)}
+              value={this.state.trafficButton}
+            />
+          </View>
         <View style={styles.sectionSheetDetail}>
+        <Text style={styles.orderTitle}>{named}</Text>
+        <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
           <View style={styles.detailContent}>
-            <Text style={styles.orderTitle}>{named}</Text>
-            <Text style={styles.chrono}>Distant Location {distance} Km</Text>
-            <Text style={styles.eta}>ETA : {eta}</Text>
+            <Text style={styles.chrono}>Distant Location {FormatHelper.calculateDistance(distanceAPI)} Km</Text>
+            <Text style={styles.eta}>ETA :  {FormatHelper.formatETATime(durationAPI, 0)}</Text>
             <View style={styles.detail}>
               <Text style={styles.labelDetail}>Packages</Text>
               <Text style={styles.labelInfo}>{packages} box</Text>
             </View>
           </View>
+          
           <TouchableOpacity
             style={styles.buttonDetail}
             onPress={() => this.onLihatDetail()}>
@@ -264,36 +311,75 @@ class AnimatedMarkers extends React.Component {
               Delivery Detail
             </Text>
           </TouchableOpacity>
+          </View>
         </View>
-        <View style={styles.sectionSheetCordinate}>
-          <Input
-            containerStyle={styles.spatialSheetContainer}
-            inputContainerStyle={styles.spatialInput}
-            inputStyle={styles.spatialInputText}
-            value={'' + current}
-            leftIcon={() => {
-              return (
-                <View style={styles.leftLabel}>
-                  <IconEllipse height="13" width="13" fill="#F1811C" />
-                  <Text style={styles.leftLabelText}>Current</Text>
-                </View>
-              );
-            }}
-          />
-          <Input
-            containerStyle={styles.spatialSheetContainer}
-            inputContainerStyle={styles.spatialInput}
-            inputStyle={styles.spatialInputText}
-            value={'' + to}
-            leftIcon={() => {
-              return (
-                <View style={styles.leftLabel}>
-                  <IconEllipse height="13" width="13" fill="#F1811C" />
-                  <Text style={styles.leftLabelText}>To</Text>
-                </View>
-              );
-            }}
-          />
+        <View style={[styles.sectionSheetCordinate, {maxHeight: 200}]}>
+        <Input
+              containerStyle={styles.spatialSheetContainer}
+              inputContainerStyle={styles.spatialInput}
+              inputStyle={styles.spatialInputText}
+              value={current}
+              disabled={true}
+              multiline={true}
+              numberOfLines={3}
+              leftIconContainerStyle={{
+                flex: 0.4,
+                alignItems: 'flex-start',
+              }}
+              leftIcon={() => {
+                return (
+                  <View style={styles.leftLabel}>
+                    <View style={{flexDirection: 'column'}}>
+                      <IconEllipse height="13" width="13" fill="#F1811C" />
+                      <View
+                        style={{
+                          height: 40,
+                          position: 'absolute',
+                          top: 12,
+                          right: 0,
+                          left: 5,
+                          backgroundColor: '#F1811C',
+                          width: 2,
+                        }}></View>
+                    </View>
+                    <Text style={styles.leftLabelText}>Current</Text>
+                  </View>
+                );
+              }}
+            />
+            <Input
+              containerStyle={styles.spatialSheetContainer}
+              inputContainerStyle={styles.spatialInput}
+              inputStyle={styles.spatialInputText}
+              value={to}
+              multiline={true}
+              disabled={true}
+              numberOfLines={3}
+              leftIconContainerStyle={{
+                flex: 0.4,
+                alignItems: 'flex-start',
+              }}
+              leftIcon={() => {
+                return (
+                  <View style={styles.leftLabel}>
+                    <View style={{flexDirection: 'column'}}>
+                      <IconEllipse height="13" width="13" fill="#F1811C" />
+                      <View
+                        style={{
+                          height: 40,
+                          position: 'absolute',
+                          bottom: 12,
+                          right: 0,
+                          left: 5,
+                          backgroundColor: '#F1811C',
+                          width: 2,
+                        }}></View>
+                    </View>
+                    <Text style={styles.leftLabelText}>To</Text>
+                  </View>
+                );
+              }}
+            />
            <Animated.View
               style={{
                 marginHorizontal: 10,
@@ -362,11 +448,9 @@ class AnimatedMarkers extends React.Component {
                       <IconSpeech26 height="15" width="15" fill="#fff" />
                     </View>
                   )}
-                  title="Chat Client"
+                  title="Contact Client"
                   titleStyle={{color: '#fff', ...Mixins.subtitle3, lineHeight: 21}}
-                                  onPress={()=>{
-                  this.props.setBottomBar(false);
-                  this.props.navigation.navigate('Notification', { screen: 'Single' })}}
+                                  onPress={this.toggleOverlayContact}
                   buttonStyle={{backgroundColor: '#F07120'}}
                 />
               </View>
@@ -427,9 +511,7 @@ class AnimatedMarkers extends React.Component {
       this.props.setCurrentDeliveringAddress(null);
       this.props.resetDeliveryDestinationData();
       this.props.setBottomBar(true);
-      this.props.navigation.navigate('Home', {
-        screen: 'List',
-      });
+      this.props.navigation.navigate('List');
     } else {
       this.onLihatRincian({toggle: true, bottomBar: false});
     }
@@ -437,6 +519,25 @@ class AnimatedMarkers extends React.Component {
       isShowCancelOrder: false,
     });
   };
+  handlePostponeOrder = ({showPostpone}) => {
+    this.setState({
+      isShowPostponeOrder: showPostpone,
+    });
+  };
+
+  handlePostponeOrderAction = ({action, currentOrderId}) => {
+    if (action) {
+      this.props.navigation.navigate('Cancel');
+    } else {
+      if (this.props.startDelivered) {
+        this.onLihatRincian({toggle: true, bottomBar: false});
+      }
+    }
+    this.setState({
+      isShowPostponeOrder: false,
+    });
+  };
+
   render() {
     const {
       route,
@@ -450,7 +551,7 @@ class AnimatedMarkers extends React.Component {
       destinationid,
     } = this.props;
     
-    if((!this.props.isConnected && this.props.isActionQueue.length > 0) || (this.props.isConnected && this.props.stat.length === 0) ){
+    if(!this.props.isConnected && this.props.isActionQueue.length > 0 ){
       return (
         <View style={styles.container}>
           <OfflineMode/>
@@ -458,14 +559,16 @@ class AnimatedMarkers extends React.Component {
         </View>
       );
     }
-    const {current,eta,to,distance,hour} = this.props.stat[index];
+    const current = '-';
+    const to = '-';
+    const durationAPI = this.props.statAPI[index] !== undefined ? this.props.statAPI[index].durationAPI : undefined;
+    const distanceAPI = this.props.statAPI[index] !== undefined ? this.props.statAPI[index].distanceAPI : undefined;
     const {named,packages, Address} = this.props.dataPackage[index];
     return (
       <View style={StyleSheet.absoluteFill}>
       <OfflineMode/>
                 <NavigationalMap 
                 foregroundService={this.state.startForegroundService} 
-                ApplicationNavigational={this.state.ApplicationNavigational} 
                 index={this.state.index}
                 data={this.props.dataPackage}
                 markers={this.props.markers}
@@ -476,19 +579,19 @@ class AnimatedMarkers extends React.Component {
           currentPositionData !== null &&
           destinationid !== null &&
           this.state.isThirdPartyNavigational &&
-          this.state.ApplicationNavigational === null && (
+          this.props.ApplicationNavigational === null && (
             <Popup
               isVisible={this.state.isThirdPartyNavigational}
               onCancelPressed={() =>
                 this.setState({isThirdPartyNavigational: false})
               }
-              onAppPressed={({app}) =>
+              onAppPressed={(app) => {
                 this.setState({
                   isThirdPartyNavigational: false,
                   startForegroundService: true,
-                  ApplicationNavigational: app,
-                })
-              }
+                });
+                this.props.setCurrentApplicationNavigational(app);
+              }}
               onBackButtonPressed={() =>
                 this.setState({isThirdPartyNavigational: false, startForegroundService: true})
               }
@@ -532,8 +635,13 @@ class AnimatedMarkers extends React.Component {
               }
             />
           )}
+           <ContactClient
+          overlayState={this.state._visibleOverlayContact}
+          toggleOverlay={this.toggleOverlayContact}
+        />
           {toggleContainer &&
           !this.state.isShowCancelOrder &&
+          !this.state.isShowPostponeOrder &&
           startDelivered &&
           currentPositionData !== null &&
           destinationid !== null
@@ -555,7 +663,7 @@ class AnimatedMarkers extends React.Component {
               />
                 <SafeAreaInsetsContext.Consumer>
                 {(insets) => {
-                  let snapArray = [550, 300, 130];
+                  let snapArray = [600, 350, 130];
 
                
                   return (
@@ -579,7 +687,8 @@ class AnimatedMarkers extends React.Component {
             </View>
             ) }
             { !toggleContainer &&
-          !this.state.isShowCancelOrder && (
+          !this.state.isShowCancelOrder && 
+          !this.state.isShowPostponeOrder && (
               <Animated.View style={[styles.itemContainer]}>
                 {this.state.isShowSeeDetails && (
               <View
@@ -593,13 +702,20 @@ class AnimatedMarkers extends React.Component {
                         onPress={() => this.onSeeDetails(false)}
                       >
                         <XMarkIcon width="15" height="15" fill="#fff" />
-                      </TouchableOpacity><View style={styles.sectionDetail}>
+                      </TouchableOpacity>
+                      <View style={styles.sectionDetail}>
+                          <Text style={styles.orderTitle}>{named}</Text>
+                          <View
+                            style={{
+                              flex: 1,
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                            }}>
                           <View style={styles.detailContent}>
-                            <Text style={styles.orderTitle}>{named}</Text>
                             <Text style={styles.chrono}>
-                              Distant Location {distance} Km
+                              Distant Location {FormatHelper.calculateDistance(distanceAPI)} Km
                             </Text>
-                            <Text style={styles.eta}>ETA: {eta}</Text>
+                            <Text style={styles.eta}>ETA: {FormatHelper.formatETATime(durationAPI, 0)}</Text>
                             <View style={styles.detail}>
                               <Text style={styles.labelDetail}>Packages</Text>
                               <Text style={styles.labelInfo}>{packages} box</Text>
@@ -612,48 +728,111 @@ class AnimatedMarkers extends React.Component {
                               Delivery Detail
                             </Text>
                           </TouchableOpacity>
-                        </View><View style={styles.sectionCordinate}>
-                          <Input
-                            containerStyle={styles.spatialContainer}
-                            inputContainerStyle={styles.spatialInput}
-                            inputStyle={styles.spatialInputText}
-                            value={'' + current}
-                            leftIcon={() => {
-                              return (
-                                <View style={styles.leftLabel}>
-                                  <IconEllipse
-                                    height="13"
-                                    width="13"
-                                    fill="#F1811C" />
-                                  <Text style={styles.leftLabelText}>
-                                    Current
-                                  </Text>
-                                </View>
-                              );
-                            } } />
-                          <Input
-                            containerStyle={styles.spatialContainer}
-                            inputContainerStyle={styles.spatialInput}
-                            inputStyle={styles.spatialInputText}
-                            value={'' + to}
-                            leftIcon={() => {
-                              return (
-                                <View style={styles.leftLabel}>
-                                  <IconEllipse
-                                    height="13"
-                                    width="13"
-                                    fill="#F1811C" />
-                                  <Text style={styles.leftLabelText}>To</Text>
-                                </View>
-                              );
-                            } } />
+                          </View>
                         </View>
+                        <View style={styles.sectionCordinate}>
+                      <Input
+                        disabled={true}
+                        containerStyle={styles.spatialContainer}
+                        inputContainerStyle={styles.spatialInput}
+                        inputStyle={styles.spatialInputText}
+                        value={current}
+                        multiline={true}
+                        numberOfLines={3}
+                        disabled={true}
+                        disabledInputStyle={{
+                          color: 'black',
+                          textDecorationColor: '#000',
+                        }}
+                        leftIconContainerStyle={{
+                          flex: 0.4,
+                          alignItems: 'flex-start',
+                        }}
+                        leftIcon={() => {
+                          return (
+                            <View style={styles.leftLabel}>
+                              <View style={{flexDirection: 'column'}}>
+                                <IconEllipse
+                                  height="13"
+                                  width="13"
+                                  fill="#F1811C"
+                                />
+                                <View
+                                  style={{
+                                    height: 40,
+                                    position: 'absolute',
+                                    top: 12,
+                                    right: 0,
+                                    left: 5,
+                                    backgroundColor: '#F1811C',
+                                    width: 2,
+                                  }}
+                                />
+                              </View>
+                              <Text style={styles.leftLabelText}>Current</Text>
+                            </View>
+                          );
+                        }}
+                      />
+                      <Input
+                        disabled={true}
+                        containerStyle={styles.spatialContainer}
+                        inputContainerStyle={styles.spatialInput}
+                        inputStyle={styles.spatialInputText}
+                        value={to}
+                        multiline={true}
+                        numberOfLines={3}
+                        // disabled={true}
+                        disabledInputStyle={{
+                          color: '#000',
+                          textDecorationColor: '#000',
+                        }}
+                        leftIconContainerStyle={{
+                          flex: 0.4,
+                          alignItems: 'flex-start',
+                        }}
+                        leftIcon={() => {
+                          return (
+                            <View style={styles.leftLabel}>
+                              <View style={{flexDirection: 'column'}}>
+                                <IconEllipse
+                                  height="13"
+                                  width="13"
+                                  fill="#F1811C"
+                                />
+                                <View
+                                  style={{
+                                    height: 40,
+                                    position: 'absolute',
+                                    bottom: 12,
+                                    right: 0,
+                                    left: 5,
+                                    backgroundColor: '#F1811C',
+                                    width: 2,
+                                  }}
+                                />
+                              </View>
+                              <Text style={styles.leftLabelText}>To</Text>
+                            </View>
+                          );
+                        }}
+                      />
+                    </View>
                         <View style={styles.sectionButton}>
                           <Button
                             buttonStyle={styles.navigationButton}
                             titleStyle={styles.deliveryText}
                             title="Start delivery"
                             onPress={() => this.onLihatRincian({ toggle: true, bottomBar: false })} />
+                              <Button
+                        containerStyle={{marginTop: 10}}
+                        buttonStyle={styles.buttonPostpone}
+                        titleStyle={styles.detailPostpone}
+                        onPress={() =>
+                          this.handlePostponeOrder({showPostpone: true})
+                        }
+                        title="Postpone"
+                      />
                         </View>
                     </Animated.View>
                     </View>
@@ -664,6 +843,7 @@ class AnimatedMarkers extends React.Component {
             flexShrink: 1,
             zIndex: 1,
             elevation: 1,
+            backgroundColor: 'white',
           }}
           // onMoveShouldSetPanResponder={this.onMoveShouldSetPanResponder}
           >
@@ -720,7 +900,11 @@ class AnimatedMarkers extends React.Component {
                     horizontal
                     data={this.props.dataPackage}
                     renderItem={this.renderCard}
-                    contentContainerStyle = {{backgroundColor: 'white'}}
+                    contentContainerStyle={{
+                      backgroundColor: 'white',
+                      paddingBottom: 10,
+                      paddingTop: 5,
+                    }}
                     keyExtractor={(item, index) => index}
                     initialScrollIndex={this.state.index}
                     onScroll={(e) => {
@@ -733,7 +917,7 @@ class AnimatedMarkers extends React.Component {
               </Animated.View>
             )}
         {this.state.isShowCancelOrder &&
-          <View style={styles.overlayContainer}>
+         ( <View style={styles.overlayContainer}>
             <View style={styles.cancelOrderSheet}>
               <Text style={styles.cancelText}>
                 Are you sure you want to cancel/postpone the deliver?
@@ -756,8 +940,41 @@ class AnimatedMarkers extends React.Component {
                 </TouchableOpacity>
               </View>
             </View>
-          </View>
+          </View>)
         }
+          {this.state.isShowPostponeOrder && (
+          <View style={styles.overlayContainer}>
+            <View style={styles.cancelOrderSheet}>
+              <Text style={styles.cancelText}>
+                Are you sure you want to postpone the delivery?
+              </Text>
+              <View style={styles.cancelButtonContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.cancelButton,
+                    {borderWidth: 1, borderColor: '#ABABAB'},
+                  ]}
+                  onPress={() =>
+                    this.handlePostponeOrderAction({action: false})
+                  }>
+                  <Text style={[styles.cancelText, {color: '#6C6B6B'}]}>
+                    No
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.cancelButton, {backgroundColor: '#F07120'}]}
+                  onPress={() =>
+                    this.handlePostponeOrderAction({
+                      action: true,
+                      currentOrderId: index,
+                    })
+                  }>
+                  <Text style={[styles.cancelText, {color: '#fff'}]}>Yes</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
       </View>
     );
   }
@@ -862,7 +1079,7 @@ const styles = StyleSheet.create({
     width: screen.width - ITEM_SPACING * 4,
     marginHorizontal: (ITEM_SPACING * 4 )/2,
     marginBottom:10,
-    height: 220,
+    height: (screen.height * 47) / 100,
     backgroundColor: 'white',
     borderRadius: 5,
     borderColor: '#000',
@@ -879,18 +1096,19 @@ const styles = StyleSheet.create({
   },
   sectionDetail: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
+    marginTop: 10,
     marginHorizontal: 20,
   },
   sectionSheetDetail: {
     flexShrink: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
     marginHorizontal: 20,
   },
   detailContent: {
     flex: 1,
     flexDirection: 'column',
-    marginTop: 19,
+    justifyContent:'center',
   },
   buttonDetail: {
     flexShrink: 1,
@@ -900,7 +1118,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#F1811C',
     alignItems: 'center',
     height: 35,
-    marginTop: 23,
+  },
+  buttonPostpone: {
+    flexShrink: 1,
+    justifyContent: 'center',
+    borderRadius: 5,
+    borderColor: '#D5D5D5',
+    borderWidth: 1,
+    backgroundColor: '#ffffff',
+    alignItems: 'center',
+  },
+  detailPostpone: {
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    fontWeight: '600',
+    color: '#F07120',
   },
   detailTitle: {
 ...Mixins.small3,
@@ -908,23 +1140,21 @@ lineHeight: 12,
     fontWeight: '600',
     color: 'white',
   },
+ 
   sectionCordinate: {
     marginHorizontal: 10,
-    marginTop: 23,
-    flex: 1,
+    flex: 2,
     flexDirection: 'column',
-    alignContent: 'flex-end',
   },
   sectionSheetCordinate: {
-    marginHorizontal: 10,
-    marginTop: 23,
+    paddingHorizontal: 10,
+    marginTop: 15,
     flexShrink: 1,
     flexDirection: 'column',
     alignContent: 'flex-end',
   },
   spatialContainer: {
     flexShrink: 1,
-    marginBottom: 16,
   },
   spatialSheetContainer: {
     flexShrink: 1,
@@ -933,12 +1163,15 @@ lineHeight: 12,
     backgroundColor: '#F3F3F3',
     borderRadius: 5,
     paddingHorizontal: 15,
-    height: 25,
+    height: ((screen.height * 47) / 100) / 5,
     borderBottomWidth: 0,
   },
   spatialInputText: {
-...Mixins.small3,
-lineHeight: 12,
+    ...Mixins.small3,
+    lineHeight: 15,
+    fontWeight: '400',
+    paddingVertical: 0,
+    textAlignVertical: 'top',
   },
   sectionContentTitle: {
     flex: 1,
@@ -1148,6 +1381,12 @@ lineHeight:15,
     alignItems: 'center',
     borderRadius: 5,
   },
+  trafficButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginHorizontal: 10,
+  },
 });
 
 
@@ -1169,6 +1408,8 @@ function mapStateToProps(state) {
     destinationid : state.originReducer.deliveryDestinationData.destinationid,
     route_id: state.originReducer.route.id,
     currentDeliveringAddress: state.originReducer.currentDeliveringAddress,
+    ApplicationNavigational:
+    state.originReducer.filters.ApplicationNavigational,
   };
 }
 
@@ -1188,6 +1429,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     resetDeliveryDestinationData: () => {
       return dispatch({type: 'DeliveryDestinationData', payload: null});
+    },
+    setCurrentApplicationNavigational: (data) => {
+      return dispatch({type: 'CurrentApplicationNavigational', payload: data});
     },
   };
 };

@@ -75,6 +75,37 @@ export default class Distance {
     }
   };
   
+  //region by total route
+  static regionByRoute(ASPECT_RATIO:number, route? : L.LatLng[]){
+    if(route !== undefined){
+      
+    let mobileBOX = L.polyline(route).getBounds().pad(0.2);
+      
+      //bottom left and bottom right region
+      let bottomleft = mobileBOX.getSouthWest();
+      let bottomright = mobileBOX.getSouthEast();
+      let bound = bottomright.distanceTo(bottomleft);
+      //increase scale
+      if(bound < 20000){
+        //for singapore only
+       mobileBOX = mobileBOX.pad(1.2);
+      }
+    const lat = mobileBOX.getCenter().lat;
+    const lng = mobileBOX.getCenter().lng;
+    const northeastLat = mobileBOX.getNorthEast().lat;
+    const southwestLat = mobileBOX.getSouthWest().lat
+    const latDelta = northeastLat - southwestLat;
+    const lngDelta = latDelta * ASPECT_RATIO;
+
+    return {
+      latitude: lat,
+      longitude: lng,
+      latitudeDelta: latDelta,
+      longitudeDelta: lngDelta,
+    }
+    }
+    return false;
+  }
       //--- find closest point from route within latest geolocation
       //--- trim route from latest geolocation to destination
       //--- check if trimmed route are same with current camera box rectangular (destination x geolocation)
