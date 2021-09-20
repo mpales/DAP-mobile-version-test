@@ -17,10 +17,7 @@ import {
 } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import BottomTabItem from '@react-navigation/bottom-tabs/src/views/BottomTabItem';
-import {
-  createBottomTabNavigator,
-  BottomTabBar,
-} from '@react-navigation/bottom-tabs';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
@@ -29,21 +26,21 @@ import {
 } from '@react-navigation/drawer';
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
-import WMS from './warehouse-management';
-import Notification from './notification';
+import CCM from '.';
+import Notification from '../notification';
 import {Button, Avatar} from 'react-native-elements';
 import IconHome7Mobile from '../../assets/icon/iconmonstr-home-7mobile.svg';
-import WarehouseRelocationIcon from '../../assets/icon/warehouse-mobile.svg';
+import IconNote19Mobile from '../../assets/icon/iconmonstr-shipping-box-8mobile.svg';
 import IconBubble26Mobile from '../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import IconGear2Mobile from '../../assets/icon/iconmonstr-gear-2mobile.svg';
 import IconBell2Mobile from '../../assets/icon/iconmonstr-bell-2mobile.svg';
 import IconTime17Mobile from '../../assets/icon/iconmonstr-time-17 1mobile.svg';
 import IconLogout2Mobile from '../../assets/icon/iconmonstr-log-out-2 2mobile.svg';
-import Mixins from '../../mixins';
-import {ReactReduxContext} from 'react-redux';
-import {popToLogout} from '../../component/helper/persist-login';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {postData} from '../../component/helper/network';
+import {popToLogout} from '../../../component/helper/persist-login';
+import Mixins from '../../../mixins';
+import {ReactReduxContext} from 'react-redux';
+import {postData} from '../../../component/helper/network';
 const screen = Dimensions.get('window');
 const Drawer = createDrawerNavigator();
 
@@ -115,6 +112,236 @@ class WarehouseNavigator extends React.Component {
       'hardwareBackPress',
       () => {
         this._refreshFromBackHandle();
+        if (this.props.keyStack === 'List' && this.props.indexBottomBar === 0) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'WarehouseIn',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'Manifest' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'List'});
+          return true;
+        } else if (
+          this.props.keyStack === 'ReceivingDetail' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'List'});
+          return true;
+        } else if (
+          prevProps.keyStack === 'Manifest' &&
+          this.props.keyStack === 'Barcode' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'});
+          return true;
+        } else if (
+          prevProps.keyStack === 'WarehouseIn' &&
+          this.props.keyStack === 'Barcode' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'WarehouseIn',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'Barcode' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'});
+          return true;
+        } else if (
+          this.props.keyStack === 'ReportManifest' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'});
+          return true;
+        } else if (
+          this.props.keyStack === 'ItemDetail' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'});
+          return true;
+        } else if (
+          this.props.keyStack === 'ItemTransitDetail' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'});
+          return true;
+        } else if (
+          this.props.keyStack === 'ItemReportDetail' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'ItemDetail',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'ManualInput' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'});
+          return true;
+        } else if (
+          this.props.keyStack === 'containerDetail' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'});
+          return true;
+        } else if (
+          this.props.keyStack === 'newItem' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'});
+          return true;
+        } else if (
+          prevProps.keyStack === 'ReceivingDetail' &&
+          this.props.keyStack === 'SingleCamera' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'ReceivingDetail',
+            params: {submitPhoto: false},
+          });
+          return true;
+        } else if (
+          prevProps.keyStack === 'ReportManifest' &&
+          this.props.keyStack === 'SingleCamera' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'ReportManifest',
+            params: {submitPhoto: false},
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'PalletScanner' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PalletDetails',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'POSMCameraMulti' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'Barcode',
+            params: {upload: false},
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'PalletDetails' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PalletList',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'PalletList' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'WarehouseIn',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'ListSupervisor' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'WarehouseIn',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'ManifestSupervisor' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('SupervisorMode', {
+            screen: 'ListSupervisor',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'PhotosDraftSPV' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('SupervisorMode', {
+            screen: 'ManifestSupervisor',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'UpdatePhotosSPV' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('SupervisorMode', {
+            screen: 'ManifestSupervisor',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'ReportDetailsSPV' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('SupervisorMode', {
+            screen: 'ManifestSupervisor',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'IVASDetailsSPV' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('SupervisorMode', {
+            screen: 'ManifestSupervisor',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'UpdateIVAS' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('SupervisorMode', {
+            screen: 'IVASDetailsSPV',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'ManifestDetails' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'ReceivingDetail',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'PhotosDraft' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('DetailsDraft', {
+            screen: 'ManifestDetails',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'ItemDraftDetails' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('DetailsDraft', {
+            screen: 'ManifestDetails',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'CameraMulti' &&
+          this.props.indexBottomBar === 0
+        ) {
+          return false;
+        } else if (
+          this.props.keyStack === 'ItemTransitDraftDetail' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('DetailsDraft', {
+            screen: 'ManifestDetails',
+          });
+          return true;
+        }
         return false;
       },
     );
@@ -123,13 +350,14 @@ class WarehouseNavigator extends React.Component {
   _refreshFromBackHandle = () => {
     const interactionPromise = InteractionManager.runAfterInteractions(() => {
       if (this.props.keyStack === 'MenuWarehouse') {
-        this.props.setBottomBar(false);
+        this.props.setBottomBar(true);
         if (this._backHandlerRegisterToBottomBar !== null) {
           this._backHandlerRegisterToBottomBar.remove();
         }
-      } else if (
+      }
+      if (
         this.props.indexBottomBar === 0 &&
-        this.props.keyStack !== 'MenuWarehouse'
+        this.props.keyStack === 'WarehouseIn'
       ) {
         this.props.setBottomBar(true);
       }
@@ -140,7 +368,7 @@ class WarehouseNavigator extends React.Component {
         this.props.keyStack === 'ReceivingDetail' &&
         this.props.indexBottomBar === 0
       ) {
-        this.props.setBottomBar(true);
+        this.props.setBottomBar(false);
       }
       if (
         this.props.keyStack === 'Manifest' &&
@@ -170,13 +398,13 @@ class WarehouseNavigator extends React.Component {
         this.props.keyStack === 'ReportManifest' &&
         this.props.indexBottomBar === 0
       ) {
-        this.props.setBottomBar(true);
+        this.props.setBottomBar(false);
       }
       if (
         this.props.keyStack === 'ManualInput' &&
         this.props.indexBottomBar === 0
       ) {
-        this.props.setBottomBar(true);
+        this.props.setBottomBar(false);
       }
       if (this.props.keyStack === 'List' && this.props.indexBottomBar === 1) {
         this.props.setBottomBar(true);
@@ -184,10 +412,122 @@ class WarehouseNavigator extends React.Component {
       if (this.props.keyStack === 'Chat' && this.props.indexBottomBar === 1) {
         this.props.setBottomBar(false);
       }
+      if (
+        this.props.keyStack === 'PalletScanner' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'PalletDetails' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'PalletList' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'ListSupervisor' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'ManifestSupervisor' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'PhotosDraftSPV' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+
+      if (
+        this.props.keyStack === 'UpdatePhotosSPV' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+
+      if (
+        this.props.keyStack === 'ReportDetailsSPV' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+
+      if (
+        this.props.keyStack === 'IVASDetailsSPV' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+
+      if (
+        this.props.keyStack === 'UpdateIVAS' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+
+      if (
+        this.props.keyStack === 'ManifestDetails' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(true);
+      }
+      if (
+        this.props.keyStack === 'CameraMulti' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'enlargeImage' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'ItemDraftDetails' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'UpdatePhotos' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'ItemTransitDraftDetail' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'POSMEnlargeImage' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'POSMCameraMulti' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
     });
     return () => interactionPromise.cancel();
   };
-
   drawerLogout = async () => {
     await postData('/auth/logout');
     this.props.removeJwtToken(null);
@@ -366,8 +706,8 @@ class WarehouseNavigator extends React.Component {
   };
   deliveryTab = createCompatNavigatorFactory(createBottomTabNavigator)(
     {
-      Management: {
-        screen: WMS,
+      Inbound: {
+        screen: CCM,
         navigationOptions: ({navigation}) => ({
           tabBarIcon: ({color, focused}) => (
             <Button
@@ -377,10 +717,10 @@ class WarehouseNavigator extends React.Component {
                   : {backgroundColor: 'transparent'}
               }
               onPress={() => {
-                navigation.navigate('Management', {screen: 'Warehouse'});
+                navigation.navigate('Inbound', {screen: 'WarehouseIn'});
               }}
               icon={() => (
-                <WarehouseRelocationIcon height="22" width="24" fill={color} />
+                <IconNote19Mobile height="22" width="24" fill={color} />
               )}
             />
           ),

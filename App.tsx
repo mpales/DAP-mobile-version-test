@@ -46,7 +46,7 @@ import {
   refreshLogin,
   setRootParams,
 } from './component/helper/persist-login';
-import MenuWarehouse from './router/warehouse/detail/menu';
+import MenuWarehouse from './router/warehouse/detail/warehouse-menu';
 import LogoLarge from './assets/dap_logo_hires1-e1544435829468 5large.svg';
 enableScreens(false);
 class App extends React.Component<IProps, IState> {

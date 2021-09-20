@@ -29,21 +29,21 @@ import {
 } from '@react-navigation/drawer';
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
-import WMS from './warehouse-management';
-import Notification from './notification';
+import OUTBOUND from './index';
+import Notification from '../notification';
 import {Button, Avatar} from 'react-native-elements';
 import IconHome7Mobile from '../../assets/icon/iconmonstr-home-7mobile.svg';
-import WarehouseRelocationIcon from '../../assets/icon/warehouse-mobile.svg';
+import IconNote19Mobile from '../../assets/icon/iconmonstr-shipping-box-9mobile.svg';
 import IconBubble26Mobile from '../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import IconGear2Mobile from '../../assets/icon/iconmonstr-gear-2mobile.svg';
 import IconBell2Mobile from '../../assets/icon/iconmonstr-bell-2mobile.svg';
 import IconTime17Mobile from '../../assets/icon/iconmonstr-time-17 1mobile.svg';
 import IconLogout2Mobile from '../../assets/icon/iconmonstr-log-out-2 2mobile.svg';
-import Mixins from '../../mixins';
+import Mixins from '../../../mixins';
 import {ReactReduxContext} from 'react-redux';
-import {popToLogout} from '../../component/helper/persist-login';
+import {popToLogout} from '../../../component/helper/persist-login';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {postData} from '../../component/helper/network';
+import {postData} from '../../../component/helper/network';
 const screen = Dimensions.get('window');
 const Drawer = createDrawerNavigator();
 
@@ -115,6 +115,67 @@ class WarehouseNavigator extends React.Component {
       'hardwareBackPress',
       () => {
         this._refreshFromBackHandle();
+        if (
+          this.props.keyStack === 'WarehouseOut' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('MenuWarehouse');
+          return true;
+        } else if (
+          this.props.keyStack === 'Task' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Outbound', {
+            screen: 'WarehouseOut',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'List' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Outbound', {screen: 'Task'});
+          return true;
+        } else if (
+          this.props.keyStack === 'Barcode' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Outbound', {screen: 'List'});
+          return true;
+        } else if (
+          this.props.keyStack === 'ReportManifest' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Outbound', {screen: 'List'});
+          return true;
+        } else if (
+          this.props.keyStack === 'ItemDetail' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Outbound', {screen: 'List'});
+          return true;
+        } else if (
+          this.props.keyStack === 'ItemReportDetail' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Outbound', {
+            screen: 'ItemDetail',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'ManualInput' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Outbound', {screen: 'List'});
+          return true;
+        } else if (
+          this.props.keyStack === 'SingleCamera' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Outbound', {
+            screen: 'ReportManifest',
+          });
+          return true;
+        }
         return false;
       },
     );
@@ -122,18 +183,13 @@ class WarehouseNavigator extends React.Component {
 
   _refreshFromBackHandle = () => {
     const interactionPromise = InteractionManager.runAfterInteractions(() => {
-      if (this.props.keyStack === 'MenuWarehouse') {
+      if (this.props.keyStack === 'WarehouseOut') {
         this.props.setBottomBar(false);
         if (this._backHandlerRegisterToBottomBar !== null) {
           this._backHandlerRegisterToBottomBar.remove();
         }
-      } else if (
-        this.props.indexBottomBar === 0 &&
-        this.props.keyStack !== 'MenuWarehouse'
-      ) {
-        this.props.setBottomBar(true);
       }
-      if (this.props.keyStack === 'List' && this.props.indexBottomBar === 0) {
+      if (this.props.keyStack === 'Task' && this.props.indexBottomBar === 0) {
         this.props.setBottomBar(true);
       }
       if (
@@ -142,11 +198,8 @@ class WarehouseNavigator extends React.Component {
       ) {
         this.props.setBottomBar(true);
       }
-      if (
-        this.props.keyStack === 'Manifest' &&
-        this.props.indexBottomBar === 0
-      ) {
-        this.props.setBottomBar(false);
+      if (this.props.keyStack === 'List' && this.props.indexBottomBar === 0) {
+        this.props.setBottomBar(true);
       }
       if (
         this.props.keyStack === 'Barcode' &&
@@ -366,8 +419,8 @@ class WarehouseNavigator extends React.Component {
   };
   deliveryTab = createCompatNavigatorFactory(createBottomTabNavigator)(
     {
-      Management: {
-        screen: WMS,
+      Outbound: {
+        screen: OUTBOUND,
         navigationOptions: ({navigation}) => ({
           tabBarIcon: ({color, focused}) => (
             <Button
@@ -377,10 +430,10 @@ class WarehouseNavigator extends React.Component {
                   : {backgroundColor: 'transparent'}
               }
               onPress={() => {
-                navigation.navigate('Management', {screen: 'Warehouse'});
+                navigation.navigate('Outbound', {screen: 'WarehouseOut'});
               }}
               icon={() => (
-                <WarehouseRelocationIcon height="22" width="24" fill={color} />
+                <IconNote19Mobile height="22" width="24" fill={color} />
               )}
             />
           ),
