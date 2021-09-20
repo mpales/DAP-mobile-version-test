@@ -12,36 +12,31 @@ import React from 'react';
 import configureStore from './Store';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  ActivityIndicator,
-  Linking,
-  Platform,
   StyleSheet,
-  ScrollView,
   View,
   StatusBar,
   TouchableOpacity,
   Text,
   Keyboard,
-  InteractionManager
+  InteractionManager,
 } from 'react-native';
-import {
-  Image, Overlay, Button
-} from 'react-native-elements';
-import Loading from './component/loading/loading';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Signature from './Browser';
-import {NavigationContainer, TabRouter  } from '@react-navigation/native';
+import {NavigationContainer, TabRouter} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import Mixins from './mixins';
 import {LoginInput} from './input';
 import {FadeInView} from './animated';
 import {AnyAction, Dispatch} from 'redux';
-import {connect, Provider, shallowEqual, useSelector ,useDispatch} from 'react-redux';
+import {connect, Provider, useSelector, useDispatch} from 'react-redux';
 import Beranda from './router/details';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {enableScreens} from 'react-native-screens';
-import { useIsConnected, ReduxNetworkProvider, offlineActionCreators} from 'react-native-offline';
-import { PersistGate } from 'redux-persist/integration/react';
+import {
+  ReduxNetworkProvider,
+  offlineActionCreators,
+} from 'react-native-offline';
+import {PersistGate} from 'redux-persist/integration/react';
 import {postData} from './component/helper/network';
 import Checkmark from './assets/icon/iconmonstr-check-mark-8mobile.svg';
 import {
@@ -49,15 +44,15 @@ import {
   navigationRef,
   switchLogged,
   refreshLogin,
-  setRootParams
+  setRootParams,
 } from './component/helper/persist-login';
-import MenuWarehouse from './router/warehouse/detail/menu';
+import MenuWarehouse from './router/warehouse/detail/warehouse-menu';
 import LogoLarge from './assets/dap_logo_hires1-e1544435829468 5large.svg';
 enableScreens(false);
 class App extends React.Component<IProps, IState> {
   keyboardDidShowListener: any;
   keyboardDidHideListener: any;
-  constructor(props: IProps | Readonly<IProps>){
+  constructor(props: IProps | Readonly<IProps>) {
     super(props);
     this.state = {
       email: '',
@@ -76,14 +71,7 @@ class App extends React.Component<IProps, IState> {
       'keyboardDidHide',
       this._keyboardDidHide,
     );
-    this.webWorker.bind(this);
-    this.webWorker();
   }
-
-  componentDidMount(){
-  }
-
-  webWorker() {}
 
   _keyboardDidShow = () => {
     this.setState({
@@ -101,9 +89,9 @@ class App extends React.Component<IProps, IState> {
 
   onChangeEmail(text: any) {
     this.setState({email: text});
-    this.clearError('password');
+    this.clearError('email');
   }
-  
+
   onChangePassword(text: any) {
     this.setState({password: text});
     this.clearError('password');
@@ -122,9 +110,7 @@ class App extends React.Component<IProps, IState> {
     }
   };
 
-  onSubmited(e: any) {
-  }
-  onSubmitToBeranda = async(e: any) => {
+  onSubmitToBeranda = async (e: any) => {
     let body = {
       email: this.state.email,
       password: this.state.password,
@@ -149,7 +135,14 @@ class App extends React.Component<IProps, IState> {
         result.userRights.includes('m12')
       ) {
         type = 'Warehouse';
-        if( result.userRights.includes('m6') || result.userRights.includes('m7') || result.userRights.includes('m8')  || result.userRights.includes('m9')  || result.userRights.includes('m11') || result.userRights.includes('m12')  ){
+        if (
+          result.userRights.includes('m6') ||
+          result.userRights.includes('m7') ||
+          result.userRights.includes('m8') ||
+          result.userRights.includes('m9') ||
+          result.userRights.includes('m11') ||
+          result.userRights.includes('m12')
+        ) {
           role = 'SPV';
         } else {
           role = 'default';
@@ -177,14 +170,14 @@ class App extends React.Component<IProps, IState> {
       refreshLogin();
     } else if (result.errors) {
       this.setState({
-       errors: result.errors,
-       });
-     } else {
-     this.setState({
-       errors: result,
-       });
-     }
-  }
+        errors: result.errors,
+      });
+    } else {
+      this.setState({
+        errors: result,
+      });
+    }
+  };
   render() {
     const {errors} = this.state;
     return (
@@ -193,8 +186,7 @@ class App extends React.Component<IProps, IState> {
         <Signature deviceSignature={this.props.deviceSignature} />
         <View style={styles.body}>
           <View style={styles.sectionContainerIMG}>
-
-            <LogoLarge width="179" height="91" style={{alignSelf:'center'}}/>
+            <LogoLarge width="179" height="91" style={{alignSelf: 'center'}} />
           </View>
           <FadeInView
             transition={this.state.transitionTo}
@@ -204,7 +196,6 @@ class App extends React.Component<IProps, IState> {
               value={this.state.email}
               placeholder="Masukan Email / Username"
               onChangeText={this.onChangeEmail.bind(this)}
-              onSubmitEditing={this.onSubmited.bind(this)}
               secureTextEntry={false}
             />
             <View style={styles.errorContainer}>
@@ -230,48 +221,46 @@ class App extends React.Component<IProps, IState> {
               value={this.state.password}
               placeholder="password"
               onChangeText={this.onChangePassword.bind(this)}
-              onSubmitEditing={this.onSubmited.bind(this)}
               secureTextEntry={true}
             />
-            <View style={[styles.errorContainer,{flexShrink:1}]}>
-                {errors.length > 0 && typeof errors === 'object' ? (
-                  errors.map((err: Error, i) => {
-                    if (err.param === 'password') {
-                      return (
-                        <Text
-                          key={i}
-                          style={[
-                            styles.labelText,
-                            {color: 'red', textAlign: 'left'},
-                          ]}>
-                          {err.msg}
-                        </Text>
-                      );
-                    }
-                  })
-                ) : (
-                  <Text
-                    style={[
-                      styles.labelText,
-                      {color: 'red', textAlign: 'left'},
-                    ]}>
-                    {errors}
-                  </Text>
-                )}
-               
-              </View>
-            <View style={{flexShrink:1,}}>
+            <View style={[styles.errorContainer, {flexShrink: 1}]}>
+              {errors.length > 0 && typeof errors === 'object' ? (
+                errors.map((err: Error, i) => {
+                  if (err.param === 'password') {
+                    return (
+                      <Text
+                        key={i}
+                        style={[
+                          styles.labelText,
+                          {color: 'red', textAlign: 'left'},
+                        ]}>
+                        {err.msg}
+                      </Text>
+                    );
+                  }
+                })
+              ) : (
+                <Text
+                  style={[styles.labelText, {color: 'red', textAlign: 'left'}]}>
+                  {errors}
+                </Text>
+              )}
+            </View>
+            <View style={{flexShrink: 1}}>
               <Text style={styles.buttonTextForgot}>Forgot password?</Text>
             </View>
-
           </FadeInView>
 
           <View style={styles.footer}>
             <TouchableOpacity
               style={styles.button}
               onPress={this.onSubmitToBeranda.bind(this)}
-              disabled={(this.state.email.length !== 0 && this.state.password.length !== 0) ? false : true}
-              >
+              disabled={
+                this.state.email.length !== 0 &&
+                this.state.password.length !== 0
+                  ? false
+                  : true
+              }>
               <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
           </View>
@@ -314,12 +303,11 @@ const styles = StyleSheet.create({
     color: Colors.white,
     ...Mixins.h5,
     lineHeight: 27,
-
   },
   buttonTextForgot: {
     color: Colors.white,
     ...Mixins.body1,
-    lineHeight:21,
+    lineHeight: 21,
   },
   button: {
     flex: 0,
@@ -389,9 +377,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F07120',
     borderRadius: 5,
   },
-  errorContainer: {
- 
-  },
+  errorContainer: {},
   labelText: {
     color: Colors.white,
     ...Mixins.body1,
@@ -458,7 +444,7 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
     onChange: (text: any) => {
       return {type: 'todos', payload: text};
     },
-    deviceSignature: (text: string) => {  
+    deviceSignature: (text: string) => {
       return dispatch({type: 'DeviceSignature', payload: text});
     },
     saveJwtToken: (token: string) => {
@@ -473,7 +459,7 @@ const Stack = createStackNavigator();
 const NavigationWrapper = (props) => {
   const isConnected = useSelector((state) => state.network.isConnected);
   const isJWTExist = useSelector((state) => state.originReducer.jwtToken);
-  const roleType = useSelector((state)=> state.originReducer.userRole.type)
+  const roleType = useSelector((state) => state.originReducer.userRole.type);
   const dispatch = useDispatch();
   const [visible, setVisible] = React.useState(false);
   const {changeQueueSemaphore} = offlineActionCreators;
@@ -488,16 +474,19 @@ const NavigationWrapper = (props) => {
         if (state.routes[state.index].name === 'Details' && !isJWTExist) {
           switchLogged('Login', {});
         } else if (state.routes[state.index].name === 'Login' && isJWTExist) {
-          if(roleType === 'Warehouse'){
+          if (roleType === 'Warehouse') {
             switchLogged('MenuWarehouse', {});
           } else {
             switchLogged('Details', {});
           }
         }
-        if(state.routes[state.index].params !== undefined && state.routes[state.index].params.hardReset !== undefined){
-          if(state.routes[state.index].params.hardReset === true){
-            dispatch({type:'logout'})
-            setRootParams('hardReset',false);
+        if (
+          state.routes[state.index].params !== undefined &&
+          state.routes[state.index].params.hardReset !== undefined
+        ) {
+          if (state.routes[state.index].params.hardReset === true) {
+            dispatch({type: 'logout'});
+            setRootParams('hardReset', false);
           }
         }
       });
@@ -526,14 +515,13 @@ const NavigationWrapper = (props) => {
 };
 
 const Root = (props) => {
-
   const [isLoading, setLoading] = React.useState(true);
   const isLoggedIn = React.useRef(null);
   const setLoggedin = React.useCallback((store) => {
     let bool = store.getState().originReducer.filters.logged;
-    let roleType = store.getState().originReducer.userRole.type
+    let roleType = store.getState().originReducer.userRole.type;
     if (bool) {
-      if(roleType === 'Warehouse'){
+      if (roleType === 'Warehouse') {
         setRoute('MenuWarehouse');
       } else {
         setRoute('Details');
@@ -555,42 +543,42 @@ const Root = (props) => {
   if (isLoading) return null;
   return (
     <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-      <ReduxNetworkProvider>
-      <NavigationWrapper>
-        <Stack.Navigator
-          initialRouteName={routeName}
-          headerMode="screen"
-          screenOptions={{
-            headerTintColor: 'white',
-            headerStyle: {backgroundColor: 'tomato'},
-            headerShown: false,
-            animationEnabled: false, // hack to fix android 10-12 crash with react-native-screens
-          }}>
-          <Stack.Screen
-            name="Login"
-            component={ConnectedApp}
-            options={{
-              title: 'Awesome app',
-            }}
-          />
-          <Stack.Screen
-            name="Details"
-            component={Beranda}
-            options={{
-              title: 'Beranda app',
-            }}
-          />
-          <Stack.Screen
-            name="MenuWarehouse"
-            component={MenuWarehouse}
-            options={{
-              title: 'Beranda app',
-            }}
-          />
-        </Stack.Navigator>
-      </NavigationWrapper>
-      </ReduxNetworkProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <ReduxNetworkProvider>
+          <NavigationWrapper>
+            <Stack.Navigator
+              initialRouteName={routeName}
+              headerMode="screen"
+              screenOptions={{
+                headerTintColor: 'white',
+                headerStyle: {backgroundColor: 'tomato'},
+                headerShown: false,
+                animationEnabled: false, // hack to fix android 10-12 crash with react-native-screens
+              }}>
+              <Stack.Screen
+                name="Login"
+                component={ConnectedApp}
+                options={{
+                  title: '',
+                }}
+              />
+              <Stack.Screen
+                name="Details"
+                component={Beranda}
+                options={{
+                  title: '',
+                }}
+              />
+              <Stack.Screen
+                name="MenuWarehouse"
+                component={MenuWarehouse}
+                options={{
+                  title: '',
+                }}
+              />
+            </Stack.Navigator>
+          </NavigationWrapper>
+        </ReduxNetworkProvider>
       </PersistGate>
     </Provider>
   );

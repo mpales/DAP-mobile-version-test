@@ -8,36 +8,38 @@ import Mixins from './mixins';
 
 const passwordToggleOnFocus = (initialState = false) => {
   const [show, toggle] = React.useState(initialState);
-  
-  const eventHandlers = React.useMemo(() => ({
-    onPressIn: () => toggle(true),
-    onPressOut: () => toggle(false),
-  }), []);
+
+  const eventHandlers = React.useMemo(
+    () => ({
+      onPressIn: () => toggle(true),
+      onPressOut: () => toggle(false),
+    }),
+    [],
+  );
 
   return [show, eventHandlers];
-}
+};
 
 const LoginInput = ({
   label,
   onChangeText,
-  onSubmitEditing,
   secureTextEntry,
   value,
   placeholder,
 }) => {
   const [show, eventHandlers] = passwordToggleOnFocus();
-  const [textEntry,setTextToggle] = React.useState((secureTextEntry ?? false));
-  React.useLayoutEffect(()=>{
-    if((secureTextEntry ?? false) !== false){
-      if(show){
+  const [textEntry, setTextToggle] = React.useState(secureTextEntry ?? false);
+  React.useLayoutEffect(() => {
+    if ((secureTextEntry ?? false) !== false) {
+      if (show) {
         setTextToggle(false);
       } else {
         setTextToggle(true);
       }
     }
-  },[show]);
+  }, [show]);
   return (
-      <Input
+    <Input
       placeholder={placeholder}
       inputStyle={styles.inputStyle}
       inputContainerStyle={styles.containerInputStyle}
@@ -45,23 +47,25 @@ const LoginInput = ({
       containerStyle={styles.containerStyle}
       rightIconContainerStyle={styles.rightIcon}
       leftIconContainerStyle={Mixins.lineInputDefaultLeftIcon}
-        value={value}
-        autoCorrect={false}
-        onChangeText={onChangeText}
-        onSubmitEditing={onSubmitEditing}
-        secureTextEntry={textEntry}
-        label={label}
-        rightIcon={() => {
-          if((secureTextEntry ?? false) !== false){
-            return (
-              <TouchableOpacity {...eventHandlers}>
-                {show ? <IconEye4 height={25} width={25} fill='#ccc' /> : <IconEye8 height={25} width={25} fill='#ccc' />}
-              </TouchableOpacity>
-
+      value={value}
+      autoCorrect={false}
+      onChangeText={onChangeText}
+      secureTextEntry={textEntry}
+      label={label}
+      rightIcon={() => {
+        if ((secureTextEntry ?? false) !== false) {
+          return (
+            <TouchableOpacity {...eventHandlers}>
+              {show ? (
+                <IconEye4 height={25} width={25} fill="#ccc" />
+              ) : (
+                <IconEye8 height={25} width={25} fill="#ccc" />
+              )}
+            </TouchableOpacity>
           );
-          }
-        }}
-      />
+        }
+      }}
+    />
   );
 };
 
@@ -71,21 +75,21 @@ const styles = {
     alignItems: 'center',
     marginTop: 0,
     marginBottom: 0,
-    flexShrink:1,
+    flexShrink: 1,
   },
   rightIcon: {
-...Mixins.lineInputDefaultRightIcon,
-position:'absolute',
-right:10,
+    ...Mixins.lineInputDefaultRightIcon,
+    position: 'absolute',
+    right: 10,
   },
-  containerInputStyle:{
+  containerInputStyle: {
     ...Mixins.lineInputDefaultContainer,
     marginVertical: 0,
     maxHeight: 37,
     borderWidth: 1,
     borderColor: '#ffffff',
     borderRadius: 10,
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
   },
   inputStyle: {
     ...Mixins.body1,
