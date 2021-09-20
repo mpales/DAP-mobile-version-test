@@ -1,384 +1,331 @@
 import React from 'react';
-import {Image, Text, TouchableOpacity, View, Platform} from 'react-native';
-import {createStackNavigator, HeaderBackButton, Header} from '@react-navigation/stack';
+import {
+  createStackNavigator,
+  HeaderBackButton,
+  Header,
+} from '@react-navigation/stack';
+import {Avatar} from 'react-native-elements';
+import {View} from 'react-native';
 import {connect} from 'react-redux';
-import {Button} from 'react-native-elements';
-import IconDelivery8Mobile from '../../../assets/icon/iconmonstr-delivery-8 1mobile.svg';
-import IconArrow66Mobile from '../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
-import IconMenu6Mobile from '../../../assets/icon/iconmonstr-menu-6 1mobile.svg';
-import IconUser40Mobile from '../../../assets/icon/iconmonstr-user-40mobile.svg';
-import IconBell2Mobile from '../../../assets/icon/iconmonstr-bell-2mobile.svg';
-import Camera from '../peripheral/index-warehouse';
-import Stock from './stock';
-import ListNavigator from './list';
-import RelocationConfirm from './relocationConfirm';
-import ReportManifest from './reportManifest';
-import Location from './location';
-import Relocation from './relocation';
 import Mixins from '../../../mixins';
-import blindList from './blind-list';
-import SingleCamera from '../peripheral/cameraMulti';
-import EnlargeImage from '../peripheral/enlargeImage';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import Warehouse from '../detail/index-warehouse';
+// icon
+import WarehouseRelocationIcon from '../../../assets/icon/warehouse-mobile.svg';
+import StockTakeIcon from '../../../assets/icon/iconmonstr-shipping-box-2mobile.svg';
+import CheckInventoryIcon from '../../../assets/icon/iconmonstr-delivery-19mobile.svg';
+import ClientInventoryIcon from '../../../assets/icon/iconmonstr-cube-18mobile.svg';
+import IconArrow66Mobile from '../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
+import LogoSmall from '../../../assets/dap_logo_hires1-e1544435829468 5small.svg';
+
 const Stack = createStackNavigator();
-class HomeNavigator extends React.Component {
+
+class WarehouseManagement extends React.Component {
   constructor(props) {
     super(props);
-    
+    this.state = {
+      bottomSheet: false,
+      isShowSignature: false,
+    };
     this.setWrapperofStack.bind(this);
   }
-  setWrapperofStack = (index,key) => {
+
+  setWrapperofStack = (index, key) => {
     const {indexBottomBar} = this.props;
-    if(indexBottomBar === 0){
+    if (indexBottomBar === 0) {
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }
-  }
+  };
+
+  managementMenu = () => {
+    return (
+      <View style={styles.menuContainer}>
+        <View style={styles.logoContainer}>
+          <LogoSmall width="135" height="70" style={{alignSelf: 'center'}} />
+        </View>
+        <View style={{flexDirection: 'row', flexShrink: 1}}>
+          <View style={styles.sectionContainer}>
+            <Avatar
+              size={140}
+              ImageComponent={() => (
+                <StockTakeIcon height="70" width="70" fill="#6C6B6B" />
+              )}
+              imageProps={{
+                containerStyle: {
+                  ...Mixins.buttonFloatedAvatarDefaultIconStyle,
+                },
+              }}
+              title="STOCK TAKE"
+              overlayContainerStyle={
+                Mixins.buttonFloatedAvatarDefaultOverlayStyle
+              }
+              onPress={() => {
+                this.props.setBottomBar(false);
+                this.props.navigation.navigate('Management', {screen: 'Stock'});
+              }}
+              activeOpacity={0.7}
+              containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
+              placeholderStyle={
+                Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
+              }
+              titleStyle={[
+                Mixins.buttonFloatedAvatarDefaultTitleStyle,
+                styles.buttonTitle,
+              ]}
+            />
+          </View>
+          <View style={styles.sectionContainer}>
+            <Avatar
+              size={140}
+              ImageComponent={() => (
+                <WarehouseRelocationIcon
+                  height="70"
+                  width="70"
+                  fill="#6C6B6B"
+                />
+              )}
+              imageProps={{
+                containerStyle: {
+                  ...Mixins.buttonFloatedAvatarDefaultIconStyle,
+                },
+              }}
+              title="WAREHOUSE RELOCATION"
+              overlayContainerStyle={
+                Mixins.buttonFloatedAvatarDefaultOverlayStyle
+              }
+              onPress={() => {
+                this.props.setBottomBar(false);
+                this.props.navigation.navigate('Management', {
+                  screen: 'Location',
+                });
+              }}
+              activeOpacity={0.7}
+              containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
+              placeholderStyle={
+                Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
+              }
+              titleStyle={[
+                Mixins.buttonFloatedAvatarDefaultTitleStyle,
+                styles.buttonTitle,
+              ]}
+            />
+          </View>
+        </View>
+        <View style={{flexDirection: 'row', flexShrink: 1}}>
+          <View style={styles.sectionContainer}>
+            <Avatar
+              size={140}
+              ImageComponent={() => (
+                <CheckInventoryIcon height="70" width="70" fill="#6C6B6B" />
+              )}
+              imageProps={{
+                containerStyle: {
+                  ...Mixins.buttonFloatedAvatarDefaultIconStyle,
+                },
+              }}
+              title="CHECK INVENTORY"
+              overlayContainerStyle={
+                Mixins.buttonFloatedAvatarDefaultOverlayStyle
+              }
+              onPress={() => console.log('Works!')}
+              activeOpacity={0.7}
+              containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
+              placeholderStyle={
+                Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
+              }
+              titleStyle={[
+                Mixins.buttonFloatedAvatarDefaultTitleStyle,
+                styles.buttonTitle,
+              ]}
+            />
+          </View>
+          <View style={styles.sectionContainer}>
+            <Avatar
+              size={140}
+              ImageComponent={() => (
+                <ClientInventoryIcon height="70" width="70" fill="#6C6B6B" />
+              )}
+              imageProps={{
+                containerStyle: {
+                  ...Mixins.buttonFloatedAvatarDefaultIconStyle,
+                },
+              }}
+              title="CLIENT INVENTORY"
+              overlayContainerStyle={
+                Mixins.buttonFloatedAvatarDefaultOverlayStyle
+              }
+              onPress={() => console.log('Works!')}
+              activeOpacity={0.7}
+              containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
+              placeholderStyle={
+                Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
+              }
+              titleStyle={[
+                Mixins.buttonFloatedAvatarDefaultTitleStyle,
+                styles.buttonTitle,
+              ]}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  };
+
   render() {
     return (
-      <Stack.Navigator initialRouteName="Warehouse" screenOptions={{
-        headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
-        headerBackTitleVisible:false,
-        headerLeftContainerStyle:  Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
-        header: (props) => {
-          let state = props.navigation.dangerouslyGetState();
-          let key =  state.routes[state.index].name;
-          let index = state.index;
-           const {options} = props.scene.descriptor;
-          this.setWrapperofStack(index,key);
-          return (
-        
-            <Header {...props} />
-          );
-        },
-        }}>     
-           <Stack.Screen
-          name="Warehouse"
-          component={Warehouse}
-          options={{
-            headerStyle: {
-              backgroundColor: '#121C78',
-              elevation: 0,
-              shadowOpacity: 0,
-              borderBottomWidth: 0,
-              ...Platform.select({
-                android: {
-                  height: 45,
-                },
-              })
-            },
-            headerShown: false,
-            headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitleAlign: 'left',
-            headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('true')
-                  this.props.navigation.navigate('Home');
-                }
-              }
-              />);
-            },
-          }}
-        />
-        <Stack.Screen
-          name="Stock"
-          component={Stock}
-          options={{
-            headerStyle: {
-              backgroundColor: '#121C78',
-              elevation: 0,
-              shadowOpacity: 0,
-              borderBottomWidth: 0,
-              ...Platform.select({
-                android: {
-                  height: 45,
-                },
-              })
-            },
-            headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
-            headerTitleAlign: 'left',
-            headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('true')
-                  this.props.navigation.navigate('Home');
-                }
-              }
-              />);
-            },
-          }}
-        />
-        <Stack.Screen
-          name="List"
-          component={ListNavigator}
-          options={() => ({
-            headerStyle: {
-              backgroundColor: '#121C78',
-              elevation: 0,
-              shadowOpacity: 0,
-              borderBottomWidth: 0,
-              ...Platform.select({
-                android: {
-                  height: 45,
-                },
-              })
-            },
-            headerTintColor: '#fff',
-            headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
-            headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('true')
-                  this.props.navigation.navigate('Stock');
-                }
-              }
-              />);
-            },
-          })}
-        />
-        <Stack.Screen
-          name="blindList"
-          component={blindList}
-          options={() => ({
-            headerStyle: {
-              backgroundColor: '#121C78',
-              elevation: 0,
-              shadowOpacity: 0,
-              borderBottomWidth: 0,
-              ...Platform.select({
-                android: {
-                  height: 45,
-                },
-              })
-            },
-            headerTintColor: '#fff',
-            headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
-            headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('true')
-                  this.props.navigation.navigate('List');
-                }
-              }
-              />);
-            },
-          })}
-        />
-       <Stack.Screen
-          name="Location"
-          component={Location}
-          options={() => ({
-            headerStyle: {
-              backgroundColor: '#121C78',
-              elevation: 0,
-              shadowOpacity: 0,
-              borderBottomWidth: 0,
-              ...Platform.select({
-                android: {
-                  height: 45,
-                },
-              })
-            },
-            headerTintColor: '#fff',
-            headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
-            headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('true')
-                  this.props.navigation.navigate('Stock');
-                }
-              }
-              />);
-            },
-          })}
-        />
-         <Stack.Screen
-          name="Relocation"
-          component={Relocation}
-          options={() => ({
-            headerStyle: {
-              backgroundColor: '#121C78',
-              elevation: 0,
-              shadowOpacity: 0,
-              borderBottomWidth: 0,
-              ...Platform.select({
-                android: {
-                  height: 45,
-                },
-              })
-            },
-            headerTintColor: '#fff',
-            headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
-            headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('true')
-                  this.props.navigation.navigate('List');
-                }
-              }
-              />);
-            },
-          })}
-        />
-           <Stack.Screen
-          name="RelocationConfirm"
-          component={RelocationConfirm}
-          options={() => ({
-            headerStyle: {
-              backgroundColor: '#121C78',
-              elevation: 0,
-              shadowOpacity: 0,
-              borderBottomWidth: 0,
-              ...Platform.select({
-                android: {
-                  height: 45,
-                },
-              })
-            },
-            headerTintColor: '#fff',
-            headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
-            headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('true')
-                  this.props.navigation.navigate('Relocation');
-                }
-              }
-              />);
-            },
-          })}
-        />
-        <Stack.Screen
-          name="Barcode"
-          component={Camera}
-          options={() => ({
-            headerStyle: {
-              backgroundColor: '#121C78',
-              elevation: 0,
-              shadowOpacity: 0,
-              borderBottomWidth: 0,
-              ...Platform.select({
-                android: {
-                  height: 45,
-                },
-              })
-            },
-            headerTransparent: true,
-            headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
-            headerTitle: 'Back',
-            headerRight: () => (
-              <View style={{display: 'flex', flexDirection: 'row'}}>
-                <TouchableOpacity
-                  style={{paddingHorizontal: 20, margin: 0}}
-                  onPress={() => {
-                    this.props.setBottomBar(true);
-                    this.props.navigation.navigate('ReportManifest')}}
-                >
-                  <Text style={{...Mixins.h6,fontWeight: '400',lineHeight: 22, color: '#FFF'}}>Report</Text>
-                </TouchableOpacity>
-              </View>
-            ),
-          })}
-        />
-     
-        <Stack.Screen
-          name="ReportManifest"
-          component={ReportManifest}
-          options={() => ({
-            headerStyle: {
-              backgroundColor: '#121C78',
-              elevation: 0,
-              shadowOpacity: 0,
-              borderBottomWidth: 0,
-              ...Platform.select({
-                android: {
-                  height: 45,
-                },
-              })
-            },
-            headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.navigation.navigate('Manifest')
-                }
-              }
-              />);
-            },
-            headerTintColor: '#fff',
-            headerTitle: 'Back',
-            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
-          })}
-        />
-      
-          <Stack.Screen
-          name="SingleCamera"
-          component={SingleCamera}
-          options={() => ({
-            headerStyle: {
-              backgroundColor: '#121C78',
-              elevation: 0,
-              shadowOpacity: 0,
-              borderBottomWidth: 0,
-              ...Platform.select({
-                android: {
-                  height: 45,
-                },
-              })
-            },
-            headerTransparent: true,
-            headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
-          })}
-        />
-           <Stack.Screen
-          name="EnlargeImage"
-          component={EnlargeImage}
-          options={() => ({
-            headerStyle: {
-              backgroundColor: '#121C78',
-              elevation: 0,
-              shadowOpacity: 0,
-              borderBottomWidth: 0,
-              ...Platform.select({
-                android: {
-                  height: 45,
-                },
-              })
-            },
-            headerTransparent: true,
-            headerTintColor: '#fff',
-            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
-          })}
-        />
+      <Stack.Navigator
+        initialRouteName="Warehouse"
+        screenOptions={{
+          headerBackImage: () => (
+            <IconArrow66Mobile height="22" width="18" fill="#FFF" />
+          ),
+          headerTransparent: true,
+          headerTitle: '',
+          headerBackTitleVisible: true,
+          headerBackTitleStyle: {color: '#FFF'},
+          headerLeftContainerStyle:
+            Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
+          header: (props) => {
+            let state = props.navigation.dangerouslyGetState();
+            let key = state.routes[state.index].name;
+            let index = state.index;
+            this.setWrapperofStack(index, key);
+            return <Header {...props} />;
+          },
+        }}>
+        <Stack.Screen component={this.managementMenu} name="ManagementMenu" />
       </Stack.Navigator>
     );
   }
 }
 
+const styles = {
+  menuContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    backgroundColor: '#121C78',
+    paddingHorizontal: 22,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    marginVertical: 50,
+  },
+  buttonTitle: {
+    ...Mixins.subtitle3,
+    lineHeight: 16,
+    fontWeight: '700',
+    paddingHorizontal: 5,
+  },
+  sectionSheetButton: {
+    marginHorizontal: 20,
+    marginVertical: 10,
+  },
+  deliveryText: {
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#ffffff',
+  },
+  navigationButton: {
+    backgroundColor: '#F07120',
+    borderRadius: 5,
+  },
+  sectionDividier: {
+    flexDirection: 'row',
+  },
+  buttonDivider: {
+    flex: 1,
+  },
+  sectionContainer: {
+    flex: 1,
+    marginHorizontal: 5,
+    marginVertical: 10,
+  },
+  sectionInput: {
+    flexDirection: 'column',
+    borderRadius: 13,
+    backgroundColor: 'transparent',
+    shadowColor: '#000',
+    marginBottom: 30,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+
+    elevation: 2,
+  },
+  inputHead: {
+    marginVertical: 12,
+    ...Mixins.h4,
+    lineHeight: 27,
+  },
+  sectionButtonGroup: {
+    flexDirection: 'row',
+  },
+  sectionContainer: {
+    flex: 1,
+    marginHorizontal: 5,
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  sectionText: {
+    textAlign: 'center',
+    width: 83,
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#6C6B6B',
+    marginVertical: 12,
+  },
+  containerInput: {
+    borderBottomColor: '#ABABAB',
+    borderBottomWidth: 1,
+    marginVertical: 0,
+    paddingVertical: 0,
+  },
+  inputStyle: {
+    ...Mixins.lineInputDefaultStyle,
+    ...Mixins.body1,
+    marginHorizontal: 0,
+    flexShrink: 1,
+    minHeight: 30,
+    lineHeight: 21,
+    fontWeight: '400',
+  },
+  labelStyle: {
+    ...Mixins.lineInputDefaultLabel,
+    ...Mixins.body1,
+    lineHeight: 14,
+    fontWeight: '400',
+  },
+  inputErrorStyle: {
+    ...Mixins.body2,
+    lineHeight: 14,
+    marginVertical: 0,
+  },
+  inputContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 13,
+    elevation: 8,
+    paddingHorizontal: 20,
+    paddingBottom: 5,
+    paddingTop: 0,
+  },
+  checkmark: {
+    position: 'absolute',
+    bottom: 62,
+    right: 16,
+  },
+};
 function mapStateToProps(state) {
   return {
-    indexBottomBar : state.originReducer.filters.indexBottomBar,
-    keyBottomBar : state.originReducer.filters.keyBottomBar,
+    todos: state.originReducer.todos,
+    textfield: state.originReducer.todos.name,
+    value: state.originReducer.todos.name,
+    userRole: state.originReducer.userRole,
+    isPhotoProofSubmitted: state.originReducer.filters.isPhotoProofSubmitted,
+    isSignatureSubmitted: state.originReducer.filters.isSignatureSubmitted,
   };
 }
 
@@ -387,8 +334,8 @@ const mapDispatchToProps = (dispatch) => {
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
     },
-    toggleDrawer: (bool) => {
-      return dispatch({type: 'ToggleDrawer', payload: bool});
+    setStartDelivered: (toggle) => {
+      return dispatch({type: 'startDelivered', payload: toggle});
     },
     setCurrentStackKey: (string) => {
       return dispatch({type: 'keyStack', payload: string});
@@ -399,4 +346,7 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(HomeNavigator);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(WarehouseManagement);
