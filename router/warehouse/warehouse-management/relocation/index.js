@@ -1,11 +1,16 @@
 import React from 'react';
-import {createStackNavigator, Header} from '@react-navigation/stack';
+import {
+  createStackNavigator,
+  Header,
+  HeaderBackButton,
+} from '@react-navigation/stack';
 import {connect} from 'react-redux';
 import Mixins from '../../../../mixins';
 // screen
 import RelocationList from './relocationList';
 import RelocationDetails from './relocationDetails';
 import RelocationConfirm from './relocationConfirm';
+import RelocationRequest from './relocationRequest';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -76,6 +81,15 @@ class WarehouseManagement extends React.Component {
           name="RelocationDetails"
           options={{
             headerTitle: 'Warehouse Relocation',
+            headerLeft: (props) => (
+              <HeaderBackButton
+                {...props}
+                onPress={() => {
+                  this.props.setBottomBar(true);
+                  this.props.navigation.navigate('RelocationList');
+                }}
+              />
+            ),
           }}
         />
         <Stack.Screen
@@ -83,6 +97,22 @@ class WarehouseManagement extends React.Component {
           name="ConfirmRelocation"
           options={{
             headerTitle: 'Relocate',
+          }}
+        />
+        <Stack.Screen
+          component={RelocationRequest}
+          name="RequestRelocation"
+          options={{
+            headerTitle: 'Warehouse Relocation',
+            headerLeft: (props) => (
+              <HeaderBackButton
+                {...props}
+                onPress={() => {
+                  this.props.setBottomBar(true);
+                  this.props.navigation.navigate('RelocationList');
+                }}
+              />
+            ),
           }}
         />
       </Stack.Navigator>

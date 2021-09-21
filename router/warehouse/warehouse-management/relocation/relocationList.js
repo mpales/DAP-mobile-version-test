@@ -41,6 +41,11 @@ class RelocationList extends React.Component {
     this.props.navigation.navigate('RelocationDetails');
   };
 
+  navigateToRequestRelocation = () => {
+    this.props.setBottomBar(false);
+    this.props.navigation.navigate('RequestRelocation');
+  };
+
   render() {
     return (
       <SafeAreaProvider style={styles.body}>
@@ -62,6 +67,7 @@ class RelocationList extends React.Component {
             }}
             title="Request Relocation"
             titleStyle={{...Mixins.subtitle3, lineHeight: 20}}
+            onPress={this.navigateToRequestRelocation}
           />
         </View>
         <SearchBar
