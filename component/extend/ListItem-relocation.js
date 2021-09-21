@@ -1,40 +1,122 @@
 import React from 'react';
-import {
-  ListItem,
-  Avatar,
-  ThemeProvider,
-  withBadge,
-  Badge,
-  Button,
-  Text,
-} from 'react-native-elements';
-import {View, TouchableOpacity} from 'react-native';
+import {ListItem, ThemeProvider, Text} from 'react-native-elements';
+import {StyleSheet, View} from 'react-native';
 import TouchableScale from 'react-native-touchable-scale'; // https://github.com/kohver/react-native-touchable-scale
-import IconCursor20Mobile from '../../assets/icon/iconmonstr-cursor-20 1mobile.svg';
-import IconTime2Mobile from '../../assets/icon/iconmonstr-time-2 1mobile.svg';
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
 import Mixins from '../../mixins';
 
-const styles = {
+const Manifest = ({item, navigate}) => {
+  let status = 'grey';
+  switch (item.status) {
+    case 'complete':
+      status = 'green';
+      break;
+    case 'progress':
+      status = 'orange';
+      break;
+    case 'pending':
+      status = 'grey';
+      break;
+    case 'reported':
+      status = 'red';
+      break;
+    default:
+      break;
+  }
+
+  const TextList = ({title, value}) => (
+    <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
+      <View style={{width: 70}}>
+        <Text style={styles.titleText}>{title}</Text>
+      </View>
+      <Text style={styles.separatorText}>:</Text>
+      <Text style={styles.valueText}>{value}</Text>
+    </View>
+  );
+
+  return (
+    <ThemeProvider theme={theme}>
+      <ListItem
+        Component={TouchableScale}
+        onPress={navigate}
+        friction={90} //
+        tension={100} // These props are passed to the parent component (here TouchableScale)
+        activeScale={0.95}
+        pad={0}
+        style={{paddingHorizontal: 20, marginBottom: 10}}>
+        <View style={[styles.leftList, {backgroundColor: status}]} />
+        <ListItem.Content
+          style={[styles.sectionContainer, {flexDirection: 'column'}]}>
+          <TextList title="Job ID" value={item.jobId} />
+          <TextList title="Job Date" value={item.jobDate} />
+          <TextList title="Client" value={item.client} />
+          <TextList title="Warehouse" value={item.warehouse} />
+          <TextList title="Item Code" value={item.itemCode} />
+          <TextList title="Description" value={item.description} />
+          <TextList title="Quantity" value={item.quantity} />
+          <TextList title="From Location" value={item.fromLocation} />
+          <TextList title="To Location" value={item.toLocation} />
+        </ListItem.Content>
+        <ListItem.Chevron
+          size={16}
+          color="#2D2C2C"
+          containerStyle={styles.chevronContainer}
+          Component={() => (
+            <IconArrow66Mobile height="26" width="26" fill="#2D2C2C" />
+          )}
+        />
+      </ListItem>
+    </ThemeProvider>
+  );
+};
+
+const styles = StyleSheet.create({
   sectionContainer: {
     marginHorizontal: 14,
     paddingVertical: 12,
     flexGrow: 1,
   },
   titleText: {
+    ...Mixins.small1,
+    lineHeight: 18,
+    color: '#2D2C2C',
+    fontWeight: '500',
+  },
+  separatorText: {
+    ...Mixins.small1,
+    lineHeight: 18,
     color: '#6C6B6B',
-    fontWeight: '600',
+    fontWeight: '500',
+    textAlign: 'right',
+    flexShrink: 1,
+    paddingHorizontal: 8,
+  },
+  valueText: {
+    flex: 1,
+    ...Mixins.small1,
+    lineHeight: 18,
+    color: '#424141',
+    fontWeight: '400',
   },
   subtitleText: {
     marginVertical: 2,
     color: '#6C6B6B',
+  },
+  chevronContainer: {
+    alignContent: 'flex-end',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+    flexShrink: 1,
+    padding: 0,
+    margin: 0,
+    marginRight: 5,
   },
   containerList: {
     marginHorizontal: 0,
     marginVertical: 6,
     padding: 0,
     marginBottom: 0,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -44,20 +126,20 @@ const styles = {
 
     elevation: 5,
   },
-  labelContainer : {
+  labelContainer: {
     flexShrink: 1,
     flexDirection: 'column',
     justifyContent: 'space-evenly',
     marginHorizontal: 0,
     marginVertical: 10,
-    padding:3,
+    padding: 3,
     alignSelf: 'stretch',
   },
   labelText: {
     ...Mixins.small1,
     fontWeight: '400',
     lineHeight: 18,
-    color:'#ABABAB',
+    color: '#ABABAB',
     alignSelf: 'flex-end',
   },
   leftList: {
@@ -71,9 +153,10 @@ const styles = {
     ...Mixins.small1,
     fontWeight: '400',
     lineHeight: 18,
-    color:'#ABABAB'
-  }
-};
+    color: '#ABABAB',
+  },
+});
+
 const theme = {
   ListItem: {
     containerStyle: styles.containerList,
@@ -95,85 +178,6 @@ const theme = {
   ListItemContent: {
     containerStyle: styles.sectionContainer,
   },
- 
-
-};
-const Manifest = ({item, index, isActive, ToManifest}) => {
-  let status = 'grey';
-  switch (item.status) {
-    case 'complete':
-      status = 'green';
-      break;
-      case 'progress':
-        status = 'orange';
-        break;
-        case 'pending':
-          status = 'grey';
-          break;
-          case 'reported':
-            status = 'red';
-            break;
-    default:
-      break;
-  }
-  return (
-    <ThemeProvider theme={theme}>
-      <ListItem
-        key={index}
-        Component={TouchableScale}
-        friction={90} //
-        tension={100} // These props are passed to the parent component (here TouchableScale)
-        activeScale={0.95}
-        pad={0}>
-        <View style={[styles.leftList,{backgroundColor:status}]}>
-        </View>
-        <ListItem.Content style={[styles.sectionContainer, {flexDirection: 'column'}]}>
-
-            <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
-                <View style={{width:80}}>
-                <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
-                SKU
-                </Text>
-                </View>
-                <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-                <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-                00992233441
-                </Text>
-            </View>
-
-            <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
-                <View style={{width:80}}>
-                <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
-                Relocation
-                </Text>
-                </View>
-                <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-              
-                <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-                JP- 0912423 to AQ-123445
-                </Text>
-            
-            </View>
-
-       
-        </ListItem.Content>
-        <ListItem.Chevron
-            size={16}
-            color="#2D2C2C"
-            containerStyle={{alignContent:'flex-end',justifyContent:'flex-end',alignItems:'flex-end',flexShrink:1,padding:0,margin:0}}
-            Component={(props)=>(
-              <Button
-                {...props}
-                type="clear"
-                icon={
-                  <IconArrow66Mobile height="26" width="26" fill="#2D2C2C"/>
-                }
-              />)}
-            onPress={ToManifest}
-          />
-      </ListItem>
-    </ThemeProvider>
-  );
 };
 
 export default Manifest;
