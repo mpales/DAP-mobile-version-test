@@ -4,6 +4,7 @@ import {connect} from 'react-redux';
 import Mixins from '../../../../mixins';
 // screen
 import RelocationList from './relocationList';
+import RelocationDetails from './relocationDetails';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -65,6 +66,13 @@ class WarehouseManagement extends React.Component {
         <Stack.Screen
           component={RelocationList}
           name="RelocationList"
+          options={{
+            headerTitle: 'Warehouse Relocation',
+          }}
+        />
+        <Stack.Screen
+          component={RelocationDetails}
+          name="RelocationDetails"
           options={{
             headerTitle: 'Warehouse Relocation',
           }}
