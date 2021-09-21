@@ -5,6 +5,7 @@ import Mixins from '../../../../mixins';
 // screen
 import RelocationList from './relocationList';
 import RelocationDetails from './relocationDetails';
+import RelocationConfirm from './relocationConfirm';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -75,6 +76,13 @@ class WarehouseManagement extends React.Component {
           name="RelocationDetails"
           options={{
             headerTitle: 'Warehouse Relocation',
+          }}
+        />
+        <Stack.Screen
+          component={RelocationConfirm}
+          name="ConfirmRelocation"
+          options={{
+            headerTitle: 'Relocate',
           }}
         />
       </Stack.Navigator>

@@ -5,766 +5,272 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
-import {Card, Input, SearchBar, Badge, Button} from 'react-native-elements';
+import {Button, Card, Overlay} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
-//style
+// style
 import Mixins from '../../../../mixins';
-//icon
-import ArrowDown from '../../../assets/icon/arrow-down-mobile.svg';
-import moment from 'moment';
-import {element} from 'prop-types';
+// icon
+import CheckmarkIcon from '../../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
+
 const window = Dimensions.get('window');
 
 class RelocationConfirm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      search: '',
-      filtered: 0,
-      renderGoBack: false,
+      currentLocation: CURRENTLOCATION,
+      newLocation: NEWLOCATION,
+      showOverlay: false,
     };
+    this.handleShowOverlay.bind(this);
+    this.confirmRelocation.bind(this);
+    this.navigateToRelocationJobList.bind(this);
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {}
-  componentDidMount() {}
+  handleShowOverlay = (value) => {
+    this.setState({
+      showOverlay: value ?? false,
+    });
+  };
+
+  confirmRelocation = () => {
+    this.handleShowOverlay(true);
+  };
+
+  navigateToRelocationJobList = () => {
+    this.handleShowOverlay();
+    this.props.setBottomBar(true);
+    this.props.navigation.navigate('RelocationList');
+  };
+
   render() {
+    const {currentLocation, newLocation} = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
         <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
-          <Text
+          <Card containerStyle={styles.cardContainer}>
+            <View style={styles.sectionContainer}>
+              <Text style={styles.cardTitle}>Current Location</Text>
+              <TextList title="Location" value={currentLocation.location} />
+              <TextList title="Item Code" value={currentLocation.itemCode} />
+              <TextList
+                title="Description"
+                value={currentLocation.description}
+              />
+              <TextList
+                title="Quantity"
+                value={`${currentLocation.quantity}-${currentLocation.locationOpacity}`}
+                separateQuantity={true}
+              />
+              <TextList title="UOM" value={currentLocation.UOM} />
+              <TextList title="Grade" value={currentLocation.grade} />
+            </View>
+            <View style={styles.sectionContainer}>
+              <Text style={styles.cardTitle}>New Location</Text>
+              <TextList title="Location" value={newLocation.location} />
+              <TextList title="Item Code" value={newLocation.itemCode} />
+              <TextList title="Description" value={newLocation.description} />
+              <TextList
+                title="Quantity"
+                value={`${newLocation.quantity}-${newLocation.locationOpacity}`}
+                separateQuantity={true}
+              />
+              <TextList title="UOM" value={newLocation.UOM} />
+              <TextList title="Grade" value={newLocation.grade} />
+            </View>
+          </Card>
+          <Button
+            title="Confirm Relocation"
+            titleStyle={styles.buttonText}
+            buttonStyle={styles.button}
+            onPress={this.confirmRelocation}
+          />
+        </ScrollView>
+        <Overlay
+          overlayStyle={{borderRadius: 10, padding: 0}}
+          isVisible={this.state.showOverlay}>
+          <View
             style={{
-              ...Mixins.subtitle1,
-              lineHeight: 21,
-              color: '#424141',
-              paddingHorizontal: 20,
-              marginTop: 15,
+              flexShrink: 1,
+              width: window.width * 0.9,
             }}>
-            SKU 00992233441{' '}
-          </Text>
-
-          <View style={styles.sectionContent}>
-            <Text style={styles.textHeader}>Current Location</Text>
-            <View
-              style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-              <View style={{width: 60}}>
-                <Text
-                  style={{
-                    ...Mixins.small1,
-                    lineHeight: 18,
-                    color: '#2D2C2C',
-                    fontWeight: '500',
-                  }}>
-                  Location
-                </Text>
-              </View>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#6C6B6B',
-                  fontWeight: '500',
-                  textAlign: 'right',
-                  flexShrink: 1,
-                  paddingHorizontal: 8,
-                }}>
-                :
-              </Text>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#424141',
-                  fontWeight: '400',
-                }}>
-                JP2 C05-002
-              </Text>
-            </View>
-
-            <View
-              style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-              <View style={{width: 60}}>
-                <Text
-                  style={{
-                    ...Mixins.small1,
-                    lineHeight: 18,
-                    color: '#2D2C2C',
-                    fontWeight: '500',
-                  }}>
-                  Item Code
-                </Text>
-              </View>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#6C6B6B',
-                  fontWeight: '500',
-                  textAlign: 'right',
-                  flexShrink: 1,
-                  paddingHorizontal: 8,
-                }}>
-                :
-              </Text>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#424141',
-                  fontWeight: '400',
-                }}>
-                342035002
-              </Text>
-            </View>
-
-            <View
-              style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-              <View style={{width: 60}}>
-                <Text
-                  style={{
-                    ...Mixins.small1,
-                    lineHeight: 18,
-                    color: '#2D2C2C',
-                    fontWeight: '500',
-                  }}>
-                  Descript
-                </Text>
-              </View>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#6C6B6B',
-                  fontWeight: '500',
-                  textAlign: 'right',
-                  flexShrink: 1,
-                  paddingHorizontal: 8,
-                }}>
-                :
-              </Text>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#424141',
-                  fontWeight: '400',
-                }}>
-                ERGOBLOM V2 BLUE DESK (HTH-512W LARGE TABLE/SHELF )
-              </Text>
-            </View>
-
-            <View
-              style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-              <View style={{width: 60}}>
-                <Text
-                  style={{
-                    ...Mixins.small1,
-                    lineHeight: 18,
-                    color: '#2D2C2C',
-                    fontWeight: '500',
-                  }}>
-                  Quantity
-                </Text>
-              </View>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#6C6B6B',
-                  fontWeight: '500',
-                  textAlign: 'right',
-                  flexShrink: 1,
-                  paddingHorizontal: 8,
-                }}>
-                :
-              </Text>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#424141',
-                  fontWeight: '400',
-                }}>
-                30
-              </Text>
-            </View>
-
-            <View
-              style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-              <View style={{width: 60}}>
-                <Text
-                  style={{
-                    ...Mixins.small1,
-                    lineHeight: 18,
-                    color: '#2D2C2C',
-                    fontWeight: '500',
-                  }}>
-                  UOM
-                </Text>
-              </View>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#6C6B6B',
-                  fontWeight: '500',
-                  textAlign: 'right',
-                  flexShrink: 1,
-                  paddingHorizontal: 8,
-                }}>
-                :
-              </Text>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#424141',
-                  fontWeight: '400',
-                }}>
-                Pair
-              </Text>
-            </View>
-
-            <View
-              style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-              <View style={{width: 60}}>
-                <Text
-                  style={{
-                    ...Mixins.small1,
-                    lineHeight: 18,
-                    color: '#2D2C2C',
-                    fontWeight: '500',
-                  }}>
-                  Grade
-                </Text>
-              </View>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#6C6B6B',
-                  fontWeight: '500',
-                  textAlign: 'right',
-                  flexShrink: 1,
-                  paddingHorizontal: 8,
-                }}>
-                :
-              </Text>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#424141',
-                  fontWeight: '400',
-                }}>
-                01
-              </Text>
-            </View>
-
             <View
               style={{
-                marginVertical: 10,
+                flexDirection: 'row',
                 justifyContent: 'center',
-                alignContent: 'center',
                 alignItems: 'center',
+                borderBottomWidth: 1,
+                borderBottomColor: '#ABABAB',
+                paddingVertical: 15,
               }}>
-              <ArrowDown width="20" height="40" fill="#424141" />
-            </View>
-
-            <Text style={styles.textHeader}>New Location</Text>
-            <View
-              style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-              <View style={{width: 60}}>
-                <Text
-                  style={{
-                    ...Mixins.small1,
-                    lineHeight: 18,
-                    color: '#2D2C2C',
-                    fontWeight: '500',
-                  }}>
-                  Location
-                </Text>
-              </View>
+              <CheckmarkIcon height="24" width="24" fill="#17B055" />
               <Text
                 style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#6C6B6B',
-                  fontWeight: '500',
-                  textAlign: 'right',
-                  flexShrink: 1,
-                  paddingHorizontal: 8,
+                  ...Mixins.subtitle3,
+                  fontSize: 18,
+                  lineHeight: 25,
+                  marginLeft: 10,
+                  color: '#17B055',
                 }}>
-                :
-              </Text>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#424141',
-                  fontWeight: '400',
-                }}>
-                JP2 C05-002
+                Relocation Successful
               </Text>
             </View>
-
-            <View
-              style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-              <View style={{width: 60}}>
-                <Text
-                  style={{
-                    ...Mixins.small1,
-                    lineHeight: 18,
-                    color: '#2D2C2C',
-                    fontWeight: '500',
-                  }}>
-                  Item Code
-                </Text>
-              </View>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#6C6B6B',
-                  fontWeight: '500',
-                  textAlign: 'right',
-                  flexShrink: 1,
-                  paddingHorizontal: 8,
-                }}>
-                :
-              </Text>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#424141',
-                  fontWeight: '400',
-                }}>
-                342035002
-              </Text>
+            <View style={{padding: 20}}>
+              <Text style={styles.cardTitle}>New Location</Text>
+              <TextList title="Location" value={newLocation.location} />
+              <TextList title="Item Code" value={newLocation.itemCode} />
+              <TextList title="Description" value={newLocation.description} />
+              <TextList title="Quantity" value={newLocation.quantity} />
+              <TextList title="UOM" value={newLocation.UOM} />
+              <TextList title="Grade" value={newLocation.grade} />
+              <Button
+                title="Back To List"
+                titleStyle={styles.buttonText}
+                buttonStyle={[
+                  styles.button,
+                  {marginHorizontal: 0, marginTop: 20},
+                ]}
+                onPress={this.navigateToRelocationJobList}
+              />
             </View>
-
-            <View
-              style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-              <View style={{width: 60}}>
-                <Text
-                  style={{
-                    ...Mixins.small1,
-                    lineHeight: 18,
-                    color: '#2D2C2C',
-                    fontWeight: '500',
-                  }}>
-                  Descript
-                </Text>
-              </View>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#6C6B6B',
-                  fontWeight: '500',
-                  textAlign: 'right',
-                  flexShrink: 1,
-                  paddingHorizontal: 8,
-                }}>
-                :
-              </Text>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#424141',
-                  fontWeight: '400',
-                }}>
-                ERGOBLOM V2 BLUE DESK (HTH-512W LARGE TABLE/SHELF )
-              </Text>
-            </View>
-
-            <View
-              style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-              <View style={{width: 60}}>
-                <Text
-                  style={{
-                    ...Mixins.small1,
-                    lineHeight: 18,
-                    color: '#2D2C2C',
-                    fontWeight: '500',
-                  }}>
-                  Quantity
-                </Text>
-              </View>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#6C6B6B',
-                  fontWeight: '500',
-                  textAlign: 'right',
-                  flexShrink: 1,
-                  paddingHorizontal: 8,
-                }}>
-                :
-              </Text>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#424141',
-                  fontWeight: '400',
-                }}>
-                30
-              </Text>
-            </View>
-
-            <View
-              style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-              <View style={{width: 60}}>
-                <Text
-                  style={{
-                    ...Mixins.small1,
-                    lineHeight: 18,
-                    color: '#2D2C2C',
-                    fontWeight: '500',
-                  }}>
-                  UOM
-                </Text>
-              </View>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#6C6B6B',
-                  fontWeight: '500',
-                  textAlign: 'right',
-                  flexShrink: 1,
-                  paddingHorizontal: 8,
-                }}>
-                :
-              </Text>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#424141',
-                  fontWeight: '400',
-                }}>
-                Pair
-              </Text>
-            </View>
-
-            <View
-              style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-              <View style={{width: 60}}>
-                <Text
-                  style={{
-                    ...Mixins.small1,
-                    lineHeight: 18,
-                    color: '#2D2C2C',
-                    fontWeight: '500',
-                  }}>
-                  Grade
-                </Text>
-              </View>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#6C6B6B',
-                  fontWeight: '500',
-                  textAlign: 'right',
-                  flexShrink: 1,
-                  paddingHorizontal: 8,
-                }}>
-                :
-              </Text>
-              <Text
-                style={{
-                  ...Mixins.small1,
-                  lineHeight: 18,
-                  color: '#424141',
-                  fontWeight: '400',
-                }}>
-                01
-              </Text>
-            </View>
-
-            <Button
-              containerStyle={{flex: 1, marginVertical: 15}}
-              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
-              titleStyle={styles.deliveryText}
-              title="Scan Barcode"
-              onPress={() => {
-                this.props.navigation.navigate({
-                  name: 'Barcode',
-                  params: {
-                    inputCode: '9780312205195',
-                    palletCode: '8993175536820',
-                  },
-                });
-              }}
-            />
-            <Button
-              containerStyle={{flex: 1, marginRight: 0}}
-              buttonStyle={[
-                styles.navigationButton,
-                {
-                  backgroundColor: '#fff',
-                  borderWidth: 1,
-                  borderColor: '#6C6B6B',
-                  paddingHorizontal: 0,
-                },
-              ]}
-              titleStyle={[styles.deliveryText, {color: '#6C6B6B'}]}
-              onPress={() => {
-                this.props.navigation.navigate('Location');
-              }}
-              title="Move Manual"
-            />
           </View>
-        </ScrollView>
+        </Overlay>
       </SafeAreaProvider>
     );
   }
 }
 
+const TextList = ({title, value, separateQuantity}) => {
+  let quantityArr = [];
+  if (separateQuantity) {
+    if (typeof value === 'string') {
+      quantityArr = value.split('-');
+    } else {
+      quantityArr = value.toString().split('-');
+    }
+  }
+  return (
+    <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
+      <View style={{width: 100}}>
+        <Text style={styles.titleText}>{title}</Text>
+      </View>
+      <Text style={styles.separatorText}>:</Text>
+      {separateQuantity ? (
+        <>
+          <Text style={[styles.valueText, styles.valueTextRedBold, {flex: 0}]}>
+            {quantityArr[0]}
+          </Text>
+          <Text style={[styles.valueText, {flex: 0}]}>{` -> `}</Text>
+          <Text style={[styles.valueText, styles.valueTextRedBold, {flex: 0}]}>
+            {quantityArr[quantityArr.length - 1]}
+          </Text>
+        </>
+      ) : (
+        <Text
+          style={
+            title === 'Quantity' || (title === 'Grade' && value === 'expired')
+              ? [styles.valueText, {color: '#E03B3B', fontWeight: 'bold'}]
+              : styles.valueText
+          }>
+          {title === 'Grade' ? value.toUpperCase() : value}
+        </Text>
+      )}
+    </View>
+  );
+};
 const styles = StyleSheet.create({
-  deliveryText: {
-    ...Mixins.subtitle3,
-    lineHeight: 21,
-    color: '#ffffff',
-  },
-  navigationButton: {
-    backgroundColor: '#F07120',
-    borderRadius: 5,
-  },
-  textHeader: {
-    ...Mixins.h6,
-    color: '#2A3386',
-    lineHeight: 27,
-    fontWeight: '600',
-  },
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
   body: {
     backgroundColor: Colors.white,
     flexDirection: 'column',
     flex: 1,
   },
-  headingCard: {
-    flexDirection: 'row',
-    marginBottom: 20,
+  sectionContainer: {
+    marginTop: 10,
+    marginBottom: 40,
   },
-  badgeSort: {
-    marginRight: 5,
-  },
-  sectionContent: {
-    marginHorizontal: 20,
-    marginBottom: 30,
-    padding: 35,
-    flexDirection: 'column',
-    borderRadius: 13,
+  cardContainer: {
+    borderRadius: 5,
     backgroundColor: '#fff',
+    marginBottom: 20,
+    marginHorizontal: 10,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 1,
+      height: 3,
     },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
-
-    elevation: 3,
+    shadowOpacity: 0.27,
+    shadowRadius: 4.65,
+    elevation: 6,
   },
-  headerBeranda: {
-    flexDirection: 'column',
-    height: window.width * 0.16,
-    backgroundColor: '#121C78',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-  },
-  ccmText: {
-    color: '#fff',
+  cardTitle: {
+    ...Mixins.subtitle1,
     fontSize: 18,
-    fontWeight: '700',
+    lineHeight: 25,
+    color: '#2A3386',
+    marginBottom: 5,
   },
-  berandaBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  titleText: {
+    ...Mixins.small1,
+    lineHeight: 18,
+    color: '#2D2C2C',
+    fontWeight: '500',
   },
-  textInput: {
-    borderWidth: 1,
-    borderColor: '#D5D5D5',
-    borderRadius: 5,
-    maxHeight: 30,
+  separatorText: {
+    ...Mixins.small1,
+    lineHeight: 18,
+    color: '#6C6B6B',
+    fontWeight: '500',
+    textAlign: 'right',
+    flexShrink: 1,
+    paddingHorizontal: 8,
   },
-  barSection: {
+  valueText: {
     flex: 1,
+    ...Mixins.small1,
+    lineHeight: 18,
+    color: '#424141',
+    fontWeight: '400',
   },
-  breadcrumb: {
-    alignItems: 'flex-start',
+  valueTextRedBold: {
+    fontWeight: 'bold',
+    color: '#E03B3B',
   },
-  search: {
-    alignItems: 'flex-end',
-  },
-  navSection: {
-    flex: 1,
-  },
-  toggleDrawer: {
-    alignItems: 'flex-start',
-  },
-  logoWrapper: {
-    alignItems: 'center',
-  },
-  navWrapper: {
-    alignItems: 'flex-end',
-    flexDirection: 'row',
-  },
-  cardContainer: {
-    borderWidth: 0,
-    padding: 0,
-    marginHorizontal: 0,
+  button: {
+    ...Mixins.bgButtonPrimary,
+    marginHorizontal: 10,
     marginBottom: 20,
-    marginTop: 0,
-    shadowColor: 'rgba(0,0,0, .2)',
-    shadowOffset: {height: 0, width: 0},
-    shadowOpacity: 0, //default is 1
-    shadowRadius: 0, //default is 1
-    elevation: 0,
-    backgroundColor: '#ffffff',
   },
-  badgeActive: {
-    backgroundColor: '#F1811C',
-    borderWidth: 1,
-    borderColor: '#F1811C',
-    paddingHorizontal: 12,
-    height: 20,
-  },
-  badgeActiveTint: {
-    ...Mixins.small3,
-    lineHeight: 12,
-    color: '#ffffff',
-  },
-  badgeInactive: {
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#121C78',
-    paddingHorizontal: 12,
-    height: 20,
-  },
-  badgeInactiveTint: {
-    ...Mixins.small3,
-    lineHeight: 12,
-    color: '#121C78',
+  buttonText: {
+    ...Mixins.subtitle3,
+    fontSize: 18,
+    lineHeight: 25,
   },
 });
-const STOCK = [
-  {
-    title: 'GCPL STOCK TAKE 20 02 20',
-    number: 'PO00001234',
-    timestamp: moment().subtract(1, 'days').unix(),
-    transport: 'DSP',
-    status: 'progress',
-    desc: 'Dead Sea Premier',
-    rcpt: 'DRC000206959',
-    ref: 'BESG20200820A',
-  },
-  {
-    title: 'GCPL STOCK TAKE 20 02 20',
-    number: 'PO00001222',
-    timestamp: moment().subtract(4, 'days').unix(),
-    transport: 'DSP',
-    status: 'complete',
-    desc: 'Roboto',
-    rcpt: 'DRC000206959',
-    ref: 'BESG20200820A',
-  },
-  {
-    title: 'GCPL STOCK TAKE 20 02 20',
-    number: 'PO00001221',
-    timestamp: moment().subtract(3, 'days').unix(),
-    transport: 'DSP',
-    status: 'pending',
-    desc: 'Poopie',
-    rcpt: 'DRC000206959',
-    ref: 'BESG20200820A',
-  },
-  {
-    title: 'GCPL STOCK TAKE 20 02 20',
-    number: 'PO00001225',
-    timestamp: moment().subtract(1, 'days').unix(),
-    transport: 'DSP',
-    status: 'progress',
-    desc: 'Dead Sea Premier',
-    rcpt: 'DRC000206959',
-    ref: 'BESG20200820A',
-  },
-  {
-    title: 'GCPL STOCK TAKE 20 02 20',
-    number: 'PO00001223',
-    timestamp: moment().unix(),
-    transport: 'DSP',
-    status: 'pending',
-    desc: 'Dead Sea Premier',
-    rcpt: 'DRC000206959',
-    ref: 'BESG20200820A',
-  },
-  {
-    title: 'GCPL STOCK TAKE 20 02 20',
-    number: 'PO00001224',
-    timestamp: moment().unix(),
-    transport: 'DSP',
-    status: 'pending',
-    desc: 'Dead Sea Premier',
-    rcpt: 'DRC000206959',
-    ref: 'BESG20200820A',
-  },
-  {
-    title: 'GCPL STOCK TAKE 20 02 20',
-    number: 'PO00001235',
-    timestamp: moment().unix(),
-    transport: 'DSP',
-    status: 'progress',
-    desc: 'Dead Sea Premier',
-    rcpt: 'DRC000206959',
-    ref: 'BESG20200820A',
-  },
-  {
-    title: 'GCPL STOCK TAKE 20 02 20',
-    number: 'PO00001236',
-    timestamp: moment().unix(),
-    transport: 'DSP',
-    status: 'pending',
-    desc: 'Dead Sea Premier',
-    rcpt: 'DRC000206959',
-    ref: 'BESG20200820A',
-  },
-  {
-    title: 'GCPL STOCK TAKE 20 02 20',
-    number: 'PO00001237',
-    timestamp: moment().subtract(1, 'days').unix(),
-    transport: 'DSP',
-    status: 'progress',
-    desc: 'Dead Sea Premier',
-    rcpt: 'DRC000206959',
-    ref: 'BESG20200820A',
-  },
-  {
-    title: 'GCPL STOCK TAKE 20 02 20',
-    number: 'PO00001238',
-    timestamp: moment().subtract(1, 'days').unix(),
-    transport: 'DSP',
-    status: 'progress',
-    desc: 'Dead Sea Premier',
-    rcpt: 'DRC000206959',
-    ref: 'BESG20200820A',
-  },
-];
+
+const CURRENTLOCATION = {
+  location: 'JP2 C05-002',
+  itemCode: '342045002',
+  description: 'ERGOBLOM V2 BLUE DESK',
+  quantity: 30,
+  locationOpacity: 0,
+  UOM: 'Pair',
+  grade: '01',
+};
+
+const NEWLOCATION = {
+  location: 'AW-00214',
+  itemCode: '342045002',
+  description: 'ERGOBLOM V2 BLUE DESK',
+  quantity: 30,
+  locationOpacity: 60,
+  UOM: 'Pair',
+  grade: 'expired',
+};
 
 function mapStateToProps(state) {
   return {};
