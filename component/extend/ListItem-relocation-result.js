@@ -5,25 +5,7 @@ import TouchableScale from 'react-native-touchable-scale'; // https://github.com
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
 import Mixins from '../../mixins';
 
-const Manifest = ({item, navigate}) => {
-  let status = 'grey';
-  switch (item.status) {
-    case 'complete':
-      status = 'green';
-      break;
-    case 'progress':
-      status = 'orange';
-      break;
-    case 'pending':
-      status = 'grey';
-      break;
-    case 'reported':
-      status = 'red';
-      break;
-    default:
-      break;
-  }
-
+const ListItemRelocationResult = ({item, navigate}) => {
   const TextList = ({title, value}) => (
     <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
       <View style={{width: 100}}>
@@ -43,10 +25,10 @@ const Manifest = ({item, navigate}) => {
         tension={100} // These props are passed to the parent component (here TouchableScale)
         activeScale={0.95}
         pad={0}
-        style={{paddingHorizontal: 20, marginBottom: 10}}>
-        <View style={[styles.leftList, {backgroundColor: status}]} />
+        style={{marginBottom: 10}}>
         <ListItem.Content
           style={[styles.sectionContainer, {flexDirection: 'column'}]}>
+          <Text style={styles.contentTitle}>Warehosue {item.warehouse}</Text>
           <TextList title="Job ID" value={item.jobId} />
           <TextList title="Job Date" value={item.jobDate} />
           <TextList title="Client" value={item.client} />
@@ -81,6 +63,10 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: '#2D2C2C',
     fontWeight: '500',
+  },
+  contentTitle: {
+    ...Mixins.subtitle3,
+    fontWeight: 'bold',
   },
   separatorText: {
     ...Mixins.small1,
@@ -180,4 +166,4 @@ const theme = {
   },
 };
 
-export default Manifest;
+export default ListItemRelocationResult;
