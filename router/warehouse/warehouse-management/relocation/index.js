@@ -11,6 +11,7 @@ import RelocationList from './relocationList';
 import RelocationDetails from './relocationDetails';
 import RelocationConfirm from './relocationConfirm';
 import RelocationRequest from './relocationRequest';
+import RelocationRequestForm from './relocationRequestForm';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -113,6 +114,13 @@ class WarehouseManagement extends React.Component {
                 }}
               />
             ),
+          }}
+        />
+        <Stack.Screen
+          component={RelocationRequestForm}
+          name="RequestRelocationForm"
+          options={{
+            headerTitle: 'Warehouse Relocation',
           }}
         />
       </Stack.Navigator>

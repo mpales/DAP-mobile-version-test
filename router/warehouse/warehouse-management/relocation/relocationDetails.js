@@ -4,6 +4,8 @@ import {Card, Button} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
+// component
+import {TextList, TextListBig} from '../../../../component/extend/Text-list';
 //style
 import Mixins from '../../../../mixins';
 import moment from 'moment';
@@ -96,26 +98,6 @@ class RelocationDetails extends React.Component {
   }
 }
 
-const TextList = ({title, value}) => (
-  <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-    <View style={{width: 100}}>
-      <Text style={styles.titleText}>{title}</Text>
-    </View>
-    <Text style={styles.separatorText}>:</Text>
-    <Text style={styles.valueText}>{value}</Text>
-  </View>
-);
-
-const TextListBig = ({title, value}) => (
-  <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-    <View style={{width: 90}}>
-      <Text style={styles.titleTextBig}>{title}</Text>
-    </View>
-    <Text style={styles.separatorText}>:</Text>
-    <Text style={styles.titleTextBig}>{value}</Text>
-  </View>
-);
-
 const RELOCATEFROM = {
   warehouse: 'KEPPEL',
   jobRequestDate: moment().subtract(1, 'days').unix(),
@@ -151,14 +133,14 @@ const styles = StyleSheet.create({
     ...Mixins.subtitle3,
     fontSize: 18,
     lineHeight: 23,
-    marginHorizontal: 10,
+    marginHorizontal: 20,
     marginTop: 10,
   },
   cardContainer: {
     borderRadius: 5,
     backgroundColor: '#fff',
     marginBottom: 20,
-    marginHorizontal: 10,
+    marginHorizontal: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -172,39 +154,12 @@ const styles = StyleSheet.create({
     ...Mixins.subtitle1,
     lineHeight: 21,
   },
-  titleText: {
-    ...Mixins.small1,
-    lineHeight: 18,
-    color: '#2D2C2C',
-    fontWeight: '500',
-  },
-  titleTextBig: {
-    ...Mixins.subtitle1,
-    fontSize: 18,
-    lineHeight: 25,
-  },
-  separatorText: {
-    ...Mixins.small1,
-    lineHeight: 18,
-    color: '#6C6B6B',
-    fontWeight: '500',
-    textAlign: 'right',
-    flexShrink: 1,
-    paddingHorizontal: 8,
-  },
-  valueText: {
-    flex: 1,
-    ...Mixins.small1,
-    lineHeight: 18,
-    color: '#424141',
-    fontWeight: '400',
-  },
   blueContainer: {
     backgroundColor: '#414993',
     borderRadius: 5,
     paddingVertical: 15,
     paddingHorizontal: 20,
-    marginHorizontal: 10,
+    marginHorizontal: 20,
     marginBottom: 15,
   },
   blueContainerText: {
@@ -215,7 +170,7 @@ const styles = StyleSheet.create({
   },
   button: {
     ...Mixins.bgButtonPrimary,
-    marginHorizontal: 10,
+    marginHorizontal: 20,
     marginBottom: 20,
   },
   buttonText: {

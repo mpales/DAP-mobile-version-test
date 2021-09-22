@@ -27,6 +27,10 @@ class RelocationRequest extends React.Component {
     });
   };
 
+  navigateToRequestForm = () => {
+    this.props.navigation.navigate('RequestRelocationForm');
+  };
+
   render() {
     const {searchResult} = this.state;
     return (
@@ -71,7 +75,7 @@ class RelocationRequest extends React.Component {
               titleStyle={styles.buttonText}
               buttonStyle={[
                 styles.button,
-                {marginHorizontal: 0, marginTop: 20},
+                {marginHorizontal: 0, marginVertical: 20},
               ]}
             />
           </View>
@@ -79,7 +83,11 @@ class RelocationRequest extends React.Component {
             <View style={styles.resultContainer}>
               <Text style={styles.title}>Result</Text>
               {searchResult.map((item, index) => (
-                <RelocationResult key={index} item={item} />
+                <RelocationResult
+                  key={index}
+                  item={item}
+                  navigate={this.navigateToRequestForm}
+                />
               ))}
             </View>
           )}
@@ -146,7 +154,8 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     borderBottomWidth: 1,
     borderBottomColor: '#ABABAB',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 10,
   },
   resultContainer: {
     flexShrink: 1,

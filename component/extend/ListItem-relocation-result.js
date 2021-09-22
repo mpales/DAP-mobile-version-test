@@ -4,18 +4,10 @@ import {StyleSheet, View} from 'react-native';
 import TouchableScale from 'react-native-touchable-scale'; // https://github.com/kohver/react-native-touchable-scale
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
 import Mixins from '../../mixins';
+// component
+import {TextList} from './Text-list';
 
 const ListItemRelocationResult = ({item, navigate}) => {
-  const TextList = ({title, value}) => (
-    <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-      <View style={{width: 100}}>
-        <Text style={styles.titleText}>{title}</Text>
-      </View>
-      <Text style={styles.separatorText}>:</Text>
-      <Text style={styles.valueText}>{value}</Text>
-    </View>
-  );
-
   return (
     <ThemeProvider theme={theme}>
       <ListItem
