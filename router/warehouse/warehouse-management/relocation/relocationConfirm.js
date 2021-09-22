@@ -11,6 +11,8 @@ import {Button, Card, Overlay} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
+// component
+import {TextList, CustomTextList} from '../../../../component/extend/Text-list';
 // style
 import Mixins from '../../../../mixins';
 // icon
@@ -62,26 +64,26 @@ class RelocationConfirm extends React.Component {
                 title="Description"
                 value={currentLocation.description}
               />
-              <TextList
+              <CustomTextList
                 title="Quantity"
                 value={`${currentLocation.quantity}-${currentLocation.locationOpacity}`}
                 separateQuantity={true}
               />
               <TextList title="UOM" value={currentLocation.UOM} />
-              <TextList title="Grade" value={currentLocation.grade} />
+              <CustomTextList title="Grade" value={currentLocation.grade} />
             </View>
             <View style={styles.sectionContainer}>
               <Text style={styles.cardTitle}>New Location</Text>
               <TextList title="Location" value={newLocation.location} />
               <TextList title="Item Code" value={newLocation.itemCode} />
               <TextList title="Description" value={newLocation.description} />
-              <TextList
+              <CustomTextList
                 title="Quantity"
                 value={`${newLocation.quantity}-${newLocation.locationOpacity}`}
                 separateQuantity={true}
               />
               <TextList title="UOM" value={newLocation.UOM} />
-              <TextList title="Grade" value={newLocation.grade} />
+              <CustomTextList title="Grade" value={newLocation.grade} />
             </View>
           </Card>
           <Button
@@ -145,44 +147,6 @@ class RelocationConfirm extends React.Component {
   }
 }
 
-const TextList = ({title, value, separateQuantity}) => {
-  let quantityArr = [];
-  if (separateQuantity) {
-    if (typeof value === 'string') {
-      quantityArr = value.split('-');
-    } else {
-      quantityArr = value.toString().split('-');
-    }
-  }
-  return (
-    <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-      <View style={{width: 100}}>
-        <Text style={styles.titleText}>{title}</Text>
-      </View>
-      <Text style={styles.separatorText}>:</Text>
-      {separateQuantity ? (
-        <>
-          <Text style={[styles.valueText, styles.valueTextRedBold, {flex: 0}]}>
-            {quantityArr[0]}
-          </Text>
-          <Text style={[styles.valueText, {flex: 0}]}>{` -> `}</Text>
-          <Text style={[styles.valueText, styles.valueTextRedBold, {flex: 0}]}>
-            {quantityArr[quantityArr.length - 1]}
-          </Text>
-        </>
-      ) : (
-        <Text
-          style={
-            title === 'Quantity' || (title === 'Grade' && value === 'expired')
-              ? [styles.valueText, {color: '#E03B3B', fontWeight: 'bold'}]
-              : styles.valueText
-          }>
-          {title === 'Grade' ? value.toUpperCase() : value}
-        </Text>
-      )}
-    </View>
-  );
-};
 const styles = StyleSheet.create({
   body: {
     backgroundColor: Colors.white,
@@ -197,7 +161,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#fff',
     marginBottom: 20,
-    marginHorizontal: 10,
+    marginHorizontal: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -220,29 +184,9 @@ const styles = StyleSheet.create({
     color: '#2D2C2C',
     fontWeight: '500',
   },
-  separatorText: {
-    ...Mixins.small1,
-    lineHeight: 18,
-    color: '#6C6B6B',
-    fontWeight: '500',
-    textAlign: 'right',
-    flexShrink: 1,
-    paddingHorizontal: 8,
-  },
-  valueText: {
-    flex: 1,
-    ...Mixins.small1,
-    lineHeight: 18,
-    color: '#424141',
-    fontWeight: '400',
-  },
-  valueTextRedBold: {
-    fontWeight: 'bold',
-    color: '#E03B3B',
-  },
   button: {
     ...Mixins.bgButtonPrimary,
-    marginHorizontal: 10,
+    marginHorizontal: 20,
     marginBottom: 20,
   },
   buttonText: {
