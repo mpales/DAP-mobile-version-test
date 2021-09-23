@@ -27,8 +27,12 @@ class RelocationRequest extends React.Component {
     });
   };
 
-  navigateToRequestForm = () => {
+  navigateToRequestRelocationForm = () => {
     this.props.navigation.navigate('RequestRelocationForm');
+  };
+
+  navigateToRequestRelocationBarcode = () => {
+    this.props.navigation.navigate('RequestRelocationBarcode');
   };
 
   render() {
@@ -77,6 +81,7 @@ class RelocationRequest extends React.Component {
                 styles.button,
                 {marginHorizontal: 0, marginVertical: 20},
               ]}
+              onPress={this.navigateToRequestRelocationBarcode}
             />
           </View>
           {searchResult !== null && (
@@ -86,7 +91,7 @@ class RelocationRequest extends React.Component {
                 <RelocationResult
                   key={index}
                   item={item}
-                  navigate={this.navigateToRequestForm}
+                  navigate={this.navigateToRequestRelocationForm}
                 />
               ))}
             </View>
