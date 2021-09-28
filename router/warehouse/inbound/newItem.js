@@ -56,7 +56,15 @@ class Acknowledge extends React.Component {
     return true;
   }
   componentDidUpdate(prevProps, prevState, snapshot){
-    
+    if(prevState.length !== this.state.length || prevState.width !== this.state.width || prevState.height !== this.state.height){
+      const {length,width,height} = this.state;
+      if(length !== '' && width !== '' && height !== ''){
+        let volweight = parseInt(length) * parseInt(width) * parseInt(height);
+        this.setState({
+          volweight : volweight,
+        });
+      }
+    }
   }
   registerBarcode = () => {
     const {sku} = this.state;
@@ -209,7 +217,8 @@ class Acknowledge extends React.Component {
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({volweight:text})}}
-                value={volweight}
+                placeholder={volweight}
+                disabled={volweight === '' ? true : false}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -221,7 +230,6 @@ class Acknowledge extends React.Component {
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
-                onChangeText={(text)=>{this.setState({weight:text})}}
                 value={weight}
             />
          </View>
