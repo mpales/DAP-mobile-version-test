@@ -113,7 +113,7 @@ class RelocationRequest extends React.Component {
                   alignItems: 'center',
                 }}>
                 <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.title}>Result</Text>
+                  <Text style={styles.title}>Results</Text>
                   <Text
                     style={[
                       styles.title,

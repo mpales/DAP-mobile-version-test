@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import Mixins from '../../../../mixins';
 // screen
 import SearchInventory from './searchInventory';
+import SearchInventoryList from './searchInventoryList';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -74,16 +75,16 @@ class SearchInventoryNavigator extends React.Component {
           }}
         />
         <Stack.Screen
-          component={SearchInventory}
-          name="RelocationDetails"
+          component={SearchInventoryList}
+          name="SearchInventoryList"
           options={{
-            headerTitle: 'Warehouse Relocation',
+            headerTitle: 'Search Results',
             headerLeft: (props) => (
               <HeaderBackButton
                 {...props}
                 onPress={() => {
                   this.props.setBottomBar(true);
-                  this.props.navigation.navigate('RelocationList');
+                  this.props.navigation.navigate('SearchInventory');
                 }}
               />
             ),

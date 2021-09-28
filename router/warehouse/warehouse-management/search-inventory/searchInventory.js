@@ -14,15 +14,15 @@ class SearchInventory extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      client: '',
-      itemCode: '',
+      warehouse: '',
+      locationId: '',
     };
     this.submitSearch.bind(this);
   }
 
   submitSearch = () => {
-    const {client, itemCode} = this.state;
-    if (client === '' || itemCode === '') {
+    const {warehouse, locationId} = this.state;
+    if (warehouse === '' || locationId === '') {
       return;
     }
     this.navigateToSearchInventoryList();
@@ -30,16 +30,21 @@ class SearchInventory extends React.Component {
 
   handleInput = (value, type) => {
     let obj = {};
-    if (type === 'client') {
-      obj = {client: value};
-    } else if (type === 'itemCode') {
-      obj = {itemCode: value};
+    if (type === 'warehouse') {
+      obj = {warehouse: value};
+    } else if (type === 'locationId') {
+      obj = {locationId: value};
     }
     this.setState(obj);
   };
 
   navigateToSearchInventoryList = () => {
-    this.props.navigation.navigate('SearchInventoryList');
+    const {warehouse, locationId} = this.state;
+    this.props.setBottomBar(false);
+    this.props.navigation.navigate('SearchInventoryList', {
+      warehouse: warehouse,
+      locationId: locationId,
+    });
   };
 
   navigateToSearchInventoryBarcode = () => {
@@ -47,7 +52,7 @@ class SearchInventory extends React.Component {
   };
 
   render() {
-    const {client, itemCode} = this.state;
+    const {warehouse, locationId} = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -57,26 +62,26 @@ class SearchInventory extends React.Component {
               <Text style={styles.inputTitle}>Client</Text>
               <Input
                 placeholder="Select Client"
-                value={client}
+                value={warehouse}
                 containerStyle={{paddingHorizontal: 0}}
                 inputContainerStyle={styles.inputContainer}
                 inputStyle={styles.inputText}
                 renderErrorMessage={false}
                 rightIcon={<ArrowDown height="20" width="20" fill="#2D2C2C" />}
                 rightIconContainerStyle={{marginRight: 10}}
-                onChangeText={(text) => this.handleInput(text, 'client')}
+                onChangeText={(text) => this.handleInput(text, 'warehouse')}
               />
             </View>
             <View style={styles.inputWrapper}>
               <Text style={styles.inputTitle}>Item Code</Text>
               <Input
                 placeholder="Enter Item Code"
-                value={itemCode}
+                value={locationId}
                 containerStyle={{paddingHorizontal: 0}}
                 inputContainerStyle={styles.inputContainer}
                 inputStyle={styles.inputText}
                 renderErrorMessage={false}
-                onChangeText={(text) => this.handleInput(text, 'itemCode')}
+                onChangeText={(text) => this.handleInput(text, 'locationId')}
               />
             </View>
             <Button
