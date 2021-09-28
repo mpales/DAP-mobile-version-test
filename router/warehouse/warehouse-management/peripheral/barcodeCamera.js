@@ -22,9 +22,15 @@ class BarcodeCamera extends React.Component {
 
   renderBarcode = (barcode) => {
     if (barcode.length > 0 && barcode[0].data !== '') {
-      this.props.navigation.navigate('RelocationScanResult', {
-        barcodeResult: barcode[0].data,
-      });
+      if (this.props.route.params?.relocateTo === true) {
+        this.props.navigation.navigate('RelocationRequestConfirm', {
+          barcodeResult: barcode[0].data,
+        });
+      } else {
+        this.props.navigation.navigate('RelocationScanResult', {
+          barcodeResult: barcode[0].data,
+        });
+      }
     }
   };
 

@@ -22,26 +22,23 @@ import CheckmarkIcon from '../../../../assets/icon/iconmonstr-check-mark-8mobile
 
 const window = Dimensions.get('window');
 
-class RelocationRequest extends React.Component {
+class RelocationRequestConfirm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       relocateFrom: RELOCATEFROM,
-      warehouseList: WAREHOUSELIST,
-      locationList: LOCATIONIDDUMMY,
-      reasonCodeList: REASONCODELIST,
-      gradeList: GRADELIST,
+      currentLocation: CURRENTLOCATION,
       newLocation: NEWLOCATION,
-      remarks: '',
+      gradeList: GRADELIST,
       quantityToTransfer: 0,
-      selectedWarehouse: '',
-      selectedLocationId: '',
-      selectedReasonCode: '',
+      remarks: '',
       selectedGrade: '',
       sliderValue: 0,
       showOverlay: false,
     };
     this.handleShowOverlay.bind(this);
+    this.confirmRelocation.bind(this);
+    this.navigateToRelocationJobList.bind(this);
   }
 
   handleShowOverlay = (value) => {
@@ -50,50 +47,24 @@ class RelocationRequest extends React.Component {
     });
   };
 
-  handlePicker = (value, type) => {
-    let obj = {};
-    if (type === 'warehouse') {
-      obj = {selectedWarehouse: value};
-    } else if (type === 'locationId') {
-      obj = {selectedLocationId: value};
-    } else if (type === 'reasonCode') {
-      obj = {selectedReasonCode: value};
-    } else if (type === 'grade') {
-      obj = {selectedGrade: value};
-    }
-    this.setState(obj);
+  confirmRelocation = () => {
+    this.handleShowOverlay(true);
   };
 
   handleInput = (value, type) => {
     let obj = {};
     if (type === 'remarks') {
       obj = {remarks: value};
-    } else if (type === 'quantity') {
-      obj = {quantityToTransfer: value};
     }
     this.setState(obj);
   };
 
-  buttonDisabled = () => {
-    const {
-      selectedWarehouse,
-      selectedLocationId,
-      selectedReasonCode,
-      selectedGrade,
-      remarks,
-      quantityToTransfer,
-    } = this.state;
-    if (
-      selectedWarehouse === '' ||
-      selectedLocationId === '' ||
-      selectedReasonCode === '' ||
-      selectedGrade === '' ||
-      remarks === '' ||
-      quantityToTransfer === ''
-    ) {
-      return true;
+  handlePicker = (value, type) => {
+    let obj = {};
+    if (type === 'grade') {
+      obj = {selectedGrade: value};
     }
-    return false;
+    this.setState(obj);
   };
 
   calculateQuantity = (value) => {
@@ -124,31 +95,29 @@ class RelocationRequest extends React.Component {
     this.props.navigation.navigate('RelocationList');
   };
 
-  navigateToRequestRelocationBarcode = () => {
-    this.props.navigation.navigate('RequestRelocationBarcode', {
-      relocateTo: true,
-    });
+  buttonDisabled = () => {
+    const {remarks, quantityToTransfer, selectedGrade} = this.state;
+    if (selectedGrade === '' || remarks === '' || quantityToTransfer === '') {
+      return true;
+    }
+    return false;
   };
 
   render() {
     const {
       relocateFrom,
-      warehouseList,
-      locationList,
-      reasonCodeList,
-      gradeList,
       newLocation,
-      selectedWarehouse,
-      selectedLocationId,
-      selectedReasonCode,
-      selectedGrade,
       remarks,
+      gradeList,
       quantityToTransfer,
+      selectedGrade,
+      showOverlay,
+      sliderValue,
     } = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
-        <ScrollView style={styles.body}>
+        <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
           <Text style={styles.title}>Relocate From</Text>
           <Card containerStyle={styles.cardContainer}>
             <Text style={styles.cardTitle}>
@@ -164,80 +133,6 @@ class RelocationRequest extends React.Component {
             <TextList title="From Location" value={relocateFrom.fromLocation} />
             <TextList title="To Location" value={relocateFrom.toLocation} />
           </Card>
-          <View style={styles.relocateToContainer}>
-            <Text style={[styles.title, {marginHorizontal: 0}]}>
-              Relocate To
-            </Text>
-            <Button
-              title="By Barcode"
-              titleStyle={[styles.buttonText, {fontSize: 14, lineHeight: 21}]}
-              buttonStyle={[styles.smallButton]}
-              onPress={this.navigateToRequestRelocationBarcode}
-            />
-          </View>
-          <View style={styles.inputFormContainer}>
-            <Text style={styles.inputFormtitle}>Warehouse</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dialog"
-                selectedValue={selectedWarehouse}
-                onValueChange={(value) =>
-                  this.handlePicker(value, 'warehouse')
-                }>
-                <Picker.Item
-                  label="Select Warehouse"
-                  value=""
-                  color="#ABABAB"
-                />
-                {warehouseList.length > 0 &&
-                  warehouseList.map((item) => (
-                    <Picker.Item label={item.name} value={item.name} />
-                  ))}
-              </Picker>
-            </View>
-          </View>
-          <View style={styles.inputFormContainer}>
-            <Text style={styles.inputFormtitle}>Location ID</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dialog"
-                selectedValue={selectedLocationId}
-                onValueChange={(value) =>
-                  this.handlePicker(value, 'locationId')
-                }>
-                <Picker.Item
-                  label="Select Location ID"
-                  value=""
-                  color="#ABABAB"
-                />
-                {locationList.length > 0 &&
-                  locationList.map((item) => (
-                    <Picker.Item label={item.id} value={item.id} />
-                  ))}
-              </Picker>
-            </View>
-          </View>
-          <View style={styles.inputFormContainer}>
-            <Text style={styles.inputFormtitle}>Reason Code</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dialog"
-                selectedValue={selectedReasonCode}
-                onValueChange={(value) =>
-                  this.handlePicker(value, 'reasonCode')
-                }>
-                <Picker.Item
-                  label="Select Reason Code"
-                  value=""
-                  color="#ABABAB"
-                />
-                {reasonCodeList.length > 0 &&
-                  reasonCodeList.map((item) => (
-                    <Picker.Item label={item.code} value={item.code} />
-                  ))}
-              </Picker>
-            </View>
-          </View>
           <View style={styles.inputFormContainer}>
             <Text style={styles.inputFormtitle}>Remarks</Text>
             <Input
@@ -278,7 +173,7 @@ class RelocationRequest extends React.Component {
                 minimumTrackTintColor="#F07120"
                 maximumTrackTintColor="#E7E8F2"
                 thumbTintColor="#F07120"
-                value={this.state.sliderValue}
+                value={sliderValue}
                 onValueChange={(value) => this.calculateQuantity(value)}
               />
               <View
@@ -311,18 +206,18 @@ class RelocationRequest extends React.Component {
             </View>
           </View>
           <Button
-            title="Start Relocate"
+            title="Confirm Relocation"
             titleStyle={styles.buttonText}
             buttonStyle={styles.button}
             disabledTitleStyle={{color: '#FFF'}}
             disabledStyle={{backgroundColor: 'gray'}}
             disabled={this.buttonDisabled()}
-            onPress={() => this.handleShowOverlay(true)}
+            onPress={this.confirmRelocation}
           />
         </ScrollView>
         <Overlay
           overlayStyle={{borderRadius: 10, padding: 0}}
-          isVisible={this.state.showOverlay}>
+          isVisible={showOverlay}>
           <View
             style={{
               flexShrink: 1,
@@ -387,35 +282,6 @@ const RELOCATEFROM = {
   toLocation: 'JP-0004',
 };
 
-const WAREHOUSELIST = [
-  {name: 'KEPPEL'},
-  {name: 'KEPPEL 2'},
-  {name: 'KEPPEL 3'},
-  {name: 'KEPPEL 4'},
-];
-
-const LOCATIONIDDUMMY = [
-  {id: '123123'},
-  {id: '234234'},
-  {id: '345434'},
-  {id: '4556456'},
-];
-
-const REASONCODELIST = [
-  {code: 'BATCHADJ', description: 'Batch No Adjustment'},
-  {code: 'CANCEL', description: 'CANCEL'},
-  {code: 'DAMAGED', description: 'Damaged'},
-  {code: 'EXPADJ', description: 'Expiry Date Adjustment'},
-  {code: 'EXTRA', description: 'EXTRA PACK'},
-  {code: 'LOTADJ', description: 'Lot No Adjustment'},
-  {code: 'OC', description: 'Order Cancelled'},
-  {code: 'PC', description: 'PACKING COMPLETE'},
-  {code: 'QA INSPECT', description: 'Quality Assurance Inpection'},
-  {code: 'RELOCATION', description: 'Relocation'},
-  {code: 'STK COUNT', description: 'Stock Count Adjustment'},
-  {code: 'WE', description: 'Wrong Entry'},
-];
-
 const GRADELIST = [
   {name: 'Pick'},
   {name: 'Buffer'},
@@ -426,16 +292,6 @@ const GRADELIST = [
   {name: 'No Stock'},
   {name: 'Reserve'},
 ];
-
-const NEWLOCATION = {
-  location: 'AW-00214',
-  itemCode: '342045002',
-  description: 'ERGOBLOM V2 BLUE DESK',
-  quantity: 30,
-  locationOpacity: 60,
-  UOM: 'Pair',
-  grade: 'expired',
-};
 
 const styles = StyleSheet.create({
   body: {
@@ -450,10 +306,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 10,
   },
+  sectionContainer: {
+    marginTop: 10,
+    marginBottom: 40,
+  },
   cardContainer: {
     borderRadius: 5,
     backgroundColor: '#fff',
-    marginBottom: 30,
+    marginBottom: 20,
     marginHorizontal: 20,
     shadowColor: '#000',
     shadowOffset: {
@@ -466,16 +326,26 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     ...Mixins.subtitle1,
-    fontSize: 14,
-    lineHeight: 21,
+    fontSize: 18,
+    lineHeight: 25,
+    color: '#2A3386',
     marginBottom: 5,
   },
-  relocateToContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  titleText: {
+    ...Mixins.small1,
+    lineHeight: 18,
+    color: '#2D2C2C',
+    fontWeight: '500',
+  },
+  button: {
+    ...Mixins.bgButtonPrimary,
     marginHorizontal: 20,
     marginBottom: 20,
-    alignItems: 'center',
+  },
+  buttonText: {
+    ...Mixins.subtitle3,
+    fontSize: 18,
+    lineHeight: 25,
   },
   pickerContainer: {
     borderWidth: 1,
@@ -502,22 +372,27 @@ const styles = StyleSheet.create({
     ...Mixins.subtitle3,
     lineHeight: 21,
   },
-  button: {
-    ...Mixins.bgButtonPrimary,
-    marginVertical: 20,
-    marginHorizontal: 20,
-  },
-  buttonText: {
-    ...Mixins.subtitle3,
-    fontSize: 18,
-    lineHeight: 25,
-  },
-  smallButton: {
-    ...Mixins.bgButtonPrimary,
-    paddingHorizontal: 20,
-    paddingVertical: 5,
-  },
 });
+
+const CURRENTLOCATION = {
+  location: 'JP2 C05-002',
+  itemCode: '342045002',
+  description: 'ERGOBLOM V2 BLUE DESK',
+  quantity: 30,
+  locationOpacity: 0,
+  UOM: 'Pair',
+  grade: '01',
+};
+
+const NEWLOCATION = {
+  location: 'AW-00214',
+  itemCode: '342045002',
+  description: 'ERGOBLOM V2 BLUE DESK',
+  quantity: 30,
+  locationOpacity: 60,
+  UOM: 'Pair',
+  grade: 'expired',
+};
 
 function mapStateToProps(state) {
   return {};
@@ -531,4 +406,7 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(RelocationRequest);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(RelocationRequestConfirm);
