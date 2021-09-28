@@ -32,9 +32,7 @@ class RelocationDetails extends React.Component {
         <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
           <Text style={styles.title}>Relocate From</Text>
           <Card containerStyle={styles.cardContainer}>
-            <Text style={styles.cardTitle}>
-              Warehouse {relocateFrom.warehouse}
-            </Text>
+            <TextList title="Warehouse" value={relocateFrom.warehouse} />
             <TextList
               title="Job Request Date"
               value={relocateFrom.jobRequestDate}
@@ -48,6 +46,7 @@ class RelocationDetails extends React.Component {
             <TextList title="Expiry Date" value={relocateFrom.expiryDate} />
             <TextList title="Batch No" value={relocateFrom.batchNo} />
             <TextList title="Reason Code" value={relocateFrom.reasonCode} />
+            <TextList title="Remarks" value={relocateFrom.remarks} />
             <View style={{borderWidth: 1, borderRadius: 5, padding: 10}}>
               <TextListBig title="Quantity" value={relocateFrom.quantity} />
               <TextListBig title="UOM" value={relocateFrom.UOM} />
@@ -75,9 +74,7 @@ class RelocationDetails extends React.Component {
           </View>
           <Text style={styles.title}>Relocate To</Text>
           <Card containerStyle={styles.cardContainer}>
-            <Text style={styles.cardTitle}>
-              Warehouse {relocateTo.warehouse}
-            </Text>
+            <TextList title="Warehouse" value={relocateTo.warehouse} />
             <TextList title="Location" value={relocateTo.location} />
             <TextList title="Item Code" value={relocateTo.itemCode} />
             <TextList title="Description" value={relocateTo.description} />

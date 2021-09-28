@@ -14,7 +14,7 @@ import {connect} from 'react-redux';
 import {Picker} from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
 // component
-import {TextList} from '../../../../component/extend/Text-list';
+import {TextList, CustomTextList} from '../../../../component/extend/Text-list';
 // style
 import Mixins from '../../../../mixins';
 // icon
@@ -249,9 +249,9 @@ class RelocationRequestConfirm extends React.Component {
               <TextList title="Location" value={newLocation.location} />
               <TextList title="Item Code" value={newLocation.itemCode} />
               <TextList title="Description" value={newLocation.description} />
-              <TextList title="Quantity" value={newLocation.quantity} />
+              <CustomTextList title="Quantity" value={newLocation.quantity} />
               <TextList title="UOM" value={newLocation.UOM} />
-              <TextList title="Grade" value={newLocation.grade} />
+              <CustomTextList title="Grade" value={newLocation.grade} />
               <Button
                 title="Back To List"
                 titleStyle={styles.buttonText}

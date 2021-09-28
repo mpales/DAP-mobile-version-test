@@ -16,15 +16,31 @@ class RelocationRequest extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      client: '',
+      itemCode: '',
       searchResult: null,
     };
     this.submitSearch.bind(this);
   }
 
   submitSearch = () => {
+    const {client, itemCode} = this.state;
+    if (client === '' || itemCode === '') {
+      return;
+    }
     this.setState({
       searchResult: SEARCHRESULT,
     });
+  };
+
+  handleInput = (value, type) => {
+    let obj = {};
+    if (type === 'client') {
+      obj = {client: value};
+    } else if (type === 'itemCode') {
+      obj = {itemCode: value};
+    }
+    this.setState(obj);
   };
 
   navigateToRequestRelocationForm = () => {
@@ -36,7 +52,7 @@ class RelocationRequest extends React.Component {
   };
 
   render() {
-    const {searchResult} = this.state;
+    const {searchResult, client, itemCode} = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -47,22 +63,26 @@ class RelocationRequest extends React.Component {
               <Text style={styles.inputTitle}>Client</Text>
               <Input
                 placeholder="Select Client"
+                value={client}
                 containerStyle={{paddingHorizontal: 0}}
                 inputContainerStyle={styles.inputContainer}
                 inputStyle={styles.inputText}
                 renderErrorMessage={false}
                 rightIcon={<ArrowDown height="20" width="20" fill="#2D2C2C" />}
                 rightIconContainerStyle={{marginRight: 10}}
+                onChangeText={(text) => this.handleInput(text, 'client')}
               />
             </View>
             <View style={styles.inputWrapper}>
               <Text style={styles.inputTitle}>Item Code</Text>
               <Input
                 placeholder="Enter Item Code"
+                value={itemCode}
                 containerStyle={{paddingHorizontal: 0}}
                 inputContainerStyle={styles.inputContainer}
                 inputStyle={styles.inputText}
                 renderErrorMessage={false}
+                onChangeText={(text) => this.handleInput(text, 'itemCode')}
               />
             </View>
             <Button
@@ -86,7 +106,27 @@ class RelocationRequest extends React.Component {
           </View>
           {searchResult !== null && (
             <View style={styles.resultContainer}>
-              <Text style={styles.title}>Result</Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={styles.title}>Result</Text>
+                  <Text
+                    style={[
+                      styles.title,
+                      styles.textBlue,
+                      {marginLeft: 20},
+                    ]}>{`${client} ${itemCode}`}</Text>
+                </View>
+                <Text
+                  style={[
+                    styles.text,
+                    styles.textBlue,
+                  ]}>{`${searchResult.length} Result`}</Text>
+              </View>
               {searchResult.map((item, index) => (
                 <RelocationResult
                   key={index}
@@ -173,6 +213,14 @@ const styles = StyleSheet.create({
     ...Mixins.subtitle3,
     fontSize: 18,
     lineHeight: 25,
+  },
+  text: {
+    ...Mixins.subtitle3,
+    fontSize: 14,
+    lineHeight: 21,
+  },
+  textBlue: {
+    color: '#2A3386',
   },
   inputTitle: {
     ...Mixins.subtitle3,

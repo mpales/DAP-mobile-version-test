@@ -128,8 +128,12 @@ class RelocationConfirm extends React.Component {
               <TextList title="Item Code" value={newLocation.itemCode} />
               <TextList title="Description" value={newLocation.description} />
               <TextList title="Quantity" value={newLocation.quantity} />
+              <CustomTextList
+                title="Quantity"
+                value={newLocation.locationOpacity}
+              />
               <TextList title="UOM" value={newLocation.UOM} />
-              <TextList title="Grade" value={newLocation.grade} />
+              <CustomTextList title="Grade" value={newLocation.grade} />
               <Button
                 title="Back To List"
                 titleStyle={styles.buttonText}
@@ -209,7 +213,7 @@ const CURRENTLOCATION = {
 const NEWLOCATION = {
   location: 'AW-00214',
   itemCode: '342045002',
-  description: 'ERGOBLOM V2 BLUE DESK',
+  description: 'ERGOBLOM V2 BLUE DESK (HTH-512W LARGE TABLE/SHELF)',
   quantity: 30,
   locationOpacity: 60,
   UOM: 'Pair',
