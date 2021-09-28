@@ -20,6 +20,12 @@ class SearchInventory extends React.Component {
     this.submitSearch.bind(this);
   }
 
+  componentDidMount() {
+    this.props.navigation.addListener('focus', () => {
+      this.props.setBottomBar(true);
+    });
+  }
+
   submitSearch = () => {
     const {warehouse, locationId} = this.state;
     if (warehouse === '' || locationId === '') {

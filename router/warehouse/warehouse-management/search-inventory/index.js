@@ -10,6 +10,7 @@ import Mixins from '../../../../mixins';
 import SearchInventory from './searchInventory';
 import SearchInventoryList from './searchInventoryList';
 import SearchInventoryDetails from './searchInventoryDetails';
+import SearchInventoryBarcode from '../peripheral/searchInventoryBarcode';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -80,15 +81,6 @@ class SearchInventoryNavigator extends React.Component {
           name="SearchInventoryList"
           options={{
             headerTitle: 'Search Results',
-            headerLeft: (props) => (
-              <HeaderBackButton
-                {...props}
-                onPress={() => {
-                  this.props.setBottomBar(true);
-                  this.props.navigation.navigate('SearchInventory');
-                }}
-              />
-            ),
           }}
         />
         <Stack.Screen
@@ -96,6 +88,23 @@ class SearchInventoryNavigator extends React.Component {
           name="SearchInventoryDetails"
           options={{
             headerTitle: 'Storage Details',
+          }}
+        />
+        <Stack.Screen
+          component={SearchInventoryBarcode}
+          name="SearchInventoryBarcode"
+          options={{
+            headerTitle: '',
+            headerTransparent: true,
+            headerBackTitle: 'Back',
+            headerLeft: (props) => (
+              <HeaderBackButton
+                {...props}
+                onPress={() => {
+                  this.props.navigation.navigate('SearchInventory');
+                }}
+              />
+            ),
           }}
         />
       </Stack.Navigator>
