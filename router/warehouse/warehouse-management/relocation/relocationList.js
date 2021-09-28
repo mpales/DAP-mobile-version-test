@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
 });
 const STOCK = [
   {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
+    jobId: '09123',
     jobDate: moment().subtract(1, 'days').unix(),
     client: 'BG5G',
     warehouse: 'KEPPEL',
@@ -229,9 +229,10 @@ const STOCK = [
     quantity: 30,
     fromLocation: 'JP2 C05-002',
     toLocation: 'JP1-0004',
+    status: 'Waiting',
   },
   {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
+    jobId: '09123',
     jobDate: moment().subtract(1, 'days').unix(),
     client: 'BG5G',
     warehouse: 'KEPPEL',
@@ -240,9 +241,10 @@ const STOCK = [
     quantity: 30,
     fromLocation: 'JP2 C05-002',
     toLocation: 'JP1-0004',
+    status: 'Waiting',
   },
   {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
+    jobId: '09123',
     jobDate: moment().subtract(1, 'days').unix(),
     client: 'BG5G',
     warehouse: 'KEPPEL',
@@ -251,9 +253,10 @@ const STOCK = [
     quantity: 30,
     fromLocation: 'JP2 C05-002',
     toLocation: 'JP1-0004',
+    status: 'Waiting',
   },
   {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
+    jobId: '09123',
     jobDate: moment().subtract(1, 'days').unix(),
     client: 'BG5G',
     warehouse: 'KEPPEL',
@@ -262,9 +265,10 @@ const STOCK = [
     quantity: 30,
     fromLocation: 'JP2 C05-002',
     toLocation: 'JP1-0004',
+    status: 'Waiting',
   },
   {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
+    jobId: '09123',
     jobDate: moment().subtract(1, 'days').unix(),
     client: 'BG5G',
     warehouse: 'KEPPEL',
@@ -273,9 +277,10 @@ const STOCK = [
     quantity: 30,
     fromLocation: 'JP2 C05-002',
     toLocation: 'JP1-0004',
+    status: 'Waiting',
   },
   {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
+    jobId: '09123',
     jobDate: moment().subtract(1, 'days').unix(),
     client: 'BG5G',
     warehouse: 'KEPPEL',
@@ -284,6 +289,7 @@ const STOCK = [
     quantity: 30,
     fromLocation: 'JP2 C05-002',
     toLocation: 'JP1-0004',
+    status: 'Waiting',
   },
 ];
 
