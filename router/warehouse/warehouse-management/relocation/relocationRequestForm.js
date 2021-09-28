@@ -1,14 +1,26 @@
 import React from 'react';
-import {ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
-import {Button, Card, Input} from 'react-native-elements';
+import {
+  Dimensions,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import {Button, Card, Input, Overlay} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 import {Picker} from '@react-native-picker/picker';
+import Slider from '@react-native-community/slider';
 // component
 import {TextList} from '../../../../component/extend/Text-list';
 // style
 import Mixins from '../../../../mixins';
+// icon
+import CheckmarkIcon from '../../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
+
+const window = Dimensions.get('window');
 
 class RelocationRequest extends React.Component {
   constructor(props) {
@@ -19,14 +31,24 @@ class RelocationRequest extends React.Component {
       locationList: LOCATIONIDDUMMY,
       reasonCodeList: REASONCODELIST,
       gradeList: GRADELIST,
+      newLocation: NEWLOCATION,
       remarks: '',
-      quantityToTransfer: '',
+      quantityToTransfer: 0,
       selectedWarehouse: '',
       selectedLocationId: '',
       selectedReasonCode: '',
       selectedGrade: '',
+      sliderValue: 0,
+      showOverlay: false,
     };
+    this.handleShowOverlay.bind(this);
   }
+
+  handleShowOverlay = (value) => {
+    this.setState({
+      showOverlay: value ?? false,
+    });
+  };
 
   handlePicker = (value, type) => {
     let obj = {};
@@ -74,8 +96,32 @@ class RelocationRequest extends React.Component {
     return false;
   };
 
-  navigateToConfirmRelocation = () => {
-    this.props.navigation.navigate('ConfirmRelocation');
+  calculateQuantity = (value) => {
+    const {relocateFrom} = this.state;
+    let quantityNumber = 0;
+    quantityNumber = relocateFrom.quantity * (value / 100);
+    this.setState({
+      quantityToTransfer: quantityNumber.toFixed(0),
+      sliderValue: value,
+    });
+  };
+
+  calculateSliderPercentage = (value) => {
+    const {relocateFrom} = this.state;
+    let percentage = 0;
+    if (value !== '') {
+      percentage = ((relocateFrom.quantity * parseInt(value)) / 100) * 10;
+    }
+    this.setState({
+      quantityToTransfer: value,
+      sliderValue: percentage,
+    });
+  };
+
+  navigateToRelocationJobList = () => {
+    this.handleShowOverlay();
+    this.props.setBottomBar(true);
+    this.props.navigation.navigate('RelocationList');
   };
 
   render() {
@@ -85,6 +131,7 @@ class RelocationRequest extends React.Component {
       locationList,
       reasonCodeList,
       gradeList,
+      newLocation,
       selectedWarehouse,
       selectedLocationId,
       selectedReasonCode,
@@ -198,17 +245,48 @@ class RelocationRequest extends React.Component {
               onChangeText={(text) => this.handleInput(text, 'remarks')}
             />
           </View>
-          <View style={styles.inputFormContainer}>
-            <Text style={styles.inputFormtitle}>Quantity To Transfer</Text>
-            <Input
-              containerStyle={{paddingHorizontal: 0}}
-              inputContainerStyle={styles.inputContainer}
-              inputStyle={styles.inputText}
-              keyboardType="numeric"
-              renderErrorMessage={false}
-              value={quantityToTransfer}
-              onChangeText={(text) => this.handleInput(text, 'quantity')}
-            />
+          <View style={[styles.inputFormContainer, {marginHorizontal: 0}]}>
+            <View style={{marginHorizontal: 20}}>
+              <Text style={styles.inputFormtitle}>Quantity To Transfer</Text>
+              <Input
+                containerStyle={{paddingHorizontal: 0}}
+                inputContainerStyle={styles.inputContainer}
+                inputStyle={styles.inputText}
+                keyboardType="numeric"
+                renderErrorMessage={false}
+                value={quantityToTransfer.toString()}
+                onChangeText={(text) => this.calculateSliderPercentage(text)}
+              />
+            </View>
+            <View style={{marginHorizontal: 10}}>
+              <Slider
+                style={{
+                  width: '100%',
+                  height: 40,
+                  marginTop: 20,
+                }}
+                minimumValue={0}
+                maximumValue={100}
+                step={25}
+                minimumTrackTintColor="#F07120"
+                maximumTrackTintColor="#E7E8F2"
+                thumbTintColor="#F07120"
+                value={this.state.sliderValue}
+                onValueChange={(value) => this.calculateQuantity(value)}
+              />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  marginHorizontal: 10,
+                }}>
+                <Text>0%</Text>
+                <Text style={{marginLeft: '6%'}}>25%</Text>
+                <Text style={{marginLeft: '7%'}}>50%</Text>
+                <Text style={{marginLeft: '6%'}}>75%</Text>
+                <Text>100%</Text>
+              </View>
+            </View>
           </View>
           <View style={styles.inputFormContainer}>
             <Text style={styles.inputFormtitle}>Destination Grade</Text>
@@ -232,9 +310,58 @@ class RelocationRequest extends React.Component {
             disabledTitleStyle={{color: '#FFF'}}
             disabledStyle={{backgroundColor: 'gray'}}
             disabled={this.buttonDisabled()}
-            onPress={this.navigateToConfirmRelocation}
+            onPress={() => this.handleShowOverlay(true)}
           />
         </ScrollView>
+        <Overlay
+          overlayStyle={{borderRadius: 10, padding: 0}}
+          isVisible={this.state.showOverlay}>
+          <View
+            style={{
+              flexShrink: 1,
+              width: window.width * 0.9,
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderBottomWidth: 1,
+                borderBottomColor: '#ABABAB',
+                paddingVertical: 15,
+              }}>
+              <CheckmarkIcon height="24" width="24" fill="#17B055" />
+              <Text
+                style={{
+                  ...Mixins.subtitle3,
+                  fontSize: 18,
+                  lineHeight: 25,
+                  marginLeft: 10,
+                  color: '#17B055',
+                }}>
+                Relocation Successful
+              </Text>
+            </View>
+            <View style={{padding: 20}}>
+              <Text style={styles.cardTitle}>New Location</Text>
+              <TextList title="Location" value={newLocation.location} />
+              <TextList title="Item Code" value={newLocation.itemCode} />
+              <TextList title="Description" value={newLocation.description} />
+              <TextList title="Quantity" value={newLocation.quantity} />
+              <TextList title="UOM" value={newLocation.UOM} />
+              <TextList title="Grade" value={newLocation.grade} />
+              <Button
+                title="Back To List"
+                titleStyle={styles.buttonText}
+                buttonStyle={[
+                  styles.button,
+                  {marginHorizontal: 0, marginTop: 20},
+                ]}
+                onPress={this.navigateToRelocationJobList}
+              />
+            </View>
+          </View>
+        </Overlay>
       </SafeAreaProvider>
     );
   }
@@ -292,6 +419,16 @@ const GRADELIST = [
   {name: 'No Stock'},
   {name: 'Reserve'},
 ];
+
+const NEWLOCATION = {
+  location: 'AW-00214',
+  itemCode: '342045002',
+  description: 'ERGOBLOM V2 BLUE DESK',
+  quantity: 30,
+  locationOpacity: 60,
+  UOM: 'Pair',
+  grade: 'expired',
+};
 
 const styles = StyleSheet.create({
   body: {
