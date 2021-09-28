@@ -12,13 +12,27 @@ export const TextList = ({title, value}) => (
   </View>
 );
 
-export const TextListBig = ({title, value}) => (
+export const TextListBig = ({title, value, fontSize}) => (
   <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-    <View style={{width: 90}}>
-      <Text style={styles.titleTextBig}>{title}</Text>
+    <View style={{width: 100}}>
+      <Text
+        style={
+          fontSize === undefined
+            ? styles.titleTextBig
+            : [styles.titleText, {fontSize: fontSize}]
+        }>
+        {title}
+      </Text>
     </View>
     <Text style={styles.separatorText}>:</Text>
-    <Text style={styles.titleTextBig}>{value}</Text>
+    <Text
+      style={
+        fontSize === undefined
+          ? styles.titleTextBig
+          : [styles.titleText, {fontSize: fontSize}]
+      }>
+      {value}
+    </Text>
   </View>
 );
 
@@ -63,8 +77,8 @@ export const CustomTextList = ({title, value, separateQuantity}) => {
 
 const styles = StyleSheet.create({
   titleText: {
-    ...Mixins.small1,
-    lineHeight: 18,
+    ...Mixins.subtitle3,
+    lineHeight: 21,
     color: '#2D2C2C',
     fontWeight: '500',
   },
@@ -84,10 +98,10 @@ const styles = StyleSheet.create({
   },
   valueText: {
     flex: 1,
-    ...Mixins.small1,
-    lineHeight: 18,
+    ...Mixins.subtitle3,
+    lineHeight: 21,
     color: '#424141',
-    fontWeight: '400',
+    fontWeight: '500',
   },
   valueTextRedBold: {
     fontWeight: 'bold',

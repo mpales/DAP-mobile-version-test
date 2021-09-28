@@ -48,6 +48,7 @@ class SearchInventory extends React.Component {
   };
 
   navigateToSearchInventoryBarcode = () => {
+    this.props.setBottomBar(false);
     this.props.navigation.navigate('SearchInventoryBarcode');
   };
 

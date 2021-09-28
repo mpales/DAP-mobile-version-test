@@ -9,6 +9,7 @@ import Mixins from '../../../../mixins';
 // screen
 import SearchInventory from './searchInventory';
 import SearchInventoryList from './searchInventoryList';
+import SearchInventoryDetails from './searchInventoryDetails';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -88,6 +89,13 @@ class SearchInventoryNavigator extends React.Component {
                 }}
               />
             ),
+          }}
+        />
+        <Stack.Screen
+          component={SearchInventoryDetails}
+          name="SearchInventoryDetails"
+          options={{
+            headerTitle: 'Storage Details',
           }}
         />
       </Stack.Navigator>
