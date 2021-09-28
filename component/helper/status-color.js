@@ -55,3 +55,22 @@ export const deliveryStatusColor = (status) => {
   }
   return color;
 };
+
+export const requestRelocationJobStatusColor = (status) => {
+  let color = '';
+  switch (status) {
+    case 'Completed':
+      color = '#17B055';
+      break;
+    case 'Pending':
+      color = '#ABABAB';
+      break;
+    case 'Reported':
+      color = '#E03B3B';
+      break;
+    default:
+      color = '#ABABAB';
+      break;
+  }
+  return color;
+};

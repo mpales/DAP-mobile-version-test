@@ -1,31 +1,15 @@
 import React from 'react';
-import {ListItem, ThemeProvider, Text} from 'react-native-elements';
-import {StyleSheet, View} from 'react-native';
+import {ListItem, ThemeProvider} from 'react-native-elements';
+import {StyleSheet, Text, View} from 'react-native';
 import TouchableScale from 'react-native-touchable-scale'; // https://github.com/kohver/react-native-touchable-scale
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
 import Mixins from '../../mixins';
 // component
 import {TextList} from './Text-list';
+// helper
+import {requestRelocationJobStatusColor} from '../../component/helper/status-color';
 
 const Manifest = ({item, navigate}) => {
-  let status = 'grey';
-  switch (item.status) {
-    case 'complete':
-      status = 'green';
-      break;
-    case 'progress':
-      status = 'orange';
-      break;
-    case 'pending':
-      status = 'grey';
-      break;
-    case 'reported':
-      status = 'red';
-      break;
-    default:
-      break;
-  }
-
   return (
     <ThemeProvider theme={theme}>
       <ListItem
@@ -36,7 +20,12 @@ const Manifest = ({item, navigate}) => {
         activeScale={0.95}
         pad={0}
         style={{paddingHorizontal: 20, marginBottom: 10}}>
-        <View style={[styles.leftList, {backgroundColor: status}]} />
+        <View
+          style={[
+            styles.leftList,
+            {backgroundColor: requestRelocationJobStatusColor(item.status)},
+          ]}
+        />
         <ListItem.Content
           style={[styles.sectionContainer, {flexDirection: 'column'}]}>
           <TextList title="Job ID" value={item.jobId} />
@@ -57,6 +46,13 @@ const Manifest = ({item, navigate}) => {
             <IconArrow66Mobile height="26" width="26" fill="#2D2C2C" />
           )}
         />
+        <View
+          style={[
+            styles.statusContainer,
+            {backgroundColor: requestRelocationJobStatusColor(item.status)},
+          ]}>
+          <Text style={styles.statusText}>{item.status}</Text>
+        </View>
       </ListItem>
     </ThemeProvider>
   );
@@ -83,11 +79,17 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     paddingHorizontal: 8,
   },
-  valueText: {
-    flex: 1,
+  statusContainer: {
+    position: 'absolute',
+    right: 14,
+    top: 12,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+  },
+  statusText: {
     ...Mixins.small1,
     lineHeight: 18,
-    color: '#424141',
+    color: '#FFF',
     fontWeight: '400',
   },
   subtitleText: {
