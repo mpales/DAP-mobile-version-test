@@ -10,6 +10,7 @@ import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
 // module navigator
 import RelocationNavigator from './relocation';
+import SearchInventoryNavigator from './search-inventory';
 // icon
 import WarehouseRelocationIcon from '../../../assets/icon/warehouse-mobile.svg';
 import StockTakeIcon from '../../../assets/icon/iconmonstr-shipping-box-2mobile.svg';
@@ -121,11 +122,13 @@ class WarehouseManagement extends React.Component {
                   ...Mixins.buttonFloatedAvatarDefaultIconStyle,
                 },
               }}
-              title="CHECK INVENTORY"
+              title="SEARCH INVENTORY"
               overlayContainerStyle={
                 Mixins.buttonFloatedAvatarDefaultOverlayStyle
               }
-              onPress={() => console.log('Works!')}
+              onPress={() =>
+                this.props.navigation.navigate('SearchInventoryNavigator')
+              }
               activeOpacity={0.7}
               containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
               placeholderStyle={
@@ -172,7 +175,7 @@ class WarehouseManagement extends React.Component {
   render() {
     return (
       <Stack.Navigator
-        initialRouteName="Warehouse"
+        initialRouteName="ManagementMenu"
         screenOptions={{
           headerBackImage: () => (
             <IconArrow66Mobile height="22" width="18" fill="#FFF" />
@@ -195,6 +198,11 @@ class WarehouseManagement extends React.Component {
         <Stack.Screen
           component={RelocationNavigator}
           name="RelocationNavigator"
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          component={SearchInventoryNavigator}
+          name="SearchInventoryNavigator"
           options={{headerShown: false}}
         />
       </Stack.Navigator>
