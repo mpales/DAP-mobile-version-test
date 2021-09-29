@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import Mixins from '../../../../mixins';
 // screen
 import ClientCheckInventory from './clientCheckInventory';
+import ClientStorageList from './clientStorageList';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -71,6 +72,13 @@ class ClientInventoryNavigator extends React.Component {
           name="CheckInventory"
           options={{
             headerTitle: 'Search Inventory',
+          }}
+        />
+        <Stack.Screen
+          component={ClientStorageList}
+          name="ClientStorageList"
+          options={{
+            headerTitle: 'Storage Location List',
           }}
         />
       </Stack.Navigator>

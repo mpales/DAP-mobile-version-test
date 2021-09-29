@@ -77,8 +77,8 @@ export const CustomTextList = ({title, value, separateQuantity}) => {
 
 const styles = StyleSheet.create({
   titleText: {
-    ...Mixins.subtitle3,
-    lineHeight: 21,
+    ...Mixins.small1,
+    lineHeight: 18,
     color: '#2D2C2C',
     fontWeight: '500',
   },
@@ -98,10 +98,10 @@ const styles = StyleSheet.create({
   },
   valueText: {
     flex: 1,
-    ...Mixins.subtitle3,
-    lineHeight: 21,
+    ...Mixins.small1,
+    lineHeight: 18,
     color: '#424141',
-    fontWeight: '500',
+    fontWeight: '400',
   },
   valueTextRedBold: {
     fontWeight: 'bold',
