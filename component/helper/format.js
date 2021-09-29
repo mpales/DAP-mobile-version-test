@@ -45,6 +45,17 @@ export default class Format {
       month < 10 ? '0' + month : month
     }/${year} ${time}`;
   };
+
+  // format date and time
+  static formatDate = (date) => {
+    let newDate = new Date(date);
+    let day = newDate.getDate();
+    let month = newDate.getMonth() + 1;
+    let year = ('' + newDate.getFullYear()).substr(2);
+    return `${day < 10 ? '0' + day : day}/${
+      month < 10 ? '0' + month : month
+    }/${year}`;
+  };
 }
 
 const time2Current = (date) => {

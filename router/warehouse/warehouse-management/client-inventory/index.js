@@ -9,6 +9,7 @@ import Mixins from '../../../../mixins';
 // screen
 import ClientCheckInventory from './clientCheckInventory';
 import ClientStorageList from './clientStorageList';
+import ClientStorageDetails from './clientStorageDetails';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -79,6 +80,13 @@ class ClientInventoryNavigator extends React.Component {
           name="ClientStorageList"
           options={{
             headerTitle: 'Storage Location List',
+          }}
+        />
+        <Stack.Screen
+          component={ClientStorageDetails}
+          name="ClientStorageDetails"
+          options={{
+            headerTitle: 'Storage Details',
           }}
         />
       </Stack.Navigator>
