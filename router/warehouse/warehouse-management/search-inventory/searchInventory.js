@@ -5,84 +5,90 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 import moment from 'moment';
-// component
-import RelocationResult from '../../../../component/extend/ListItem-relocation-result';
 // style
 import Mixins from '../../../../mixins';
 // icon
 import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 
-class RelocationRequest extends React.Component {
+class SearchInventory extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      client: '',
-      itemCode: '',
-      searchResult: null,
+      warehouse: '',
+      locationId: '',
     };
     this.submitSearch.bind(this);
   }
 
+  componentDidMount() {
+    this.props.navigation.addListener('focus', () => {
+      this.props.setBottomBar(true);
+    });
+  }
+
   submitSearch = () => {
-    const {client, itemCode} = this.state;
-    if (client === '' || itemCode === '') {
+    const {warehouse, locationId} = this.state;
+    if (warehouse === '' || locationId === '') {
       return;
     }
-    this.setState({
-      searchResult: SEARCHRESULT,
-    });
+    this.navigateToSearchInventoryList();
   };
 
   handleInput = (value, type) => {
     let obj = {};
-    if (type === 'client') {
-      obj = {client: value};
-    } else if (type === 'itemCode') {
-      obj = {itemCode: value};
+    if (type === 'warehouse') {
+      obj = {warehouse: value};
+    } else if (type === 'locationId') {
+      obj = {locationId: value};
     }
     this.setState(obj);
   };
 
-  navigateToRequestRelocationForm = () => {
-    this.props.navigation.navigate('RequestRelocationForm');
+  navigateToSearchInventoryList = () => {
+    const {warehouse, locationId} = this.state;
+    this.props.setBottomBar(false);
+    this.props.navigation.navigate('SearchInventoryList', {
+      warehouse: warehouse,
+      locationId: locationId,
+    });
   };
 
-  navigateToRequestRelocationBarcode = () => {
-    this.props.navigation.navigate('RequestRelocationBarcode');
+  navigateToSearchInventoryBarcode = () => {
+    this.props.setBottomBar(false);
+    this.props.navigation.navigate('SearchInventoryBarcode');
   };
 
   render() {
-    const {searchResult, client, itemCode} = this.state;
+    const {warehouse, locationId} = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
         <ScrollView style={styles.body}>
           <View style={styles.searchContainer}>
-            <Text style={styles.title}>Request Relocation</Text>
             <View style={styles.inputWrapper}>
               <Text style={styles.inputTitle}>Client</Text>
               <Input
                 placeholder="Select Client"
-                value={client}
+                value={warehouse}
                 containerStyle={{paddingHorizontal: 0}}
                 inputContainerStyle={styles.inputContainer}
                 inputStyle={styles.inputText}
                 renderErrorMessage={false}
                 rightIcon={<ArrowDown height="20" width="20" fill="#2D2C2C" />}
                 rightIconContainerStyle={{marginRight: 10}}
-                onChangeText={(text) => this.handleInput(text, 'client')}
+                onChangeText={(text) => this.handleInput(text, 'warehouse')}
               />
             </View>
             <View style={styles.inputWrapper}>
               <Text style={styles.inputTitle}>Item Code</Text>
               <Input
                 placeholder="Enter Item Code"
-                value={itemCode}
+                value={locationId}
                 containerStyle={{paddingHorizontal: 0}}
                 inputContainerStyle={styles.inputContainer}
                 inputStyle={styles.inputText}
                 renderErrorMessage={false}
-                onChangeText={(text) => this.handleInput(text, 'itemCode')}
+                onChangeText={(text) => this.handleInput(text, 'locationId')}
               />
             </View>
             <Button
@@ -101,93 +107,14 @@ class RelocationRequest extends React.Component {
                 styles.button,
                 {marginHorizontal: 0, marginVertical: 20},
               ]}
-              onPress={this.navigateToRequestRelocationBarcode}
+              onPress={this.navigateToSearchInventoryBarcode}
             />
           </View>
-          {searchResult !== null && (
-            <View style={styles.resultContainer}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.title}>Results</Text>
-                  <Text
-                    style={[
-                      styles.title,
-                      styles.textBlue,
-                      {marginLeft: 20},
-                    ]}>{`${client} ${itemCode}`}</Text>
-                </View>
-                <Text
-                  style={[
-                    styles.text,
-                    styles.textBlue,
-                  ]}>{`${searchResult.length} Result`}</Text>
-              </View>
-              {searchResult.map((item, index) => (
-                <RelocationResult
-                  key={index}
-                  item={item}
-                  navigate={this.navigateToRequestRelocationForm}
-                />
-              ))}
-            </View>
-          )}
         </ScrollView>
       </SafeAreaProvider>
     );
   }
 }
-
-const SEARCHRESULT = [
-  {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-  },
-  {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-  },
-  {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-  },
-  {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-  },
-];
 
 const styles = StyleSheet.create({
   body: {
@@ -197,8 +124,6 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flexShrink: 1,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ABABAB',
     paddingHorizontal: 20,
     paddingTop: 10,
   },
@@ -259,4 +184,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(RelocationRequest);
+export default connect(mapStateToProps, mapDispatchToProps)(SearchInventory);
