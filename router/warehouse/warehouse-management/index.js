@@ -11,6 +11,7 @@ import Mixins from '../../../mixins';
 // module navigator
 import RelocationNavigator from './relocation';
 import SearchInventoryNavigator from './search-inventory';
+import ClientInventoryNavigator from './client-inventory';
 // icon
 import WarehouseRelocationIcon from '../../../assets/icon/warehouse-mobile.svg';
 import StockTakeIcon from '../../../assets/icon/iconmonstr-shipping-box-2mobile.svg';
@@ -155,7 +156,9 @@ class WarehouseManagement extends React.Component {
               overlayContainerStyle={
                 Mixins.buttonFloatedAvatarDefaultOverlayStyle
               }
-              onPress={() => console.log('Works!')}
+              onPress={() =>
+                this.props.navigation.navigate('ClientInventoryNavigator')
+              }
               activeOpacity={0.7}
               containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
               placeholderStyle={
@@ -203,6 +206,11 @@ class WarehouseManagement extends React.Component {
         <Stack.Screen
           component={SearchInventoryNavigator}
           name="SearchInventoryNavigator"
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          component={ClientInventoryNavigator}
+          name="ClientInventoryNavigator"
           options={{headerShown: false}}
         />
       </Stack.Navigator>
