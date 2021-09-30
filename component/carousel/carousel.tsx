@@ -94,7 +94,7 @@ export default class Carousel extends Component {
     this._filterChildren();
 
     // when received props it will update all views, with new props.
-    TimerMixin.clearTimeout(this.timer);
+    clearTimeout(this.timer);
 
     this._resetPager();
   }
@@ -129,11 +129,11 @@ export default class Carousel extends Component {
     const {animate} = this.props;
 
     if (this.timer) {
-      TimerMixin.clearTimeout(this.timer);
+      clearTimeout(this.timer);
     }
 
     if (animate && this.children.length > 1) {
-      this.timer = TimerMixin.setTimeout(
+      this.timer = setTimeout(
         this._animateNextPage,
         this.props.delay,
       );
@@ -159,7 +159,7 @@ export default class Carousel extends Component {
       activePage = 0;
     } else if (!this.props.loop) {
       // no loop, clear timer
-      TimerMixin.clearTimeout(this.timer);
+      clearTimeout(this.timer);
       return;
     }
 
@@ -175,7 +175,7 @@ export default class Carousel extends Component {
       onScrollBegin();
     }
 
-    TimerMixin.clearTimeout(this.timer);
+    clearTimeout(this.timer);
   }
 
   _onAnimationEnd(activePage) {
