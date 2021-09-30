@@ -80,7 +80,6 @@ class List extends Component {
              lng: coords.longitude,
            };
            this.props.reverseGeoCoding(coords);
-           this.props.setGeoLocation(latLng);
            //prototype list cords
            let listCords = Array.from({length:this.state.namedOrder.length}).map((num,index) => {
             return {lat: this.state.namedOrder[index].coords.lat, lng: this.state.namedOrder[index].coords.lng};
@@ -147,15 +146,14 @@ class List extends Component {
       this.updateStateData();
     }
      let {locationPermission} = this.props;
-     if (locationPermission && (prevProps.route_id !== this.props.route_id || this.props.currentPositionData === null)) {
-         let watchID = Geolocation.watchPosition(
+     if (locationPermission && prevProps.route_id !== this.props.route_id) {
+      let watchID = Geolocation.watchPosition(
           ({coords}) => {
             let latLng = {
               lat: coords.latitude,
               lng: coords.longitude,
             };
             this.props.reverseGeoCoding(coords);
-            this.props.setGeoLocation(latLng);
             Geolocation.clearWatch(watchID);
             RNFusedLocation.stopObserving();
           },
