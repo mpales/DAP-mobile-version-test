@@ -32,6 +32,19 @@ class ClientStorageList extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.sortList('location');
+  }
+
+  sortList = (type) => {
+    this.setState({selectedSortBy: type});
+    let sortedList = [...this.state.storageList];
+    sortedList.sort((a, b) =>
+      a[type] > b[type] ? 1 : b[type] > a[type] ? -1 : 0,
+    );
+    this.setState({storageList: sortedList});
+  };
+
   navigateToDetails = () => {
     this.props.navigation.navigate('ClientStorageDetails');
   };
@@ -53,16 +66,16 @@ class ClientStorageList extends React.Component {
             <Picker
               mode="dialog"
               selectedValue={selectedSortBy}
-              onValueChange={(value) => this.setState({selectedSortBy: value})}
+              onValueChange={(value) => this.sortList(value)}
               style={{maxWidth: 150}}>
               <Picker.Item
                 label="Location"
-                value="Location"
+                value="location"
                 style={styles.text}
               />
               <Picker.Item
                 label="Quantity"
-                value="Quantity"
+                value="quantity"
                 style={styles.text}
               />
             </Picker>
@@ -187,20 +200,20 @@ const ITEMSTATUSDATA = [
 const STORAGELIST = [
   {
     warehouse: 'KEPPEL',
-    location: 'JP2 C05-002',
+    location: 'JP2 C05-020',
     itemCode: '09871233456',
     description: 'ERGOBLOM V2 BLUE DESK',
     grade: '01',
-    quantity: '30',
+    quantity: '10',
     UOM: 'PCS',
   },
   {
-    warehouse: 'KEPPEL',
-    location: 'JP2 C05-002',
+    warehouse: 'AEPPEL',
+    location: 'JP2 C05-010',
     itemCode: '09871233456',
     description: 'ERGOBLOM V2 BLUE DESK',
     grade: '01',
-    quantity: '30',
+    quantity: '20',
     UOM: 'PCS',
   },
 ];
