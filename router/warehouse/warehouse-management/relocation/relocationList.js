@@ -21,11 +21,22 @@ class RelocationList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      filteredJobList: null,
+      jobList: STOCK,
       search: '',
       filterStatus: 'All',
     };
     this.handleFilterStatus.bind(this);
     this.updateSearch.bind(this);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevState.search !== this.state.search ||
+      prevState.filterStatus !== this.state.filterStatus
+    ) {
+      this.filterJoblist();
+    }
   }
 
   updateSearch = (search) => {
@@ -34,6 +45,29 @@ class RelocationList extends React.Component {
 
   handleFilterStatus = (value) => {
     this.setState({filterStatus: value});
+  };
+
+  filterJoblist = () => {
+    const {search, filterStatus} = this.state;
+    const {jobList} = this.state;
+    let filteredJobList = [];
+    if (search.length > 0) {
+      filteredJobList = jobList.filter((job) => {
+        return job.client.includes(search);
+      });
+      if (filterStatus !== 'All') {
+        filteredJobList = filteredJobList.filter((job) => {
+          return job.status === filterStatus;
+        });
+      }
+    } else {
+      if (filterStatus !== 'All') {
+        filteredJobList = jobList.filter((job) => {
+          return job.status === filterStatus;
+        });
+      }
+    }
+    this.setState({filteredJobList: filteredJobList});
   };
 
   navigateToDetails = () => {
@@ -47,6 +81,7 @@ class RelocationList extends React.Component {
   };
 
   render() {
+    const {search, filterStatus, jobList, filteredJobList} = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
@@ -112,7 +147,7 @@ class RelocationList extends React.Component {
             }
           />
           <Badge
-            value="Received"
+            value="In Progress"
             onPress={() => this.handleFilterStatus('In Progress')}
             badgeStyle={
               this.state.filterStatus === 'In Progress'
@@ -126,7 +161,7 @@ class RelocationList extends React.Component {
             }
           />
           <Badge
-            value="Processing"
+            value="Completed"
             onPress={() => this.handleFilterStatus('Completed')}
             badgeStyle={
               this.state.filterStatus === 'Completed'
@@ -141,7 +176,9 @@ class RelocationList extends React.Component {
           />
         </ScrollView>
         <FlatList
-          data={STOCK}
+          data={
+            search === '' && filterStatus === 'All' ? jobList : filteredJobList
+          }
           renderItem={({item, index}) => (
             <Relocation item={item} navigate={this.navigateToDetails} />
           )}
@@ -188,6 +225,7 @@ const styles = StyleSheet.create({
   badgeContainer: {
     flex: 1,
     minHeight: 25,
+    maxHeight: 25,
     flexDirection: 'row',
     marginBottom: 10,
     marginHorizontal: 20,
@@ -222,7 +260,7 @@ const STOCK = [
   {
     jobId: '09123',
     jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
+    client: 'Toberto',
     warehouse: 'KEPPEL',
     itemCode: '342035002',
     description: 'ERGOBLOM V2 BLUE DESK',
@@ -234,7 +272,19 @@ const STOCK = [
   {
     jobId: '09123',
     jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
+    client: 'Roberto',
+    warehouse: 'KEPPEL',
+    itemCode: '342035002',
+    description: 'ERGOBLOM V2 BLUE DESK',
+    quantity: 30,
+    fromLocation: 'JP2 C05-002',
+    toLocation: 'JP1-0004',
+    status: 'Completed',
+  },
+  {
+    jobId: '09123',
+    jobDate: moment().subtract(1, 'days').unix(),
+    client: 'Boberto',
     warehouse: 'KEPPEL',
     itemCode: '342035002',
     description: 'ERGOBLOM V2 BLUE DESK',
@@ -246,50 +296,38 @@ const STOCK = [
   {
     jobId: '09123',
     jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
+    client: 'Foberto',
     warehouse: 'KEPPEL',
     itemCode: '342035002',
     description: 'ERGOBLOM V2 BLUE DESK',
     quantity: 30,
     fromLocation: 'JP2 C05-002',
     toLocation: 'JP1-0004',
-    status: 'Waiting',
+    status: 'In Progress',
   },
   {
     jobId: '09123',
     jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
+    client: 'Goberto',
     warehouse: 'KEPPEL',
     itemCode: '342035002',
     description: 'ERGOBLOM V2 BLUE DESK',
     quantity: 30,
     fromLocation: 'JP2 C05-002',
     toLocation: 'JP1-0004',
-    status: 'Waiting',
+    status: 'Completed',
   },
   {
     jobId: '09123',
     jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
+    client: 'Friberg',
     warehouse: 'KEPPEL',
     itemCode: '342035002',
     description: 'ERGOBLOM V2 BLUE DESK',
     quantity: 30,
     fromLocation: 'JP2 C05-002',
     toLocation: 'JP1-0004',
-    status: 'Waiting',
-  },
-  {
-    jobId: '09123',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-    status: 'Waiting',
+    status: 'In Progress',
   },
 ];
 
