@@ -20,6 +20,19 @@ class SearchInventoryList extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.sortList('location');
+  }
+
+  sortList = (type) => {
+    this.setState({selectedSortBy: type});
+    let sortedList = [...this.state.searchResult];
+    sortedList.sort((a, b) =>
+      a[type] > b[type] ? 1 : b[type] > a[type] ? -1 : 0,
+    );
+    this.setState({searchResult: sortedList});
+  };
+
   navigateToDetails = () => {
     this.props.navigation.navigate('SearchInventoryDetails');
   };
@@ -35,16 +48,16 @@ class SearchInventoryList extends React.Component {
             <Picker
               mode="dialog"
               selectedValue={selectedSortBy}
-              onValueChange={(value) => this.setState({selectedSortBy: value})}
-              style={{maxWidth: 150}}>
+              onValueChange={(value) => this.sortList(value)}
+              style={{maxWidth: 180}}>
               <Picker.Item
                 label="Location"
-                value="Location"
+                value="location"
                 style={styles.text}
               />
               <Picker.Item
-                label="Quantity"
-                value="Quantity"
+                label="Warehouse"
+                value="warehouse"
                 style={styles.text}
               />
             </Picker>
@@ -121,7 +134,7 @@ const styles = StyleSheet.create({
     color: '#2A3386',
   },
   pickerContainer: {
-    width: 150,
+    width: 180,
     borderWidth: 1,
     borderRadius: 5,
     borderColor: '#D5D5D5',
@@ -135,20 +148,20 @@ const SEARCHRESULT = [
     location: 'JP4 B-L145',
   },
   {
-    warehouse: 'KEPPEL',
-    location: 'JP4 B-L146',
+    warehouse: 'JEPPEL',
+    location: 'JP4 B-L132',
   },
   {
-    warehouse: 'KEPPEL',
-    location: 'JP4 B-L147',
+    warehouse: 'AEPPEL',
+    location: 'JP4 B-L175',
   },
   {
     warehouse: 'KEPPEL',
     location: 'JP4 B-L148',
   },
   {
-    warehouse: 'KEPPEL',
-    location: 'JP4 B-L149',
+    warehouse: 'BEPPEL',
+    location: 'JP4 B-L101',
   },
   {
     warehouse: 'KEPPEL',
