@@ -21,6 +21,19 @@ class SearchInventoryDetails extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.sortList('client');
+  }
+
+  sortList = (type) => {
+    this.setState({selectedSortBy: type});
+    let sortedList = [...this.state.inventoryList];
+    sortedList.sort((a, b) =>
+      a[type] > b[type] ? 1 : b[type] > a[type] ? -1 : 0,
+    );
+    this.setState({inventoryList: sortedList});
+  };
+
   navigateToConfirmRelocation = () => {
     this.props.navigation.navigate('ConfirmRelocation');
   };
@@ -39,18 +52,16 @@ class SearchInventoryDetails extends React.Component {
               <Picker
                 mode="dialog"
                 selectedValue={selectedSortBy}
-                onValueChange={(value) =>
-                  this.setState({selectedSortBy: value})
-                }
+                onValueChange={(value) => this.sortList(value)}
                 style={{maxWidth: 150}}>
                 <Picker.Item
-                  label="Location"
-                  value="Location"
+                  label="Client"
+                  value="client"
                   style={styles.text}
                 />
                 <Picker.Item
                   label="Quantity"
-                  value="Quantity"
+                  value="quantity"
                   style={styles.text}
                 />
               </Picker>
@@ -102,12 +113,28 @@ class SearchInventoryDetails extends React.Component {
 
 const INVENTORYLIST = [
   {
-    client: 'BG5G',
+    client: 'CG5G',
     itemCode: '256000912',
     description: 'ERGOBLOM V2 BLUE DESK',
     barcode: 'BT-090123345',
     grade: '01',
-    quantity: 30,
+    quantity: 10,
+    UOM: 'PCS',
+    receiptDate: moment().subtract(1, 'days').unix(),
+    attributes: {
+      productCategory: 'Fashion',
+      color: 'BLACK',
+      expiryDate: '-',
+      banch: '01',
+    },
+  },
+  {
+    client: 'AG5G',
+    itemCode: '256000912',
+    description: 'ERGOBLOM V2 BLUE DESK',
+    barcode: 'BT-090123345',
+    grade: '01',
+    quantity: 50,
     UOM: 'PCS',
     receiptDate: moment().subtract(1, 'days').unix(),
     attributes: {
@@ -123,23 +150,7 @@ const INVENTORYLIST = [
     description: 'ERGOBLOM V2 BLUE DESK',
     barcode: 'BT-090123345',
     grade: '01',
-    quantity: 30,
-    UOM: 'PCS',
-    receiptDate: moment().subtract(1, 'days').unix(),
-    attributes: {
-      productCategory: 'Fashion',
-      color: 'BLACK',
-      expiryDate: '-',
-      banch: '01',
-    },
-  },
-  {
-    client: 'BG5G',
-    itemCode: '256000912',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    barcode: 'BT-090123345',
-    grade: '01',
-    quantity: 30,
+    quantity: 90,
     UOM: 'PCS',
     receiptDate: moment().subtract(1, 'days').unix(),
     attributes: {
