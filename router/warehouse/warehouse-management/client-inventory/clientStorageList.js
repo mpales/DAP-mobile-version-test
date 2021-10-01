@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   FlatList,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -104,40 +105,64 @@ class ClientStorageList extends React.Component {
           </View>
         </View>
         <Card containerStyle={styles.cardContainer}>
-          <View style={[styles.tableRow, {marginBottom: 5}]}>
-            <Text style={styles.tableColumnFirst}>Item Status</Text>
-            <Text style={styles.tableColumn}>UOM</Text>
-            <Text style={styles.tableColumn}>01</Text>
-            <Text style={styles.tableColumn}>02</Text>
-            <Text style={styles.tableColumn}>NS</Text>
-            <Text style={styles.tableColumn}>SIT</Text>
+          <View style={styles.tableRow}>
+            <View style={styles.firstColumn}>
+              <Text style={styles.tableColumnFirst}>Item Status</Text>
+              <Text
+                style={[styles.tableColumnFirst, {backgroundColor: '#F5F5FB'}]}>
+                On Hand
+              </Text>
+              <Text style={styles.tableColumnFirst}>Free</Text>
+              <Text
+                style={[styles.tableColumnFirst, {backgroundColor: '#F5F5FB'}]}>
+                ASN/Transit
+              </Text>
+              <Text style={styles.tableColumnFirst}>Sales Order</Text>
+            </View>
+            <ScrollView horizontal={true}>
+              <View style={{flex: 1, flexDirection: 'column'}}>
+                <View style={styles.tableRow}>
+                  {itemStatusData !== null &&
+                    Object.keys(itemStatusData[0]).map((value, index) => {
+                      if (index === 0) {
+                        return;
+                      }
+                      return (
+                        <Text style={styles.tableColumnValue}>{value}</Text>
+                      );
+                    })}
+                </View>
+                {itemStatusData !== null &&
+                  itemStatusData.map((data, index) => {
+                    return (
+                      <TouchableOpacity
+                        style={
+                          index % 2 === 0
+                            ? [styles.tableRow, {backgroundColor: '#F5F5FB'}]
+                            : styles.tableRow
+                        }>
+                        <Text style={styles.tableColumnValue}>
+                          {data['UOM']}
+                        </Text>
+                        <Text style={styles.tableColumnValue}>
+                          {data['01']}
+                        </Text>
+                        <Text style={styles.tableColumnValue}>
+                          {data['02']}
+                        </Text>
+                        <Text style={styles.tableColumnValue}>
+                          {data['NS']}
+                        </Text>
+                        <Text style={styles.tableColumnValue}>
+                          {data['SIT']}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+              </View>
+            </ScrollView>
           </View>
-          {itemStatusData !== null &&
-            itemStatusData.map((data, index) => {
-              return (
-                <TouchableOpacity
-                  style={
-                    index % 2 === 0
-                      ? [styles.tableRow, {backgroundColor: '#F5F5FB'}]
-                      : styles.tableRow
-                  }>
-                  <Text style={styles.tableColumnFirst}>{data.itemStatus}</Text>
-                  <Text style={styles.tableColumnValue}>{data.UOM}</Text>
-                  <Text style={styles.tableColumnValue}>{data.one}</Text>
-                  <Text style={styles.tableColumnValue}>{data.two}</Text>
-                  <Text style={styles.tableColumnValue}>{data.NS}</Text>
-                  <Text style={styles.tableColumnValue}>{data.SIT}</Text>
-                </TouchableOpacity>
-              );
-            })}
         </Card>
-        <View style={styles.paginationContainer}>
-          <ArrowLeft height="15" width="15" fill="#2D2C2C" />
-          <Text style={styles.paginationTextActive}>01</Text>
-          <Text style={styles.paginationText}>02</Text>
-          <Text style={styles.paginationText}>03</Text>
-          <ArrowRight height="15" width="15" fill="#2D2C2C" />
-        </View>
         <View style={styles.lineSeparator} />
         {storageList === null ? (
           <View
@@ -166,32 +191,32 @@ const ITEMSTATUSDATA = [
   {
     itemStatus: 'On Hand',
     UOM: 'PC',
-    one: '21',
-    two: '02',
+    '01': '21',
+    '02': '02',
     NS: '2',
     SIT: '0',
   },
   {
     itemStatus: 'Free',
     UOM: 'PC',
-    one: '18',
-    two: '0',
+    '01': '18',
+    '02': '0',
     NS: '2',
     SIT: '0',
   },
   {
     itemStatus: 'ASN/Transit',
     UOM: 'PC',
-    one: '31',
-    two: '01',
+    '01': '31',
+    '02': '01',
     NS: '2',
     SIT: '0',
   },
   {
     itemStatus: 'Sales Order',
     UOM: 'PC',
-    one: '09',
-    two: '07',
+    '01': '09',
+    '02': '07',
     NS: '2',
     SIT: '0',
   },
@@ -268,11 +293,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 10,
   },
+  firstColumn: {
+    width: 100,
+  },
   tableColumnFirst: {
     width: 100,
     ...Mixins.small1,
     lineHeight: 18,
     paddingVertical: 3,
+    paddingHorizontal: 10,
   },
   tableColumn: {
     flexShrink: 1,
@@ -282,7 +311,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   tableColumnValue: {
-    flexShrink: 1,
+    width: 50,
     ...Mixins.small1,
     lineHeight: 18,
     fontWeight: '400',
