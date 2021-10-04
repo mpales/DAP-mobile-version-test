@@ -9,6 +9,7 @@ import {View} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
 // module navigator
+import StockTakeNavigator from './stock-take';
 import RelocationNavigator from './relocation';
 import SearchInventoryNavigator from './search-inventory';
 import ClientInventoryNavigator from './client-inventory';
@@ -63,8 +64,7 @@ class WarehouseManagement extends React.Component {
                 Mixins.buttonFloatedAvatarDefaultOverlayStyle
               }
               onPress={() => {
-                this.props.setBottomBar(false);
-                this.props.navigation.navigate('Management', {screen: 'Stock'});
+                this.props.navigation.navigate('StockTakeNavigator');
               }}
               activeOpacity={0.7}
               containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
@@ -198,6 +198,11 @@ class WarehouseManagement extends React.Component {
           },
         }}>
         <Stack.Screen component={this.managementMenu} name="ManagementMenu" />
+        <Stack.Screen
+          component={StockTakeNavigator}
+          name="StockTakeNavigator"
+          options={{headerShown: false}}
+        />
         <Stack.Screen
           component={RelocationNavigator}
           name="RelocationNavigator"
