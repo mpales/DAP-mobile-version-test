@@ -74,3 +74,28 @@ export const requestRelocationJobStatusColor = (status) => {
   }
   return color;
 };
+
+export const stockTakeJobStatusColor = (status) => {
+  let color = '';
+  switch (status) {
+    case 'Completed':
+      color = '#17B055';
+      break;
+    case 'Waiting':
+      color = '#ABABAB';
+      break;
+    case 'In Progress':
+      color = '#F07120';
+      break;
+    case 'Pending Review':
+      color = '#F8B511';
+      break;
+    case 'Reported':
+      color = '#E03B3B';
+      break;
+    default:
+      color = '#ABABAB';
+      break;
+  }
+  return color;
+};
