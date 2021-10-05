@@ -4,15 +4,17 @@ import {StyleSheet, Text, View} from 'react-native';
 import TouchableScale from 'react-native-touchable-scale'; // https://github.com/kohver/react-native-touchable-scale
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
 import Mixins from '../../mixins';
+// component
+import {TextList} from './Text-list';
 // helper
 import {stockTakeJobStatusColor} from '../helper/status-color';
 
-const ListItemStockTake = ({item, navigate}) => {
+const ListItemStockTakeCount = ({item, navigate}) => {
   return (
     <ThemeProvider theme={theme}>
       <ListItem
         Component={TouchableScale}
-        onPress={() => navigate(item)}
+        onPress={item.status === 'In Progress' ? null : navigate}
         friction={90} //
         tension={100} // These props are passed to the parent component (here TouchableScale)
         activeScale={0.95}
@@ -26,11 +28,14 @@ const ListItemStockTake = ({item, navigate}) => {
         />
         <ListItem.Content
           style={[styles.sectionContainer, {flexDirection: 'column'}]}>
-          <Text style={styles.valueText}>{item.date}</Text>
-          <Text style={styles.valueText}>{item.jobId}</Text>
-          <Text style={styles.valueText}>{item.clientName}</Text>
-          <Text style={styles.valueText}>{item.clientCode}</Text>
-          <Text style={styles.valueText}>{item.warehouse}</Text>
+          <TextList title="Warehouse" value={item.warehouse} />
+          <TextList title="Location" value={item.location} />
+          <TextList title="Pallet" value={item.pallet} />
+          <TextList title="Item Code" value={item.itemCode} />
+          <TextList title="Description" value={item.description} />
+          <TextList title="Quantity" value={item.quantity} />
+          <TextList title="UOM" value={item.UOM} />
+          <TextList title="Grade" value={item.grade} />
         </ListItem.Content>
         <ListItem.Chevron
           size={16}
@@ -144,4 +149,4 @@ const theme = {
   },
 };
 
-export default ListItemStockTake;
+export default ListItemStockTakeCount;

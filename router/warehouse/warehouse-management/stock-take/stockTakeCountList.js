@@ -12,27 +12,21 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 //component
-import StockTakeItem from '../../../../component/extend/ListItem-stock-take';
+import StockTakeCountItem from '../../../../component/extend/ListItem-stock-take-count';
 //style
 import Mixins from '../../../../mixins';
-import moment from 'moment';
 
-class StockTakeList extends React.Component {
+class StockTakeCountList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      jobList: STOCKTAKEJOB,
+      jobData: this.props.route.params?.jobData ?? null,
+      stockTakeCountList: STOCKTAKECOUNT,
       search: '',
       filterStatus: 'All',
     };
     this.handleFilterStatus.bind(this);
     this.updateSearch.bind(this);
-  }
-
-  componentDidMount() {
-    this.props.navigation.addListener('focus', () => {
-      this.props.setBottomBar(true);
-    });
   }
 
   updateSearch = (search) => {
@@ -43,9 +37,14 @@ class StockTakeList extends React.Component {
     this.setState({filterStatus: value});
   };
 
-  navigateToStockTakeCountList = (data) => {
+  navigateToDetails = () => {
     this.props.setBottomBar(false);
-    this.props.navigation.navigate('StockTakeCountList', {jobData: data});
+    this.props.navigation.navigate('RelocationDetails');
+  };
+
+  navigateToRequestRelocation = () => {
+    this.props.setBottomBar(false);
+    this.props.navigation.navigate('RequestRelocation');
   };
 
   renderEmpty = () => {
@@ -62,7 +61,7 @@ class StockTakeList extends React.Component {
   };
 
   render() {
-    const {jobList} = this.state;
+    const {stockTakeCountList, jobData} = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
@@ -70,13 +69,25 @@ class StockTakeList extends React.Component {
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            alignItems: 'center',
             marginTop: 15,
             paddingHorizontal: 20,
           }}>
-          <Text style={styles.searchTitle}>Search</Text>
+          {jobData !== null && (
+            <>
+              <View>
+                <Text style={styles.text}>{jobData.jobId}</Text>
+                <Text style={styles.text}>{jobData.clientName}</Text>
+                <Text style={styles.text}>{jobData.warehouse}</Text>
+              </View>
+              <View>
+                <Text style={styles.text}>{jobData.date}</Text>
+                <Text style={styles.text}>{jobData.clientCode}</Text>
+              </View>
+            </>
+          )}
         </View>
         <SearchBar
+          placeholder="Search"
           onChangeText={this.updateSearch}
           value={this.state.search}
           lightTheme={true}
@@ -99,6 +110,20 @@ class StockTakeList extends React.Component {
             }
             textStyle={
               this.state.filterStatus === 'All'
+                ? styles.badgeTextSelected
+                : styles.badgeText
+            }
+          />
+          <Badge
+            value="Reported"
+            onPress={() => this.handleFilterStatus('Reported')}
+            badgeStyle={
+              this.state.filterStatus === 'Reported'
+                ? styles.badgeSelected
+                : styles.badge
+            }
+            textStyle={
+              this.state.filterStatus === 'Reported'
                 ? styles.badgeTextSelected
                 : styles.badgeText
             }
@@ -127,34 +152,6 @@ class StockTakeList extends React.Component {
             }
             textStyle={
               this.state.filterStatus === 'In Progress'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-          <Badge
-            value="Pending Review"
-            onPress={() => this.handleFilterStatus('Pending Review')}
-            badgeStyle={
-              this.state.filterStatus === 'Pending Review'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'Pending Review'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-          <Badge
-            value="Reported"
-            onPress={() => this.handleFilterStatus('Reported')}
-            badgeStyle={
-              this.state.filterStatus === 'Reported'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'Reported'
                 ? styles.badgeTextSelected
                 : styles.badgeText
             }
@@ -189,12 +186,9 @@ class StockTakeList extends React.Component {
           />
         </ScrollView>
         <FlatList
-          data={jobList}
+          data={stockTakeCountList}
           renderItem={({item, index}) => (
-            <StockTakeItem
-              item={item}
-              navigate={this.navigateToStockTakeCountList}
-            />
+            <StockTakeCountItem item={item} navigate={this.navigateToDetails} />
           )}
           keyExtractor={(item, index) => index}
           showsVerticalScrollIndicator={false}
@@ -211,10 +205,11 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     flex: 1,
   },
-  searchTitle: {
-    ...Mixins.subtitle3,
-    lineHeight: 20,
+  text: {
+    ...Mixins.small1,
+    lineHeight: 18,
     color: '#424141',
+    fontWeight: '500',
   },
   searchInputText: {
     ...Mixins.subtitle3,
@@ -272,46 +267,39 @@ const styles = StyleSheet.create({
   },
 });
 
-const STOCKTAKEJOB = [
+const STOCKTAKECOUNT = [
   {
-    date: moment().subtract(1, 'days').unix(),
-    jobId: 'JOB ID 1951541',
-    clientName: 'WORKEDGE',
-    clientCode: 'WE-12323412',
-    warehouse: 'Warehouse KEPPEL-GE',
+    warehouse: 'KEPPEL',
     status: 'Waiting',
+    location: 'JP2 C05-002',
+    pallet: 'JP2 C05-002',
+    itemCode: '561961',
+    description: 'DAP ITEMS',
+    quantity: '2000',
+    UOM: 'PCS',
+    grade: '01',
   },
   {
-    date: moment().subtract(1, 'days').unix(),
-    jobId: 'JOB ID 1566741',
-    clientName: 'B5SG',
-    clientCode: 'GW-3412323412',
-    warehouse: 'Warehouse KEPPEL-GE',
+    warehouse: 'KEPPEL',
     status: 'In Progress',
+    location: 'JP2 C05-002',
+    pallet: 'JP2 C05-002',
+    itemCode: '561961',
+    description: 'DAP ITEMS',
+    quantity: '2000',
+    UOM: 'PCS',
+    grade: '01',
   },
   {
-    date: moment().subtract(1, 'days').unix(),
-    jobId: 'JOB ID 1951541',
-    clientName: 'WORKEDGE',
-    clientCode: 'WE-12323412',
-    warehouse: 'Warehouse KEPPEL-GE',
-    status: 'Pending Review',
-  },
-  {
-    date: moment().subtract(1, 'days').unix(),
-    jobId: 'JOB ID 1951541',
-    clientName: 'GINNY',
-    clientCode: 'JI-1232653412',
-    warehouse: 'Warehouse KEPPEL-GE',
-    status: 'Completed',
-  },
-  {
-    date: moment().subtract(1, 'days').unix(),
-    jobId: 'JOB ID 1951541',
-    clientName: 'WORKEDGE',
-    clientCode: 'WE-12323412',
-    warehouse: 'Warehouse KEPPEL-GE',
+    warehouse: 'KEPPEL',
     status: 'Waiting',
+    location: 'JP2 C05-002',
+    pallet: 'JP2 C05-002',
+    itemCode: '561961',
+    description: 'DAP ITEMS',
+    quantity: '2000',
+    UOM: 'PCS',
+    grade: '01',
   },
 ];
 
@@ -327,4 +315,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(StockTakeList);
+export default connect(mapStateToProps, mapDispatchToProps)(StockTakeCountList);

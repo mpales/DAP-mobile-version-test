@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import Mixins from '../../../../mixins';
 // screen
 import StockTakeJobList from './stockTakeList';
+import StockTakeCountList from './stockTakeCountList';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -71,6 +72,23 @@ class StockTakeNavigator extends React.Component {
           name="StockTakeJobList"
           options={{
             headerTitle: 'Stock Take',
+            headerBackTitle: 'Back',
+          }}
+        />
+        <Stack.Screen
+          component={StockTakeCountList}
+          name="StockTakeCountList"
+          options={{
+            headerTitle: 'Stock Take Count',
+            headerBackTitle: 'Back',
+            headerLeft: (props) => (
+              <HeaderBackButton
+                {...props}
+                onPress={() => {
+                  this.props.navigation.navigate('StockTakeJobList');
+                }}
+              />
+            ),
           }}
         />
       </Stack.Navigator>
