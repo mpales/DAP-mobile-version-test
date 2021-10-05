@@ -27,6 +27,7 @@ class StockTakeCountList extends React.Component {
     };
     this.handleFilterStatus.bind(this);
     this.updateSearch.bind(this);
+    this.completeStockTake.bind(this);
   }
 
   updateSearch = (search) => {
@@ -37,14 +38,12 @@ class StockTakeCountList extends React.Component {
     this.setState({filterStatus: value});
   };
 
-  navigateToDetails = () => {
-    this.props.setBottomBar(false);
-    this.props.navigation.navigate('RelocationDetails');
+  navigateToStockTakeCountDetails = () => {
+    this.props.navigation.navigate('StockTakeCountDetails');
   };
 
-  navigateToRequestRelocation = () => {
-    this.props.setBottomBar(false);
-    this.props.navigation.navigate('RequestRelocation');
+  completeStockTake = () => {
+    this.props.navigation.navigate('StockTakeJobList');
   };
 
   renderEmpty = () => {
@@ -188,12 +187,24 @@ class StockTakeCountList extends React.Component {
         <FlatList
           data={stockTakeCountList}
           renderItem={({item, index}) => (
-            <StockTakeCountItem item={item} navigate={this.navigateToDetails} />
+            <StockTakeCountItem
+              item={item}
+              navigate={this.navigateToStockTakeCountDetails}
+            />
           )}
           keyExtractor={(item, index) => index}
           showsVerticalScrollIndicator={false}
+          style={{marginBottom: 70}}
           ListEmptyComponent={this.renderEmpty}
         />
+        <View style={styles.bottomButtonContainer}>
+          <Button
+            title="Complete Stock Take"
+            titleStyle={styles.buttonText}
+            buttonStyle={styles.button}
+            onPress={this.completeStockTake}
+          />
+        </View>
       </SafeAreaProvider>
     );
   }
@@ -264,6 +275,33 @@ const styles = StyleSheet.create({
   badgeTextSelected: {
     ...Mixins.subtitle3,
     color: 'white',
+  },
+  bottomButtonContainer: {
+    justifyContent: 'center',
+    position: 'absolute',
+    height: 70,
+    backgroundColor: '#FFF',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  button: {
+    ...Mixins.bgButtonPrimary,
+    marginHorizontal: 20,
+  },
+  buttonText: {
+    ...Mixins.subtitle3,
+    fontSize: 18,
+    lineHeight: 25,
+    color: '#FFF',
   },
 });
 
