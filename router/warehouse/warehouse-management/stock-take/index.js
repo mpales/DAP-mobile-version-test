@@ -9,6 +9,7 @@ import Mixins from '../../../../mixins';
 // screen
 import StockTakeJobList from './stockTakeList';
 import StockTakeCountList from './stockTakeCountList';
+import StockTakeCountDetails from './stockTakeCountDetails';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -89,6 +90,14 @@ class StockTakeNavigator extends React.Component {
                 }}
               />
             ),
+          }}
+        />
+        <Stack.Screen
+          component={StockTakeCountDetails}
+          name="StockTakeCountDetails"
+          options={{
+            headerTitle: 'Stock Take',
+            headerBackTitle: 'Back',
           }}
         />
       </Stack.Navigator>
