@@ -29,6 +29,12 @@ class StockTakeList extends React.Component {
     this.updateSearch.bind(this);
   }
 
+  componentDidMount() {
+    this.props.navigation.addListener('focus', () => {
+      this.props.setBottomBar(true);
+    });
+  }
+
   updateSearch = (search) => {
     this.setState({search});
   };
@@ -37,14 +43,9 @@ class StockTakeList extends React.Component {
     this.setState({filterStatus: value});
   };
 
-  navigateToDetails = () => {
+  navigateToStockTakeCountList = (data) => {
     this.props.setBottomBar(false);
-    this.props.navigation.navigate('RelocationDetails');
-  };
-
-  navigateToRequestRelocation = () => {
-    this.props.setBottomBar(false);
-    this.props.navigation.navigate('RequestRelocation');
+    this.props.navigation.navigate('StockTakeCountList', {jobData: data});
   };
 
   renderEmpty = () => {
@@ -190,7 +191,10 @@ class StockTakeList extends React.Component {
         <FlatList
           data={jobList}
           renderItem={({item, index}) => (
-            <StockTakeItem item={item} navigate={this.navigateToDetails} />
+            <StockTakeItem
+              item={item}
+              navigate={this.navigateToStockTakeCountList}
+            />
           )}
           keyExtractor={(item, index) => index}
           showsVerticalScrollIndicator={false}
