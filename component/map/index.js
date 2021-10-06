@@ -38,6 +38,7 @@ import BackgroundGeolocation from '@darron1217/react-native-background-geolocati
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 import {showLocation} from './link';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import Geo from './interface/geoConditional';
 const ForegroundServiceModule = NativeModules.ForegroundService;
 const screen = Dimensions.get('window');
 
@@ -51,6 +52,7 @@ class NavigationalMap extends React.Component {
   locatorID = null;
   callbackModeChange = new Reanimated.Value(0);
   static Beacon = null;
+  Polygon = null;
   constructor(props) {
     super(props);
 
@@ -266,6 +268,7 @@ class NavigationalMap extends React.Component {
         this.props.deliveryDestinationData,
         this.props.startDelivered,
         this.state.foregroundService,
+        this.props.statAPI[this.props.index],
       ),
     );
 
@@ -315,6 +318,8 @@ class NavigationalMap extends React.Component {
               longitude: camera.longitude,
             });
           }
+          let statFromNavigation = this.Polygon.translateToStats(latLng, this.props.statAPI[this.props.index]);
+          this.props.UpdatedStat(statFromNavigation);
           this.setState({
             history_polyline: NavigationalMap.Beacon.view_history(),
           });
@@ -387,6 +392,7 @@ class NavigationalMap extends React.Component {
     deliveryDestinationData,
     startDelivered,
     startForegroundService,
+    statAPI,
   ) => {
     if (nextAppState === 'active' && startForegroundService) {
       await RNFusedLocation.stopObserving();
@@ -440,26 +446,23 @@ class NavigationalMap extends React.Component {
         BackgroundGeolocation.startTask((taskKey) => {
           // execute long running task
           // IMPORTANT: task has to be ended by endTask
-          const L = require('./interface/shim-leaflet');
           let latLng = {
             latitude: location.latitude,
             longitude: location.longitude,
           };
           NavigationalMap.Beacon.locator(latLng);
+          let Polygon = new Util();
+          let LayerGroup =  Polygon.setLayersGroup(deliveryDestinationData.steps,   deliveryDestinationData.steps[
+            deliveryDestinationData.steps.length - 1
+          ]);
+          let Stats = Polygon.translateToStats(latLng,statAPI);
           if (
-            L.latLng(
-              deliveryDestinationData.steps[
-                deliveryDestinationData.steps.length - 1
-              ][0],
-              deliveryDestinationData.steps[
-                deliveryDestinationData.steps.length - 1
-              ][1],
-            ).distanceTo(L.latLng(location.latitude, location.longitude)) < 1000
+             Stats.distance < 1000
           ) {
             if (Platform.OS === 'android') {
               ReactNativeForegroundService.update({
-                id: 144,
-                title: 'CCM Transport Service',
+                id: 114,
+                title: 'DAP Transport Service',
                 message: 'your are arrived !',
                 importance: 'min',
                 mainOnPress: async () => {
@@ -479,54 +482,38 @@ class NavigationalMap extends React.Component {
               });
             }
           } else {
-            if (Platform.OS === 'android') {
-              ReactNativeForegroundService.update({
-                id: 144,
-                title: 'CCM Transport Service',
-                importance: 'min',
-                message:
-                  'Your calculated distance to destination is about ' +
-                  L.latLng(
-                    deliveryDestinationData.steps[
-                      deliveryDestinationData.steps.length - 1
-                    ][0],
-                    deliveryDestinationData.steps[
-                      deliveryDestinationData.steps.length - 1
-                    ][1],
-                  ).distanceTo(
-                    L.latLng(location.latitude, location.longitude),
-                  ).toFixed(0) +
-                  ' metres',
-                mainOnPress: async () => {
-                  await ReactNativeForegroundService.stopService();
-                  await ReactNativeForegroundService.stopServiceAll();
-                  await ReactNativeForegroundService.stop();
-                },
-              });
-            } else {
-              PushNotificationIOS.cancelLocalNotifications();
-              PushNotificationIOS.removeAllDeliveredNotifications();
-              PushNotificationIOS.addNotificationRequest({
-                id: new Date().toString(),
-                body:
-                  'Your calculated distance to destination is about ' +
-                  L.latLng(
-                    deliveryDestinationData.steps[
-                      deliveryDestinationData.steps.length - 1
-                    ][0],
-                    deliveryDestinationData.steps[
-                      deliveryDestinationData.steps.length - 1
-                    ][1],
-                  ).distanceTo(
-                    L.latLng(location.latitude, location.longitude),
-                  ).toFixed(0) +
-                  ' metres',
-                title: 'CCM Transport Service',
-                silent: true,
-                category: 'DELIVERY_NOTIFICATION',
-                userInfo: {},
-              });
-            }
+   
+              if (Platform.OS === 'android') {
+                ReactNativeForegroundService.update({
+                  id: 114,
+                  title: 'DAP Transport Service',
+                  importance: 'min',
+                  message:
+                    'Your calculated distance to destination is about ' + Stats.distance.toFixed(0) 
+                    +
+                    ' metres',
+                  mainOnPress: async () => {
+                    await ReactNativeForegroundService.stopService();
+                    await ReactNativeForegroundService.stopServiceAll();
+                    await ReactNativeForegroundService.stop();
+                  },
+                });
+              } else {
+                PushNotificationIOS.cancelLocalNotifications();
+                PushNotificationIOS.removeAllDeliveredNotifications();
+                PushNotificationIOS.addNotificationRequest({
+                  id: new Date().toString(),
+                  body:
+                    'Your calculated distance to destination is about ' + Stats.distance.toFixed(0)
+                  +
+                    ' metres',
+                  title: 'DAP Transport Service',
+                  silent: true,
+                  category: 'DELIVERY_NOTIFICATION',
+                  userInfo: {},
+                });
+              }
+           
           }
           BackgroundGeolocation.endTask(taskKey);
         });
@@ -535,8 +522,8 @@ class NavigationalMap extends React.Component {
       BackgroundGeolocation.on('foreground', async () => {
         if (Platform.OS === 'android') {
           ReactNativeForegroundService.update({
-            id: 144,
-            title: 'CCM Transport Service',
+            id: 114,
+            title: 'DAP Transport Service',
             message: 'your are already in App',
             importance: 'default',
             mainOnPress: async () => {
@@ -558,8 +545,8 @@ class NavigationalMap extends React.Component {
         if (!status.isRunning) {
           if (Platform.OS === 'android') {
             ReactNativeForegroundService.start({
-              id: 144,
-              title: 'CCM Transport Service',
+              id: 114,
+              title: 'DAP Transport Service',
               message: 'you are using navigational maps to destination!',
               importance: 'default',
               mainOnPress: async () => {
@@ -572,7 +559,7 @@ class NavigationalMap extends React.Component {
             PushNotificationIOS.addNotificationRequest({
               id: new Date().toString(),
               body: 'you are using navigational maps to destination!',
-              title: 'CCM Transport Service',
+              title: 'DAP Transport Service',
               silent: false,
               category: 'DELIVERY_NOTIFICATION',
               userInfo: {},
@@ -626,8 +613,8 @@ class NavigationalMap extends React.Component {
       },
     );
 
-    const Polygon = new Util();
-    let LayerGroup = Polygon.setLayersGroup(LatLngs, marker);
+    this.Polygon = new Util();
+    let LayerGroup =  this.Polygon.setLayersGroup(LatLngs, marker);
     const GeoJSON = LayerGroup.toGeoJSON();
     
       this.setState({
@@ -835,6 +822,7 @@ function mapStateToProps(state) {
     bottomBar: state.originReducer.filters.bottomBar,
     startDelivered: state.originReducer.filters.onStartDelivered,
     stat: state.originReducer.route.stat,
+    statAPI : state.originReducer.route.statAPI,
     steps: state.originReducer.route.steps,
     currentPositionData: state.originReducer.currentPositionData,
     deliveryDestinationData: state.originReducer.deliveryDestinationData,

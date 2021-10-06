@@ -1,4 +1,6 @@
 rootProject.name = 'transportApp'
+include ':@darron1217_react-native-background-geolocation'
+project(':@darron1217_react-native-background-geolocation').projectDir = new File(rootProject.projectDir, '../node_modules/@darron1217/react-native-background-geolocation/android/lib')
 include ':react-native-send-intent'
 project(':react-native-send-intent').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-send-intent/android')
 include ':@darron1217_react-native-background-geolocation-common'
