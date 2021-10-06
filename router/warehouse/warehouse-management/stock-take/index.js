@@ -4,12 +4,17 @@ import {
   Header,
   HeaderBackButton,
 } from '@react-navigation/stack';
+import {Button} from 'react-native-elements';
 import {connect} from 'react-redux';
-import Mixins from '../../../../mixins';
 // screen
 import StockTakeJobList from './stockTakeList';
 import StockTakeCountList from './stockTakeCountList';
 import StockTakeCountDetails from './stockTakeCountDetails';
+import ReportStockTakeCount from './reportStockTakeCount';
+import StockTakeReportCamera from '../peripheral/reportCamera';
+import EnlargeImage from '../peripheral/enlargeImage';
+// style
+import Mixins from '../../../../mixins';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -30,6 +35,13 @@ class StockTakeNavigator extends React.Component {
     if (indexBottomBar === 0) {
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
+    }
+  };
+
+  submitStockTakeReportPhoto = () => {
+    if (this.props.stockTakeReportPhotoList.length > 0) {
+      this.props.stockTakeReportPhotoSubmitted(true);
+      this.props.navigation.navigate('ReportStockTakeCount');
     }
   };
 
@@ -100,13 +112,58 @@ class StockTakeNavigator extends React.Component {
             headerBackTitle: 'Back',
           }}
         />
+        <Stack.Screen
+          component={ReportStockTakeCount}
+          name="ReportStockTakeCount"
+          options={{
+            headerTitle: 'Report',
+            headerBackTitle: 'Back',
+          }}
+        />
+        <Stack.Screen
+          component={StockTakeReportCamera}
+          name="StockTakeReportCamera"
+          options={{
+            headerTransparent: true,
+            headerTitle: '',
+            headerBackTitle: 'Back',
+            headerRight: () => {
+              return (
+                <Button
+                  type="clear"
+                  title={'Submit'}
+                  buttonStyle={{paddingHorizontal: 20, margin: 0}}
+                  iconContainerStyle={{padding: 0, margin: 0}}
+                  titleStyle={{
+                    ...Mixins.h6,
+                    padding: 0,
+                    margin: 0,
+                    color: '#fff',
+                  }}
+                  onPress={this.submitStockTakeReportPhoto}
+                />
+              );
+            },
+          }}
+        />
+        <Stack.Screen
+          component={EnlargeImage}
+          name="EnlargeImage"
+          options={{
+            headerTransparent: true,
+            headerTitle: '',
+            headerBackTitle: 'Back',
+          }}
+        />
       </Stack.Navigator>
     );
   }
 }
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    stockTakeReportPhotoList: state.originReducer.stockTakeReportPhotoList,
+  };
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -119,6 +176,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setCurrentStackIndex: (num) => {
       return dispatch({type: 'indexStack', payload: num});
+    },
+    stockTakeReportPhotoSubmitted: (proof) => {
+      return dispatch({type: 'StockTakeReportPhotoSubmitted', payload: proof});
     },
   };
 };
