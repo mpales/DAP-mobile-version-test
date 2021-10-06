@@ -10,6 +10,7 @@ import Mixins from '../../../../mixins';
 import StockTakeJobList from './stockTakeList';
 import StockTakeCountList from './stockTakeCountList';
 import StockTakeCountDetails from './stockTakeCountDetails';
+import ReportStockTakeCount from './reportStockTakeCount';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -97,6 +98,14 @@ class StockTakeNavigator extends React.Component {
           name="StockTakeCountDetails"
           options={{
             headerTitle: 'Stock Take',
+            headerBackTitle: 'Back',
+          }}
+        />
+        <Stack.Screen
+          component={ReportStockTakeCount}
+          name="ReportStockTakeCount"
+          options={{
+            headerTitle: 'Report',
             headerBackTitle: 'Back',
           }}
         />

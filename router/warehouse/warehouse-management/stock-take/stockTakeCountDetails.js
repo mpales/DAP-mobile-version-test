@@ -82,7 +82,7 @@ class StockTakeCountDetails extends React.Component {
     this.props.navigation.navigate('StockTakeCountList');
   };
 
-  navigateToReportStockTake = () => {
+  navigateToReportStockTakeCount = () => {
     this.props.navigation.navigate('ReportStockTakeCount');
   };
 
@@ -134,6 +134,7 @@ class StockTakeCountDetails extends React.Component {
           title="Report"
           containerStyle={styles.reportButton}
           titleStyle={styles.reportButtonText}
+          onPress={this.navigateToReportStockTakeCount}
         />
         {isShowModal && (
           <>
