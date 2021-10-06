@@ -132,7 +132,7 @@ export default class Util {
                   
                   let closestdist = L.latLng(closest.lat,closest.lng).distanceTo(L.latLng(geoLocation.latitude,geoLocation.longitude));  
                   //chrono is for computational distance time
-                  let _chrono = lastpt.chrono + (closestdist * speedpolynomial); 
+                  let _chrono = lastpt.chrono + (closestdist / speedpolynomial); 
                   let _dist = (lastpt.dist + closestdist) * _d;
 
                   return {distance: _dist, duration: _chrono};
