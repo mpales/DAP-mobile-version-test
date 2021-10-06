@@ -14,7 +14,9 @@ const ListItemStockTakeCount = ({item, navigate}) => {
     <ThemeProvider theme={theme}>
       <ListItem
         Component={TouchableScale}
-        onPress={item.status === 'In Progress' ? null : navigate}
+        onPress={
+          item.status === 'In Progress' ? null : () => navigate(item.status)
+        }
         friction={90} //
         tension={100} // These props are passed to the parent component (here TouchableScale)
         activeScale={0.95}
