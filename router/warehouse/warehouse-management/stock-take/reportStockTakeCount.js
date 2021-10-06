@@ -52,6 +52,10 @@ class StockTakeReport extends React.Component {
     this.props.navigation.navigate('StockTakeCountList', {jobData: data});
   };
 
+  navigateToStockTakeReportCamera = () => {
+    this.props.navigation.navigate('StockTakeReportCamera');
+  };
+
   submitReport = () => {
     this.navigateToStockTakeCountList();
   };
@@ -154,14 +158,14 @@ class StockTakeReport extends React.Component {
                 ImageComponent={() => (
                   <>
                     <IconPhoto5 height="40" width="40" fill="#fff" />
-                    {/* {this.props.photoReportConnoteList.length > 0 && (
+                    {this.props.isStockTakeReportPhotoSubmitted && (
                       <Checkmark
                         height="20"
                         width="20"
                         fill="#fff"
                         style={styles.checkmark}
                       />
-                    )} */}
+                    )}
                   </>
                 )}
                 imageProps={{
@@ -172,15 +176,13 @@ class StockTakeReport extends React.Component {
                   },
                 }}
                 overlayContainerStyle={{
-                  backgroundColor:
-                    // this.props.photoReportConnoteList.length > 0
-                    //   ? '#17B055'
-                    // :
-                    '#F07120',
+                  backgroundColor: this.props.isStockTakeReportPhotoSubmitted
+                    ? '#17B055'
+                    : '#F07120',
                   flex: 2,
                   borderRadius: 5,
                 }}
-                onPress={() => {}}
+                onPress={() => this.navigateToStockTakeReportCamera()}
                 activeOpacity={0.7}
                 containerStyle={{alignSelf: 'center'}}
               />
@@ -258,10 +260,18 @@ const styles = StyleSheet.create({
     marginTop: 30,
     marginBottom: 20,
   },
+  checkmark: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+  },
 });
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    isStockTakeReportPhotoSubmitted:
+      state.originReducer.filters.isStockTakeReportPhotoSubmitted,
+  };
 }
 
 const mapDispatchToProps = (dispatch) => {

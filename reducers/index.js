@@ -1,19 +1,20 @@
 import {IS_UNICODE} from './lang';
 import {STRUCT, USER, ROUTE, DESTINATION} from './default';
-import { offlineActionTypes } from 'react-native-offline';
+import {offlineActionTypes} from 'react-native-offline';
 
 const initialState = {
   todos: STRUCT,
   userRole: USER,
   photoProofPostpone: null,
   photoReportPostpone: null,
-  photoReportID : null,
-  photoProofID : null,
+  photoReportID: null,
+  photoProofID: null,
   photoProofList: [],
+  stockTakeReportPhotoList: [],
   route: ROUTE,
   inboundList: [],
   inboundSPVList: [],
-  putawayList : [],
+  putawayList: [],
   outboundTask: [],
   outboundList: [],
   manifestList: [],
@@ -30,15 +31,16 @@ const initialState = {
     status: IS_UNICODE,
     colors: [],
     isPhotoProofSubmitted: false,
+    isStockTakeReportPhotoSubmitted: false,
     isSignatureSubmitted: false,
     imageConfirmationData: null,
-    bottomBar : true,
-    onStartDelivered : false,
-    isDrawer : false,
+    bottomBar: true,
+    onStartDelivered: false,
+    isDrawer: false,
     manifestCompleted: false,
-    isFiltered : 0,
+    isFiltered: 0,
     isBarcodeScan: true,
-    isTraffic : true,
+    isTraffic: true,
     indexBottomBar: 0,
     keyBottomBar: '',
     indexStack: 0,
@@ -52,18 +54,18 @@ const initialState = {
     isGlobalLoading: false,
     isConnectedSelector: true,
     warehouse_module: '',
-    currentASN : null,
-    currentManifest : null,
-    activeASN : [],
-    completeASN :[],
+    currentASN: null,
+    currentManifest: null,
+    activeASN: [],
+    completeASN: [],
     barcodeScanned: [],
     barcodeGrade: null,
     idScanned: null,
     ReportedASN: [],
     ReportedManifest: null,
     currentTask: null,
-    activeTask : [],
-    completeTask :[],
+    activeTask: [],
+    completeTask: [],
     ReportedTask: [],
     ReportedList: null,
     currentList: null,
@@ -77,46 +79,55 @@ const initialState = {
 export default function appReducer(state = initialState, action) {
   // The reducer normally looks at the action type field to decide what happens
   switch (action.type) {
-    case offlineActionTypes.CONNECTION_CHANGE : 
-    if(action.payload === false){
-      if(Object.keys(state.route.routes).length === 0){
+    case offlineActionTypes.CONNECTION_CHANGE:
+      if (action.payload === false) {
+        if (Object.keys(state.route.routes).length === 0) {
+          return {
+            ...state,
+            route: {
+              ...state.route,
+              steps: [
+                [0, 0],
+                [0, 0],
+              ],
+              markers: [
+                [0, 0],
+                [0, 0],
+              ],
+              orders: [
+                [0, 0],
+                [0, 0],
+              ],
+            },
+            filters: {
+              ...state.filters,
+              isConnectedSelector: action.payload,
+            },
+          };
+        } else {
+          return {
+            ...state,
+            route: {
+              ...state.route,
+              routes: {
+                ...state.route.routes,
+              },
+            },
+            filters: {
+              ...state.filters,
+              isConnectedSelector: action.payload,
+            },
+          };
+        }
+      } else {
         return {
           ...state,
-          route :{
-          ...state.route,
-          steps:[[0,0],[0,0]],
-          markers:[[0,0],[0,0]],
-          orders: [[0,0],[0,0]],
-        },
-        filters: {
-          ...state.filters,
-          isConnectedSelector: action.payload,
-        },
-      };
-    } else {
-      return {
-        ...state,
-        route:{
-          ...state.route,
-          routes : {
-            ...state.route.routes,
+          filters: {
+            ...state.filters,
+            isConnectedSelector: action.payload,
           },
-        },
-        filters: {
-          ...state.filters,
-          isConnectedSelector: action.payload,
-        },
-      };
-    }
-    } else {
-      return {
-        ...state,
-        filters: {
-          ...state.filters,
-          isConnectedSelector: action.payload,
-        },
-      };
-    }
+        };
+      }
     case 'todos':
       return {
         // that has all the existing state data
@@ -132,215 +143,205 @@ export default function appReducer(state = initialState, action) {
             other: 'yes',
           },
       };
-      case 'login':
-        return {
-          ...state,
-          userRole: {
-            type: action.payload.role,
-            id: action.payload.id,
-            name: action.payload.name,
-            role: action.payload.role,
-            userRights: action.payload.userRights,
-          },
-        };
-      case 'logout':
-        return {
-          ...state,
-          userRole: initialState.userRole,
-          jwtToken: initialState.jwtToken
-        };
-        
-      case 'warehouseModule':
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            warehouse_module: action.payload,
-          },
-        };
-      case 'cameraPermission':
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            cameraPermission: action.payload,
-          },
-        };
-        case 'locationPermission':
-          return {
-            ...state,
-            filters: {
-              ...state.filters,
-              locationPermission: action.payload,
-            },
-          };
-          case 'backgroundlocationPermission':
-            return {
-              ...state,
-              filters: {
-                ...state.filters,
-                backgroundlocationPermission: action.payload,
-              },
-            };
-          case 'readStoragePermission':
-            return {
-              ...state,
-              filters: {
-                ...state.filters,
-                readStoragePermission: action.payload,
-              },
-            };
-            case 'writeStoragePermission':
-              return {
-                ...state,
-                filters: {
-                  ...state.filters,
-                  writeStoragePermission: action.payload,
-                },
-              };
-      case 'indexBottom':
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            indexBottomBar: action.payload,
-          },
-        };
-        case 'keyBottom':
-          return {
-            ...state,
-            filters: {
-              ...state.filters,
-              keyBottomBar: action.payload,
-            },
-          };
-          case 'indexStack':
-            return {
-              ...state,
-              filters: {
-                ...state.filters,
-                indexStack: action.payload,
-              },
-            };
-            case 'keyStack':
-              console.log('current stack: '+ action.payload);
-              return {
-                ...state,
-                filters: {
-                  ...state.filters,
-                  keyStack: action.payload,
-                },
-              };
+    case 'login':
+      return {
+        ...state,
+        userRole: {
+          type: action.payload.role,
+          id: action.payload.id,
+          name: action.payload.name,
+          role: action.payload.role,
+          userRights: action.payload.userRights,
+        },
+      };
+    case 'logout':
+      return {
+        ...state,
+        userRole: initialState.userRole,
+        jwtToken: initialState.jwtToken,
+      };
+
+    case 'warehouseModule':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          warehouse_module: action.payload,
+        },
+      };
+    case 'cameraPermission':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          cameraPermission: action.payload,
+        },
+      };
+    case 'locationPermission':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          locationPermission: action.payload,
+        },
+      };
+    case 'backgroundlocationPermission':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          backgroundlocationPermission: action.payload,
+        },
+      };
+    case 'readStoragePermission':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          readStoragePermission: action.payload,
+        },
+      };
+    case 'writeStoragePermission':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          writeStoragePermission: action.payload,
+        },
+      };
+    case 'indexBottom':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          indexBottomBar: action.payload,
+        },
+      };
+    case 'keyBottom':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          keyBottomBar: action.payload,
+        },
+      };
+    case 'indexStack':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          indexStack: action.payload,
+        },
+      };
+    case 'keyStack':
+      console.log('current stack: ' + action.payload);
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          keyStack: action.payload,
+        },
+      };
     case 'PhotoProofList':
       return {
         ...state,
         photoProofList: action.payload,
       };
-      case 'PhotoProofPostpone':
-        if(action.payload === null ){
-          return {
-            ...state,
-            photoProofPostpone: initialState.photoProofPostpone,
-            photoProofID: initialState.photoProofID,
-          }
-        } else if(Array.isArray(state.photoProofPostpone)){
-          return {
-            ...state,
-            photoProofPostpone: [
-              ...state.photoProofPostpone,
-              action.payload
-            ],
-          };  
-        } else {
-          return {
-            ...state,
-            photoProofPostpone: [
-              action.payload
-            ],
-          };
-        }
-        case 'PhotoReportPostpone':
-          if(action.payload === null ){
-            return {
-              ...state,
-              photoReportPostpone: initialState.photoReportPostpone,
-              photoReportID: initialState.photoReportID,
-            }
-          } else if(Array.isArray(state.photoReportPostpone)){
-            return {
-              ...state,
-              photoReportPostpone: [
-                ...state.photoReportPostpone,
-                action.payload
-              ],
-            };  
-          } else {
-            return {
-              ...state,
-              photoReportPostpone: [
-                action.payload
-              ],
-            };
-          }
-        case 'POSMPostpone':
-          if(action.payload === null ){
-            return {
-              ...state,
-              filters : {
-                ...state.filters,
-                POSMPostpone: initialState.filters.POSMPostpone,
-              }
-            }
-          } else if(Array.isArray(state.filters.POSMPostpone)){
-            return {
-              ...state,
-              filters: {
-                ...state.filters,
-                POSMPostpone: [
-                  ...state.filters.POSMPostpone,
-                  action.payload
-                ],
-              }
-            };  
-          } else {
-            return {
-              ...state,
-              filters: {
-                ...state.filters,
-                POSMPostpone: [
-                  action.payload
-                ],
-              }
-            };
-          }
-        case 'PhotoReportUpdate':
-          return {
-            ...state,
-            photoReportPostpone: action.payload,
-          }
-          case 'PhotoProofUpdate':
-            return {
-              ...state,
-              photoProofPostpone: action.payload,
-            }
-          case 'POSMUpdate':
-            return {
-              ...state,
-              filters: {
-                ...state.filters,
-                POSMPostpone: action.payload,
-              }
-            }
-          case 'addPhotoProofID': 
-          return {
-            ...state,
-            photoProofID: action.payload,
-          }
-          case 'addPhotoReportID': 
-          return {
-            ...state,
-            photoReportID: action.payload,
-          }
+    case 'StockTakeReportPhotoList':
+      return {
+        ...state,
+        stockTakeReportPhotoList: action.payload,
+      };
+    case 'PhotoProofPostpone':
+      if (action.payload === null) {
+        return {
+          ...state,
+          photoProofPostpone: initialState.photoProofPostpone,
+          photoProofID: initialState.photoProofID,
+        };
+      } else if (Array.isArray(state.photoProofPostpone)) {
+        return {
+          ...state,
+          photoProofPostpone: [...state.photoProofPostpone, action.payload],
+        };
+      } else {
+        return {
+          ...state,
+          photoProofPostpone: [action.payload],
+        };
+      }
+    case 'PhotoReportPostpone':
+      if (action.payload === null) {
+        return {
+          ...state,
+          photoReportPostpone: initialState.photoReportPostpone,
+          photoReportID: initialState.photoReportID,
+        };
+      } else if (Array.isArray(state.photoReportPostpone)) {
+        return {
+          ...state,
+          photoReportPostpone: [...state.photoReportPostpone, action.payload],
+        };
+      } else {
+        return {
+          ...state,
+          photoReportPostpone: [action.payload],
+        };
+      }
+    case 'POSMPostpone':
+      if (action.payload === null) {
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            POSMPostpone: initialState.filters.POSMPostpone,
+          },
+        };
+      } else if (Array.isArray(state.filters.POSMPostpone)) {
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            POSMPostpone: [...state.filters.POSMPostpone, action.payload],
+          },
+        };
+      } else {
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            POSMPostpone: [action.payload],
+          },
+        };
+      }
+    case 'PhotoReportUpdate':
+      return {
+        ...state,
+        photoReportPostpone: action.payload,
+      };
+    case 'PhotoProofUpdate':
+      return {
+        ...state,
+        photoProofPostpone: action.payload,
+      };
+    case 'POSMUpdate':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          POSMPostpone: action.payload,
+        },
+      };
+    case 'addPhotoProofID':
+      return {
+        ...state,
+        photoProofID: action.payload,
+      };
+    case 'addPhotoReportID':
+      return {
+        ...state,
+        photoReportID: action.payload,
+      };
     case 'PhotoProof':
       return {
         ...state,
@@ -349,7 +350,15 @@ export default function appReducer(state = initialState, action) {
           isPhotoProofSubmitted: action.payload,
         },
       };
-    case 'ImageConfirmation': 
+    case 'StockTakeReportPhotoSubmitted':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          isStockTakeReportPhotoSubmitted: action.payload,
+        },
+      };
+    case 'ImageConfirmation':
       return {
         ...state,
         imageConfirmationData: action.payload,
@@ -364,99 +373,87 @@ export default function appReducer(state = initialState, action) {
       };
     case 'BottomBar':
       console.log('bottomBar' + action.payload);
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            bottomBar: action.payload,
-          },
-        };
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          bottomBar: action.payload,
+        },
+      };
     case 'ToggleDrawer':
-          return {
-            ...state,
-            filters: {
-              ...state.filters,
-              isDrawer: action.payload,
-            },
-    };
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          isDrawer: action.payload,
+        },
+      };
     case 'setASN':
       return {
         ...state,
-        filters:{
+        filters: {
           ...state.filters,
           currentASN: action.payload,
           currentIVAS: initialState.filters.currentIVAS,
         },
-      }
-      case 'setCurrentManifest':
+      };
+    case 'setCurrentManifest':
       return {
         ...state,
-        filters:{
+        filters: {
           ...state.filters,
           currentManifest: action.payload,
         },
-      }
+      };
     case 'addActiveASN':
       return {
         ...state,
         filters: {
           ...state.filters,
-          activeASN : [
-            ...state.filters.activeASN,
-            action.payload,
-          ],
+          activeASN: [...state.filters.activeASN, action.payload],
         },
-      }
-      case 'addCompleteASN':
+      };
+    case 'addCompleteASN':
       return {
         ...state,
         filters: {
           ...state.filters,
-          completeASN : [
-            ...state.filters.completeASN,
-            action.payload,
-          ],
+          completeASN: [...state.filters.completeASN, action.payload],
         },
-      }
+      };
 
-      case 'setTask':
-        return {
-          ...state,
-          filters:{
-            ...state.filters,
-            currentTask: action.payload,
-          },
-        }
-        case 'setCurrentList':
-        return {
-          ...state,
-          filters:{
-            ...state.filters,
-            currentList: action.payload,
-          },
-        }
-      case 'addActiveTask':
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            activeTask : [
-              ...state.filters.activeTask,
-              action.payload,
-            ],
-          },
-        }
-        case 'addCompleteTask':
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            completeTask : [
-              ...state.filters.completeTask,
-              action.payload,
-            ],
-          },
-        }
+    case 'setTask':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          currentTask: action.payload,
+        },
+      };
+    case 'setCurrentList':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          currentList: action.payload,
+        },
+      };
+    case 'addActiveTask':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          activeTask: [...state.filters.activeTask, action.payload],
+        },
+      };
+    case 'addCompleteTask':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          completeTask: [...state.filters.completeTask, action.payload],
+        },
+      };
     case 'filtered_sort':
       return {
         ...state,
@@ -464,7 +461,7 @@ export default function appReducer(state = initialState, action) {
           ...state.filters,
           isFiltered: action.payload,
         },
-    };
+      };
     case 'startDelivered':
       return {
         ...state,
@@ -473,31 +470,31 @@ export default function appReducer(state = initialState, action) {
           onStartDelivered: action.payload,
         },
       };
-      case 'GeoLocation':
-        return {
-          ...state,
-          userRole: {
-            ...state.userRole,
-            location:action.payload.position
-          },
-        };
+    case 'GeoLocation':
+      return {
+        ...state,
+        userRole: {
+          ...state.userRole,
+          location: action.payload.position,
+        },
+      };
     case 'Directions':
       return {
         ...state,
-        route:{
+        route: {
           ...state.route,
-          id: action.payload.uuid, 
+          id: action.payload.uuid,
           markers: action.payload.markers,
           steps: action.payload.steps,
           orders: action.payload.markers,
-          routes : {
+          routes: {
             ...state.route.routes,
             [action.payload.uuid]: action.payload.steps,
           },
-        }
+        },
       };
-   
-      case 'UpdateDirectionsPoint':
+
+    case 'UpdateDirectionsPoint':
       let savedmarkers = [];
       let savedstatsAPI = [];
       let savedstepsuuid = [];
@@ -540,12 +537,25 @@ export default function appReducer(state = initialState, action) {
           statAPI: savedstatsAPI,
         },
         currentDeliveringAddress:
-        state.deliveryDestinationData.destinationid !== null &&
-        action.payload.stepsuuid.includes(
-          state.deliveryDestinationData.destinationid,
-        ) && state.currentDeliveringAddress !== null
-          ?  savedstepsuuid.findIndex((o)=> o === state.deliveryDestinationData.destinationid) ===  state.currentDeliveringAddress ? state.currentDeliveringAddress : savedstepsuuid.findIndex((o)=> o === state.deliveryDestinationData.destinationid)
-          : state.route.dataPackage.findIndex((o)=> o.deliveryStatus === 'On Delivery') !== -1 ? state.route.dataPackage.findIndex((o)=> o.deliveryStatus === 'On Delivery') : initialState.currentDeliveringAddress,
+          state.deliveryDestinationData.destinationid !== null &&
+          action.payload.stepsuuid.includes(
+            state.deliveryDestinationData.destinationid,
+          ) &&
+          state.currentDeliveringAddress !== null
+            ? savedstepsuuid.findIndex(
+                (o) => o === state.deliveryDestinationData.destinationid,
+              ) === state.currentDeliveringAddress
+              ? state.currentDeliveringAddress
+              : savedstepsuuid.findIndex(
+                  (o) => o === state.deliveryDestinationData.destinationid,
+                )
+            : state.route.dataPackage.findIndex(
+                (o) => o.deliveryStatus === 'On Delivery',
+              ) !== -1
+            ? state.route.dataPackage.findIndex(
+                (o) => o.deliveryStatus === 'On Delivery',
+              )
+            : initialState.currentDeliveringAddress,
         deliveryDestinationData:
           state.deliveryDestinationData.destinationid !== null &&
           savedstepsuuid.includes(state.deliveryDestinationData.destinationid)
@@ -581,9 +591,22 @@ export default function appReducer(state = initialState, action) {
           state.deliveryDestinationData.destinationid !== null &&
           action.payload.stepsuuid.includes(
             state.deliveryDestinationData.destinationid,
-          ) && state.currentDeliveringAddress !== null
-            ?  action.payload.stepsuuid.findIndex((o)=> o === state.deliveryDestinationData.destinationid) ===  state.currentDeliveringAddress ? state.currentDeliveringAddress : action.payload.stepsuuid.findIndex((o)=> o === state.deliveryDestinationData.destinationid)
-            : state.route.dataPackage.findIndex((o)=> o.deliveryStatus === 'On Delivery') !== -1 ? state.route.dataPackage.findIndex((o)=> o.deliveryStatus === 'On Delivery') : initialState.currentDeliveringAddress,
+          ) &&
+          state.currentDeliveringAddress !== null
+            ? action.payload.stepsuuid.findIndex(
+                (o) => o === state.deliveryDestinationData.destinationid,
+              ) === state.currentDeliveringAddress
+              ? state.currentDeliveringAddress
+              : action.payload.stepsuuid.findIndex(
+                  (o) => o === state.deliveryDestinationData.destinationid,
+                )
+            : state.route.dataPackage.findIndex(
+                (o) => o.deliveryStatus === 'On Delivery',
+              ) !== -1
+            ? state.route.dataPackage.findIndex(
+                (o) => o.deliveryStatus === 'On Delivery',
+              )
+            : initialState.currentDeliveringAddress,
         deliveryDestinationData:
           state.deliveryDestinationData.destinationid !== null &&
           action.payload.stepsuuid.includes(
@@ -595,23 +618,23 @@ export default function appReducer(state = initialState, action) {
     case 'RouteStats':
       return {
         ...state,
-        route:{
+        route: {
           ...state.route,
-          stats : {
+          stats: {
             ...state.route.stats,
             [action.payload.uuid]: action.payload.stats,
           },
-          stat : action.payload.stats, 
-        }
+          stat: action.payload.stats,
+        },
       };
-      case 'RouteData':
-        return {
-          ...state,
-          route:{
-            ...state.route,
-            dataPackage : action.payload, 
-          }
-        };
+    case 'RouteData':
+      return {
+        ...state,
+        route: {
+          ...state.route,
+          dataPackage: action.payload,
+        },
+      };
     case 'ManifestCompleted':
       return {
         ...state,
@@ -636,195 +659,183 @@ export default function appReducer(state = initialState, action) {
           isTraffic: action.payload,
         },
       };
-      case 'MarkerOrdered':
+    case 'MarkerOrdered':
+      return {
+        ...state,
+        route: {
+          ...state.route,
+          id: action.payload.uuid, //might be id of backend markers array
+          orders: action.payload.orders,
+          markers: action.payload.orders,
+          stat: [],
+        },
+        deliveryDestinationData: {
+          ...initialState.deliveryDestinationData,
+        },
+        currentDeliveringAddress: initialState.currentDeliveringAddress,
+      };
+    case 'Loading':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          isLoading: action.payload,
+        },
+      };
+    case 'InboundList':
+      return {
+        ...state,
+        inboundList: action.payload,
+      };
+    case 'InboundSPVList':
+      return {
+        ...state,
+        inboundSPVList: action.payload,
+      };
+    case 'PutawayList':
+      return {
+        ...state,
+        putawayList: action.payload,
+      };
+    case 'OutboundTask':
+      return {
+        ...state,
+        outboundTask: action.payload,
+      };
+    case 'OutboundList':
+      return {
+        ...state,
+        outboundList: action.payload,
+      };
+    case 'ManifestList':
+      return {
+        ...state,
+        manifestList: action.payload,
+      };
+    // for prototype only
+    case 'BarcodeScanned':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          barcodeScanned: action.payload,
+        },
+      };
+    case 'BarcodeGrade':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          barcodeGrade: action.payload,
+        },
+      };
+    case 'ListIDScanned':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          idScanned: action.payload,
+        },
+      };
+    case 'ReportedManifest':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          ReportedManifest: action.payload,
+        },
+      };
+    case 'ReportedASN':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          ReportedASN: [...state.filters.ReportedASN, action.payload],
+        },
+      };
+    case 'ReportedList':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          ReportedList: action.payload,
+        },
+      };
+    case 'ReportedTask':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          ReportedTask: [...state.filters.ReportedTask, action.payload],
+        },
+      };
+    case 'currentIVAS':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          currentIVAS: [...state.filters.currentIVAS, action.payload],
+        },
+      };
+    case 'fromBarcode':
+      return {
+        ...state,
+        barcodeScanned: [...state.barcodeScanned, action.payload],
+      };
+    case 'CurrentPositionData':
+      return {
+        ...state,
+        currentPositionData: action.payload,
+      };
+    case 'CurrentApplicationNavigational':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          ApplicationNavigational: action.payload,
+        },
+      };
+    case 'DeliveryDestinationData':
+      if (action.payload === null) {
         return {
           ...state,
-          route:{
-            ...state.route,
-            id: action.payload.uuid, //might be id of backend markers array
-            orders: action.payload.orders,
-            markers : action.payload.orders,
-            stat : [],
-          },
+          deliveryDestinationData: initialState.deliveryDestinationData,
+        };
+      } else {
+        let statIndex = state.route.dataPackage.findIndex(
+          (o) =>
+            o.coords.lat === action.payload.destinationCoords.latitude &&
+            o.coords.lng === action.payload.destinationCoords.longitude,
+        );
+        state.route.statAPI[statIndex] = action.payload.statAPI;
+        return {
+          ...state,
           deliveryDestinationData: {
-            ...initialState.deliveryDestinationData,
+            ...action.payload,
           },
-          currentDeliveringAddress: initialState.currentDeliveringAddress,
-        };
-      case 'Loading':
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            isLoading: action.payload,
-          },
-        };
-      case 'InboundList':
-        return {
-          ...state,
-          inboundList: action.payload
-        };
-        case 'InboundSPVList':
-          return {
-            ...state,
-            inboundSPVList: action.payload
-          };
-        case 'PutawayList':
-          return {
-            ...state,
-            putawayList: action.payload
-          }
-        case 'OutboundTask':
-        return {
-          ...state,
-          outboundTask: action.payload
-        }
-        case 'OutboundList':
-        return {
-          ...state,
-          outboundList: action.payload
-        }
-      case 'ManifestList':
-        return {
-          ...state,
-          manifestList: action.payload,
-        }
-      // for prototype only
-      case 'BarcodeScanned':
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            barcodeScanned: action.payload,
-          },
-        };
-        case 'BarcodeGrade':
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            barcodeGrade: action.payload,
-          },
-        };
-        case 'ListIDScanned':
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            idScanned: action.payload,
-          },
-        };
-        case 'ReportedManifest':
-          return {
-            ...state,
-            filters: {
-              ...state.filters,
-              ReportedManifest: action.payload,
+          route: {
+            ...state.route,
+            steps: {
+              ...state.route.steps,
+              [action.payload.destinationid]: action.payload.steps,
             },
-          };
-          case 'ReportedASN':
-            return {
-              ...state,
-              filters: {
-                ...state.filters,
-                ReportedASN: [
-                  ...state.filters.ReportedASN,
-                  action.payload,
-                ],
+            statsAPI: {
+              ...state.route.statsAPI,
+              [state.route.id]: {
+                ...state.route.statsAPI[state.route.id],
+                [statIndex]: action.payload.statAPI,
               },
-            };
-            case 'ReportedList':
-              return {
-                ...state,
-                filters: {
-                  ...state.filters,
-                  ReportedList: action.payload,
-                },
-              };
-              case 'ReportedTask':
-                return {
-                  ...state,
-                  filters: {
-                    ...state.filters,
-                    ReportedTask: [
-                      ...state.filters.ReportedTask,
-                      action.payload,
-                    ],
-                  },
-                };
-                case 'currentIVAS':
-                  return {
-                    ...state,
-                    filters: {
-                      ...state.filters,
-                      currentIVAS: [
-                        ...state.filters.currentIVAS,
-                        action.payload,
-                      ],
-                    },
-                  };
-        case 'fromBarcode':
-          return {
-            ...state,
-            barcodeScanned: [
-              ...state.barcodeScanned,
-              action.payload,
-            ],
-          };
-          case 'CurrentPositionData':
-            return {
-              ...state,
-              currentPositionData: action.payload,
-            };
-            case 'CurrentApplicationNavigational':
-              return {
-                ...state,
-                filters: {
-                  ...state.filters,
-                  ApplicationNavigational: action.payload,
-                },
-              };
-            case 'DeliveryDestinationData':
-              if (action.payload === null) {
-                return {
-                  ...state,
-                  deliveryDestinationData: initialState.deliveryDestinationData,
-                };
-              } else {
-                let statIndex = state.route.dataPackage.findIndex(
-                  (o) =>
-                    o.coords.lat === action.payload.destinationCoords.latitude &&
-                    o.coords.lng === action.payload.destinationCoords.longitude,
-                );
-                state.route.statAPI[statIndex] = action.payload.statAPI;
-                return {
-                  ...state,
-                  deliveryDestinationData: {
-                    ...action.payload,
-                  },
-                  route: {
-                    ...state.route,
-                    steps: {
-                      ...state.route.steps,
-                      [action.payload.destinationid]: action.payload.steps,
-                    },
-                    statsAPI: {
-                      ...state.route.statsAPI,
-                      [state.route.id]: {
-                        ...state.route.statsAPI[state.route.id],
-                        [statIndex]: action.payload.statAPI,
-                      },
-                    },
-                    statAPI: [...state.route.statAPI],
-                  },
-                };
-              }
-          case 'CurrentDeliveringAddress':
-            return {
-              ...state,
-              currentDeliveringAddress: action.payload,
-            };
-            case 'loggedIn':
+            },
+            statAPI: [...state.route.statAPI],
+          },
+        };
+      }
+    case 'CurrentDeliveringAddress':
+      return {
+        ...state,
+        currentDeliveringAddress: action.payload,
+      };
+    case 'loggedIn':
       return {
         ...state,
         filters: {
@@ -837,18 +848,18 @@ export default function appReducer(state = initialState, action) {
         ...initialState,
         deviceSignature: state.deviceSignature,
       };
-      case 'JWTToken':
-        return {
-          ...state,
-          jwtToken: action.payload,
-        };
-        case 'DeviceSignature':
-          return {
-            ...state,
-            deviceSignature: action.payload,
-          };
-      // end
-      // Do something here based on the different types of actions
+    case 'JWTToken':
+      return {
+        ...state,
+        jwtToken: action.payload,
+      };
+    case 'DeviceSignature':
+      return {
+        ...state,
+        deviceSignature: action.payload,
+      };
+    // end
+    // Do something here based on the different types of actions
     default:
       // If this reducer doesn't recognize the action type, or doesn't
       // care about this specific action, return the existing state unchanged
