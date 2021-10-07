@@ -11,6 +11,7 @@ import StockTakeJobList from './stockTakeList';
 import StockTakeCountList from './stockTakeCountList';
 import StockTakeCountDetails from './stockTakeCountDetails';
 import ReportStockTakeCount from './reportStockTakeCount';
+import StockTakeReportDetails from './stockTakeReportDetails';
 import StockTakeReportCamera from '../peripheral/reportCamera';
 import EnlargeImage from '../peripheral/enlargeImage';
 // style
@@ -117,6 +118,14 @@ class StockTakeNavigator extends React.Component {
           name="ReportStockTakeCount"
           options={{
             headerTitle: 'Report',
+            headerBackTitle: 'Back',
+          }}
+        />
+        <Stack.Screen
+          component={StockTakeReportDetails}
+          name="StockTakeReportDetails"
+          options={{
+            headerTitle: 'Report Details',
             headerBackTitle: 'Back',
           }}
         />

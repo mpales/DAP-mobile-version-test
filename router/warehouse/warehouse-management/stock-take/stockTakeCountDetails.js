@@ -25,6 +25,7 @@ class StockTakeCountDetails extends React.Component {
     super(props);
     this.state = {
       stockTakeDetails: STOCKTAKEDETAIL,
+      productStatus: this.props.route.params?.productStatus ?? '',
       inputQuantity: 0,
       isShowModal: false,
     };
@@ -86,8 +87,17 @@ class StockTakeCountDetails extends React.Component {
     this.props.navigation.navigate('ReportStockTakeCount');
   };
 
+  navigateToStockTakeReportDetails = () => {
+    this.props.navigation.navigate('StockTakeReportDetails');
+  };
+
   render() {
-    const {stockTakeDetails, isShowModal, inputQuantity} = this.state;
+    const {
+      stockTakeDetails,
+      isShowModal,
+      inputQuantity,
+      productStatus,
+    } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
@@ -114,28 +124,41 @@ class StockTakeCountDetails extends React.Component {
           />
           <TextList title="Banch" value={stockTakeDetails.attributes.banch} />
         </Card>
-        {stockTakeDetails.quantity === 0 ? (
+        {productStatus === 'Reported' ? (
           <Button
-            title="Set Quantity"
-            titleStyle={styles.buttonText}
-            buttonStyle={styles.button}
-            onPress={this.handleShowModal}
+            type="clear"
+            title="See Report Detail"
+            containerStyle={styles.reportButton}
+            titleStyle={styles.reportButtonText}
+            onPress={this.navigateToStockTakeReportDetails}
           />
         ) : (
-          <Button
-            title="Confirm"
-            titleStyle={styles.buttonText}
-            buttonStyle={styles.button}
-            onPress={this.confirmStockTake}
-          />
+          <>
+            {stockTakeDetails.quantity === 0 ? (
+              <Button
+                title="Set Quantity"
+                titleStyle={styles.buttonText}
+                buttonStyle={styles.button}
+                onPress={this.handleShowModal}
+              />
+            ) : (
+              <Button
+                title="Confirm"
+                titleStyle={styles.buttonText}
+                buttonStyle={styles.button}
+                onPress={this.confirmStockTake}
+              />
+            )}
+            <Button
+              type="clear"
+              title="Report"
+              containerStyle={styles.reportButton}
+              titleStyle={styles.reportButtonText}
+              onPress={this.navigateToReportStockTakeCount}
+            />
+          </>
         )}
-        <Button
-          type="clear"
-          title="Report"
-          containerStyle={styles.reportButton}
-          titleStyle={styles.reportButtonText}
-          onPress={this.navigateToReportStockTakeCount}
-        />
+
         {isShowModal && (
           <>
             <View style={styles.overlay} />

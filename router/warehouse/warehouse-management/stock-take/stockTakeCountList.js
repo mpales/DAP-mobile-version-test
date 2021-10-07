@@ -38,8 +38,10 @@ class StockTakeCountList extends React.Component {
     this.setState({filterStatus: value});
   };
 
-  navigateToStockTakeCountDetails = () => {
-    this.props.navigation.navigate('StockTakeCountDetails');
+  navigateToStockTakeCountDetails = (status) => {
+    this.props.navigation.navigate('StockTakeCountDetails', {
+      productStatus: status,
+    });
   };
 
   completeStockTake = () => {
@@ -328,6 +330,18 @@ const STOCKTAKECOUNT = [
     UOM: 'PCS',
     grade: '01',
   },
+  {
+    warehouse: 'KEPPEL',
+    status: 'Reported',
+    location: 'JP2 C05-002',
+    pallet: 'JP2 C05-002',
+    itemCode: '561961',
+    description: 'DAP ITEMS',
+    quantity: '2000',
+    UOM: 'PCS',
+    grade: '01',
+  },
+
   {
     warehouse: 'KEPPEL',
     status: 'Waiting',
