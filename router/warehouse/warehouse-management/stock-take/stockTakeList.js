@@ -21,6 +21,7 @@ class StockTakeList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      filteredJobList: null,
       jobList: STOCKTAKEJOB,
       search: '',
       filterStatus: 'All',
@@ -35,12 +36,47 @@ class StockTakeList extends React.Component {
     });
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevState.search !== this.state.search ||
+      prevState.filterStatus !== this.state.filterStatus
+    ) {
+      this.filterJoblist();
+    }
+  }
+
   updateSearch = (search) => {
     this.setState({search});
   };
 
   handleFilterStatus = (value) => {
     this.setState({filterStatus: value});
+  };
+
+  filterJoblist = () => {
+    const {search, filterStatus, jobList} = this.state;
+    let filteredJobList = [];
+    if (search.length > 0) {
+      filteredJobList = jobList.filter((job) => {
+        return (
+          job.jobId.toLowerCase().includes(search.toLowerCase()) ||
+          job.clientName.toLowerCase().includes(search.toLowerCase()) ||
+          job.clientCode.toLowerCase().includes(search.toLowerCase())
+        );
+      });
+      if (filterStatus !== 'All') {
+        filteredJobList = filteredJobList.filter((job) => {
+          return job.status === filterStatus;
+        });
+      }
+    } else {
+      if (filterStatus !== 'All') {
+        filteredJobList = jobList.filter((job) => {
+          return job.status === filterStatus;
+        });
+      }
+    }
+    this.setState({filteredJobList: filteredJobList});
   };
 
   navigateToStockTakeCountList = (data) => {
@@ -62,7 +98,7 @@ class StockTakeList extends React.Component {
   };
 
   render() {
-    const {jobList} = this.state;
+    const {jobList, filteredJobList, search, filterStatus} = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
@@ -189,7 +225,9 @@ class StockTakeList extends React.Component {
           />
         </ScrollView>
         <FlatList
-          data={jobList}
+          data={
+            search === '' && filterStatus === 'All' ? jobList : filteredJobList
+          }
           renderItem={({item, index}) => (
             <StockTakeItem
               item={item}
