@@ -20,6 +20,7 @@ class StockTakeCountList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      filteredStockTakeCountList: null,
       jobData: this.props.route.params?.jobData ?? null,
       stockTakeCountList: STOCKTAKECOUNT,
       search: '',
@@ -30,12 +31,49 @@ class StockTakeCountList extends React.Component {
     this.completeStockTake.bind(this);
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevState.search !== this.state.search ||
+      prevState.filterStatus !== this.state.filterStatus
+    ) {
+      this.filteredStockTakeCountList();
+    }
+  }
+
   updateSearch = (search) => {
     this.setState({search});
   };
 
   handleFilterStatus = (value) => {
     this.setState({filterStatus: value});
+  };
+
+  filteredStockTakeCountList = () => {
+    const {search, filterStatus, stockTakeCountList} = this.state;
+    let filteredStockTakeCountList = [];
+    if (search.length > 0) {
+      filteredStockTakeCountList = stockTakeCountList.filter((job) => {
+        return (
+          job.itemCode.toLowerCase().includes(search.toLowerCase()) ||
+          job.location.toLowerCase().includes(search.toLowerCase()) ||
+          job.pallet.toLowerCase().includes(search.toLowerCase())
+        );
+      });
+      if (filterStatus !== 'All') {
+        filteredStockTakeCountList = filteredStockTakeCountList.filter(
+          (job) => {
+            return job.status === filterStatus;
+          },
+        );
+      }
+    } else {
+      if (filterStatus !== 'All') {
+        filteredStockTakeCountList = stockTakeCountList.filter((job) => {
+          return job.status === filterStatus;
+        });
+      }
+    }
+    this.setState({filteredStockTakeCountList: filteredStockTakeCountList});
   };
 
   navigateToStockTakeCountDetails = (status) => {
@@ -62,7 +100,13 @@ class StockTakeCountList extends React.Component {
   };
 
   render() {
-    const {stockTakeCountList, jobData} = this.state;
+    const {
+      stockTakeCountList,
+      jobData,
+      filteredStockTakeCountList,
+      search,
+      filterStatus,
+    } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
@@ -187,7 +231,11 @@ class StockTakeCountList extends React.Component {
           />
         </ScrollView>
         <FlatList
-          data={stockTakeCountList}
+          data={
+            search === '' && filterStatus === 'All'
+              ? stockTakeCountList
+              : filteredStockTakeCountList
+          }
           renderItem={({item, index}) => (
             <StockTakeCountItem
               item={item}
