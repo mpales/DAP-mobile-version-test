@@ -17,19 +17,19 @@ const {RNFusedLocation} = NativeModules;
 class List extends Component {
   constructor(props) {
     super(props);
-    
+  
     const namedOrder = [
-      {named: 'Ginny', status : 'Pending', coords:{lat: 1.3143394,lng:103.7038231},packages:15,Address:'Chang i 26th, Singapore', list: [
+      {named: 'Ginny', status : 'Pending', coords:{lat: 1.116441781583991,lng:104.07022945250226},packages:15,Address:'Chang i 26th, Singapore', list: [
         {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323344567553' },
         {package:'6',weight:'64.00 Kg',CBM:'0.50', id: '#323344342342' },
         {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323312312312' },
         {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323344897815'},
       ]},
-      {named: 'Tho',  status : 'Pending', coords: {lat:1.3287109, lng:103.8476682}, packages:4,Address:'639 Balestier Rd, Singapura 329922', list: [
+      {named: 'Tho',  status : 'Pending', coords: {lat: 1.1291426215166025,lng:103.95759091202049}, packages:4,Address:'639 Balestier Rd, Singapura 329922', list: [
         {package:'1',weight:'23.00 Kg',CBM:'0.18' , id: '#12544457577'},
         {package:'3',weight:'64.00 Kg',CBM:'0.50' , id: '#67785464564'},
       ]},
-      {named: 'West', status : 'Complete', coords : {lat:1.2895404, lng:103.8081271}, packages:4,Address:'2 Orchard Turn, Singapura 238801', list: [
+      {named: 'West', status : 'Complete', coords : {lat: 1.1103263462912354,lng:103.9674608376373}, packages:4,Address:'2 Orchard Turn, Singapura 238801', list: [
         {package:'1',weight:'23.00 Kg',CBM:'0.18' , id: '#988786767666'},
         {package:'3',weight:'64.00 Kg',CBM:'0.50' , id: '#455645645688'},
       ]},

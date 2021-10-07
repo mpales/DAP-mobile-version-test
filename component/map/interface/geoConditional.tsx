@@ -40,8 +40,10 @@ export default class Geo {
 
   setItem = (arr) => {
     if (this.items instanceof L.Polyline) {
+      console.log("setted",arr);
       this.items.setLatLngs(arr);
     } else {
+
         this.items = L.polyline(arr, {color: 'red'});
     }
     return this.items;
@@ -62,13 +64,14 @@ export default class Geo {
       var polystats = L.polyStats(this.items, {
         speedProfile: {
           method: L.PolyStats.POLYNOMIAL,
-          parameters: [1.1, -0.1, -0.001],
+          parameters: [9],
         },
       });
       polystats.updateStatsFrom(0);
 
       var pts = this.items.getLatLngs();
       var lastpt = pts[pts.length - 1];
+
       //chrono is for computational distance time
       return lastpt.dist;
     }
@@ -79,7 +82,7 @@ export default class Geo {
       var polystats = L.polyStats(this.items, {
         speedProfile: {
           method: L.PolyStats.POLYNOMIAL,
-          parameters: [1.1, -0.1, -0.001],
+          parameters: [9],
         },
       });
       polystats.updateStatsFrom(0);

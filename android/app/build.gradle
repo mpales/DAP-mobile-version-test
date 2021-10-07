@@ -136,6 +136,7 @@ android {
         versionName "1.0"
         multiDexEnabled true
         missingDimensionStrategy 'react-native-camera', 'mlkit'
+        resValue "string", "mauron85_bgloc_account_type", "${applicationId}.mauron85.bgloc.account"
         resValue "string", "mauron85_bgloc_content_authority", "${applicationId}.mauron85.bgloc.provider"
     }
     splits {
@@ -184,6 +185,7 @@ android {
 }
 
 dependencies {
+    compile project(':@darron1217_react-native-background-geolocation')
     implementation (project(':react-native-camera')) {
         exclude group: "com.google.android.gms"
         exclude group: "com.google.android.gms", module: "play-services-vision"

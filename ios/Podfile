@@ -40,6 +40,8 @@ target 'transportApp' do
 
     pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
+  pod '@darron1217_react-native-background-geolocation', :path => '../node_modules/@darron1217/react-native-background-geolocation'
+
   target 'transportAppTests' do
     inherit! :complete
 	
