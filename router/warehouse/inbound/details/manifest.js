@@ -29,6 +29,7 @@ import IconBarcodeMobile from '../../../../assets/icon/iconmonstr-barcode-3 2mob
 import moment from 'moment';
 import IconSearchMobile from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import {getData} from '../../../../component/helper/network';
+import BlankList from '../../../../assets/icon/Group 5122blanklist.svg';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component{
@@ -240,7 +241,13 @@ class Warehouse extends React.Component{
             </ScrollView>
          
               <Card containerStyle={styles.cardContainer}>
-                {_manifest.map((u, i) => (
+                {
+              _manifest.length === 0 ? 
+                (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
+                  <BlankList height="185" width="213"/>
+                  </View>)
+                :                 
+                _manifest.map((u, i) => (
                   <InboundDraftDetail 
                     key={i} 
                     index={i} 

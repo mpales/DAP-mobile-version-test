@@ -26,7 +26,9 @@ import Mixins from '../../../mixins';
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import moment from 'moment';
 import {getData} from '../../../component/helper/network';
+import Loading from '../../../component/loading/loading';
 import { element } from 'prop-types';
+import EmptyIlustrate from '../../../assets/icon/Groupempty.svg';
 const window = Dimensions.get('window');
 
 class List extends React.Component {
@@ -51,7 +53,7 @@ class List extends React.Component {
         const {routes, index} = navigation.dangerouslyGetState();
             if(routes[index].params !== undefined && routes[index].params.type !== undefined && type !== routes[index].params.type){
                 //if multiple sku
-               return {...state, type : routes[index].params.type,};
+               return {...state, type : routes[index].params.type,renderRefresh : routes[index].params.type === state.type ? state.renderRefresh : true};
             }
         return {...state};
       }
@@ -63,8 +65,8 @@ class List extends React.Component {
     }
     updateASN = async ()=>{
         const {type} = this.state;
-        this.setState({renderGoBack: false, renderRefresh: false});
         const result = await getData('inboundsMobile/type/'+type);
+        this.setState({renderGoBack: false, renderRefresh: false});
         if(Array.isArray(result)){
             return result;
         } else {
@@ -132,6 +134,8 @@ class List extends React.Component {
         this.setState({renderRefresh: true});
     }
     render() {
+        if(this.state.renderRefresh === true) 
+        return <Loading />;
         return(
             <SafeAreaProvider>
                 <StatusBar barStyle="dark-content" />
@@ -217,7 +221,14 @@ class List extends React.Component {
                     textStyle={this.state.filtered === 5 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                      </ScrollView>
-                            {this.props.inboundList.map((data, i, arr) => {
+                            {
+                            this.props.inboundList.length === 0 ? 
+                            (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
+                              <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+                              <Text style={{  ...Mixins.subtitle3,}}>Scroll down to Refresh</Text>
+                              </View>)
+                            :
+                            this.props.inboundList.map((data, i, arr) => {
                                 return (
                                     <Inbound 
                                     key={i} 

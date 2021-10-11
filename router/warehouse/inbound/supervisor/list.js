@@ -27,6 +27,7 @@ import IconSearchMobile from '../../../../assets/icon/iconmonstr-search-thinmobi
 import moment from 'moment';
 import {getData} from '../../../../component/helper/network';
 import { element } from 'prop-types';
+import EmptyIlustrate from '../../../../assets/icon/Groupempty.svg';
 const window = Dimensions.get('window');
 
 class List extends React.Component {
@@ -213,7 +214,14 @@ class List extends React.Component {
                     />
                   
                             </View>
-                            {this.props.inboundList.map((data, i, arr) => {
+                            {
+                            this.props.inboundList.length === 0 ? 
+                            (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
+                              <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+                              <Text style={{  ...Mixins.subtitle3,}}>Scroll down to Refresh</Text>
+                              </View>)
+                            :
+                            this.props.inboundList.map((data, i, arr) => {
                                 return (
                                     <InboundSupervisor 
                                     key={i} 

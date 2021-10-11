@@ -132,7 +132,7 @@ class HomeNavigator extends React.Component {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
                   this.props.setBottomBar('true')
-                  this.props.navigation.navigate('Home');
+                  this.props.navigation.navigate('WarehouseIn');
                 }
               }
               />);
@@ -191,7 +191,7 @@ class HomeNavigator extends React.Component {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
                   this.props.setBottomBar('true')
-                  this.props.navigation.navigate('Home');
+                  this.props.navigation.navigate('WarehouseIn');
                 }
               }
               />);
