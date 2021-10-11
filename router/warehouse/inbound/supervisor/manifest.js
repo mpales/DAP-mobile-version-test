@@ -30,6 +30,7 @@ import moment from 'moment';
 import IconSearchMobile from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import {getData, postData} from '../../../../component/helper/network';
 import Banner from '../../../../component/banner/banner';
+import EmptyIlustrate from '../../../../assets/icon/Groupempty.svg';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component{
@@ -258,7 +259,11 @@ class Warehouse extends React.Component{
             </View>
          
               <Card containerStyle={styles.cardContainer}>
-                {_manifest.map((u, i) => (
+                {_manifest.length === 0 ? 
+                (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
+                  <EmptyIlustrate height="132" width="213"/>
+                  </View>)
+                : _manifest.map((u, i) => (
                   <InboundSupervisorDetail 
                     key={i} 
                     index={i} 
