@@ -3,9 +3,10 @@ import {
   createStackNavigator,
   HeaderBackButton,
   Header,
+  HeaderHeightContext,
 } from '@react-navigation/stack';
 import {Avatar} from 'react-native-elements';
-import {View} from 'react-native';
+import {View, TouchableOpacity} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
 // module navigator
@@ -179,6 +180,7 @@ class WarehouseManagement extends React.Component {
     return (
       <Stack.Navigator
         initialRouteName="ManagementMenu"
+        headerMode="float"
         screenOptions={{
           headerBackImage: () => (
             <IconArrow66Mobile height="22" width="18" fill="#FFF" />
@@ -186,6 +188,7 @@ class WarehouseManagement extends React.Component {
           headerTransparent: true,
           headerTitle: '',
           headerBackTitleVisible: true,
+          headerBackTitle: 'Back',
           headerBackTitleStyle: {color: '#FFF'},
           headerLeftContainerStyle:
             Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,

@@ -38,12 +38,14 @@ class SearchInventoryNavigator extends React.Component {
     return (
       <Stack.Navigator
         initialRouteName="SearchInventory"
+        headerMode="float"
         screenOptions={{
           headerBackImage: () => (
             <IconArrow66Mobile height="22" width="18" fill="#FFF" />
           ),
           headerShown: true,
           headerBackTitleVisible: true,
+          headerBackTitle: 'Back',
           headerBackTitleStyle: {color: '#FFF'},
           headerStyle: {
             backgroundColor: '#121C78',

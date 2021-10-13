@@ -384,6 +384,9 @@ class WarehouseNavigator extends React.Component {
               )}
             />
           ),
+          options: () => ({
+            headerShown: false,
+          }),
         }),
       },
       Notification: {

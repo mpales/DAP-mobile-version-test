@@ -1,6 +1,10 @@
 import React from 'react';
 import {Image, Text, TouchableOpacity, View, Platform} from 'react-native';
-import {createStackNavigator, HeaderBackButton, Header} from '@react-navigation/stack';
+import {
+  createStackNavigator,
+  HeaderBackButton,
+  Header,
+} from '@react-navigation/stack';
 import {connect} from 'react-redux';
 import {Button} from 'react-native-elements';
 import IconDelivery8Mobile from '../../../assets/icon/iconmonstr-delivery-8 1mobile.svg';
@@ -25,35 +29,39 @@ const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
   constructor(props) {
     super(props);
-    
+
     this.setWrapperofStack.bind(this);
   }
-  setWrapperofStack = (index,key) => {
+  setWrapperofStack = (index, key) => {
     const {indexBottomBar} = this.props;
-    if(indexBottomBar === 0){
+    if (indexBottomBar === 0) {
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }
-  }
+  };
   render() {
     return (
-      <Stack.Navigator initialRouteName="WarehouseOut" screenOptions={{
-        headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
-        headerBackTitleVisible:true,
-        headerBackTitle:'Back',
-        headerLeftContainerStyle:  Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
-        header: (props) => {
-          let state = props.navigation.dangerouslyGetState();
-          let key =  state.routes[state.index].name;
-          let index = state.index;
-           const {options} = props.scene.descriptor;
-          this.setWrapperofStack(index,key);
-          return (
-            <Header {...props} />
-          );
-        },
-        }}>     
-           <Stack.Screen
+      <Stack.Navigator
+        initialRouteName="WarehouseOut"
+        headerMode="float"
+        screenOptions={{
+          headerBackImage: ({tintColor}) => (
+            <IconArrow66Mobile height="22" width="18" fill={tintColor} />
+          ),
+          headerBackTitleVisible: true,
+          headerBackTitle: 'Back',
+          headerLeftContainerStyle:
+            Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
+          header: (props) => {
+            let state = props.navigation.dangerouslyGetState();
+            let key = state.routes[state.index].name;
+            let index = state.index;
+            const {options} = props.scene.descriptor;
+            this.setWrapperofStack(index, key);
+            return <Header {...props} />;
+          },
+        }}>
+        <Stack.Screen
           name="WarehouseOut"
           component={WarehouseOut}
           options={{
@@ -66,19 +74,21 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerShown: false,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('true')
-                  this.props.navigation.navigate('Home');
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar('true');
+                    this.props.navigation.navigate('Home');
+                  }}
+                />
+              );
             },
           }}
         />
@@ -95,20 +105,22 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitle:'Pick Task',
-            headerTitleAlign:'center',
+            headerTitle: 'Pick Task',
+            headerTitleAlign: 'center',
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('true')
-                  this.props.navigation.navigate('WarehouseOut');
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar('true');
+                    this.props.navigation.navigate('WarehouseOut');
+                  }}
+                />
+              );
             },
           }}
         />
@@ -125,24 +137,26 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: 'Pick List',
-            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22,},
-            headerTitleAlign:'center',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+            headerTitleAlign: 'center',
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('true')
-                  this.props.navigation.navigate('Task');
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar('true');
+                    this.props.navigation.navigate('Task');
+                  }}
+                />
+              );
             },
           })}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="ItemDetail"
           component={itemDetail}
           options={() => ({
@@ -155,24 +169,26 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: 'Product Details',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitleAlign:'center',
+            headerTitleAlign: 'center',
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('false')
-                  this.props.navigation.navigate('List');
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar('false');
+                    this.props.navigation.navigate('List');
+                  }}
+                />
+              );
             },
           })}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="ItemReportDetail"
           component={itemReportDetail}
           options={() => ({
@@ -185,20 +201,22 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: 'Report Details',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitleAlign:'center',
+            headerTitleAlign: 'center',
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('false')
-                  this.props.navigation.goBack();
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar('false');
+                    this.props.navigation.goBack();
+                  }}
+                />
+              );
             },
           })}
         />
@@ -215,19 +233,21 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: 'Input Manual',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitleAlign:'center',
+            headerTitleAlign: 'center',
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.navigation.navigate('List')
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.navigation.navigate('List');
+                  }}
+                />
+              );
             },
           })}
         />
@@ -244,23 +264,25 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.navigation.navigate('List')
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.navigation.navigate('List');
+                  }}
+                />
+              );
             },
             headerTitle: 'Report',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitleAlign:'center',
+            headerTitleAlign: 'center',
           })}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="Barcode"
           component={Camera}
           options={() => ({
@@ -273,12 +295,12 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
+
             headerTitle: '',
             headerRight: () => (
               <View style={{display: 'flex', flexDirection: 'row'}}>
@@ -286,15 +308,23 @@ class HomeNavigator extends React.Component {
                   style={{paddingHorizontal: 20, margin: 0}}
                   onPress={() => {
                     this.props.setBottomBar(true);
-                    this.props.navigation.navigate('ReportManifest')}}
-                >
-                  <Text style={{...Mixins.h6,fontWeight: '400',lineHeight: 22, color: '#FFF'}}>Report</Text>
+                    this.props.navigation.navigate('ReportManifest');
+                  }}>
+                  <Text
+                    style={{
+                      ...Mixins.h6,
+                      fontWeight: '400',
+                      lineHeight: 22,
+                      color: '#FFF',
+                    }}>
+                    Report
+                  </Text>
                 </TouchableOpacity>
               </View>
             ),
           })}
         />
-            <Stack.Screen
+        <Stack.Screen
           name="SingleCamera"
           component={SingleCamera}
           options={() => ({
@@ -307,15 +337,15 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitle:''
+            headerTitle: '',
           })}
         />
-            <Stack.Screen
+        <Stack.Screen
           name="EnlargeImage"
           component={EnlargeImage}
           options={() => ({
@@ -328,12 +358,12 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitle:''
+            headerTitle: '',
           })}
         />
       </Stack.Navigator>
@@ -343,8 +373,8 @@ class HomeNavigator extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    indexBottomBar : state.originReducer.filters.indexBottomBar,
-    keyBottomBar : state.originReducer.filters.keyBottomBar,
+    indexBottomBar: state.originReducer.filters.indexBottomBar,
+    keyBottomBar: state.originReducer.filters.keyBottomBar,
   };
 }
 
