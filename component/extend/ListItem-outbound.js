@@ -35,6 +35,8 @@ const styles = {
     marginVertical: 6,
     padding: 0,
     marginBottom: 0,
+    borderTopLeftRadius: 5,
+    borderBottomLeftRadius: 5,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,

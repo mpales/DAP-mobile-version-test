@@ -42,6 +42,8 @@ const styles = {
       width: 0,
       height: 2,
     },
+    borderTopLeftRadius: 5,
+    borderBottomLeftRadius: 5,
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
 

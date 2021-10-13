@@ -22,13 +22,17 @@ import moment from 'moment';
 //component
 import Outbound from '../../../component/extend/ListItem-outbound';
 //style
-import Mixins from '../../../mixins';
+import Mixins,{themeStoreContext} from '../../../mixins';
 //icon
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
+import {observer} from 'mobx-react';
+
 
 const window = Dimensions.get('window');
 
+@observer
 class List extends React.Component {
+    static contextType = themeStoreContext;
     constructor(props) {
         super(props);
         this.state = {
@@ -57,16 +61,13 @@ class List extends React.Component {
           });
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        if(this.props.keyStack !== nextProps.keyStack){
-        if(nextProps.keyStack === 'Task'){
-            this.setState({renderGoBack : true});
-            return true;
-        }
-        }
-        return true;
-    }
+  
     componentDidUpdate(prevProps, prevState, snapshot) {
+        if(this.props.keyStack !== prevProps.keyStack){
+            if(this.props.keyStack === 'Task'){
+                this.setState({renderGoBack : true});
+            }
+        }
         let filtered = prevState.renderGoBack !== this.state.renderGoBack || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
         if(filtered === 0) {
             this.props.setOutboundTask(this.updateTask().filter((element)=> element.code.indexOf(this.state.search) > -1));
@@ -103,15 +104,15 @@ class List extends React.Component {
             <SafeAreaProvider>
                 <StatusBar barStyle="dark-content" />
                 <ScrollView 
-                    style={styles.body} 
+                    style={{...styles.body, backgroundColor: this.context._Scheme5}} 
                     showsVerticalScrollIndicator={false}
                 >
                        <View style={[styles.headingCard, {paddingVertical: 10}]}>
                                 <Input 
                                     containerStyle={{flex: 1}}
-                                    inputContainerStyle={styles.textInput} 
+                                    inputContainerStyle={{...styles.textInput, backgroundColor: '#fff'}} 
                                     inputStyle={Mixins.containedInputDefaultStyle}
-                                    labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                                    labelStyle={[{...Mixins.containedInputDefaultLabel,color: this.context._Scheme7},{marginBottom: 5}]}
                                     label="Warehouse"
                                     InputComponent={()=> {
                                         return (   <View style={[styles.picker, {flex:1}]}>
@@ -126,51 +127,51 @@ class List extends React.Component {
                                 <Input
                                     leftIcon={<IconSearchMobile height="20" width="20" fill="#ABABAB" style={{marginLeft: 5}} />}
                                     containerStyle={{flex: 1}}
-                                    inputContainerStyle={styles.textInput}
+                                    inputContainerStyle={{...styles.textInput, backgroundColor: '#fff'}} 
                                     inputStyle={[Mixins.containedInputDefaultStyle, {marginHorizontal: 0}]}
-                                    labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                                    labelStyle={[{...Mixins.containedInputDefaultLabel,color: this.context._Scheme7},{marginBottom: 5}]}
                                     label="Search"
                                     onChangeText={this.updateSearch}
                                     value={this.state.search}
                                 />
                             </View>
                     <View style={styles.sectionContent}>
-                        <Card containerStyle={styles.cardContainer}>
+                        <Card containerStyle={{...styles.cardContainer, backgroundColor: this.context._Scheme5}}>
                         <ScrollView style={{flexDirection:'row',paddingBottom:10}} horizontal={true}>
                         <Badge
                     value="All"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(0)}
-                    badgeStyle={this.state.filtered === 0 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    badgeStyle={this.state.filtered === 0 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
+                    textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
                     />
                           <Badge
                     value="Reported"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(1)}
-                    badgeStyle={this.state.filtered === 1 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    badgeStyle={this.state.filtered === 1 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
+                    textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
                     />
                           <Badge
                     value="Pending"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(2)}
-                    badgeStyle={this.state.filtered === 2 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    badgeStyle={this.state.filtered === 2 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
+                    textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6}}
                     />
                           <Badge
                     value="Progress"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(3)}
-                    badgeStyle={this.state.filtered === 3 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    badgeStyle={this.state.filtered === 3 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
+                    textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
                     />
                                               <Badge
                     value="Completed"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(4)}
-                    badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    badgeStyle={this.state.filtered === 4 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
+                    textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6}}
                     />
                             </ScrollView>
                             {this.props.outboundTask.map((data, i) => (
