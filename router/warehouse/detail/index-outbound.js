@@ -6,9 +6,14 @@ import PickNote from '../../../assets/icon/iconmonstr-note-19mobile.svg';
 import Recylcing from '../../../assets/icon/iconmonstr-recycling-1 1mobile.svg';
 import Transfer from '../../../assets/icon/iconmonstr-delivery-12mobile.svg';
 import {connect} from 'react-redux';
-import Mixins from '../../../mixins';
+import Mixins, {themeStoreContext} from '../../../mixins';
 import LogoSmall from '../../../assets/dap_logo_hires1-e1544435829468 5small.svg';
+import {observer} from 'mobx-react';
+
+
+@observer
 class Acknowledge extends React.Component {
+  static contextType = themeStoreContext;
   constructor(props) {
     super(props);
     this.state = {
@@ -18,10 +23,12 @@ class Acknowledge extends React.Component {
   }
 
 
-
+  componentDidMount(){
+   
+  }
   render(){
     return (
-        <View style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
+        <View style={{flex: 1, flexDirection:'column', backgroundColor: this.context._Scheme2, paddingHorizontal: 22,}}>
           <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginTop:100, marginBottom:20}}>
           <LogoSmall width="135" height="70" style={{alignSelf:'center'}}/>
           </View>
@@ -35,7 +42,7 @@ class Acknowledge extends React.Component {
                 <Avatar
                   size={140}
                   ImageComponent={() => (
-                    <PickNote height="70" width="70" fill="#6C6B6B" />
+                    <PickNote height="70" width="70" fill={this.context._Scheme4} />
                   )}
                   imageProps={{
                     containerStyle: {
@@ -43,14 +50,14 @@ class Acknowledge extends React.Component {
                     },
                   }}
                   title="PICK TASK"
-                  overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
+                  overlayContainerStyle={{...Mixins.buttonFloatedAvatarDefaultOverlayStyle,backgroundColor: this.context._Scheme5}}
                   onPress={() => {
                     this.props.setBottomBar(true);
                     this.props.navigation.navigate('Outbound',{screen:'Task'})}}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
-                  titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}]}
+                  titleStyle={[{...Mixins.buttonFloatedAvatarDefaultTitleStyle, color: this.context._Scheme6},{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}]}
                 />
               </View>
               <View style={styles.sectionContainer}>

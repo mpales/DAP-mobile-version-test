@@ -23,6 +23,7 @@ import {popToLogout} from '../../../component/helper/persist-login';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Notification from '../notification';
 import {postData} from '../../../component/helper/network';
+import Settings from '../settings/index';
 const screen = Dimensions.get('window');
 const Drawer = createDrawerNavigator();
 class WarehouseMenu extends React.Component {
@@ -194,7 +195,7 @@ class WarehouseMenu extends React.Component {
         }),
       },
       Other: {
-        screen: Notification,
+        screen: Settings,
         navigationOptions:  ({ navigation }) => ({
           tabBarIcon: ({color, focused}) => (
             <Button

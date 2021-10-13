@@ -30,6 +30,7 @@ import {
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
 import OUTBOUND from './index';
+import Settings from '../settings/index';
 import Notification from '../notification';
 import {Button, Avatar} from 'react-native-elements';
 import IconHome7Mobile from '../../../assets/icon/iconmonstr-home-7mobile.svg';
@@ -44,6 +45,7 @@ import {ReactReduxContext} from 'react-redux';
 import {popToLogout} from '../../../component/helper/persist-login';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {postData} from '../../../component/helper/network';
+
 const screen = Dimensions.get('window');
 const Drawer = createDrawerNavigator();
 
@@ -184,7 +186,7 @@ class WarehouseNavigator extends React.Component {
   _refreshFromBackHandle = () => {
     const interactionPromise = InteractionManager.runAfterInteractions(() => {
       if (this.props.keyStack === 'WarehouseOut') {
-        this.props.setBottomBar(false);
+        this.props.setBottomBar(true);
         if (this._backHandlerRegisterToBottomBar !== null) {
           this._backHandlerRegisterToBottomBar.remove();
         }
@@ -430,7 +432,7 @@ class WarehouseNavigator extends React.Component {
                   : {backgroundColor: 'transparent'}
               }
               onPress={() => {
-                navigation.navigate('Outbound', {screen: 'WarehouseOut'});
+                navigation.navigate('Outbound');
               }}
               icon={() => (
                 <IconNote19Mobile height="22" width="24" fill={color} />
@@ -458,7 +460,7 @@ class WarehouseNavigator extends React.Component {
         }),
       },
       Other: {
-        screen: Notification,
+        screen: Settings,
         navigationOptions: ({navigation}) => ({
           tabBarIcon: ({color, focused}) => (
             <Button

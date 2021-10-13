@@ -24,12 +24,15 @@ import Mixins from '../../../mixins';
 //icon
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import moment from 'moment';
-import mixins from '../../../mixins';
+import mixins, {themeStoreContext} from '../../../mixins';
+import {observer} from 'mobx-react';
 
 const window = Dimensions.get('window');
 
+@observer
 class List extends React.Component {
-    constructor(props) {
+  static contextType = themeStoreContext;
+  constructor(props) {
         super(props);
 
         this.state = {
@@ -75,21 +78,30 @@ class List extends React.Component {
         }
         return {...state};
       }
-      shouldComponentUpdate(nextProps, nextState) {
-        if(this.props.keyStack !== nextProps.keyStack){
-          if(nextProps.keyStack === 'List' && this.props.keyStack ==='Barcode'){
+      // shouldComponentUpdate(nextProps, nextState) {
+      //   if(this.props.keyStack !== nextProps.keyStack){
+      //     if(nextProps.keyStack === 'List' && this.props.keyStack ==='Barcode'){
+      //       this.setState({updated: true});
+      //       return true;
+      //     } else if(nextProps.keyStack === 'List' && this.props.keyStack ==='ReportManifest'){
+      //       this.setState({updated: true});
+      //       return true;
+      //     } else if(nextProps.keyStack === 'List'){
+      //       return true;
+      //     }
+      //   }
+      //   return true;
+      // }
+      componentDidUpdate(prevProps, prevState, snapshot) {
+
+        if(this.props.keyStack !== prevProps.keyStack){
+          if(prevProps.keyStack === 'Barcode' && this.props.keyStack ==='List'){
             this.setState({updated: true});
-            return true;
-          } else if(nextProps.keyStack === 'List' && this.props.keyStack ==='ReportManifest'){
+    
+          } else if(prevProps.keyStack === 'ReportManifest' && this.props.keyStack ==='List'){
             this.setState({updated: true});
-            return true;
-          } else if(nextProps.keyStack === 'List'){
-            return true;
           }
         }
-        return true;
-      }
-      componentDidUpdate(prevProps, prevState, snapshot) {
         const {outboundList} = this.props;
         
         if(prevState.taskNumber !== this.state.taskNumber){
@@ -150,20 +162,20 @@ class List extends React.Component {
             <SafeAreaProvider>
                 <StatusBar barStyle="dark-content" />
                 <ScrollView 
-                    style={styles.body} 
+                   style={{...styles.body, backgroundColor: this.context._Scheme5}} 
                     showsVerticalScrollIndicator={false}
                 >
                     <View style={styles.headingBar}>
                         <View style={{flex:1,flexDirection: 'row'}}>
                         <View style={{alignItems:'flex-start',flex:1}}>
-                            <Text style={{...Mixins.subtitle1,lineHeight:21}}>{taskNumber}</Text>
+                            <Text style={{...Mixins.subtitle1,lineHeight:21, color: this.context._Scheme7}}>{taskNumber}</Text>
                         </View>
                             <View style={{alignItems:'flex-end',flex:1}}>
-                            <Text style={{...Mixins.small1,lineHeight:21}}>{currentTask !== undefined ? currentTask.warehouse_code : null}</Text>
+                            <Text style={{...Mixins.small1,lineHeight:21, color :this.context._Scheme7}}>{currentTask !== undefined ? currentTask.warehouse_code : null}</Text>
                             </View>
                         </View>
                         <View style={{flex:1}}>
-                        <Text style={{...Mixins.small1,lineHeight:21,fontWeight:'700'}}>{currentTask !== undefined ? currentTask.company : null}</Text>
+                        <Text style={{...Mixins.small1,lineHeight:21,fontWeight:'700', color : this.context._Scheme7}}>{currentTask !== undefined ? currentTask.company : null}</Text>
                         </View>
                     </View>
                          <SearchBar
@@ -192,42 +204,42 @@ class List extends React.Component {
               leftIconContainerStyle={{backgroundColor: 'white'}}
             />
                     <View style={styles.sectionContent}>
-                        <Card containerStyle={styles.cardContainer}>
+                        <Card containerStyle={{...styles.cardContainer, backgroundColor: this.context._Scheme5}}>
                         <ScrollView style={styles.headingCard} horizontal={true}>
                         <Badge
                     value="All"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(0)}
-                    badgeStyle={this.state.filtered === 0 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    badgeStyle={this.state.filtered === 0 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8}}
+                    textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
                     />
                     <Badge
                     value="Reported"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(1)}
-                    badgeStyle={this.state.filtered === 1 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    badgeStyle={this.state.filtered === 1 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
+                    textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
                     />
                     <Badge
                     value="Pending"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(2)}
-                    badgeStyle={this.state.filtered === 2 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    badgeStyle={this.state.filtered === 2 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
+                    textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
                     />
                     <Badge
                     value="Progress"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(3)}
-                    badgeStyle={this.state.filtered === 3 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    badgeStyle={this.state.filtered === 3 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
+                    textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
                     />
                     <Badge
                     value="Completed"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(4)}
-                    badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    badgeStyle={this.state.filtered === 4 ? styles.badgeActive :{...styles.badgeInactive, backgroundColor: this.context._Scheme8}}
+                    textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
                     />
                             </ScrollView>
                             {_list.map((data, i, arr) =>   {
