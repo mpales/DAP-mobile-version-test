@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  FlatList,
   StatusBar,
   StyleSheet,
   Text,
@@ -89,6 +88,7 @@ class ClientCheckInventory extends React.Component {
   renderItem = (item, type) => {
     return (
       <TouchableOpacity
+        key={item.id}
         style={[
           styles.inputContainer,
           {justifyContent: 'center', paddingHorizontal: 10},
@@ -133,12 +133,10 @@ class ClientCheckInventory extends React.Component {
                 renderErrorMessage={false}
                 onChangeText={(text) => this.handleInput(text, 'clientList')}
               />
-              <FlatList
-                data={clientList}
-                renderItem={({item}) => this.renderItem(item, 'client')}
-                style={{maxHeight: 140}}
-                showsVerticalScrollIndicator={false}
-              />
+              <View style={styles.dropdownContainer}>
+                {clientList !== null &&
+                  clientList.map((client) => this.renderItem(client, 'client'))}
+              </View>
             </View>
             <View style={styles.inputWrapper}>
               <Text style={styles.inputTitle}>Search Product</Text>
@@ -153,12 +151,12 @@ class ClientCheckInventory extends React.Component {
                 renderErrorMessage={false}
                 onChangeText={(text) => this.handleInput(text, 'productList')}
               />
-              <FlatList
-                data={productList}
-                renderItem={({item}) => this.renderItem(item, 'product')}
-                style={{maxHeight: 140}}
-                showsVerticalScrollIndicator={false}
-              />
+              <View style={styles.dropdownContainer}>
+                {productList !== null &&
+                  productList.map((product) =>
+                    this.renderItem(product, 'product'),
+                  )}
+              </View>
             </View>
             <Button
               title="Search"
@@ -167,6 +165,9 @@ class ClientCheckInventory extends React.Component {
                 styles.button,
                 {marginHorizontal: 0, marginTop: 20},
               ]}
+              disabled={client === '' || product === ''}
+              disabledStyle={{backgroundColor: '#ABABAB'}}
+              disabledTitleStyle={{color: '#FFF'}}
               onPress={this.submitSearch}
             />
           </View>
@@ -230,6 +231,7 @@ const styles = StyleSheet.create({
   },
   inputWrapper: {
     marginTop: 10,
+    overflow: 'visible',
   },
   title: {
     ...Mixins.subtitle3,
@@ -267,6 +269,14 @@ const styles = StyleSheet.create({
     ...Mixins.subtitle3,
     fontSize: 18,
     lineHeight: 25,
+  },
+  dropdownContainer: {
+    position: 'absolute',
+    right: 0,
+    left: 0,
+    top: 70,
+    zIndex: 1,
+    backgroundColor: '#FFF',
   },
 });
 
