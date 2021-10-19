@@ -1,5 +1,12 @@
 import React from 'react';
-import {ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {Button, Input} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -10,7 +17,7 @@ import RelocationResult from '../../../../component/extend/ListItem-relocation-r
 // style
 import Mixins from '../../../../mixins';
 // icon
-import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
+import TimesCircle from '../../../../assets/icon/iconmonstr-x-mark-5 1mobile.svg';
 
 class RelocationRequest extends React.Component {
   constructor(props) {
@@ -18,6 +25,10 @@ class RelocationRequest extends React.Component {
     this.state = {
       client: '',
       itemCode: '',
+      clientId: null,
+      itemCodeId: null,
+      clientList: null,
+      itemCodeList: null,
       searchResult: null,
     };
     this.submitSearch.bind(this);
@@ -36,11 +47,34 @@ class RelocationRequest extends React.Component {
   handleInput = (value, type) => {
     let obj = {};
     if (type === 'client') {
-      obj = {client: value};
+      obj = {client: value.name, clientId: value.id, clientList: null};
     } else if (type === 'itemCode') {
-      obj = {itemCode: value};
+      obj = {itemCode: value.name, itemCodeId: value.id, itemCodeList: null};
+    } else if (type === 'clientList') {
+      if (value === '') {
+        obj = {client: value, clientList: null, clientId: null, product: ''};
+      } else {
+        obj = {client: value, clientList: CLIENTLIST};
+      }
+    } else if (type === 'itemCodeList') {
+      if (value === '') {
+        obj = {itemCode: value, itemCodeList: null, itemCodeId: null};
+      } else {
+        obj = {itemCode: value, itemCodeList: PRODUCTLIST};
+      }
     }
     this.setState(obj);
+  };
+
+  resetInput = () => {
+    this.setState({
+      client: '',
+      itemCode: '',
+      clientId: null,
+      itemCodeId: null,
+      clientList: null,
+      itemCodeList: null,
+    });
   };
 
   navigateToRequestRelocationForm = () => {
@@ -51,8 +85,40 @@ class RelocationRequest extends React.Component {
     this.props.navigation.navigate('RequestRelocationBarcode');
   };
 
+  renderItem = (item, type) => {
+    return (
+      <TouchableOpacity
+        key={item.id}
+        style={[
+          styles.inputContainer,
+          {
+            justifyContent: 'center',
+            paddingHorizontal: 10,
+          },
+        ]}
+        onPress={() => this.handleInput(item, type)}>
+        <Text style={styles.inputText}>{item.name}</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  renderTimesIcon = () => {
+    return (
+      <TouchableOpacity onPress={this.resetInput}>
+        <TimesCircle height="20" width="20" fill="#121C78" />
+      </TouchableOpacity>
+    );
+  };
+
   render() {
-    const {searchResult, client, itemCode} = this.state;
+    const {
+      searchResult,
+      client,
+      clientId,
+      clientList,
+      itemCode,
+      itemCodeList,
+    } = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -67,11 +133,14 @@ class RelocationRequest extends React.Component {
                 containerStyle={{paddingHorizontal: 0}}
                 inputContainerStyle={styles.inputContainer}
                 inputStyle={styles.inputText}
+                rightIcon={clientId === null ? null : this.renderTimesIcon()}
                 renderErrorMessage={false}
-                rightIcon={<ArrowDown height="20" width="20" fill="#2D2C2C" />}
-                rightIconContainerStyle={{marginRight: 10}}
-                onChangeText={(text) => this.handleInput(text, 'client')}
+                onChangeText={(text) => this.handleInput(text, 'clientList')}
               />
+              <View style={styles.dropdownContainer}>
+                {clientList !== null &&
+                  clientList.map((client) => this.renderItem(client, 'client'))}
+              </View>
             </View>
             <View style={styles.inputWrapper}>
               <Text style={styles.inputTitle}>Item Code</Text>
@@ -82,8 +151,12 @@ class RelocationRequest extends React.Component {
                 inputContainerStyle={styles.inputContainer}
                 inputStyle={styles.inputText}
                 renderErrorMessage={false}
-                onChangeText={(text) => this.handleInput(text, 'itemCode')}
+                onChangeText={(text) => this.handleInput(text, 'itemCodeList')}
               />
+              <View style={styles.dropdownContainer}>
+                {itemCodeList !== null &&
+                  itemCodeList.map((item) => this.renderItem(item, 'itemCode'))}
+              </View>
             </View>
             <Button
               title="Search"
@@ -92,6 +165,9 @@ class RelocationRequest extends React.Component {
                 styles.button,
                 {marginHorizontal: 0, marginTop: 20},
               ]}
+              disabled={client === '' || itemCode === ''}
+              disabledStyle={{backgroundColor: '#ABABAB'}}
+              disabledTitleStyle={{color: '#FFF'}}
               onPress={this.submitSearch}
             />
             <Button
@@ -108,18 +184,17 @@ class RelocationRequest extends React.Component {
             <View style={styles.resultContainer}>
               <View
                 style={{
+                  flex: 1,
                   flexDirection: 'row',
                   justifyContent: 'space-between',
                   alignItems: 'center',
                 }}>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.title}>Results</Text>
+                <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap'}}>
+                  <Text style={[styles.title, {marginRight: 20}]}>Results</Text>
                   <Text
-                    style={[
-                      styles.title,
-                      styles.textBlue,
-                      {marginLeft: 20},
-                    ]}>{`${client} ${itemCode}`}</Text>
+                    style={[styles.title, styles.textBlue, {flexWrap: 'wrap'}]}>
+                    {`${client} ${itemCode}`}
+                  </Text>
                 </View>
                 <Text
                   style={[
@@ -141,6 +216,44 @@ class RelocationRequest extends React.Component {
     );
   }
 }
+
+const CLIENTLIST = [
+  {
+    name: 'Roberto',
+    id: '1',
+  },
+  {
+    name: 'Roberto Cheng',
+    id: '2',
+  },
+  {
+    name: 'Roberto Van',
+    id: '3',
+  },
+  {
+    name: 'Roberto Vien',
+    id: '4',
+  },
+];
+
+const PRODUCTLIST = [
+  {
+    name: '0911234567',
+    id: '0911234567',
+  },
+  {
+    name: '092223346',
+    id: '092223346',
+  },
+  {
+    name: '0912234566',
+    id: '0912234566',
+  },
+  {
+    name: '0912334567',
+    id: '0912334567',
+  },
+];
 
 const SEARCHRESULT = [
   {
@@ -201,6 +314,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ABABAB',
     paddingHorizontal: 20,
     paddingTop: 10,
+    overflow: 'visible',
+    zIndex: 1,
   },
   resultContainer: {
     flexShrink: 1,
@@ -231,6 +346,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     height: 40,
+    borderColor: '#D5D5D5',
   },
   inputText: {
     ...Mixins.subtitle3,
@@ -244,6 +360,14 @@ const styles = StyleSheet.create({
     ...Mixins.subtitle3,
     fontSize: 18,
     lineHeight: 25,
+  },
+  dropdownContainer: {
+    position: 'absolute',
+    right: 0,
+    left: 0,
+    top: 70,
+    zIndex: 1,
+    backgroundColor: '#FFF',
   },
 });
 
