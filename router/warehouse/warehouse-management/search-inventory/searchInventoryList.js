@@ -46,7 +46,7 @@ class SearchInventoryList extends React.Component {
           <Text style={styles.text}>Sort By</Text>
           <View style={styles.pickerContainer}>
             <Picker
-              mode="dialog"
+              mode="dropdown"
               selectedValue={selectedSortBy}
               onValueChange={(value) => this.sortList(value)}
               style={{maxWidth: 180}}>
