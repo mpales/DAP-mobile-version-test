@@ -4,7 +4,7 @@ import {Button, Input} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
-import moment from 'moment';
+import {Picker} from '@react-native-picker/picker';
 // style
 import Mixins from '../../../../mixins';
 // icon
@@ -14,7 +14,8 @@ class SearchInventory extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      warehouse: '',
+      warehouseList: WAREHOUSELIST,
+      warehouse: null,
       locationId: '',
     };
     this.submitSearch.bind(this);
@@ -59,30 +60,45 @@ class SearchInventory extends React.Component {
   };
 
   render() {
-    const {warehouse, locationId} = this.state;
+    const {warehouseList, warehouse, locationId} = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
         <ScrollView style={styles.body}>
           <View style={styles.searchContainer}>
             <View style={styles.inputWrapper}>
-              <Text style={styles.inputTitle}>Client</Text>
-              <Input
-                placeholder="Select Client"
-                value={warehouse}
-                containerStyle={{paddingHorizontal: 0}}
-                inputContainerStyle={styles.inputContainer}
-                inputStyle={styles.inputText}
-                renderErrorMessage={false}
-                rightIcon={<ArrowDown height="20" width="20" fill="#2D2C2C" />}
-                rightIconContainerStyle={{marginRight: 10}}
-                onChangeText={(text) => this.handleInput(text, 'warehouse')}
-              />
+              <Text style={styles.inputTitle}>Warehouse</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  mode="dropdown"
+                  selectedValue={warehouse}
+                  onValueChange={(value) =>
+                    this.handleInput(value, 'warehouse')
+                  }
+                  style={{height: 50}}>
+                  <Picker.Item
+                    label="Select Warehouse"
+                    value={null}
+                    style={styles.text}
+                  />
+                  {warehouseList !== null &&
+                    warehouseList.map((item) => {
+                      return (
+                        <Picker.Item
+                          key={item.id}
+                          label={item.name}
+                          value={item.id}
+                          style={styles.text}
+                        />
+                      );
+                    })}
+                </Picker>
+              </View>
             </View>
             <View style={styles.inputWrapper}>
-              <Text style={styles.inputTitle}>Item Code</Text>
+              <Text style={styles.inputTitle}>Search Location ID</Text>
               <Input
-                placeholder="Enter Item Code"
+                placeholder="Search Location ID"
                 value={locationId}
                 containerStyle={{paddingHorizontal: 0}}
                 inputContainerStyle={styles.inputContainer}
@@ -115,6 +131,21 @@ class SearchInventory extends React.Component {
     );
   }
 }
+
+const WAREHOUSELIST = [
+  {
+    id: 'warehouse 1',
+    name: 'warehouse 1',
+  },
+  {
+    id: 'warehouse 2',
+    name: 'warehouse 2',
+  },
+  {
+    id: 'warehouse 3',
+    name: 'warehouse 3',
+  },
+];
 
 const styles = StyleSheet.create({
   body: {
@@ -150,16 +181,17 @@ const styles = StyleSheet.create({
   inputTitle: {
     ...Mixins.subtitle3,
     lineHeight: 21,
-    marginBottom: 10,
   },
   inputContainer: {
+    marginTop: 5,
     borderRadius: 5,
     borderWidth: 1,
-    height: 40,
+    height: 50,
   },
   inputText: {
     ...Mixins.subtitle3,
     lineHeight: 21,
+    paddingHorizontal: 10,
   },
   button: {
     ...Mixins.bgButtonPrimary,
@@ -169,6 +201,13 @@ const styles = StyleSheet.create({
     ...Mixins.subtitle3,
     fontSize: 18,
     lineHeight: 25,
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: '#D5D5D5',
+    marginTop: 5,
+    marginBottom: 10,
   },
 });
 
