@@ -39,11 +39,34 @@ class ClientCheckInventory extends React.Component {
     });
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.clientId !== this.state.clientId) {
+      if (this.state.clientId !== null) {
+        this.getClientProductList();
+      } else {
+        this.setState({
+          productList: null,
+          filteredProductList: null,
+        });
+      }
+    }
+  }
+
   getClientList = async () => {
     const result = await getData('/clients');
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
         clientList: result,
+      });
+    }
+  };
+
+  getClientProductList = async () => {
+    const {clientId} = this.state;
+    const result = await getData(`/clients/${clientId}/products`);
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        productList: result,
       });
     }
   };
@@ -75,7 +98,7 @@ class ClientCheckInventory extends React.Component {
       } else {
         obj = {
           product: value,
-          filteredProductList: PRODUCTLIST,
+          filteredProductList: this.filterClientProductList(value),
         };
       }
     }
@@ -106,6 +129,21 @@ class ClientCheckInventory extends React.Component {
     return null;
   };
 
+  filterClientProductList = (value) => {
+    const {productList} = this.state;
+    if (productList !== null) {
+      return productList.filter((product, index) => {
+        if (product.description !== null && index < 5) {
+          return (
+            product.description.toLowerCase().includes(value.toLowerCase()) ||
+            product.item_code.toLowerCase().includes(value.toLowerCase())
+          );
+        }
+      });
+    }
+    return null;
+  };
+
   resetInput = () => {
     this.setState({
       client: '',
@@ -129,13 +167,19 @@ class ClientCheckInventory extends React.Component {
   renderItem = (item, type) => {
     return (
       <TouchableOpacity
-        key={item.id}
+        key={type === 'product' ? item._id : item.id}
         style={[
           styles.inputContainer,
           {justifyContent: 'center', paddingHorizontal: 10},
         ]}
         onPress={() => this.handleSelect(item, type)}>
-        <Text style={styles.inputText}>{item.name}</Text>
+        {type === 'product' ? (
+          <Text style={styles.inputText}>
+            {`${item.item_code}-${item.description}`}
+          </Text>
+        ) : (
+          <Text style={styles.inputText}>{item.name}</Text>
+        )}
       </TouchableOpacity>
     );
   };
