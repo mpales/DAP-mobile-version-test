@@ -10,6 +10,7 @@ import {Button, Input} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
+import {getData} from '../../../../component/helper/network';
 // style
 import Mixins from '../../../../mixins';
 // icon
@@ -25,15 +26,27 @@ class ClientCheckInventory extends React.Component {
       productId: null,
       clientList: null,
       productList: null,
+      filteredClientList: null,
+      filteredProductList: null,
     };
     this.submitSearch.bind(this);
   }
 
   componentDidMount() {
+    this.getClientList();
     this.props.navigation.addListener('focus', () => {
       this.props.setBottomBar(true);
     });
   }
+
+  getClientList = async () => {
+    const result = await getData('/clients');
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        clientList: result,
+      });
+    }
+  };
 
   submitSearch = () => {
     const {client, product} = this.state;
@@ -45,24 +58,52 @@ class ClientCheckInventory extends React.Component {
 
   handleInput = (value, type) => {
     let obj = {};
-    if (type === 'client') {
-      obj = {client: value.name, clientId: value.id, clientList: null};
-    } else if (type === 'product') {
-      obj = {product: value.name, productId: value.id, productList: null};
-    } else if (type === 'clientList') {
+    if (type === 'clientList') {
       if (value === '') {
-        obj = {client: value, clientList: null, clientId: null, product: ''};
+        obj = {
+          client: value,
+          filteredClientList: null,
+          clientId: null,
+          product: '',
+        };
       } else {
-        obj = {client: value, clientList: CLIENTLIST};
+        obj = {client: value, filteredClientList: this.filterClientList(value)};
       }
     } else if (type === 'productList') {
       if (value === '') {
-        obj = {product: value, productList: null, productId: null};
+        obj = {product: value, filteredProductList: null, productId: null};
       } else {
-        obj = {product: value, productList: PRODUCTLIST};
+        obj = {
+          product: value,
+          filteredProductList: PRODUCTLIST,
+        };
       }
     }
     this.setState(obj);
+  };
+
+  handleSelect = (value, type) => {
+    if (type === 'client') {
+      obj = {client: value.name, clientId: value.id, filteredClientList: null};
+    } else if (type === 'product') {
+      obj = {
+        product: `${value.item_code}-${value.description}`,
+        productId: value.id,
+        filteredProductList: null,
+      };
+    }
+    this.setState(obj);
+  };
+
+  filterClientList = (value) => {
+    const {clientList} = this.state;
+    if (clientList !== null) {
+      return clientList.filter((client, index) => {
+        if (client.name !== null && index < 5)
+          return client.name.toLowerCase().includes(value.toLowerCase());
+      });
+    }
+    return null;
   };
 
   resetInput = () => {
@@ -71,8 +112,8 @@ class ClientCheckInventory extends React.Component {
       product: '',
       clientId: null,
       productId: null,
-      clientList: null,
-      productList: null,
+      filteredClientList: null,
+      filteredProductList: null,
     });
   };
 
@@ -93,7 +134,7 @@ class ClientCheckInventory extends React.Component {
           styles.inputContainer,
           {justifyContent: 'center', paddingHorizontal: 10},
         ]}
-        onPress={() => this.handleInput(item, type)}>
+        onPress={() => this.handleSelect(item, type)}>
         <Text style={styles.inputText}>{item.name}</Text>
       </TouchableOpacity>
     );
@@ -112,9 +153,8 @@ class ClientCheckInventory extends React.Component {
       client,
       clientId,
       product,
-      productId,
-      clientList,
-      productList,
+      filteredClientList,
+      filteredProductList,
     } = this.state;
     return (
       <SafeAreaProvider>
@@ -134,8 +174,10 @@ class ClientCheckInventory extends React.Component {
                 onChangeText={(text) => this.handleInput(text, 'clientList')}
               />
               <View style={styles.dropdownContainer}>
-                {clientList !== null &&
-                  clientList.map((client) => this.renderItem(client, 'client'))}
+                {filteredClientList !== null &&
+                  filteredClientList.map((client) =>
+                    this.renderItem(client, 'client'),
+                  )}
               </View>
             </View>
             <View style={styles.inputWrapper}>
@@ -152,8 +194,8 @@ class ClientCheckInventory extends React.Component {
                 onChangeText={(text) => this.handleInput(text, 'productList')}
               />
               <View style={styles.dropdownContainer}>
-                {productList !== null &&
-                  productList.map((product) =>
+                {filteredProductList !== null &&
+                  filteredProductList.map((product) =>
                     this.renderItem(product, 'product'),
                   )}
               </View>
