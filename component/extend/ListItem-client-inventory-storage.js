@@ -9,7 +9,7 @@ import {TextList} from './Text-list';
 // helper
 import {requestRelocationJobStatusColor} from '../helper/status-color';
 
-const ListItemClientStorage = ({item, navigate}) => {
+const ListItemClientStorage = ({item, navigate, selectedStatus}) => {
   return (
     <ThemeProvider theme={theme}>
       <ListItem
@@ -28,13 +28,27 @@ const ListItemClientStorage = ({item, navigate}) => {
         />
         <ListItem.Content
           style={[styles.sectionContainer, {flexDirection: 'column'}]}>
-          <TextList title="Warehouse" value={item.warehouse} />
-          <TextList title="Location" value={item.location} />
-          <TextList title="Item Code" value={item.itemCode} />
-          <TextList title="Description" value={item.description} />
-          <TextList title="Grade" value={item.grade} />
-          <TextList title="Quantity" value={item.quantity} />
-          <TextList title="UOM" value={item.UOM} />
+          {selectedStatus === 'free' ? (
+            <>
+              <TextList title="Warehouse" value={item.warehouse_name} />
+              <TextList title="Location" value={item.location} />
+              <TextList title="Item Code" value={item.item_code} />
+              <TextList title="Description" value={item.description} />
+              <TextList title="Grade" value={item.grade} />
+              <TextList title="Quantity" value={item.quantity} />
+              <TextList title="UOM" value={item.uom.packaging} />
+            </>
+          ) : (
+            <>
+              <TextList title="Warehouse" value={item.warehouse_name} />
+              <TextList title="Location" value={item.location} />
+              <TextList title="Item Code" value={item.item_code} />
+              <TextList title="Description" value={item.description} />
+              <TextList title="Grade" value={item.additional.grade} />
+              <TextList title="Quantity" value={item.additional.quantity} />
+              <TextList title="UOM" value={item.uom} />
+            </>
+          )}
         </ListItem.Content>
         <ListItem.Chevron
           size={16}
