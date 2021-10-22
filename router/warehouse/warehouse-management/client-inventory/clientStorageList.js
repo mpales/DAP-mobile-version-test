@@ -75,7 +75,6 @@ class ClientStorageList extends React.Component {
       const result = await getData(
         `/clients/${clientId}/products/${productId}/${status}`,
       );
-      console.log(result);
       if (typeof result === 'object' && result.error === undefined) {
         this.setState({
           storageList: status === 'free' ? result.products : result,
@@ -93,8 +92,12 @@ class ClientStorageList extends React.Component {
     this.setState({storageList: sortedList});
   };
 
-  navigateToDetails = () => {
-    this.props.navigation.navigate('ClientStorageDetails');
+  navigateToDetails = (data) => {
+    const {selectedStatus} = this.state;
+    this.props.navigation.navigate('ClientStorageDetails', {
+      selectedStatus: selectedStatus,
+      data: data,
+    });
   };
 
   render() {
