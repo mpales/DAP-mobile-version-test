@@ -111,7 +111,7 @@ class ClientCheckInventory extends React.Component {
     } else if (type === 'product') {
       obj = {
         product: `${value.item_code}-${value.description}`,
-        productId: value.id,
+        productId: value._id,
         filteredProductList: null,
       };
     }
@@ -156,11 +156,17 @@ class ClientCheckInventory extends React.Component {
   };
 
   navigateToClientStorageList = () => {
-    const {client, product} = this.state;
+    const {client, clientId, product, productId} = this.state;
     this.props.setBottomBar(false);
     this.props.navigation.navigate('ClientStorageList', {
-      client: client,
-      product: product,
+      client: {
+        id: clientId,
+        name: client,
+      },
+      product: {
+        id: productId,
+        name: product,
+      },
     });
   };
 
@@ -263,43 +269,6 @@ class ClientCheckInventory extends React.Component {
   }
 }
 
-const CLIENTLIST = [
-  {
-    name: 'Roberto',
-    id: '1',
-  },
-  {
-    name: 'Roberto Cheng',
-    id: '2',
-  },
-  {
-    name: 'Roberto Van',
-    id: '3',
-  },
-  {
-    name: 'Roberto Vien',
-    id: '4',
-  },
-];
-
-const PRODUCTLIST = [
-  {
-    name: '0911234567',
-    id: '0911234567',
-  },
-  {
-    name: '092223346',
-    id: '092223346',
-  },
-  {
-    name: '0912234566',
-    id: '0912234566',
-  },
-  {
-    name: '0912334567',
-    id: '0912334567',
-  },
-];
 const styles = StyleSheet.create({
   body: {
     backgroundColor: Colors.white,
