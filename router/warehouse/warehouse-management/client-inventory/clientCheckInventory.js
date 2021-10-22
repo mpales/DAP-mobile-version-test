@@ -203,6 +203,7 @@ class ClientCheckInventory extends React.Component {
       client,
       clientId,
       product,
+      productId,
       filteredClientList,
       filteredProductList,
     } = this.state;
@@ -224,6 +225,18 @@ class ClientCheckInventory extends React.Component {
                 onChangeText={(text) => this.handleInput(text, 'clientList')}
               />
               <View style={styles.dropdownContainer}>
+                {client !== '' &&
+                  clientId === null &&
+                  filteredClientList !== null &&
+                  filteredClientList.length === 0 && (
+                    <View
+                      style={[
+                        styles.inputContainer,
+                        {justifyContent: 'center', paddingHorizontal: 10},
+                      ]}>
+                      <Text style={styles.inputText}>No Result</Text>
+                    </View>
+                  )}
                 {filteredClientList !== null &&
                   filteredClientList.map((client) =>
                     this.renderItem(client, 'client'),
@@ -244,6 +257,18 @@ class ClientCheckInventory extends React.Component {
                 onChangeText={(text) => this.handleInput(text, 'productList')}
               />
               <View style={styles.dropdownContainer}>
+                {product !== '' &&
+                  productId === null &&
+                  filteredProductList !== null &&
+                  filteredProductList.length === 0 && (
+                    <View
+                      style={[
+                        styles.inputContainer,
+                        {justifyContent: 'center', paddingHorizontal: 10},
+                      ]}>
+                      <Text style={styles.inputText}>No Result</Text>
+                    </View>
+                  )}
                 {filteredProductList !== null &&
                   filteredProductList.map((product) =>
                     this.renderItem(product, 'product'),
