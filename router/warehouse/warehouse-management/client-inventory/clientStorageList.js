@@ -19,6 +19,7 @@ import ListItemClientStorage from '../../../../component/extend/ListItem-client-
 import {getData} from '../../../../component/helper/network';
 import {
   clientProductStatus,
+  clientProductStatusEndpoint,
   cleanKeyString,
 } from '../../../../component/helper/string';
 //style
@@ -31,6 +32,7 @@ class ClientStorageList extends React.Component {
     this.state = {
       client: this.props.route.params?.client.name ?? null,
       product: this.props.route.params?.product.name ?? null,
+      selectedStatus: '',
       selectedSortBy: null,
       itemStatusData: null,
       storageList: null,
@@ -61,6 +63,26 @@ class ClientStorageList extends React.Component {
     }
   };
 
+  getProductListByStatus = async (status) => {
+    this.setState({
+      storageList: null,
+      selectedStatus: status,
+    });
+    const {route} = this.props;
+    let clientId = route.params?.client.id ?? null;
+    let productId = route.params?.product.id ?? null;
+    if (clientId !== null && productId !== null) {
+      const result = await getData(
+        `/clients/${clientId}/products/${productId}/${status}`,
+      );
+      if (typeof result === 'object' && result.error === undefined) {
+        this.setState({
+          storageList: status === 'free' ? result.products : result,
+        });
+      }
+    }
+  };
+
   sortList = (type) => {
     this.setState({selectedSortBy: type});
     let sortedList = [...this.state.storageList];
@@ -70,18 +92,23 @@ class ClientStorageList extends React.Component {
     this.setState({storageList: sortedList});
   };
 
-  navigateToDetails = () => {
-    this.props.navigation.navigate('ClientStorageDetails');
+  navigateToDetails = (data) => {
+    const {selectedStatus} = this.state;
+    this.props.navigation.navigate('ClientStorageDetails', {
+      selectedStatus: selectedStatus,
+      data: data,
+    });
   };
 
   render() {
     const {
       client,
-      product,
-      storageList,
-      selectedSortBy,
-      itemStatusData,
       isLoading,
+      itemStatusData,
+      product,
+      selectedSortBy,
+      selectedStatus,
+      storageList,
     } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
@@ -190,6 +217,11 @@ class ClientStorageList extends React.Component {
                               clientProductStatus(data.status) ===
                                 clientProductStatus(3)
                             }
+                            onPress={() =>
+                              this.getProductListByStatus(
+                                clientProductStatusEndpoint(data.status),
+                              )
+                            }
                             style={
                               index % 2 === 0
                                 ? [
@@ -223,6 +255,7 @@ class ClientStorageList extends React.Component {
             storageList.map((item) => (
               <ListItemClientStorage
                 item={item}
+                selectedStatus={selectedStatus}
                 navigate={this.navigateToDetails}
               />
             ))}
