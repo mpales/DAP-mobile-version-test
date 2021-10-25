@@ -4,8 +4,11 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 import {Picker} from '@react-native-picker/picker';
+// helper
+import {getData} from '../../../../component/helper/network';
 //component
 import ListItemSearchInventory from '../../../../component/extend/ListItem-search-inventory-result';
+import Loading from '../../../../component/loading/loading';
 //style
 import Mixins from '../../../../mixins';
 
@@ -13,32 +16,67 @@ class SearchInventoryList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      warehouseName: this.props.route.params?.warehouseName ?? '',
       warehouse: this.props.route.params?.warehouse ?? null,
-      locationId: this.props.route.params?.locationId ?? null,
+      locationId: this.props.route.params?.locationId ?? '',
       selectedSortBy: null,
-      searchResult: SEARCHRESULT,
+      searchResult: null,
+      isLoading: true,
     };
   }
 
   componentDidMount() {
-    this.sortList('location');
+    this.searchInventoryList();
   }
 
   sortList = (type) => {
     this.setState({selectedSortBy: type});
-    let sortedList = [...this.state.searchResult];
-    sortedList.sort((a, b) =>
-      a[type] > b[type] ? 1 : b[type] > a[type] ? -1 : 0,
-    );
-    this.setState({searchResult: sortedList});
+    if (this.state.searchResult !== null) {
+      let sortedList = [...this.state.searchResult];
+      sortedList.sort((a, b) =>
+        a[type] > b[type] ? 1 : b[type] > a[type] ? -1 : 0,
+      );
+      this.setState({searchResult: sortedList});
+    }
   };
 
-  navigateToDetails = () => {
-    this.props.navigation.navigate('SearchInventoryDetails');
+  searchInventoryList = async () => {
+    const {warehouse, locationId} = this.state;
+    const result = await getData(
+      `stocks-mobile/search-inventories/warehouse/${
+        warehouse === null ? 0 : warehouse
+      }/location-id/${
+        locationId === null || locationId === '' ? 0 : locationId
+      }`,
+    );
+    if (typeof result === 'object' && result.error === undefined) {
+      if (result.length > 0) {
+        this.setState({
+          searchResult: result,
+        });
+        this.sortList('location');
+      }
+    }
+    this.setState({
+      isLoading: false,
+    });
+  };
+
+  navigateToDetails = (data) => {
+    this.props.navigation.navigate('SearchInventoryDetails', {
+      warehouseData: data,
+    });
   };
 
   render() {
-    const {warehouse, locationId, searchResult, selectedSortBy} = this.state;
+    const {
+      warehouse,
+      warehouseName,
+      locationId,
+      searchResult,
+      selectedSortBy,
+      isLoading,
+    } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
@@ -80,7 +118,7 @@ class SearchInventoryList extends React.Component {
                   styles.textBlue,
                   {marginLeft: 20, flexWrap: 'wrap'},
                 ]}>
-                {`${warehouse} ${locationId}`}
+                {`${warehouseName} ${locationId}`}
               </Text>
             </View>
             <Text style={[styles.text, styles.textBlue]}>
@@ -88,23 +126,33 @@ class SearchInventoryList extends React.Component {
             </Text>
           </View>
         </View>
-        {searchResult === null ? (
-          <View
-            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={styles.title}>No result</Text>
-          </View>
-        ) : (
-          <FlatList
-            data={searchResult}
-            renderItem={({item, index}) => (
-              <ListItemSearchInventory
-                item={item}
-                navigate={this.navigateToDetails}
+        {!isLoading ? (
+          <>
+            {searchResult === null ? (
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Text style={styles.title}>No result</Text>
+              </View>
+            ) : (
+              <FlatList
+                data={searchResult}
+                renderItem={({item, index}) => (
+                  <ListItemSearchInventory
+                    item={item}
+                    navigate={this.navigateToDetails}
+                  />
+                )}
+                keyExtractor={(item, index) => index}
+                showsVerticalScrollIndicator={false}
               />
             )}
-            keyExtractor={(item, index) => index}
-            showsVerticalScrollIndicator={false}
-          />
+          </>
+        ) : (
+          <Loading />
         )}
       </SafeAreaProvider>
     );
