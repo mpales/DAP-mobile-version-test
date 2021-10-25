@@ -1,0 +1,23 @@
+{
+  "images" : [
+    {
+      "filename" : "dap_logo_hires1-e1544435829468 5small.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "dap_logo_hires1-e1544435829468 5medium.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "dap_logo_hires1-e1544435829468 5large.png",
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
