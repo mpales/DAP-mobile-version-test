@@ -5,6 +5,8 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 import {Picker} from '@react-native-picker/picker';
+// helper
+import {getData} from '../../../../component/helper/network';
 // style
 import Mixins from '../../../../mixins';
 // icon
@@ -14,7 +16,8 @@ class SearchInventory extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      warehouseList: WAREHOUSELIST,
+      warehouseList: null,
+      warehouseName: '',
       warehouse: null,
       locationId: '',
     };
@@ -22,6 +25,7 @@ class SearchInventory extends React.Component {
   }
 
   componentDidMount() {
+    this.getWarehouseList();
     this.props.navigation.addListener('focus', () => {
       this.props.setBottomBar(true);
     });
@@ -29,7 +33,7 @@ class SearchInventory extends React.Component {
 
   submitSearch = () => {
     const {warehouse, locationId} = this.state;
-    if (warehouse === '' || locationId === '') {
+    if (warehouse === null && locationId === '') {
       return;
     }
     this.navigateToSearchInventoryList();
@@ -38,17 +42,33 @@ class SearchInventory extends React.Component {
   handleInput = (value, type) => {
     let obj = {};
     if (type === 'warehouse') {
-      obj = {warehouse: value};
+      const {warehouseList} = this.state;
+      let selectedWarehouse = warehouseList.find((el) => el.id === value);
+      if (selectedWarehouse === undefined) {
+        obj = {warehouse: value, warehouseName: ''};
+      } else {
+        obj = {warehouse: value, warehouseName: selectedWarehouse.name};
+      }
     } else if (type === 'locationId') {
       obj = {locationId: value};
     }
     this.setState(obj);
   };
 
+  getWarehouseList = async () => {
+    const result = await getData('/warehouses');
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        warehouseList: result,
+      });
+    }
+  };
+
   navigateToSearchInventoryList = () => {
-    const {warehouse, locationId} = this.state;
+    const {warehouse, locationId, warehouseName} = this.state;
     this.props.setBottomBar(false);
     this.props.navigation.navigate('SearchInventoryList', {
+      warehouseName: warehouseName,
       warehouse: warehouse,
       locationId: locationId,
     });
@@ -131,21 +151,6 @@ class SearchInventory extends React.Component {
     );
   }
 }
-
-const WAREHOUSELIST = [
-  {
-    id: 'warehouse 1',
-    name: 'warehouse 1',
-  },
-  {
-    id: 'warehouse 2',
-    name: 'warehouse 2',
-  },
-  {
-    id: 'warehouse 3',
-    name: 'warehouse 3',
-  },
-];
 
 const styles = StyleSheet.create({
   body: {
