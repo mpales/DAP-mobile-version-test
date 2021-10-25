@@ -547,6 +547,7 @@ const Root = (props) => {
     }
   },[isLoading]);
   
+  if(isLoading) return null;
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
