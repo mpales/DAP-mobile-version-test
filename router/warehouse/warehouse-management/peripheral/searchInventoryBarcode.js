@@ -21,7 +21,7 @@ class SearchInventoryBarcode extends React.Component {
 
   renderBarcode = (barcode) => {
     if (barcode.length > 0 && barcode[0].data !== '') {
-      this.props.navigation.navigate('SearchInventoryList', {
+      this.props.navigation.navigate('SearchInventoryDetails', {
         barcodeResult: barcode[0].data,
       });
     }
