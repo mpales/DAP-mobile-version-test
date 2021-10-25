@@ -13,10 +13,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.io.IOException;
 import android.util.Log;
+import org.devio.rn.splashscreen.SplashScreen; // here
 
 public class MainActivity extends ReactActivity {
  // Add from here down to the end of your MainActivity
   public boolean isOnNewIntent = false;
+
+    @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    SplashScreen.show(this, R.style.SplashScreenTheme);
+      super.onCreate(null);
+  }
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule
    * rendering of the component.

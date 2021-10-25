@@ -48,6 +48,7 @@ import {
 } from './component/helper/persist-login';
 import MenuWarehouse from './router/warehouse/detail/warehouse-menu';
 import LogoLarge from './assets/dap_logo_hires1-e1544435829468 5large.svg';
+import SplashScreen from 'react-native-splash-screen'
 enableScreens(false);
 class App extends React.Component<IProps, IState> {
   keyboardDidShowListener: any;
@@ -540,7 +541,12 @@ const Root = (props) => {
   });
   const [routeName, setRoute] = React.useState('Login');
 
-  if (isLoading) return null;
+  React.useEffect(()=>{
+    if(!isLoading){
+      SplashScreen.hide();
+    }
+  },[isLoading]);
+  
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
