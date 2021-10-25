@@ -1,5 +1,6 @@
 package com.transportapp;
 
+import android.os.Bundle; // here
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 //react-native-foreground

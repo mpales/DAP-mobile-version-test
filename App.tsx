@@ -502,7 +502,7 @@ const NavigationWrapper = (props) => {
   }, [isConnected]); // Only re-run the effect if count changes
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider style={{backgroundColor:'#121C78', width:'100%',height:'100%'}}>
       <NavigationContainer
         ref={navigationRef}
         onReady={() => {
