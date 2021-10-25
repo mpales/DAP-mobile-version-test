@@ -7,6 +7,8 @@ import {connect} from 'react-redux';
 import {Picker} from '@react-native-picker/picker';
 // component
 import {TextList, TextListBig} from '../../../../component/extend/Text-list';
+// helper
+import Format from '../../../../component/helper/format';
 //style
 import Mixins from '../../../../mixins';
 import moment from 'moment';
@@ -15,8 +17,10 @@ class SearchInventoryDetails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      warehouseDetails: null,
-      inventoryList: INVENTORYLIST,
+      warehousName: this.props.route.params?.warehouseData.warehouseName ?? '',
+      locationId: this.props.route.params?.warehouseData.locationId ?? '',
+      inventoryList:
+        this.props.route.params?.warehouseData.productStorage ?? null,
       selectedSortBy: null,
     };
   }
@@ -39,13 +43,20 @@ class SearchInventoryDetails extends React.Component {
   };
 
   render() {
-    const {inventoryList, selectedSortBy} = this.state;
-    console.log(inventoryList);
+    const {
+      inventoryList,
+      selectedSortBy,
+      warehousName,
+      locationId,
+    } = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
         <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
-          <Text style={styles.title}>Warehouse KEPPEL-GE JP4 B-L145</Text>
+          <Text
+            style={
+              styles.title
+            }>{`Warehouse ${warehousName} ${locationId}`}</Text>
           <View style={styles.headerContainer}>
             <Text style={styles.text}>Sort By</Text>
             <View style={styles.pickerContainer}>
@@ -80,27 +91,36 @@ class SearchInventoryDetails extends React.Component {
             <>
               {inventoryList.map((item, index) => (
                 <Card containerStyle={styles.cardContainer} key={index}>
-                  <TextList title="Client" value={item.client} />
-                  <TextList title="Item Code" value={item.itemCode} />
-                  <TextList title="Description" value={item.description} />
-                  <TextList title="Barcode" value={item.barcode} />
+                  <TextList title="Client" value={item.client.name} />
+                  <TextList title="Item Code" value={item.product.itemCode} />
+                  <TextList
+                    title="Description"
+                    value={item.product.description}
+                  />
+                  <TextList
+                    title="Barcode"
+                    value={item.productBarcode.codeNumber}
+                  />
                   <TextList title="Grade" value={item.grade} />
                   <TextList title="Quantity" value={item.quantity} />
-                  <TextList title="UOM" value={item.UOM} />
-                  <TextList title="Receipt Date" value={item.receiptDate} />
+                  <TextList title="UOM" value={item.productUom.packaging} />
+                  <TextList
+                    title="Receipt Date"
+                    value={Format.formatDate(item.receiveDate)}
+                  />
                   <View style={styles.lineSeparator} />
                   <Text>Attributes</Text>
                   <TextListBig
                     title="Product Category"
-                    value={item.attributes.productCategory}
+                    value={item.product.category}
                     fontSize={14}
                   />
                   <TextList title="Color" value={item.attributes.color} />
                   <TextList
                     title="EXP Date"
-                    value={item.attributes.expiryDate}
+                    value={Format.formatDate(item.attributes.expiry_date)}
                   />
-                  <TextList title="Banch" value={item.attributes.banch} />
+                  <TextList title="Batch" value={item.batchNo} />
                 </Card>
               ))}
             </>
@@ -110,57 +130,6 @@ class SearchInventoryDetails extends React.Component {
     );
   }
 }
-
-const INVENTORYLIST = [
-  {
-    client: 'CG5G',
-    itemCode: '256000912',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    barcode: 'BT-090123345',
-    grade: '01',
-    quantity: 10,
-    UOM: 'PCS',
-    receiptDate: moment().subtract(1, 'days').unix(),
-    attributes: {
-      productCategory: 'Fashion',
-      color: 'BLACK',
-      expiryDate: '-',
-      banch: '01',
-    },
-  },
-  {
-    client: 'AG5G',
-    itemCode: '256000912',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    barcode: 'BT-090123345',
-    grade: '01',
-    quantity: 50,
-    UOM: 'PCS',
-    receiptDate: moment().subtract(1, 'days').unix(),
-    attributes: {
-      productCategory: 'Fashion',
-      color: 'BLACK',
-      expiryDate: '-',
-      banch: '01',
-    },
-  },
-  {
-    client: 'BG5G',
-    itemCode: '256000912',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    barcode: 'BT-090123345',
-    grade: '01',
-    quantity: 90,
-    UOM: 'PCS',
-    receiptDate: moment().subtract(1, 'days').unix(),
-    attributes: {
-      productCategory: 'Fashion',
-      color: 'BLACK',
-      expiryDate: '-',
-      banch: '01',
-    },
-  },
-];
 
 const styles = StyleSheet.create({
   body: {
