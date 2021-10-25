@@ -149,7 +149,7 @@ const Manifest = ({item, index, selectIndex}) => {
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
                         <View style={{width: 100} }>
                         <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-                            {item.sku}
+                            {item.item_code}
                         </Text>
                         </View>
                     </View>
@@ -162,7 +162,7 @@ const Manifest = ({item, index, selectIndex}) => {
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
                         <View style={{width: 100} }>
                         <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-                        {item.name}
+                        {item.description}
                         </Text>
                         </View>
                     </View>

@@ -17,7 +17,8 @@ import {
   Dimensions,
   Text,
   TouchableOpacity,
-  RefreshControl
+  RefreshControl,
+  ActivityIndicator
 } from 'react-native';
 import {Avatar, Card, Overlay, Button, SearchBar, Badge, Input} from 'react-native-elements';
 
@@ -42,6 +43,7 @@ class Warehouse extends React.Component{
       inboundCode: this.props.route.params?.code ?? '',
       _visibleOverlay : false,
       receivingNumber: null,
+      inboundNumber :null,
       companyname : null,
       shipmentVAS : true,
       receiptid : null,
@@ -64,39 +66,42 @@ class Warehouse extends React.Component{
   static getDerivedStateFromProps(props,state){
     const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest, barcodeGrade} = props;
     const {receivingNumber, _manifest, search, filtered} = state;
-    if(manifestList.length > 0 && barcodeScanned.length > 0) {
-      let manifest = Array.from({length: manifestList.length}).map((num, index) => {
-        return {
-            ...manifestList[index],
-            grade : barcodeScanned.includes(manifestList[index].code) ? barcodeGrade : manifestList[index].grade,
-            scanned: barcodeScanned.includes(manifestList[index].code) ? barcodeScanned.length : manifestList[index].scanned,
-            status : barcodeScanned.includes(manifestList[index].code) ? 2 : manifestList[index].status
-        };
-      });
-      props.setItemGrade(null);
-      props.setItemScanned([]);
-      props.setManifestList(manifest);
-      return {...state,_manifest : manifest};
-    } else if(manifestList.length > 0 && ReportedManifest !== null ) {
-      let manifest = Array.from({length: manifestList.length}).map((num, index) => {
-        return {
-            ...manifestList[index],
-            scanned: ReportedManifest === manifestList[index].code ? -1 : manifestList[index].scanned,
-            status : ReportedManifest === manifestList[index].code ? 4 : manifestList[index].status
-          };
-      });
-      props.setReportedManifest(null);
-      props.setManifestList(manifest);
-      return {...state, _manifest: manifest}
-    } else if(manifestList.length > 0 && _manifest.length === 0  && search === '' && filtered === 0 ) {
+    // if(manifestList.length > 0 && barcodeScanned.length > 0) {
+    //   let manifest = Array.from({length: manifestList.length}).map((num, index) => {
+    //     return {
+    //         ...manifestList[index],
+    //         grade : barcodeScanned.includes(manifestList[index].code) ? barcodeGrade : manifestList[index].grade,
+    //         scanned: barcodeScanned.includes(manifestList[index].code) ? barcodeScanned.length : manifestList[index].scanned,
+    //         status : barcodeScanned.includes(manifestList[index].code) ? 2 : manifestList[index].status
+    //     };
+    //   });
+    //   props.setItemGrade(null);
+    //   props.setItemScanned([]);
+    //   props.setManifestList(manifest);
+    //   return {...state,_manifest : manifest};
+    // } else if(manifestList.length > 0 && ReportedManifest !== null ) {
+    //   let manifest = Array.from({length: manifestList.length}).map((num, index) => {
+    //     return {
+    //         ...manifestList[index],
+    //         scanned: ReportedManifest === manifestList[index].code ? -1 : manifestList[index].scanned,
+    //         status : ReportedManifest === manifestList[index].code ? 4 : manifestList[index].status
+    //       };
+    //   });
+    //   props.setReportedManifest(null);
+    //   props.setManifestList(manifest);
+    //   return {...state, _manifest: manifest}
+    if(receivingNumber !== null && manifestList.length > 0 && _manifest.length === 0  && search === '' && filtered === 0 ) {
       return {...state, _manifest: manifestList}
     }
     return {...state};
   }
   shouldComponentUpdate(nextProps, nextState) {
     if(this.props.keyStack !== nextProps.keyStack){
-      if(nextProps.keyStack === 'Manifest' && this.props.keyStack ==='newItem'){
+      if(nextProps.keyStack === 'Manifest' && this.props.keyStack ==='Barcode'){
         this.setState({updated: true});
+        return true;
+      } else if (nextProps.keyStack === 'Manifest' && this.props.keyStack ==='newItem'){
+        this.setState({renderRefresh: true});
         return true;
       } else if(nextProps.keyStack === 'Manifest'){
         return true;
@@ -104,7 +109,7 @@ class Warehouse extends React.Component{
     }
     return true;
   }
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  async componentDidUpdate(prevProps, prevState, snapshot) {
     const {manifestList} = this.props;
     
     // if(prevState.receivingNumber !== this.state.receivingNumber){
@@ -115,18 +120,45 @@ class Warehouse extends React.Component{
     //    this.props.setManifestList([]);
     //   }
     // } 
+    if(this.state.updated !== prevState.updated && this.state.updated === true){
+      const {receivingNumber} = this.state;
+      const {currentASN} = this.props;
+      let inboundId = receivingNumber === null ? currentASN : receivingNumber;
+      const resultStatus = await getData('inboundsMobile/'+inboundId+'/item-status');
+      let updatedManifest = [];
+      for (let index = 0; index < manifestList.length; index++) {
+        const element = manifestList[index];
+        const elementstatus = resultStatus.products.find((o)=> o.pId === element.pId);
+        if(elementstatus === undefined){
+          updatedManifest[index] = element;  
+        } else {
+          updatedManifest[index] = {
+            ...element,
+            ...elementstatus,
+           };
+        }
+      }
+      this.props.setManifestList(updatedManifest);
+    }
+    if(this.state.renderRefresh !== prevState.renderRefresh && this.state.renderRefresh === true){
+      const {receivingNumber} = this.state;
+      const {currentASN} = this.props;
+      let inboundId = receivingNumber === null ? currentASN : receivingNumber;
+      const resultProduct = await getData('inboundsMobile/'+inboundId+'');
+      this.props.setManifestList(resultProduct.products)
+    }
     let filtered = prevState.renderRefresh !== this.state.renderRefresh || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.updated !== this.state.updated ? this.state.filtered : null;
    
     if(filtered === 0) {
-      this.setState({_manifest: manifestList.filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false, renderRefresh: false});
+      this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && element.item_code.indexOf(this.state.search) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
       } else if(filtered === 1){
-        this.setState({_manifest: manifestList.filter((element)=> element.status === 1).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=> element.status === 1).filter((element)=> (element.item_code !== undefined && element.item_code.indexOf(this.state.search) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
       } else if(filtered === 2){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 2).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && element.item_code.indexOf(this.state.search) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false});
       }else if(filtered === 3){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && element.item_code.indexOf(this.state.search) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
       }else if(filtered === 4){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 4).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 4).filter((element)=> (element.item_code !== undefined && element.item_code.indexOf(this.state.search) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false});
       } 
    
   }
@@ -146,14 +178,15 @@ class Warehouse extends React.Component{
           const result = await getData('inboundsMobile/'+routes[index].params.number);
           if(typeof result === 'object' && result.error === undefined){
             const shipmentVAS  = await getData('/inboundsMobile/'+routes[index].params.number+'/shipmentVAS')
-            if(typeof shipmentVAS === 'object' && shipmentVAS.error !== undefined && shipmentVAS.error.indexOf('Not Found') !== -1 && shipmentVAS.some((o)=> result.inbound_receipts.includes(o.receipt_id) === false) === true){
+            const inbound_receipts = Array.from({length:result.inbound_receipt.length}).map((num,index)=>{
+              return result.inbound_receipt[index].id;
+            });
+            if(typeof shipmentVAS === 'object' && shipmentVAS.error === undefined && shipmentVAS.some((o)=> inbound_receipts.includes(o.receipt_id) === true && Object.keys(o.inbound_shipment_va).length === 0) === true){
               this.setState({shipmentVAS: false});
             }
-            let mergedDummy = Array.from({length: result.inbound_products.length}).map((num,index)=>{
-              return {...manifestDummy[index],...result.inbound_products[index]}
-            });
-            this.props.setManifestList(mergedDummy)
-            this.setState({receivingNumber: routes[index].params.number,_manifest:mergedDummy,companyname:result.company.company_name,receiptid: result.inbound_asn !== null && result.inbound_asn !== undefined ? result.inbound_asn.reference_id : result.inbound_grn !== null && result.inbound_grn !== undefined ? result.inbound_grn.reference_id : result.inbound_other !== null && result.inbound_other !== undefined ? result.inbound_other.reference_id : null  })
+          
+            this.props.setManifestList(result.products)
+            this.setState({receivingNumber: routes[index].params.number, inboundNumber: result.inbound_number,_manifest:result.products,companyname:result.client,receiptid: result.inbound_receipt[result.inbound_receipt.length -1].receipt_no, updated: true  })
           } else {
             navigation.popToTop();
           }
@@ -161,14 +194,14 @@ class Warehouse extends React.Component{
           const result = await getData('inboundsMobile/'+currentASN);
           if(typeof result === 'object' && result.error === undefined){
             const shipmentVAS  = await getData('/inboundsMobile/'+currentASN+'/shipmentVAS')
-            if(typeof shipmentVAS === 'object' && shipmentVAS.error !== undefined &&  shipmentVAS.error.indexOf('Not Found') !== -1 && shipmentVAS.some((o)=> result.inbound_receipts.includes(o.receipt_id) === false) === true){
+            const inbound_receipts = Array.from({length:result.inbound_receipt.length}).map((num,index)=>{
+              return result.inbound_receipt[index].id;
+            })
+            if(typeof shipmentVAS === 'object' && shipmentVAS.error === undefined && shipmentVAS.some((o)=> inbound_receipts.includes(o.receipt_id) === true && Object.keys(o.inbound_shipment_va).length === 0) === true){
               this.setState({shipmentVAS: false});
             }
-            let mergedDummy = Array.from({length: result.inbound_products.length}).map((num,index)=>{
-              return {...manifestDummy[index],...result.inbound_products[index]}
-            });
-            this.props.setManifestList(mergedDummy)
-          this.setState({receivingNumber: currentASN, _manifest:mergedDummy, companyname:result.company.company_name,receiptid: result.inbound_asn !== null && result.inbound_asn !== undefined ? result.inbound_asn.reference_id : result.inbound_grn !== null && result.inbound_grn !== undefined ? result.inbound_grn.reference_id : result.inbound_other !== null && result.inbound_other !== undefined ? result.inbound_other.reference_id : null })
+            this.props.setManifestList(result.products)
+            this.setState({receivingNumber: currentASN,inboundNumber: result.inbound_number, _manifest:result.products, companyname:result.client,receiptid:  result.inbound_receipt[result.inbound_receipt.length -1].receipt_no, updated: true })
           } else {
             navigation.popToTop();
           }
@@ -177,6 +210,7 @@ class Warehouse extends React.Component{
         }
     }
   }
+ 
   setFiltered = (num)=>{
     this.setState({filtered:num});
 }
@@ -235,7 +269,7 @@ class Warehouse extends React.Component{
   render() {
     const {_visibleOverlay, _manifest,receivingNumber} = this.state;
     const {inboundList} = this.props;
-    let currentASN = inboundList.find((element) => element.number === receivingNumber);
+
     return (
       <>
         <StatusBar barStyle="dark-content" /> 
@@ -256,7 +290,7 @@ class Warehouse extends React.Component{
             <View style={[styles.sectionContent,{marginTop: 20}]}>
             <View style={[styles.sectionContentTitle, {flexDirection: 'row'}]}>
             <View style={[styles.titleHead,{flexShrink :1,minWidth: 180}]}>
-            <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{receivingNumber}</Text>
+            <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{this.state.inboundNumber}</Text>
             <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{this.state.companyname}</Text>
             <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{"Receipt #: "+ this.state.receiptid}</Text>
             </View>
@@ -356,7 +390,12 @@ class Warehouse extends React.Component{
               <Card containerStyle={styles.cardContainer}>
                 {_manifest.length === 0 ? 
                 (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
-                  <BlankList height="185" width="213"/>
+                  {this.state.receivingNumber === null ? (    <ActivityIndicator 
+                    size={50} 
+                    color="#121C78"
+                />) : (
+                <BlankList height="185" width="213"/>
+                )}
                   </View>)
                 : _manifest.map((u, i) => (
                   <InboundDetail 

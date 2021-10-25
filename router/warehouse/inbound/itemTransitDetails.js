@@ -31,8 +31,8 @@ class ConnoteDetails extends React.Component {
     if(dataCode === '0'){
       const {routes, index} = navigation.dangerouslyGetState();
       if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-        if( manifestList.some((element)=> element.code === routes[index].params.dataCode)){
-          let manifest = manifestList.find((element)=>element.code === routes[index].params.dataCode);
+        if( manifestList.some((element)=> element.pId === routes[index].params.dataCode)){
+          let manifest = manifestList.find((element)=>element.pId === routes[index].params.dataCode);
           return {...state, dataCode: routes[index].params.dataCode, _itemDetail:manifest};    
         }
         return {...state, dataCode: routes[index].params.dataCode};
@@ -96,28 +96,24 @@ class ConnoteDetails extends React.Component {
             <Card containerStyle={styles.cardContainer} style={styles.card}>
              
               <View style={styles.detail}>
-                <DetailList title="Container #" value="ADIDAS SHOES" />
-                <DetailList title="No. of Pallet" value="20" />
-                <DetailList title="No. of Carton" value="10" />
-                <DetailList title="CBM" value="0.68" />
-                <DetailList
-                  title="Weight"
-                  value="11 KG"
-                />
+              <DetailList title="Container #" value={_itemDetail.container_no} />
+               <DetailList title="No. of Pallet" value={_itemDetail.total_pallet} />
+               <DetailList title="No. of Carton" value={_itemDetail.total_carton} />
+               <DetailList title="CBM" value="-" />
+               <DetailList
+                 title="Weight"
+                 value="-"
+               />
                 <Divider />
                 <View style={styles.header}>
                   <Text style={[styles.detailText, {lineHeight: 24}]}>
                   Delivery Information
                   </Text>
                 </View>
-                <DetailList title="Delivery Type" value="SELF COLLECTION" />
+                <DetailList title="Delivery Type" value={_itemDetail.delivery_type === 1 ? 'Self Collection' : 'Request Delivery'} />
               </View>
             </Card>
-            <FlatList
-              data={[]}
-              ListHeaderComponent={this.renderHeader}
-              renderItem={({item}) => this.renderInner(item)}
-            />
+           
           </View>
         </View>
       </>

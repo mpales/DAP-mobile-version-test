@@ -23,7 +23,7 @@ import moment from 'moment';
 const window = Dimensions.get('screen');
 class ConnoteReportDetails extends React.Component {
   overlayThumb = null;
-  arrayImageProcessingRef = [];
+  arrayImageProcessingRef = {};
   constructor(props) {
     super(props);
     this.state = {
@@ -58,11 +58,11 @@ class ConnoteReportDetails extends React.Component {
   }
   componentDidUpdate(prevProps, prevState, snapshot) {
     if(prevState.dataReports !== this.state.dataReports){
-      this.arrayImageProcessingRef.forEach(element => {
-        if(element !== undefined){
-          element.init();
+      for (const [key, value] of Object.entries(this.arrayImageProcessingRef)) {
+        if(value !== undefined){
+          value.init();
         }
-      });
+      }
     } 
     if(prevState.overlayImage !== this.state.overlayImage && this.state.overlayImage === true){
      if(this.overlayThumb !== null && this.overlayThumb !== undefined){

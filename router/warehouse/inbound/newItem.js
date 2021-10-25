@@ -4,7 +4,8 @@ import {View} from 'react-native';
 import {connect} from 'react-redux';
 import moment from 'moment';
 import Mixins from '../../../mixins';
-
+import {postData, getData} from '../../../component/helper/network';
+import Banner from '../../../component/banner/banner';
 class Acknowledge extends React.Component {
   constructor(props) {
     super(props);
@@ -12,6 +13,7 @@ class Acknowledge extends React.Component {
       dataCode: '0',
       bottomSheet: false,
       isShowSignature: false,
+      productID : null,
       barcode : '',
       sku: '',
       description: '',
@@ -22,7 +24,7 @@ class Acknowledge extends React.Component {
       volweight: '',
       weight: '',
       pcscarton: '',
-      
+      errors : '',
     };
     this.registerBarcode.bind(this);
     this.submitItem.bind(this);
@@ -32,10 +34,21 @@ class Acknowledge extends React.Component {
     const {dataCode, sku} = state;
     if(sku === ''){
       const {routes, index} = navigation.dangerouslyGetState();
-       if(routes[index].params !== undefined && routes[index].params.attrSKU !== undefined){
+       if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined){
          //if multiple sku
-        let manifest = manifestList.find((element)=>element.sku === routes[index].params.attrSKU);
-        return {...state, sku : manifest.sku, description: manifest.name,};
+        let manifest = manifestList.find((element)=>element.pId === routes[index].params.inputCode);
+        return {...state, 
+          productID: manifest.pId,
+          sku : String(manifest.item_code), 
+          description: String(manifest.description),
+          uom : String(manifest.uom),
+          length: String(manifest.basic.length),
+          width: String(manifest.basic.width),
+          height: String(manifest.basic.height),
+          volweight: String(manifest.basic.volume),
+          weight: String(manifest.basic.weight),
+          pcscarton: String(manifest.basic.carton_pcs),
+        };
       }
       return {...state};
     } 
@@ -46,16 +59,38 @@ class Acknowledge extends React.Component {
     if(this.props.keyStack !== nextProps.keyStack){
       if(nextProps.keyStack === 'newItem' && this.props.keyStack ==='RegisterBarcode'){
         const {routes, index} = nextProps.navigation.dangerouslyGetState();
-        if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined){
+        if(routes[index].params !== undefined && routes[index].params.attrBarcode !== undefined){
           //if multiple sku
-          this.setState({barcode: routes[index].params.inputCode});
+          this.setState({barcode: routes[index].params.attrBarcode});
         }
         return false;
       }
     }
     return true;
   }
-  componentDidUpdate(prevProps, prevState, snapshot){
+  async componentDidUpdate(prevProps, prevState, snapshot){
+    const {currentASN, manifestList} = this.props;
+    if(prevState.barcode !== this.state.barcode && this.state.barcode !== ''){
+      const updatedBarcodes = await getData('inboundsMobile/'+currentASN+'/item-barcode');
+      if(updatedBarcodes.error !== undefined){
+        this.props.navigation.goBack();
+      } else {
+        let updatedManifest = [];
+        for (let index = 0; index < manifestList.length; index++) {
+          const element = manifestList[index];
+          let findBarcode = updatedBarcodes.products.find((o)=> o.pId === element.pId);
+          if(findBarcode !== undefined){
+            updatedManifest[index] = {
+              ...manifestList[index],
+              barcodes: findBarcode.barcodes,
+            }
+          } else {
+            updatedManifest[index] = manifestList[index];
+          }
+        }
+      this.props.setManifestList(updatedManifest);
+      }
+    }
     if(prevState.length !== this.state.length || prevState.width !== this.state.width || prevState.height !== this.state.height){
       const {length,width,height} = this.state;
       if(length !== '' && width !== '' && height !== ''){
@@ -67,29 +102,23 @@ class Acknowledge extends React.Component {
     }
   }
   registerBarcode = () => {
-    const {sku} = this.state;
+    const {productID} = this.state;
     this.props.navigation.navigate({
       name: 'RegisterBarcode',
       params: {
-        attrSKU: sku,
+        inputCode: productID,
       }
     })
   };
   submitItem = ()=>{
     const {manifestList} = this.props;
-    const {dataCode, barcode, sku, expDate,mfgDate,size,color,classcode,country,height, weight} = this.state;
+    const {productID,dataCode, barcode, sku, expDate,mfgDate,size,color,classcode,country,height, weight} = this.state;
     let manifest = []
     
       manifest = Array.from({length: manifestList.length}).map((num, index, arr) => {
-      if(sku === manifestList[index].sku){
+      if(productID === manifestList[index].pId){
         return {
           ...manifestList[index],
-            code: barcode,
-            color:color,
-            timestamp: moment().unix(),
-            scanned: 0,
-            weight: weight,
-            category: 'test',
         };
       } else {
       return manifestList[index];  
@@ -143,6 +172,7 @@ class Acknowledge extends React.Component {
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({barcode:text})}}
                 value={barcode}
+                disabled={true}
             />
               <Button
               containerStyle={{flexShrink:1, marginTop: 5,marginBottom:15,paddingHorizontal:10, maxHeight:30}}
@@ -378,6 +408,7 @@ function mapStateToProps(state) {
     isSignatureSubmitted: state.originReducer.filters.isSignatureSubmitted,
     manifestList: state.originReducer.manifestList,
     keyStack: state.originReducer.filters.keyStack,
+    currentASN : state.originReducer.filters.currentASN,
   };
 }
 

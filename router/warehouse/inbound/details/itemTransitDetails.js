@@ -34,8 +34,8 @@ class ConnoteDetails extends React.Component {
     if(dataCode === '0'){
       const {routes, index} = navigation.dangerouslyGetState();
       if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-        if( manifestList.some((element)=> element.code === routes[index].params.dataCode)){
-          let manifest = manifestList.find((element)=>element.code === routes[index].params.dataCode);
+        if( manifestList.some((element)=> element.pId === routes[index].params.dataCode)){
+          let manifest = manifestList.find((element)=>element.pId === routes[index].params.dataCode);
           return {...state, dataCode: routes[index].params.dataCode, _itemDetail:manifest};    
         }
         return {...state, dataCode: routes[index].params.dataCode};
@@ -47,13 +47,13 @@ class ConnoteDetails extends React.Component {
   }
 
   async componentDidMount(){
-    const {id} = this.state._itemDetail;
-    const result = await getData('/inboundsMobile/'+id+'/activities');
-    if(typeof result === 'object' && result.error === undefined){
-      this.setState({dataActivities:result})
-    } else {
+    // const {id} = this.state._itemDetail;
+    // const result = await getData('/inboundsMobile/'+id+'/activities');
+    // if(typeof result === 'object' && result.error === undefined){
+    //   this.setState({dataActivities:result})
+    // } else {
 
-    }
+    // }
   }
   navigateSeeReport = () => {
     this.props.navigation.navigate('ItemReportDetail');
@@ -126,11 +126,27 @@ class ConnoteDetails extends React.Component {
           </View>
           <View style={styles.body}>
           
-            <FlatList
-              data={this.state.dataActivities}
-              ListHeaderComponent={this.renderHeader}
-              renderItem={({item}) => this.renderInner(item)}
-            />
+          <Card containerStyle={styles.cardContainer} style={styles.card}>
+             
+             <View style={styles.detail}>
+               <DetailList title="Container #" value={_itemDetail.container_no} />
+               <DetailList title="No. of Pallet" value={_itemDetail.total_pallet} />
+               <DetailList title="No. of Carton" value={_itemDetail.total_carton} />
+               <DetailList title="CBM" value="-" />
+               <DetailList
+                 title="Weight"
+                 value="-"
+               />
+               <Divider />
+               <View style={styles.header}>
+                 <Text style={[styles.detailText, {lineHeight: 24}]}>
+                 Delivery Information
+                 </Text>
+               </View>
+               <DetailList title="Delivery Type" value={_itemDetail.delivery_type === 1 ? 'Self Collection' : 'Request Delivery'} />
+             </View>
+           </Card>
+      
           </View>
         </View>
       </>

@@ -42,7 +42,7 @@ class ReportManifest extends React.Component {
             const {routes, index} = navigation.dangerouslyGetState();
             if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
                 // for prototype only should be params ID from backend
-                let manifest = manifestList.find((element)=>element.code === routes[index].params.dataCode);
+                let manifest = manifestList.find((element)=>element.pId === routes[index].params.dataCode);
               return {...state, dataCode: routes[index].params.dataCode, _manifest:manifest};
             }
         }
@@ -113,7 +113,7 @@ class ReportManifest extends React.Component {
         const {currentASN} = this.props;
         const {dataCode, _manifest} = this.state;
         let FormData = await this.getPhotoReceivingGoods();
-        postBlob('/inboundsMobile/'+currentASN+'/'+_manifest.id+'/reports', [
+        postBlob('/inboundsMobile/'+currentASN+'/'+_manifest.pId+'/reports', [
             // element with property `filename` will be transformed into `file` in form data
             { name : 'report', data: this.state.reasonOption},
             {name :'description', data : this.state.otherReason},

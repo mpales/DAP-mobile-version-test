@@ -126,8 +126,8 @@ const theme = {
   
 };
 const Manifest = ({item, index, ToManifest}) => {
-  let category = item.inbound_asn !== null && item.inbound_asn !== undefined ? 'ASN' : item.inbound_grn !== null && item.inbound_grn !== undefined ? 'GRN' : 'Others';
-  let categorycolor = item.inbound_asn !== null && item.inbound_asn !== undefined ? '#121C78' : item.inbound_grn !== null && item.inbound_grn !== undefined ? '#F07120' : '#F07120';;
+  let category = item.type === 1 ? 'ASN' : item.type === 2 ? 'GRN' : 'Others';
+  let categorycolor = item.type === 1 ? '#121C78' : item.type === 2 ? '#F07120' : '#F07120';;
   let status = 'grey';
   let labelstatus = '';
   switch (item.status) {
@@ -172,13 +172,13 @@ const Manifest = ({item, index, ToManifest}) => {
                     {moment(item.eta).format("DD-MM-YYYY")}
                     </Text>
                     <Text style={{...Mixins.body1,lineHeight: 21,color: '#424141', fontWeight: '600'}}>
-                    {item.id}
+                    {item.reference_id}
                     </Text>
                     <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '400'}}>
-                    {item.company.company_name}
+                    {item.client}
                     </Text>
                     <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '400'}}>
-                    {item.inbound_products.filter((element)=>element.status !== 3).length+'/'+item.inbound_products.length+' Lines Complete'}
+                    {item.total_product_processed+'/'+item.total_product+' Lines Complete'}
                     </Text>
     
         </ListItem.Content>

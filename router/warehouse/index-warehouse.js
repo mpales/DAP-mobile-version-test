@@ -29,6 +29,7 @@ import {
 } from '@react-navigation/drawer';
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
+import Settings from './settings/index';
 import WMS from './warehouse-management';
 import Notification from './notification';
 import {Button, Avatar} from 'react-native-elements';
@@ -405,7 +406,7 @@ class WarehouseNavigator extends React.Component {
         }),
       },
       Other: {
-        screen: Notification,
+        screen: Settings,
         navigationOptions: ({navigation}) => ({
           tabBarIcon: ({color, focused}) => (
             <Button

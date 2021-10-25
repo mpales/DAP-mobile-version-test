@@ -57,7 +57,13 @@ class ConnoteReportDetails extends React.Component {
     const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS');
     this.setState({itemIVAS:result});
   }
-
+  async componentDidUpdate(prevProps, prevState, snapshot) {
+    const {inboundID} = this.state;
+    if(prevProps.keyStack !== this.props.keyStack && this.props.keyStack  === 'IVASListSPV'){
+      const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS');
+       this.setState({itemIVAS:result});
+    }
+  }
   renderHeaderListVAS = ()=>{
     return (
       <View style={styles.header}>
@@ -66,7 +72,7 @@ class ConnoteReportDetails extends React.Component {
     );
   }
   _onPressSingleReports = (item)=>{ 
-    this.props.navigation.navigate('IVASDetailsSPV',{number:this.state.inboundID, shipmentID: item.inbound_shipment_va.id});
+    this.props.navigation.navigate('IVASDetailsSPV',{number:this.state.inboundID, shipmentID: item.inbound_shipment_va.id, clientVAS : item.inbound.company.company_name});
   }
   renderListVAS = ({item,index, separators})=>{
 
@@ -227,6 +233,7 @@ const mapStateToProps = (state) => {
   return {
     manifestList: state.originReducer.manifestList,
     inboundList: state.originReducer.inboundSPVList,
+    keyStack: state.originReducer.filters.keyStack,
   };
 };
 

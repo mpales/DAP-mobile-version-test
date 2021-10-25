@@ -36,8 +36,8 @@ class ConnoteDetails extends React.Component {
     if(dataCode === '0'){
       const {routes, index} = navigation.dangerouslyGetState();
       if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-        if( manifestList.some((element)=> element.code === routes[index].params.dataCode)){
-          let manifest = manifestList.find((element)=>element.code === routes[index].params.dataCode);
+        if( manifestList.some((element)=> element.pId === routes[index].params.dataCode)){
+          let manifest = manifestList.find((element)=>element.pId === routes[index].params.dataCode);
           return {...state, dataCode: routes[index].params.dataCode, _itemDetail:manifest, inboundID:routes[index].params.inboundId };    
         }
         return {...state, dataCode: routes[index].params.dataCode, inboundID:routes[index].params.inboundId};
@@ -49,14 +49,14 @@ class ConnoteDetails extends React.Component {
   }
 
   async componentDidMount(){
-    const {id} = this.state._itemDetail;
-    const result = await getData('/inboundsMobile/'+this.state.inboundID+'/activities');
-    if(typeof result === 'object' && result.error === undefined){
-      this.setState({dataActivities:result})
+    const {pId, logs} = this.state._itemDetail;
+ 
+    if(logs.length > 0){
+      this.setState({dataActivities:logs})
     } else {
 
     }
-    const resultTotalReport = await getData('/inboundsMobile/'+this.state.inboundID+'/'+id+'/reports');
+    const resultTotalReport = await getData('/inboundsMobile/'+this.state.inboundID+'/'+pId+'/reports');
     if(typeof resultTotalReport === 'object' && resultTotalReport.error === undefined){
       this.setState({totalReports:resultTotalReport.length})
     }
@@ -73,22 +73,22 @@ class ConnoteDetails extends React.Component {
               <View style={styles.header}>
                 <View>
                   <Text style={[styles.headerTitle, {flex: 0, fontSize: 20}]}>
-                    {_itemDetail.code}
+                    {_itemDetail.item_code}
                   </Text>
                   <Text style={[styles.detailText, {lineHeight: 24}]}>
-                    {_itemDetail.CBM + ' CBM'}
+                    {_itemDetail.basic.volume + ' CBM'}
                   </Text>
                   <Text style={[styles.detailText, {lineHeight: 24}]}>
-                    {_itemDetail.weight + ' KG'}
+                    {_itemDetail.basic.weight + ' KG'}
                   </Text>
                 </View>
-                <Text style={styles.packageCounterText}>{_itemDetail.scanned+'/'+_itemDetail.total_package}</Text>
+                <Text style={styles.packageCounterText}>{_itemDetail.qty_processed+'/'+_itemDetail.qty}</Text>
               </View>
               <View style={styles.detail}>
-                <DetailList title="Description" value={_itemDetail.name} />
-                <DetailList title="Quantity" value={_itemDetail.total_package} />
+                <DetailList title="Description" value={_itemDetail.description} />
+                <DetailList title="Quantity" value={_itemDetail.qty} />
                 <DetailList title="Color" value={_itemDetail.color} />
-                <DetailList title="UOM" value="Pair" />
+                <DetailList title="UOM" value={_itemDetail.uom} />
                 <DetailList
                   title="Country"
                   value="America"
@@ -129,9 +129,9 @@ class ConnoteDetails extends React.Component {
   renderInner = (item) => {
     return (
       <View style={styles.header}>
-        <Text style={styles.detailText}>{moment(item.date).format('DD/MM/YYY h:mm a')}</Text>
-        <Text style={styles.detailText}>{item.name.firstName}</Text>
-        <Text style={styles.detailText}>{item.activity}</Text>
+        <Text style={styles.detailText}>{moment(item.dateTime).format('DD/MM/YYY h:mm a')}</Text>
+        <Text style={styles.detailText}>{item.user.firstName}</Text>
+        <Text style={styles.detailText}>{item.activities}</Text>
       </View>
     );
   };

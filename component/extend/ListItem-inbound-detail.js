@@ -131,7 +131,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
   const isCurrentManifest = useSelector(
     (state) => state.originReducer.filters.currentManifest,
   );
-  let addAttribute = item.category !== '' ? false : true;
+  let addAttribute = item.barcodes !== undefined && item.barcodes.length === 0 ? true : false;
   let status = 'grey';
   let textstatus = 'pending';
   switch (item.status) {
@@ -155,7 +155,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
       break;
   }
  
-  let category = 'default';
+  let category = item.is_transit === 1 ? 'transit' : 'default';
   return (
     <ThemeProvider theme={theme}>
       <ListItem
@@ -166,14 +166,15 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
         activeScale={0.95}
         pad={0}
         onPress={()=>{
-          currentManifest(item.code)
+          currentManifest(item.pId)
         }}
         >
         <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
         <ListItem.Content style={styles.sectionContainer}>
+        <Badge value={textstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 15,}} containerStyle={{alignSelf: 'flex-end'}} badgeStyle={{backgroundColor: status}} />
           <View style={[styles.detailContainer,{flexDirection:'row', flex: 1}]}>
-              <View style={[styles.detail,{flexDirection:'column',flexGrow: 1, paddingVertical: 15}]}>
+              <View style={[styles.detail,{flexDirection:'column',flexGrow: 1, paddingVertical: 0}]}>
 
                    {addAttribute && ( <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5', width:50,paddingHorizontal:10}}>
                         
@@ -182,74 +183,118 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                         </Text>
                         
                     </View>)}
-                    {category !== 'default' && (<View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5', width:97,paddingHorizontal:10}}>
+                    {category !== 'default' && (<View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,backgroundColor:'#F07120', width:97,paddingHorizontal:10}}>
                         
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#FFFFFF', fontWeight: '500'}}>
                         Transit Item
                         </Text>
                         
                     </View>)}
-                    <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
-                        <View style={{width:60}}>
+                    {category === 'transit'? (
+                      <>
+  <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
+  <View style={{width:100,}}>
+  <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
+  Container #
+  </Text>
+  </View>
+  <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
+  <View>
+  <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
+      {item.container_no}
+  </Text>
+  </View>
+</View>
+<View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
+  <View style={{width:100}}>
+  <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
+  No. of Pallet
+  </Text>
+  </View>
+  <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
+  <View>
+  <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
+      {item.total_pallet}
+  </Text>
+  </View>
+</View>
+<View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
+  <View style={{width:100}}>
+  <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
+  No. of Carton
+  </Text>
+  </View>
+  <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
+  <View>
+  <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
+      {item.total_carton}
+  </Text>
+  </View>
+</View>
+</>
+                    ) : (
+                   <>
+                   <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
+                        <View style={{width:100}}>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
                         Product Code
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-                        <View style={addAttribute ? {width: 100} : {width: 150} }>
+                        <View>
                         <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-                            {item.code}
+                            {item.item_code}
                         </Text>
                         </View>
                     </View>
 
                     <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
-                        <View style={{width:60}}>
+                        <View style={{width:100}}>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
                        Descript
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-                        <View style={addAttribute ? {width: 100} : {width: 150} }>
+                        <View>
                         <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-                        {item.name}
+                        {item.description}
                         </Text>
                         </View>
                     </View>
 
                     <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
-                        <View style={{width:60}}>
+                        <View style={{width:100}}>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
                        UOM
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-                        <View style={addAttribute ? {width: 100} : {width: 150} }>
+                        <View>
                         <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-                        {item.UOM}
+                        {item.uom}
                         </Text>
                         </View>
                     </View>
                     
                     <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
-                        <View style={{width:60}}>
+                        <View style={{width:100}}>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
                         QTY
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-                        <View style={addAttribute ? {width: 100} : {width: 150} }>
+                        <View>
                         <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-                        {item.total_package}
+                        {item.qty_processed+ '/' +item.qty}
                         </Text>
                         </View>
                     </View>
+                    </>)}
               </View>
 
               
-              <View style={[styles.anchor,{flexDirection: 'column',flexShrink: 1, alignSelf: 'stretch', alignItems: 'flex-end'}]}>
-              <Badge value={textstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end'}} badgeStyle={{backgroundColor: status}} />
-              <View style={{alignSelf:'flex-end',flexDirection: 'column', marginTop: 30}}>
+              <View style={[styles.anchor,{flexDirection: 'column',flexShrink: 1, justifyContent:'center', alignItems: 'center'}]}>
+              <View style={{alignSelf:'flex-end',flexDirection: 'column'}}>
               <ListItem.Chevron
                   size={16}
                   color="#2D2C2C"
@@ -264,9 +309,9 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                     />)}
                     onPress={()=>{
                       navigation.navigate({
-                        name: item.transit === 1 ? 'ItemTransitDetail' : 'ItemDetail',
+                        name: item.is_transit === 1 ? 'ItemTransitDetail' : 'ItemDetail',
                         params: {
-                            dataCode: item.code,
+                            dataCode: item.pId,
                         }
                       })
                     }}
@@ -275,7 +320,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                 </View>
               </View>
           </View>
-          {(isCurrentManifest === item.code) && (
+          {(isCurrentManifest === item.pId) && (
             <View style={[styles.buttonContainer,{flexDirection:'column',flex: 1,width:'100%'}]}>
             <View style={{flexDirection:'row'}}>
             <Button
@@ -286,7 +331,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                 navigation.navigate({
                   name: 'Barcode',
                   params: {
-                      inputCode: item.code,
+                      inputCode: item.pId,
                   }
                 })
               }}
@@ -301,7 +346,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                       navigation.navigate({
                         name: 'newItem',
                         params: {
-                          attrSKU: item.sku,
+                          inputCode: item.pId,
                         }
                       })
                     }}
@@ -317,7 +362,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                 navigation.navigate({
                   name: 'ReportManifest',
                   params: {
-                      dataCode: item.code,
+                      dataCode: item.pId,
                   }
                 })
               }}

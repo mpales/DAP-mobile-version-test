@@ -22,7 +22,7 @@ import moment from 'moment';
 const window = Dimensions.get('screen');
 class ConnoteReportDetails extends React.Component {
   overlayThumb = null;
-  arrayImageProcessingRef = [];
+  arrayImageProcessingRef = {};
   constructor(props) {
     super(props);
     this.state = {

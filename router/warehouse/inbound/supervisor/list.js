@@ -69,7 +69,6 @@ class List extends React.Component {
             string = 'inboundsMobile/type/others';
         }
         const result = await getData(string);
-        console.log(result);
         if(Array.isArray(result)){
             return result
         } else {
@@ -91,13 +90,13 @@ class List extends React.Component {
         let filtered =  prevState.renderRefresh !== this.state.renderRefresh || prevState.renderGoBack !== this.state.renderGoBack || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type ? this.state.filtered : null;
         if(filtered === 0) {
             let AllASN = await this.updateASN(type);
-            this.props.setinboundList(AllASN.filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+            this.props.setinboundList(AllASN.filter((element)=> element.client.indexOf(this.state.search) > -1));
         } else if(filtered === 1){
             let PendingASN = await this.updateASN(type);
-            this.props.setinboundList(PendingASN.filter((element)=> element.status === 7).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+            this.props.setinboundList(PendingASN.filter((element)=> element.status === 7).filter((element)=> element.client.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
             let ProgressASN = await this.updateASN(type);
-            this.props.setinboundList(ProgressASN.filter((element)=> element.status === 4).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
+            this.props.setinboundList(ProgressASN.filter((element)=> element.status === 4).filter((element)=> element.client.indexOf(this.state.search)> -1));
         }
         
     }
@@ -106,13 +105,13 @@ class List extends React.Component {
         const {filtered} = this.state;
         if(filtered === 0) {
             let AllASN = await this.updateASN(type);
-            this.props.setinboundList(AllASN.filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+            this.props.setinboundList(AllASN.filter((element)=> element.client.indexOf(this.state.search) > -1));
         } else if(filtered === 1){
             let PendingASN = await this.updateASN(type);
-            this.props.setinboundList(PendingASN.filter((element)=> element.status === 7).filter((element)=> element.company.company_name.indexOf(this.state.search) > -1));
+            this.props.setinboundList(PendingASN.filter((element)=> element.status === 7).filter((element)=> element.client.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
             let ProgressASN = await this.updateASN(type);
-            this.props.setinboundList(ProgressASN.filter((element)=> element.status === 4).filter((element)=> element.company.company_name.indexOf(this.state.search)> -1));
+            this.props.setinboundList(ProgressASN.filter((element)=> element.status === 4).filter((element)=> element.client.indexOf(this.state.search)> -1));
         }
     }
     _onRefresh = () => {
@@ -231,7 +230,7 @@ class List extends React.Component {
                                         this.props.setBottomBar(false);
                                         this.props.navigation.navigate('ManifestSupervisor',   {
                                             number: data.id,
-                                            type : data.inbound_asn !== null && data.inbound_asn !== undefined ? 'ASN' : data.inbound_grn !== null && data.inbound_grn !== undefined ? 'GRN' : 'Others',
+                                            type : data.type === 1 ? 'ASN' : data.type === 2 ? 'GRN' : 'Others',
                                         });
                                     }}
                                

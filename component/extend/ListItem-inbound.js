@@ -144,10 +144,10 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         {moment(item.eta).format("DD-MM-YYYY")}
         </ListItem.Title>
         <ListItem.Subtitle style={{...Mixins.body1, lineHeight: 21, color: '#424141', fontWeight: '600'}}>
-        {item.id}
+        {item.reference_id}
         </ListItem.Subtitle>
-        <Text style={styles.descText}>{item.company.company_name}</Text>
-        <Text style={styles.descText}>{item.inbound_products.filter((element)=>element.status !== 3).length+'/'+item.inbound_products.length+' Lines Complete'}</Text>
+        <Text style={styles.descText}>{item.client}</Text>
+        <Text style={styles.descText}>{item.total_product_processed+'/'+item.total_product+' Lines Complete'}</Text>
         </ListItem.Content>
         <View style={styles.labelContainer}>
         <Badge value={labelstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />

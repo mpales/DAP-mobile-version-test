@@ -13,7 +13,6 @@ class ManualInput extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            scanItem : null,
             inputCode: '',
             dataCode: null,
             error: false,
@@ -21,51 +20,18 @@ class ManualInput extends React.Component {
     }
 
     static getDerivedStateFromProps(props,state){
-        const {routes, index} = props.navigation.dangerouslyGetState();
-        if(state.scanItem === null){
-          if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined && manifestList.some((o) => o.pId === routes[index].params.dataCode) === true) {   
-            return {...state, scanItem : routes[index].params.dataCode};
-          }
-          else {
-            return {...state, scanItem : false};
-          }
-        }
         return {...state};
       }
     handleConfirm = () => {
-        const {inputCode,scanItem} = this.state;
+        const {inputCode} = this.state;
         const {manifestList} = this.props;
-        if(scanItem === false){
-            let dataItem = manifestList.find((element) => element.barcodes !== undefined && element.barcodes.some((element)=> inputCode === element.code_number) === true);
-            if(dataItem !== undefined){
-                this.props.setBottomBar(false);
-                this.props.navigation.navigate({
-                    name: 'Barcode',
-                    params: {
-                        manualCode: this.state.inputCode,
-                    }
-                });
-            } else {
-                this.setState({inputCode: '', error: true});
+        this.props.setBottomBar(false);
+        this.props.navigation.navigate({
+            name: 'RegisterBarcode',
+            params: {
+                manualCode: this.state.inputCode,
             }
-        } else {
-            let dataItem = manifestList.find((o)=>o.pId === scanItem);
-            let barcodeArray = Array.from({length: dataItem.barcodes.length}).map((num,index)=>{
-                return dataItem.barcodes[index].code_number;
-            });   
-            if(barcodeArray.includes(inputCode)) {
-                this.props.setBottomBar(false);
-                this.props.navigation.navigate({
-                    name: 'Barcode',
-                    params: {
-                        manualCode: this.state.inputCode,
-                    }
-                });
-            } else {
-                this.setState({inputCode: '', error: true});
-            }
-        }
-
+        });
     }
     render() {
         return (
@@ -84,9 +50,6 @@ class ManualInput extends React.Component {
                     <Text style={styles.buttonText}>Confirm</Text>
                 </TouchableOpacity>
                 </View>
-                {this.state.error && (<View style={{position: 'absolute', bottom:0, left:0, right:0, backgroundColor:'#E03B3B', width: '100%', justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={{...Mixins.small3, lineHeight: 16, fontSize: 11,fontWeight: '400', color:'#fff'}}>Invalid input barcode , please try it again</Text>
-                </View>)}
         </View>
         )
     }

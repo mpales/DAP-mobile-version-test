@@ -27,6 +27,7 @@ import {
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
 import CCM from '.';
+import Settings from '../settings/index';
 import Notification from '../notification';
 import {Button, Avatar} from 'react-native-elements';
 import IconHome7Mobile from '../../../assets/icon/iconmonstr-home-7mobile.svg';
@@ -745,7 +746,7 @@ class WarehouseNavigator extends React.Component {
         }),
       },
       Other: {
-        screen: Notification,
+        screen: Settings,
         navigationOptions: ({navigation}) => ({
           tabBarIcon: ({color, focused}) => (
             <Button
