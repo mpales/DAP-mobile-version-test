@@ -17,7 +17,8 @@ import {
   Dimensions,
   Text,
   TouchableOpacity,
-  RefreshControl
+  RefreshControl,
+  ActivityIndicator
 } from 'react-native';
 import {Avatar, Card, Overlay, Button, SearchBar, Badge, Input} from 'react-native-elements';
 
@@ -41,6 +42,7 @@ class Warehouse extends React.Component{
     this.state = {
      _visibleOverlay : false,
       receivingNumber: null,
+      inboundNumber : null,
       companyname : null,
       search: '',
       filtered : 0,
@@ -71,18 +73,32 @@ class Warehouse extends React.Component{
     }
     return true;
   }
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  async componentDidUpdate(prevProps, prevState, snapshot) {
     const {manifestList} = this.props;
     
- 
+    if((this.state.updated !== prevState.updated && this.state.updated === true) || (this.state.renderRefresh !== prevState.renderRefresh && this.state.renderRefresh === true)){
+      const {receivingNumber} = this.state;
+      const {currentASN} = this.props;
+      let inboundId = receivingNumber === null ? currentASN : receivingNumber;
+  
+      const result = await getData('inboundsMobile/'+inboundId+'/item-status');
+      let updatedstatus = Array.from({length: manifestList.length}).map((num,index)=>{
+        let updateElement = result.products.find((o)=> o.pId === manifestList[index].pId);
+        return {
+          ...manifestList[index],
+          ...updateElement,
+        };
+      });
+      this.props.setManifestList(updatedstatus)
+    }
     let filtered = prevState.renderRefresh !== this.state.renderRefresh || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.updated !== this.state.updated ? this.state.filtered : null;
    
     if(filtered === 0) {
-      this.setState({_manifest: manifestList.filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false, renderRefresh:false});
+      this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && element.item_code.indexOf(this.state.search) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
       } else if(filtered === 1){
-        this.setState({_manifest: manifestList.filter((element)=> element.status === 4).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false, renderRefresh:false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 4).filter((element)=> (element.item_code !== undefined && element.item_code.indexOf(this.state.search) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false});
       } else if(filtered === 2){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> element.name.indexOf(this.state.search) > -1), updated: false, renderRefresh:false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && element.item_code.indexOf(this.state.search) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
       } 
    
   }
@@ -100,11 +116,8 @@ class Warehouse extends React.Component{
           const result = await getData('inboundsMobile/'+routes[index].params.number);
           if(typeof result === 'object' && result.error === undefined){
           
-            let mergedDummy = Array.from({length: result.inbound_products.length}).map((num,index)=>{
-              return {...manifestDummy[index],...result.inbound_products[index]}
-            });
-            this.props.setManifestList(mergedDummy)
-            this.setState({receivingNumber: routes[index].params.number,_manifest:mergedDummy,companyname:result.company.company_name, })
+            this.props.setManifestList(result.products)
+            this.setState({receivingNumber: routes[index].params.number,inboundNumber:result.inbound_number,_manifest:result.products,companyname:result.client, updated: true })
           } else {
             navigation.popToTop();
           }
@@ -112,11 +125,8 @@ class Warehouse extends React.Component{
           const result = await getData('inboundsMobile/'+currentASN);
           if(typeof result === 'object' && result.error === undefined){
           
-            let mergedDummy = Array.from({length: result.inbound_products.length}).map((num,index)=>{
-              return {...manifestDummy[index],...result.inbound_products[index]}
-            });
-            this.props.setManifestList(mergedDummy)
-          this.setState({receivingNumber: currentASN, _manifest:mergedDummy, companyname:result.company.company_name, })
+            this.props.setManifestList(result.products)
+            this.setState({receivingNumber: routes[index].params.number,inboundNumber:result.inbound_number,_manifest:result.products,companyname:result.client, updated:true})
           } else {
             navigation.popToTop();
           }
@@ -185,7 +195,7 @@ class Warehouse extends React.Component{
             <View style={[styles.sectionContent,{marginTop: 20}]}>
             <View style={[styles.sectionContentTitle, {flexDirection: 'row'}]}>
             <View style={[styles.titleHead,{flexShrink :1,minWidth: 180}]}>
-            <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{receivingNumber}</Text>
+            <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{this.state.inboundNumber}</Text>
             <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{this.state.companyname}</Text>
             </View>
             <View style={[styles.contentHead,{flex: 1,alignSelf:'flex-end', flexDirection: 'column'}]}>
@@ -261,7 +271,12 @@ class Warehouse extends React.Component{
               <Card containerStyle={styles.cardContainer}>
                 {_manifest.length === 0 ? 
                 (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
+                  {this.state.receivingNumber === null ? (    <ActivityIndicator 
+                    size={50} 
+                    color="#121C78"
+                />) : (
                   <EmptyIlustrate height="132" width="213"/>
+                )}
                   </View>)
                 : _manifest.map((u, i) => (
                   <InboundSupervisorDetail 
@@ -270,7 +285,7 @@ class Warehouse extends React.Component{
                     item={u} 
                     navigation={this.props.navigation}
                     toReportDetail={()=>{
-                      this.props.navigation.navigate('ReportDetailsSPV',{number:this.state.receivingNumber, productID : u.id});
+                      this.props.navigation.navigate('ReportDetailsSPV',{number:this.state.receivingNumber, productID : u.pId});
                     }}
                     // for prototype only
                     // end

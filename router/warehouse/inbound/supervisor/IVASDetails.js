@@ -26,6 +26,7 @@ class ConnoteReportDetails extends React.Component {
       title: 'Forklift',
       note: 'Item weight is over 10 kg',
       itemIVAS : null,
+      clientVAS : null,
       inboundData: null,
       shipmentID: null,
     };
@@ -39,7 +40,7 @@ class ConnoteReportDetails extends React.Component {
       if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
         let inboundData = inboundList.find((element) => element.id ===  routes[index].params.number);
         if(inboundData !== undefined && routes[index].params.shipmentID !== undefined){
-          return {...state, inboundID: routes[index].params.number,inboundData: inboundData, shipmentID: routes[index].params.shipmentID};
+          return {...state, inboundID: routes[index].params.number,inboundData: inboundData, shipmentID: routes[index].params.shipmentID, clientVAS: routes[index].params.clientVAS};
         } else {
           navigation.goBack();
           return {...state, inboundID: routes[index].params.number};
@@ -50,10 +51,16 @@ class ConnoteReportDetails extends React.Component {
     
     return {...state};
   }
+  async componentDidUpdate(prevProps, prevState, snapshot) {
+    const {inboundID, shipmentID} = this.state;
+    if(prevProps.keyStack !== this.props.keyStack && this.props.keyStack  === 'IVASDetailsSPV'){
+      const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+ shipmentID );
+      this.setState({itemIVAS:result, acknowledged:Boolean(Number(result.acknowledged))});
+    }
+  }
   async componentDidMount(){
     const {inboundID, shipmentID} = this.state;
     const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+ shipmentID );
-  console.log(result);
     this.setState({itemIVAS:result, acknowledged:Boolean(Number(result.acknowledged))});
   }
   checkedIcon = () => {
@@ -75,7 +82,7 @@ class ConnoteReportDetails extends React.Component {
     const {inboundID, shipmentID} = this.state;
     let data = {acknowledge:this.state.acknowledged >>> 0}
     const result = await postData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+shipmentID,data);
-    
+    console.log(result);
   }
   uncheckedIcon = () => {
     return <View style={styles.unchecked} />;
@@ -95,7 +102,7 @@ class ConnoteReportDetails extends React.Component {
             <Card containerStyle={styles.cardContainer} style={styles.card}>
              
               <View style={styles.detail}>
-                <DetailList title="Client" value={inboundData.company.company_name} />
+                <DetailList title="Client" value={this.state.clientVAS} />
                 <DetailList title="Recorded By" value={ itemIVAS.created_by !== undefined ? itemIVAS.created_by.firstName : null} />
                 <DetailList title="Date and Time" value={ itemIVAS.created_on  !== null ? moment(itemIVAS.created_on).format('DD/MM/YYY h:mm a') : null}/>
                
@@ -249,6 +256,7 @@ const mapStateToProps = (state) => {
   return {
     manifestList: state.originReducer.manifestList,
     inboundList: state.originReducer.inboundSPVList,
+    keyStack: state.originReducer.filters.keyStack,
   };
 };
 

@@ -24,6 +24,8 @@ import XMarkIcon from '../../../assets/icon/iconmonstr-x-mark-7mobile.svg';
 import Mixins from '../../../mixins';
 import moment from 'moment';
 import {connect} from 'react-redux';
+import Banner from '../../../component/banner/banner';
+import {postData} from '../../../component/helper/network';
 import MultipleSKUList from '../../../component/extend/ListItem-inbound-multiple-sku';
 const screen = Dimensions.get('screen');
 const grade = ["Pick", "Buffer", "Damage", "Defective", "Short Expiry", "Expired", "No Stock", "Reserve"];
@@ -38,8 +40,11 @@ class Example extends React.Component {
       qty: 0,
       scanItem: '0',
       dataItem: null,
-      attrSKU : '0',
+      attrNewBarcode : false,
+      productCode : null,
+      productDescription : null,
       detectBarcodeToState: true,
+      error : '',
     };
     this.handleResetAnimation.bind(this);
     this.handleZoomInAnimation.bind(this);
@@ -51,30 +56,35 @@ class Example extends React.Component {
   }
 
   static getDerivedStateFromProps(props,state){
-    const {putawayList, currentASN, navigation, setBarcodeScanner, detectBarcode} = props;
+    const {putawayList, currentASN, navigation, setBarcodeScanner, detectBarcode, manifestList} = props;
     const {dataCode, dataItem, scanItem} = state;
     const {routes, index} = navigation.dangerouslyGetState();
     if(scanItem === '0'){
-      if(routes[index].params !== undefined && routes[index].params.attrSKU !== undefined && dummybarcodesearch.includes(dataCode) === true) {
-        setBarcodeScanner(false);  
-        return {...state, scanItem: dataCode,attrSKU: routes[index].params.attrSKU, detectBarcodeToState: false};
+      if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined && manifestList.some((o) => o.pId === routes[index].params.inputCode) === true) {
+        let manifestData = manifestList.find((o)=>o.pId === routes[index].params.inputCode);
+        props.setBarcodeScanner(true);
+        return {...state, scanItem: routes[index].params.inputCode, detectBarcodeToState: true, productCode : manifestData.item_code, productDescription : manifestData.description };
+      } else {
+        navigation.goBack();
       } 
-      return {...state, detectBarcodeToState: true};
     } 
     return {...state, detectBarcodeToState: detectBarcode};
   }
   shouldComponentUpdate(nextProps, nextState) {
-    if(nextState.dataCode !== '0' && nextState.scanItem !== null && nextProps.detectBarcode === false && nextState.dataItem === null){
-      if(nextState.dataCode === nextState.scanItem) {
-        return true;
-      } else if (nextState.dataCode !== nextState.scanItem){
-        nextProps.setBarcodeScanner(true);
+    if(this.props.keyStack !== nextProps.keyStack){
+      if(nextProps.keyStack === 'RegisterBarcode' && this.props.keyStack ==='ManualRegister'){
+        const {routes, index} = nextProps.navigation.dangerouslyGetState();
+        if(routes[index].params !== undefined && routes[index].params.manualCode !== undefined){
+          //if multiple sku
+          nextProps.setBarcodeScanner(false);
+          this.setState({dataCode: routes[index].params.manualCode});
+        }
         return false;
       }
     }
-     return true;
-   }
-  componentDidUpdate(prevProps, prevState) {
+    return true;
+  }
+  async componentDidUpdate(prevProps, prevState) {
     const {manifestList,detectBarcode, currentASN, navigation, setBarcodeScanner} = this.props;
     const {dataCode,scanItem, dataItem, attrSKU} = this.state;
     if(prevProps.detectBarcode !== detectBarcode){
@@ -85,15 +95,28 @@ class Example extends React.Component {
       }
     }
  
-    if (dataCode === scanItem && dataCode !== 0 && dataItem === null && manifestList.some((element) => element.sku === attrSKU)) {
-        let foundIndex = manifestList.filter((element) => element.sku === attrSKU);
-        let indexItem = manifestList.findIndex((element)=>element.sku === attrSKU);
-        let item = manifestList.find((element)=>element.sku === attrSKU);  
-        this.props.setBarcodeScanner(false);
-        this.setState({dataItem: item});
+    if (dataCode !== '0' && dataItem === null && manifestList.some((element) => element.pId === scanItem)) {
+        let foundIndex = manifestList.filter((element) => element.pId === scanItem);
+        let indexItem = manifestList.findIndex((element)=>element.pId === scanItem);
+        let item = manifestList.find((element)=>element.pId === scanItem);
+        let newBarcode = !(item.barcodes.some((o)=> o.code_number === dataCode));  
+        if(newBarcode === true){
+          const registBarcode = await postData('inboundsMobile/'+currentASN+'/'+scanItem+'/regist-barcode',{newBarcode: this.state.dataCode});
+          console.log(registBarcode);
+          if(registBarcode.error !== undefined){
+            this.props.setBarcodeScanner(true);
+            this.setState({dataCode:'0',error: 'Register Barcode fail'});
+          } else {
+            this.setState({dataItem: item, attrNewBarcode:newBarcode, error: ''});
+          }
+        } else {
+          this.setState({dataItem: item, attrNewBarcode:newBarcode, error: ''});
+        }
     }
   }
-
+  componentWillUnmount(){
+    this.props.setBarcodeScanner(true);
+  }
   handleResetAnimation = () => {
     Animated.timing(this.animatedValue, {
       toValue: 0,
@@ -110,12 +133,12 @@ class Example extends React.Component {
     }).start();
   };
   renderModal = () => {
-    const {dataItem, dataCode, qty,confirmScanned, scanItem} = this.state;
+    const {dataItem, dataCode, qty,confirmScanned, scanItem,attrNewBarcode} = this.state;
     return (
       <View style={styles.modalOverlay}>
         <Animated.View
           style={
-            dataItem !== null
+            attrNewBarcode === true
               ? [
                   styles.modalContainerAll,
                   {
@@ -157,35 +180,35 @@ class Example extends React.Component {
           }>
           <View style={[styles.sectionSheetDetail, {marginHorizontal: 0, marginTop:0}]}>
             <View style={styles.modalHeader}>
-            {dataItem === null ? (
+            {attrNewBarcode === false ? (
                 <XMarkIcon height="24" width="24" fill="#E03B3B" />
               ) : (
                 <CheckmarkIcon height="24" width="24" fill="#17B055" />
               )}
-              {dataItem !== null ? (
+              {attrNewBarcode === true ? (
                 <Text style={styles.modalHeaderText}>
                 Success Register Barcode              
                 </Text>
               ) : (<Text style={[styles.modalHeaderText, {color: '#E03B3B'}]}>
-              Barcode Not Found     
+              Barcode already Registered     
               </Text>
               )}
             </View>
             <Divider color="#D5D5D5" />
-            {dataItem !== null ? (
+            {attrNewBarcode === true ? (
               <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
                <View
                       style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                       <View style={styles.dividerContent}>
                       <Text style={styles.labelPackage}>Item Code</Text>
                         <Text style={styles.infoPackage}>
-                          {dataItem.sku}
+                          {dataItem.item_code}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
                       <Text style={styles.labelPackage}>Description</Text>
                         <Text style={styles.infoPackage}>
-                          {dataItem.name}
+                          {dataItem.description}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
@@ -212,22 +235,13 @@ class Example extends React.Component {
             )}
             <View style={styles.buttonSheetContainer}>
               <View style={styles.buttonSheet}>
-                {dataItem === null  ? (
-                  <Button
-                  containerStyle={{flex:1,marginTop: 50, marginRight: 0}}
-                  buttonStyle={styles.navigationButton}
-                  titleStyle={styles.deliverText}
-                  title="Input Manual"
-                />
-                ) : (
-                  <Button
-                    containerStyle={{flex:1,marginTop: 50, marginRight: 0}}
-                    buttonStyle={styles.navigationButton}
-                    titleStyle={styles.deliverText}
-                    onPress={this.onGoToList}
-                    title="Back To Attribute"
-                  />
-                )}
+                <Button
+                      containerStyle={{flex:1,marginTop: 50, marginRight: 0}}
+                      buttonStyle={styles.navigationButton}
+                      titleStyle={styles.deliverText}
+                      onPress={this.onGoToList}
+                      title="Back To Attribute"
+                    />
               </View>
             </View>
           </View>
@@ -243,16 +257,21 @@ class Example extends React.Component {
           <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
               <View style={styles.dividerContent}>
                 <Text style={styles.labelNotFound}>Product Code</Text>
-                <Text style={styles.infoNotFound}></Text>
+                <Text style={styles.infoNotFound}>{this.state.productCode}</Text>
               </View>
               <View style={styles.dividerContent}>
                 <Text style={styles.labelNotFound}>Description</Text>
-                <Text style={styles.infoNotFound}></Text>
+                <Text style={styles.infoNotFound}>{this.state.productDescription}</Text>
               </View>
           </View>
           
       </View>
-      <View style={[styles.buttonSheet,{marginVertical:40}]}>
+      {this.state.error !== '' &&(<View style={{backgroundColor:'red'}}>
+        <Text style={{...Mixins.subtitle3, color:'black'}}>
+          {this.state.error}
+        </Text>
+      </View>)}
+      <View style={[styles.buttonSheet,{marginVertical:this.state.error === '' ? 40 : 20 }]}>
       <Button
         containerStyle={{flex:1, marginTop: 10,marginRight: 5,}}
         buttonStyle={styles.cancelButton}
@@ -265,7 +284,6 @@ class Example extends React.Component {
                 dataCode: this.state.scanItem,
             }
           })}}
-          disabled={this.state.dataItem !== null ? false : true}
         title="Report Item"
       />
         <Button
@@ -275,7 +293,7 @@ class Example extends React.Component {
         onPress={() => {
           this.props.setBottomBar(true);
           this.props.navigation.navigate({
-            name: 'ManualInput',
+            name: 'ManualRegister',
           })}}
         title="Input Manual"
       />
@@ -296,14 +314,14 @@ class Example extends React.Component {
     }
   };
   onGoToList = ()=>{
-    this.props.setBarcodeScanner(true);
     this.props.navigation.navigate({
       name: 'newItem',
       params: {
-        attrSKU: this.state.dataItem.sku,
-        inputCode : this.state.dataCode
+        attrBarcode: this.state.dataCode,
+        inputCode : this.state.scanItem,
       }
     })
+    this.props.setBarcodeScanner(true);
   }
   onSubmit = () => {
     const {dataCode,qty, scanItem, ItemGrade} = this.state;
@@ -315,7 +333,7 @@ class Example extends React.Component {
     const {detectBarcode} = this.props;
     return (
       <View style={styles.container}>
-        {detectBarcodeToState === false ? (
+        {detectBarcodeToState === false && dataItem !== null ? (
           <this.renderModal/>
         ) : (          <Modalize 
           ref={this.modalizeRef}
@@ -569,6 +587,7 @@ function mapStateToProps(state) {
     // end
     manifestList: state.originReducer.manifestList,
     keyStack: state.originReducer.filters.keyStack,
+    currentASN : state.originReducer.filters.currentASN,
   };
 }
 

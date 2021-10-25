@@ -12,6 +12,7 @@ import Camera from '../peripheral';
 import Manifest from './manifest';
 import List from './list';
 import ManualInput from './manualInput';
+import ManualRegister from './manualInput-register';
 import ReportManifest from './reportManifest';
 import ReceivingDetail from './receivingDetail';
 import containerDetail from './containerDetail';
@@ -55,7 +56,7 @@ class HomeNavigator extends React.Component {
   }
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
-    if(indexBottomBar === 0 && key !== 'SupervisorMode' && key !== 'SupervisorMode' && key !== 'POSMPhoto'){
+    if(indexBottomBar === 0 && key !== 'SupervisorMode' && key !== 'SupervisorMode' && key !== 'POSMPhoto' && key !== 'DetailsDraft'){
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }
@@ -405,6 +406,36 @@ class HomeNavigator extends React.Component {
                 <HeaderBackButton  {...props} onPress={()=>{
                   this.props.setBottomBar(false);
                   this.props.navigation.navigate('Barcode')
+                }
+              }
+              />);
+            },
+          })}
+        />
+        <Stack.Screen
+          name="ManualRegister"
+          component={ManualRegister}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'Manual Register',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar(false);
+                  this.props.navigation.navigate('RegisterBarcode')
                 }
               }
               />);

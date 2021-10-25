@@ -49,7 +49,7 @@ class Acknowledge extends React.Component {
       return false;
     }
     if(this.props.keyStack !== nextProps.keyStack){
-      if(nextProps.keyStack === 'ReceivingDetail'){
+      if(nextProps.keyStack === 'ReceivingDetail' && this.props.keyStack === 'SingleCamera'){
         const {routes, index} = nextProps.navigation.dangerouslyGetState();
         if(routes[index].params !== undefined &&  routes[index].params.submitPhoto !== undefined && routes[index].params.submitPhoto === true){
            this.setState({updateData:true, submitPhoto : true, errors: ''});
@@ -57,6 +57,9 @@ class Acknowledge extends React.Component {
           this.setState({updateData:true, errors:''});
         }
         this.props.setBottomBar(false);
+        return false;
+      } else if(nextProps.keyStack === 'ReceivingDetail'){
+        this.setState({updateData:true});
         return false;
       }
     }
@@ -237,7 +240,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.company.company_name}
+                placeholder={data.client}
                 disabled={true}
             />
          </View>
@@ -250,7 +253,7 @@ class Acknowledge extends React.Component {
               inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
               inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
               labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.inbound_asn !== null && data.inbound_asn !== undefined ? ''+data.inbound_asn.reference_id: data.inbound_grn !== null && data.inbound_grn !== undefined ? ''+data.inbound_grn.reference_id :  data.inbound_other !== null &&  data.inbound_other !== undefined ? ''+data.inbound_other.reference_id : 'NONE' }
+                placeholder={data.reference_id }
                 disabled={true}
             />
          </View>
@@ -263,7 +266,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.inbound_asn !== null && data.inbound_asn !== undefined ? data.inbound_asn.container_no: data.inbound_grn !== null && data.inbound_grn !== undefined ? data.inbound_grn.container_no :  data.inbound_other !== null && data.inbound_other !== undefined ? data.inbound_other.container_no : 'NONE' }
+                placeholder={data.container_no }
                 disabled={true}
             />
          </View>)}

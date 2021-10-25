@@ -216,20 +216,20 @@ class Acknowledge extends React.Component {
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Client</Text>
              </View>
-             <Text style={styles.textHeadInput}>{this.state.inboundData.company.company_name}</Text>
+             <Text style={styles.textHeadInput}>{this.state.inboundData.client}</Text>
          </View>
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
-            <View style={styles.labelHeadInput}>
+         <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Ref #</Text>
              </View>
-             <Text style={styles.textHeadInput}>{this.state.inboundData.inbound_asn !== null && this.state.inboundData.inbound_asn !== undefined ? this.state.inboundData.inbound_asn.reference_id : this.state.inboundData.inbound_grn !== null && this.state.inboundData.inbound_grn !== undefined ? this.state.inboundData.inbound_grn.reference_id : '' }</Text>
+             <Text style={styles.textHeadInput}>{this.state.inboundData.reference_id }</Text>
          </View>
 
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
-            <View style={styles.labelHeadInput}>
+         <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Receipt #</Text>
              </View>
-             <Text style={styles.textHeadInput}>{this.state.inboundData.inbound_receipts.length > 0 ? this.state.inboundData.inbound_receipts[0].id : ''}</Text>
+             <Text style={styles.textHeadInput}>{this.state.inboundData.inbound_receipt.length > 0 ? this.state.inboundData.inbound_receipt[this.state.inboundData.inbound_receipt.length -1].receipt_no : ''}</Text>
          </View>
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>
@@ -261,8 +261,8 @@ class Acknowledge extends React.Component {
              </View>
              <Input 
                  containerStyle={{flexShrink:1}}
-                 inputContainerStyle={[(!this.state.stuffTruck) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer,{maxHeight:35, width:80}]} 
-                inputStyle={(!this.state.stuffTruck) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                 inputContainerStyle={[(!this.state.stuffTruck) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
+                inputStyle={(!this.state.stuffTruck) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuffTruck)}
                 onChangeText={this.stuffTruckPalletInput}
@@ -275,8 +275,8 @@ class Acknowledge extends React.Component {
              </View>
              <Input 
                                  containerStyle={{flexShrink:1}}
-                                 inputContainerStyle={[(!this.state.stuffTruck) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer,{maxHeight:35, width:80}]} 
-                                 inputStyle={(!this.state.stuffTruck) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                                 inputContainerStyle={[(!this.state.stuffTruck) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
+                                 inputStyle={(!this.state.stuffTruck) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                              
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuffTruck)}
@@ -326,8 +326,8 @@ class Acknowledge extends React.Component {
              </View>
              <Input 
                  containerStyle={{flexShrink:1}}
-                 inputContainerStyle={[(!this.state.stuff20Container) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer,{maxHeight:35, width:80}]} 
-                inputStyle={(!this.state.stuff20Container) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                 inputContainerStyle={[(!this.state.stuff20Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
+                inputStyle={(!this.state.stuff20Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuff20Container)}
                 onChangeText={this.stuff20ContainerPalletInput}
@@ -340,8 +340,8 @@ class Acknowledge extends React.Component {
              </View>
              <Input 
                                containerStyle={{flexShrink:1}}
-                               inputContainerStyle={[(!this.state.stuff20Container) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer,{maxHeight:35, width:80}]} 
-                               inputStyle={(!this.state.stuff20Container) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                               inputContainerStyle={[(!this.state.stuff20Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
+                               inputStyle={(!this.state.stuff20Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                            
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuff20Container)}
@@ -391,8 +391,8 @@ class Acknowledge extends React.Component {
              </View>
              <Input 
                  containerStyle={{flexShrink:1}}
-                 inputContainerStyle={[(!this.state.stuff40Container) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer,{maxHeight:35, width:80}]} 
-                inputStyle={(!this.state.stuff40Container) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                 inputContainerStyle={[(!this.state.stuff40Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
+                inputStyle={(!this.state.stuff40Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuff40Container)}
                 onChangeText={this.stuff40ContainerPalletInput}
@@ -405,8 +405,8 @@ class Acknowledge extends React.Component {
              </View>
              <Input 
                     containerStyle={{flexShrink:1}}
-                    inputContainerStyle={[(!this.state.stuff40Container) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer,{maxHeight:35, width:80}]} 
-                    inputStyle={(!this.state.stuff40Container) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                    inputContainerStyle={[(!this.state.stuff40Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
+                    inputStyle={(!this.state.stuff40Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
 
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuff40Container)}
@@ -435,8 +435,8 @@ class Acknowledge extends React.Component {
              </View>
              <Input 
                                  containerStyle={{flexShrink:1}}
-                                 inputContainerStyle={[(!this.state.takeCartoon) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer,{maxHeight:35, width:80}]} 
-                                 inputStyle={(!this.state.takeCartoon) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                                 inputContainerStyle={[(!this.state.takeCartoon) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
+                                 inputStyle={(!this.state.takeCartoon) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.takeCartoon)}
                 onChangeText={this.takeCartonSKUInput}
@@ -454,8 +454,8 @@ class Acknowledge extends React.Component {
               />
             <View style={styles.sectionInput}>
             <Input 
-                    inputContainerStyle={[(!this.state.takeOthers) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer]} 
-                    inputStyle={(!this.state.takeOthers) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                    inputContainerStyle={[(!this.state.takeOthers) ? styles.containedInputDisabled: styles.containedInputDefault]} 
+                    inputStyle={(!this.state.takeOthers) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                 labelStyle={styles.textInput}
                 disabled={(!this.state.takeOthers)}
                 onChangeText={this.takeOthersChangeInput}
@@ -479,16 +479,16 @@ class Acknowledge extends React.Component {
              </View>
              <Input 
                                  containerStyle={{flexShrink:1}}
-                                 inputContainerStyle={[(!this.state.takeLabelling) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer,{maxHeight:35, width:80}]} 
-                                 inputStyle={(!this.state.takeLabelling) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                                 inputContainerStyle={[(!this.state.takeLabelling) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
+                                 inputStyle={(!this.state.takeLabelling) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.takeLabelling)}
             />
             </View> 
             <View style={styles.sectionInput}>
             <Input 
-                    inputContainerStyle={[(!this.state.takeLabelling) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer]} 
-                    inputStyle={(!this.state.takeLabelling) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                    inputContainerStyle={[(!this.state.takeLabelling) ? styles.containedInputDisabled: styles.containedInputDefault]} 
+                    inputStyle={(!this.state.takeLabelling) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
            
                 labelStyle={styles.textInput}
                 label="Request By : ( Please attach supporting email )"
@@ -512,8 +512,8 @@ class Acknowledge extends React.Component {
              </View>
              <Input 
                                  containerStyle={{flexShrink:1}}
-                                 inputContainerStyle={[(!this.state.takePacking) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer,{maxHeight:35, width:80}]} 
-                                 inputStyle={(!this.state.takePacking) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                                 inputContainerStyle={[(!this.state.takePacking) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
+                                 inputStyle={(!this.state.takePacking) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.takePacking)}
             />
@@ -524,16 +524,16 @@ class Acknowledge extends React.Component {
              </View>
              <Input 
                                  containerStyle={{flexShrink:1}}
-                                 inputContainerStyle={[(!this.state.takePacking) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer,{maxHeight:35, width:80}]} 
-                                 inputStyle={(!this.state.takePacking) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                                 inputContainerStyle={[(!this.state.takePacking) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
+                                 inputStyle={(!this.state.takePacking) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
             labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.takePacking)}
             />
             </View> 
             <View style={styles.sectionInput}>
             <Input 
-                   inputContainerStyle={[(!this.state.takePacking) ? Mixins.containedInputDisabledContainer: Mixins.containedInputDefaultContainer]} 
-                   inputStyle={(!this.state.takePacking) ? Mixins.containedInputDisabledStyle: Mixins.containedInputDefaultStyle}
+                   inputContainerStyle={[(!this.state.takePacking) ? styles.containedInputDisabled: styles.containedInputDefault]} 
+                   inputStyle={(!this.state.takePacking) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
           
                 labelStyle={styles.textInput}
                 label="Request By : ( Please attach supporting email )"
@@ -611,7 +611,6 @@ sectionInput: {
     flexShrink:1,
 },
 labelHeadInput :{
-  flexShrink: 1,
   width: 120,
   justifyContent: 'center',
 },
@@ -626,6 +625,7 @@ textHeadInput :{
     lineHeight: 21,
     fontWeight: '600',
     color: '#6C6B6B',
+    flexShrink: 1,
 },
 textInput :{
     ...Mixins.subtitle3,
@@ -715,6 +715,22 @@ textInput :{
     bottom: 62, 
     right: 16
   },
+  containedInputDisabled : {
+    ...Mixins.containedInputDisabledContainer,
+    paddingHorizontal: 5,
+    },
+    containedInputDefault : {
+      ...Mixins.containedInputDefaultContainer,
+      paddingHorizontal: 5,
+      },
+      containedInputDefaultStyle : {
+    ...Mixins.containedInputDefaultStyle,
+    marginHorizontal: 0,
+      },
+      containedInputDisabledStyle : {
+     ...Mixins.containedInputDisabledStyle,
+      marginHorizontal:0,
+      },
 };
 function mapStateToProps(state) {
   return {
