@@ -48,6 +48,7 @@ import {
 } from './component/helper/persist-login';
 import MenuWarehouse from './router/warehouse/detail/warehouse-menu';
 import LogoLarge from './assets/dap_logo_hires1-e1544435829468 5large.svg';
+import SplashScreen from 'react-native-splash-screen'
 enableScreens(false);
 class App extends React.Component<IProps, IState> {
   keyboardDidShowListener: any;
@@ -501,7 +502,7 @@ const NavigationWrapper = (props) => {
   }, [isConnected]); // Only re-run the effect if count changes
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider style={{backgroundColor:'#121C78', width:'100%',height:'100%'}}>
       <NavigationContainer
         ref={navigationRef}
         onReady={() => {
@@ -540,7 +541,13 @@ const Root = (props) => {
   });
   const [routeName, setRoute] = React.useState('Login');
 
-  if (isLoading) return null;
+  React.useEffect(()=>{
+    if(!isLoading){
+      SplashScreen.hide();
+    }
+  },[isLoading]);
+  
+  if(isLoading) return null;
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>

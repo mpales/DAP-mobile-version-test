@@ -7,6 +7,7 @@
 #import <Firebase.h>
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
+#import "RNSplashScreen.h"  // here
 
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -81,6 +82,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
+    [RNSplashScreen show];  // here
   return YES;
 }
 //Called when a notification is delivered to a foreground app.
