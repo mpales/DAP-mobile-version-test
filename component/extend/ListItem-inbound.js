@@ -136,7 +136,9 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         friction={90} //
         tension={100} // These props are passed to the parent component (here TouchableScale)
         activeScale={0.95}
-        pad={0}>
+        pad={0}
+        onPress={ToManifest}
+        >
         <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
         <ListItem.Content style={styles.sectionContainer}>
