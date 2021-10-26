@@ -301,7 +301,7 @@ class Acknowledge extends React.Component {
         {(data.status === 3 || data.status === 4) && ( <>
          <Avatar
           onPress={()=>{
-            if(this.props.photoProofID === null || this.props.photoProofID === data.id){
+            if((this.props.photoProofID === null && this.state.submitDetail === false) || this.props.photoProofID === data.id){
               this.props.setBottomBar(false);
               this.props.navigation.navigate('SingleCamera')              
             }
@@ -310,7 +310,7 @@ class Acknowledge extends React.Component {
                 ImageComponent={() => (
                   <>
                     <IconPhoto5 height="40" width="40" fill="#fff" />
-                    {(this.props.photoProofPostpone !== null && (this.props.photoProofID !== null && this.props.photoProofID === data.id)) && (
+                    {((this.props.photoProofPostpone !== null && (this.props.photoProofID !== null && this.props.photoProofID === data.id)) || this.state.submitDetail === true) && (
                       <Checkmark
                         height="20"
                         width="20"
@@ -328,7 +328,7 @@ class Acknowledge extends React.Component {
                   },
                 }}
                 overlayContainerStyle={{
-                  backgroundColor: this.props.photoProofID !== null && this.props.photoProofID !== data.id ? 'grey' : this.props.photoProofPostpone !== null 
+                  backgroundColor: this.props.photoProofID !== null && this.props.photoProofID !== data.id ? 'grey' : (this.props.photoProofPostpone !== null || this.state.submitDetail === true) 
                     ? '#17B055'
                     : '#F07120',
                   flex: 2,

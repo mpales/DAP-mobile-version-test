@@ -801,7 +801,10 @@ class Example extends React.Component {
                     containerStyle={{flex: 1, marginTop: 50, marginRight: 5}}
                     buttonStyle={styles.navigationButton}
                     titleStyle={styles.deliverText}
-                    onPress={()=>this.props.navigation.goBack()}
+                    onPress={()=>{
+                      this.props.setBarcodeScanner(true);
+                      this.props.navigation.goBack()
+                    }}
                     title="Back To List"
                   />
                 )}
@@ -882,7 +885,7 @@ class Example extends React.Component {
   };
   onSubmit = () => {
     const {dataCode,qty, scanItem, ItemGrade, dataItem} = this.state;
-    this.props.setBarcodeScanner(true);
+    //this.props.setBarcodeScanner(true);
     this.setState({
       dataCode: '0',
       enterAttr : false,
