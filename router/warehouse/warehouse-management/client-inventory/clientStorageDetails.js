@@ -23,7 +23,7 @@ class ClientStorageDetails extends React.Component {
 
   render() {
     const {storageDetails, selectedStatus} = this.state;
-    console.log(this.props.route.params?.data ?? null);
+    console.log(storageDetails);
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -74,7 +74,7 @@ class ClientStorageDetails extends React.Component {
                   <Text>Attributes</Text>
                   <TextListBig
                     title="Product Category"
-                    value={storageDetails.product_category}
+                    value={storageDetails.category}
                     fontSize={14}
                   />
                   <TextList
@@ -118,13 +118,15 @@ class ClientStorageDetails extends React.Component {
                   <TextList title="UOM" value={storageDetails.uom} />
                   <TextList
                     title="Receipt Date"
-                    value={Format.formatDate(storageDetails.receive_date)}
+                    value={Format.formatDate(
+                      storageDetails.additional.receive_date,
+                    )}
                   />
                   <View style={styles.lineSeparator} />
                   <Text>Attributes</Text>
                   <TextListBig
                     title="Product Category"
-                    value={storageDetails.product_category}
+                    value={storageDetails.category}
                     fontSize={14}
                   />
                   <TextList
@@ -137,7 +139,10 @@ class ClientStorageDetails extends React.Component {
                       storageDetails.additional.attributes.expiry_date,
                     )}
                   />
-                  <TextList title="Batch" value={storageDetails.batch_no} />
+                  <TextList
+                    title="Batch"
+                    value={storageDetails.additional.batch_no}
+                  />
                 </>
               ) : (
                 <>
