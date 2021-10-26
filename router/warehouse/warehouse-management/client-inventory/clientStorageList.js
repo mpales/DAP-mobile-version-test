@@ -37,6 +37,7 @@ class ClientStorageList extends React.Component {
       itemStatusData: null,
       storageList: null,
       isLoading: true,
+      isStorageListLoaded: false,
     };
   }
 
@@ -67,6 +68,7 @@ class ClientStorageList extends React.Component {
     this.setState({
       storageList: null,
       selectedStatus: status,
+      isStorageListLoaded: false,
     });
     const {route} = this.props;
     let clientId = route.params?.client.id ?? null;
@@ -80,6 +82,9 @@ class ClientStorageList extends React.Component {
           storageList: status === 'free' ? result.products : result,
         });
       }
+      this.setState({
+        isStorageListLoaded: true,
+      });
     }
   };
 
@@ -104,6 +109,7 @@ class ClientStorageList extends React.Component {
     const {
       client,
       isLoading,
+      isStorageListLoaded,
       itemStatusData,
       product,
       selectedSortBy,
@@ -213,9 +219,7 @@ class ClientStorageList extends React.Component {
                           <TouchableOpacity
                             disabled={
                               clientProductStatus(data.status) ===
-                                clientProductStatus(1) ||
-                              clientProductStatus(data.status) ===
-                                clientProductStatus(3)
+                              clientProductStatus(1)
                             }
                             onPress={() =>
                               this.getProductListByStatus(
@@ -252,6 +256,7 @@ class ClientStorageList extends React.Component {
           )}
           <View style={styles.lineSeparator} />
           {storageList !== null &&
+            isStorageListLoaded &&
             storageList.map((item) => (
               <ListItemClientStorage
                 item={item}
@@ -259,6 +264,11 @@ class ClientStorageList extends React.Component {
                 navigate={this.navigateToDetails}
               />
             ))}
+          {storageList === null && isStorageListLoaded && (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.text}>No Result</Text>
+            </View>
+          )}
         </ScrollView>
       </SafeAreaProvider>
     );
@@ -346,31 +356,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: 90,
   },
-  paginationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  paginationText: {
-    ...Mixins.small1,
-    lineHeight: 18,
-    fontWeight: '600',
-    marginHorizontal: 5,
-  },
-  paginationTextActive: {
-    ...Mixins.small1,
-    lineHeight: 18,
-    fontWeight: '600',
-    color: '#F07120',
-    textDecorationLine: 'underline',
-    textDecorationColor: '#F07120',
-    marginHorizontal: 5,
-  },
   lineSeparator: {
     width: '100%',
     borderBottomWidth: 1,
     borderBottomColor: '#D5D5D5',
     marginVertical: 10,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: '50%',
   },
 });
 
