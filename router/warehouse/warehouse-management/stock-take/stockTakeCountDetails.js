@@ -15,6 +15,7 @@ import {connect} from 'react-redux';
 import {TextList, TextListBig} from '../../../../component/extend/Text-list';
 // helper
 import Format from '../../../../component/helper/format';
+import {stockTakeCountStatus} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
 
@@ -24,8 +25,7 @@ class StockTakeCountDetails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      stockTakeDetails: STOCKTAKEDETAIL,
-      productStatus: this.props.route.params?.productStatus ?? '',
+      stockTakeDetails: this.props.route.params?.stockTakeDetails ?? null,
       inputQuantity: 0,
       isShowModal: false,
     };
@@ -92,73 +92,93 @@ class StockTakeCountDetails extends React.Component {
   };
 
   render() {
-    const {
-      stockTakeDetails,
-      isShowModal,
-      inputQuantity,
-      productStatus,
-    } = this.state;
+    const {stockTakeDetails, isShowModal, inputQuantity} = this.state;
+    console.log(this.props.route.params);
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
-        <Card containerStyle={styles.cardContainer}>
-          <TextList title="Warehouse" value={stockTakeDetails.warehouse} />
-          <TextList title="Location" value={stockTakeDetails.location} />
-          <TextList title="Pallet" value={stockTakeDetails.pallet} />
-          <TextList title="Item Code" value={stockTakeDetails.itemCode} />
-          <TextList title="Description" value={stockTakeDetails.description} />
-          <TextList title="Quantity" value={stockTakeDetails.quantity} />
-          <TextList title="UOM" value={stockTakeDetails.UOM} />
-          <TextList title="Grade" value={stockTakeDetails.grade} />
-          <View style={styles.lineSeparator} />
-          <Text>Attributes</Text>
-          <TextListBig
-            title="Product Category"
-            value={stockTakeDetails.attributes.productCategory}
-            fontSize={14}
-          />
-          <TextList title="Color" value={stockTakeDetails.attributes.color} />
-          <TextList
-            title="EXP Date"
-            value={stockTakeDetails.attributes.expiryDate ?? '-'}
-          />
-          <TextList title="Banch" value={stockTakeDetails.attributes.banch} />
-        </Card>
-        {productStatus === 'Reported' ? (
-          <Button
-            type="clear"
-            title="See Report Detail"
-            containerStyle={styles.reportButton}
-            titleStyle={styles.reportButtonText}
-            onPress={this.navigateToStockTakeReportDetails}
-          />
-        ) : (
+        {stockTakeDetails !== null && (
           <>
-            {stockTakeDetails.quantity === 0 ? (
+            <Card containerStyle={styles.cardContainer}>
+              <TextList
+                title="Warehouse"
+                value={stockTakeDetails.warehouse.warehouse}
+              />
+              <TextList
+                title="Location"
+                value={stockTakeDetails.warehouse.locationId}
+              />
+              <TextList
+                title="Pallet"
+                value={stockTakeDetails.product.itemCode}
+              />
+              <TextList
+                title="Description"
+                value={stockTakeDetails.product.description}
+              />
+              <TextList title="Quantity" value={stockTakeDetails.quantity} />
+              <TextList
+                title="UOM"
+                value={stockTakeDetails.productUom.packaging}
+              />
+              <TextList title="Grade" value={stockTakeDetails.grade} />
+              <View style={styles.lineSeparator} />
+              <Text>Attributes</Text>
+              <TextListBig
+                title="Product Category"
+                value={stockTakeDetails.product.category}
+                fontSize={14}
+              />
+              <TextList
+                title="Color"
+                value={stockTakeDetails.attributes.color ?? '-'}
+              />
+              <TextList
+                title="EXP Date"
+                value={
+                  stockTakeDetails.attributes.expiry_date !== undefined
+                    ? Format.formatDate(stockTakeDetails.attributes.expiry_date)
+                    : '-'
+                }
+              />
+              <TextList title="Banch" value={stockTakeDetails.batchNo} />
+            </Card>
+            {stockTakeCountStatus(stockTakeDetails.status) === 'Reported' ? (
               <Button
-                title="Set Quantity"
-                titleStyle={styles.buttonText}
-                buttonStyle={styles.button}
-                onPress={this.handleShowModal}
+                type="clear"
+                title="See Report Detail"
+                containerStyle={styles.reportButton}
+                titleStyle={styles.reportButtonText}
+                onPress={this.navigateToStockTakeReportDetails}
               />
             ) : (
-              <Button
-                title="Confirm"
-                titleStyle={styles.buttonText}
-                buttonStyle={styles.button}
-                onPress={this.confirmStockTake}
-              />
+              <>
+                {stockTakeDetails.quantity === 0 ? (
+                  <Button
+                    title="Set Quantity"
+                    titleStyle={styles.buttonText}
+                    buttonStyle={styles.button}
+                    onPress={this.handleShowModal}
+                  />
+                ) : (
+                  <Button
+                    title="Confirm"
+                    titleStyle={styles.buttonText}
+                    buttonStyle={styles.button}
+                    onPress={this.confirmStockTake}
+                  />
+                )}
+                <Button
+                  type="clear"
+                  title="Report"
+                  containerStyle={styles.reportButton}
+                  titleStyle={styles.reportButtonText}
+                  onPress={this.navigateToReportStockTakeCount}
+                />
+              </>
             )}
-            <Button
-              type="clear"
-              title="Report"
-              containerStyle={styles.reportButton}
-              titleStyle={styles.reportButtonText}
-              onPress={this.navigateToReportStockTakeCount}
-            />
           </>
         )}
-
         {isShowModal && (
           <>
             <View style={styles.overlay} />

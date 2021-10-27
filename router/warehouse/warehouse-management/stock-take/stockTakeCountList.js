@@ -13,6 +13,9 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 //component
 import StockTakeCountItem from '../../../../component/extend/ListItem-stock-take-count';
+// helper
+import {stockTakeCountStatus} from '../../../../component/helper/string';
+import Format from '../../../../component/helper/format';
 //style
 import Mixins from '../../../../mixins';
 
@@ -22,7 +25,8 @@ class StockTakeCountList extends React.Component {
     this.state = {
       filteredStockTakeCountList: null,
       jobData: this.props.route.params?.jobData ?? null,
-      stockTakeCountList: STOCKTAKECOUNT,
+      stockTakeCountList:
+        this.props.route.params?.jobData?.productStorages ?? null,
       search: '',
       filterStatus: 'All',
     };
@@ -62,23 +66,23 @@ class StockTakeCountList extends React.Component {
       if (filterStatus !== 'All') {
         filteredStockTakeCountList = filteredStockTakeCountList.filter(
           (job) => {
-            return job.status === filterStatus;
+            return stockTakeCountStatus(job.status) === filterStatus;
           },
         );
       }
     } else {
       if (filterStatus !== 'All') {
         filteredStockTakeCountList = stockTakeCountList.filter((job) => {
-          return job.status === filterStatus;
+          return stockTakeCountStatus(job.status) === filterStatus;
         });
       }
     }
     this.setState({filteredStockTakeCountList: filteredStockTakeCountList});
   };
 
-  navigateToStockTakeCountDetails = (status) => {
+  navigateToStockTakeCountDetails = (data) => {
     this.props.navigation.navigate('StockTakeCountDetails', {
-      productStatus: status,
+      stockTakeDetails: data,
     });
   };
 
@@ -121,12 +125,16 @@ class StockTakeCountList extends React.Component {
             <>
               <View>
                 <Text style={styles.text}>{jobData.jobId}</Text>
-                <Text style={styles.text}>{jobData.clientName}</Text>
-                <Text style={styles.text}>{jobData.warehouse}</Text>
+                <Text style={styles.text}>{jobData.client.name}</Text>
+                <Text style={styles.text}>{jobData.warehouse.name}</Text>
               </View>
               <View>
-                <Text style={styles.text}>{jobData.date}</Text>
-                <Text style={styles.text}>{jobData.clientCode}</Text>
+                <Text style={[styles.text, {textAlign: 'right'}]}>
+                  {Format.formatDate(jobData.date)}
+                </Text>
+                <Text style={[styles.text, {textAlign: 'right'}]}>
+                  {jobData.client.code}
+                </Text>
               </View>
             </>
           )}

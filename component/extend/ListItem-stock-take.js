@@ -6,6 +6,8 @@ import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg
 import Mixins from '../../mixins';
 // helper
 import {stockTakeJobStatusColor} from '../helper/status-color';
+import {stockTakeJobStatus} from '../helper/string';
+import Format from '../helper/format';
 
 const ListItemStockTake = ({item, navigate}) => {
   return (
@@ -21,16 +23,19 @@ const ListItemStockTake = ({item, navigate}) => {
         <View
           style={[
             styles.leftList,
-            {backgroundColor: stockTakeJobStatusColor(item.status)},
+            {
+              backgroundColor: stockTakeJobStatusColor(
+                stockTakeJobStatus(item.status),
+              ),
+            },
           ]}
         />
         <ListItem.Content
           style={[styles.sectionContainer, {flexDirection: 'column'}]}>
-          <Text style={styles.valueText}>{item.date}</Text>
-          <Text style={styles.valueText}>{item.jobId}</Text>
-          <Text style={styles.valueText}>{item.clientName}</Text>
-          <Text style={styles.valueText}>{item.clientCode}</Text>
-          <Text style={styles.valueText}>{item.warehouse}</Text>
+          <Text style={styles.valueText}>{Format.formatDate(item.date)}</Text>
+          <Text style={styles.valueText}>{`JOB ID ${item.jobId}`}</Text>
+          <Text style={styles.valueText}>{item.client.name}</Text>
+          <Text style={styles.valueText}>{item.client.code}</Text>
         </ListItem.Content>
         <ListItem.Chevron
           size={16}
@@ -43,7 +48,11 @@ const ListItemStockTake = ({item, navigate}) => {
         <View
           style={[
             styles.statusContainer,
-            {backgroundColor: stockTakeJobStatusColor(item.status)},
+            {
+              backgroundColor: stockTakeJobStatusColor(
+                stockTakeJobStatus(item.status),
+              ),
+            },
           ]}>
           <Text style={styles.statusText}>{item.status}</Text>
         </View>

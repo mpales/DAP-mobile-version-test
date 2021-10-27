@@ -13,18 +13,22 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 //component
 import StockTakeItem from '../../../../component/extend/ListItem-stock-take';
+import Loading from '../../../../component/loading/loading';
+// helper
+import {getData} from '../../../../component/helper/network';
+import {stockTakeJobStatus} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
-import moment from 'moment';
 
 class StockTakeList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       filteredJobList: null,
-      jobList: STOCKTAKEJOB,
+      jobList: null,
       search: '',
       filterStatus: 'All',
+      isLoading: true,
     };
     this.handleFilterStatus.bind(this);
     this.updateSearch.bind(this);
@@ -32,6 +36,7 @@ class StockTakeList extends React.Component {
 
   componentDidMount() {
     this.props.navigation.addListener('focus', () => {
+      this.getStockTakeList();
       this.props.setBottomBar(true);
     });
   }
@@ -55,28 +60,40 @@ class StockTakeList extends React.Component {
 
   filterJoblist = () => {
     const {search, filterStatus, jobList} = this.state;
-    let filteredJobList = [];
-    if (search.length > 0) {
-      filteredJobList = jobList.filter((job) => {
-        return (
-          job.jobId.toLowerCase().includes(search.toLowerCase()) ||
-          job.clientName.toLowerCase().includes(search.toLowerCase()) ||
-          job.clientCode.toLowerCase().includes(search.toLowerCase())
-        );
-      });
-      if (filterStatus !== 'All') {
-        filteredJobList = filteredJobList.filter((job) => {
-          return job.status === filterStatus;
-        });
-      }
-    } else {
-      if (filterStatus !== 'All') {
+    if (jobList !== null) {
+      let filteredJobList = [];
+      if (search.length > 0) {
         filteredJobList = jobList.filter((job) => {
-          return job.status === filterStatus;
+          return (
+            job.jobId.toLowerCase().includes(search.toLowerCase()) ||
+            job.client.name.toLowerCase().includes(search.toLowerCase()) ||
+            job.client.code.toLowerCase().includes(search.toLowerCase())
+          );
         });
+        if (filterStatus !== 'All') {
+          filteredJobList = filteredJobList.filter((job) => {
+            return stockTakeJobStatus(job.status) === filterStatus;
+          });
+        }
+      } else {
+        if (filterStatus !== 'All') {
+          filteredJobList = jobList.filter((job) => {
+            return stockTakeJobStatus(job.status) === filterStatus;
+          });
+        }
       }
+      this.setState({filteredJobList: filteredJobList});
     }
-    this.setState({filteredJobList: filteredJobList});
+  };
+
+  getStockTakeList = async () => {
+    const result = await getData('/stocks-mobile/stock-counts');
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        jobList: result,
+        isLoading: false,
+      });
+    }
   };
 
   navigateToStockTakeCountList = (data) => {
@@ -98,146 +115,158 @@ class StockTakeList extends React.Component {
   };
 
   render() {
-    const {jobList, filteredJobList, search, filterStatus} = this.state;
+    const {
+      jobList,
+      filteredJobList,
+      search,
+      filterStatus,
+      isLoading,
+    } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: 15,
-            paddingHorizontal: 20,
-          }}>
-          <Text style={styles.searchTitle}>Search</Text>
-        </View>
-        <SearchBar
-          onChangeText={this.updateSearch}
-          value={this.state.search}
-          lightTheme={true}
-          inputStyle={styles.searchInputText}
-          searchIcon=""
-          containerStyle={styles.searchContainer}
-          inputContainerStyle={styles.searchInputContainer}
-        />
-        <ScrollView
-          style={styles.badgeContainer}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}>
-          <Badge
-            value="All"
-            onPress={() => this.handleFilterStatus('All')}
-            badgeStyle={
-              this.state.filterStatus === 'All'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'All'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-          <Badge
-            value="Waiting"
-            onPress={() => this.handleFilterStatus('Waiting')}
-            badgeStyle={
-              this.state.filterStatus === 'Waiting'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'Waiting'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-          <Badge
-            value="In Progress"
-            onPress={() => this.handleFilterStatus('In Progress')}
-            badgeStyle={
-              this.state.filterStatus === 'In Progress'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'In Progress'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-          <Badge
-            value="Pending Review"
-            onPress={() => this.handleFilterStatus('Pending Review')}
-            badgeStyle={
-              this.state.filterStatus === 'Pending Review'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'Pending Review'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-          <Badge
-            value="Reported"
-            onPress={() => this.handleFilterStatus('Reported')}
-            badgeStyle={
-              this.state.filterStatus === 'Reported'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'Reported'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-          <Badge
-            value="Recount"
-            onPress={() => this.handleFilterStatus('Recount')}
-            badgeStyle={
-              this.state.filterStatus === 'Recount'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'Recount'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-          <Badge
-            value="Completed"
-            onPress={() => this.handleFilterStatus('Completed')}
-            badgeStyle={
-              this.state.filterStatus === 'Completed'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'Completed'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-        </ScrollView>
-        <FlatList
-          data={
-            search === '' && filterStatus === 'All' ? jobList : filteredJobList
-          }
-          renderItem={({item, index}) => (
-            <StockTakeItem
-              item={item}
-              navigate={this.navigateToStockTakeCountList}
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: 15,
+                paddingHorizontal: 20,
+              }}>
+              <Text style={styles.searchTitle}>Search</Text>
+            </View>
+            <SearchBar
+              onChangeText={this.updateSearch}
+              value={this.state.search}
+              lightTheme={true}
+              inputStyle={styles.searchInputText}
+              searchIcon=""
+              containerStyle={styles.searchContainer}
+              inputContainerStyle={styles.searchInputContainer}
             />
-          )}
-          keyExtractor={(item, index) => index}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={this.renderEmpty}
-        />
+            <ScrollView
+              style={styles.badgeContainer}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}>
+              <Badge
+                value="All"
+                onPress={() => this.handleFilterStatus('All')}
+                badgeStyle={
+                  filterStatus === 'All' ? styles.badgeSelected : styles.badge
+                }
+                textStyle={
+                  filterStatus === 'All'
+                    ? styles.badgeTextSelected
+                    : styles.badgeText
+                }
+              />
+              <Badge
+                value="Waiting"
+                onPress={() => this.handleFilterStatus('Waiting')}
+                badgeStyle={
+                  filterStatus === 'Waiting'
+                    ? styles.badgeSelected
+                    : styles.badge
+                }
+                textStyle={
+                  filterStatus === 'Waiting'
+                    ? styles.badgeTextSelected
+                    : styles.badgeText
+                }
+              />
+              <Badge
+                value="In Progress"
+                onPress={() => this.handleFilterStatus('In Progress')}
+                badgeStyle={
+                  filterStatus === 'In Progress'
+                    ? styles.badgeSelected
+                    : styles.badge
+                }
+                textStyle={
+                  filterStatus === 'In Progress'
+                    ? styles.badgeTextSelected
+                    : styles.badgeText
+                }
+              />
+              <Badge
+                value="Pending Review"
+                onPress={() => this.handleFilterStatus('Pending Review')}
+                badgeStyle={
+                  filterStatus === 'Pending Review'
+                    ? styles.badgeSelected
+                    : styles.badge
+                }
+                textStyle={
+                  filterStatus === 'Pending Review'
+                    ? styles.badgeTextSelected
+                    : styles.badgeText
+                }
+              />
+              <Badge
+                value="Reported"
+                onPress={() => this.handleFilterStatus('Reported')}
+                badgeStyle={
+                  filterStatus === 'Reported'
+                    ? styles.badgeSelected
+                    : styles.badge
+                }
+                textStyle={
+                  filterStatus === 'Reported'
+                    ? styles.badgeTextSelected
+                    : styles.badgeText
+                }
+              />
+              <Badge
+                value="Recount"
+                onPress={() => this.handleFilterStatus('Recount')}
+                badgeStyle={
+                  filterStatus === 'Recount'
+                    ? styles.badgeSelected
+                    : styles.badge
+                }
+                textStyle={
+                  filterStatus === 'Recount'
+                    ? styles.badgeTextSelected
+                    : styles.badgeText
+                }
+              />
+              <Badge
+                value="Completed"
+                onPress={() => this.handleFilterStatus('Completed')}
+                badgeStyle={
+                  filterStatus === 'Completed'
+                    ? styles.badgeSelected
+                    : styles.badge
+                }
+                textStyle={
+                  filterStatus === 'Completed'
+                    ? styles.badgeTextSelected
+                    : styles.badgeText
+                }
+              />
+            </ScrollView>
+            <FlatList
+              data={
+                search === '' && filterStatus === 'All'
+                  ? jobList
+                  : filteredJobList
+              }
+              renderItem={({item, index}) => (
+                <StockTakeItem
+                  item={item}
+                  navigate={this.navigateToStockTakeCountList}
+                />
+              )}
+              keyExtractor={(item, index) => index}
+              showsVerticalScrollIndicator={false}
+              ListEmptyComponent={this.renderEmpty}
+            />
+          </>
+        )}
       </SafeAreaProvider>
     );
   }
@@ -309,49 +338,6 @@ const styles = StyleSheet.create({
     color: 'white',
   },
 });
-
-const STOCKTAKEJOB = [
-  {
-    date: moment().subtract(1, 'days').unix(),
-    jobId: 'JOB ID 1951541',
-    clientName: 'WORKEDGE',
-    clientCode: 'WE-12323412',
-    warehouse: 'Warehouse KEPPEL-GE',
-    status: 'Waiting',
-  },
-  {
-    date: moment().subtract(1, 'days').unix(),
-    jobId: 'JOB ID 1566741',
-    clientName: 'B5SG',
-    clientCode: 'GW-3412323412',
-    warehouse: 'Warehouse KEPPEL-GE',
-    status: 'In Progress',
-  },
-  {
-    date: moment().subtract(1, 'days').unix(),
-    jobId: 'JOB ID 1951541',
-    clientName: 'WORKEDGE',
-    clientCode: 'WE-12323412',
-    warehouse: 'Warehouse KEPPEL-GE',
-    status: 'Pending Review',
-  },
-  {
-    date: moment().subtract(1, 'days').unix(),
-    jobId: 'JOB ID 1951541',
-    clientName: 'GINNY',
-    clientCode: 'JI-1232653412',
-    warehouse: 'Warehouse KEPPEL-GE',
-    status: 'Completed',
-  },
-  {
-    date: moment().subtract(1, 'days').unix(),
-    jobId: 'JOB ID 1951541',
-    clientName: 'WORKEDGE',
-    clientCode: 'WE-12323412',
-    warehouse: 'Warehouse KEPPEL-GE',
-    status: 'Waiting',
-  },
-];
 
 function mapStateToProps(state) {
   return {};
