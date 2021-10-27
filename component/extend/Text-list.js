@@ -14,7 +14,7 @@ export const TextList = ({title, value}) => (
 
 export const TextListBig = ({title, value, fontSize}) => (
   <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-    <View style={{width: 100}}>
+    <View>
       <Text
         style={
           fontSize === undefined

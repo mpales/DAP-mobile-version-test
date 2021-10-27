@@ -31,19 +31,7 @@ class SearchInventoryDetails extends React.Component {
     if (this.state.barcodeResult !== null) {
       this.searchInventoryListByBarcode();
     }
-    this.sortList('client');
   }
-
-  sortList = (type) => {
-    this.setState({selectedSortBy: type});
-    if (this.state.inventoryList !== null) {
-      let sortedList = [...this.state.inventoryList];
-      sortedList.sort((a, b) =>
-        a[type] > b[type] ? 1 : b[type] > a[type] ? -1 : 0,
-      );
-      this.setState({inventoryList: sortedList});
-    }
-  };
 
   searchInventoryListByBarcode = async () => {
     this.setState({isLoading: true});
@@ -58,52 +46,24 @@ class SearchInventoryDetails extends React.Component {
           locationId: result[0].locationId,
           inventoryList: result[0].productStorage,
         });
-        this.sortList('client');
       }
     }
     this.setState({isLoading: false});
   };
 
   render() {
-    const {
-      inventoryList,
-      selectedSortBy,
-      warehousName,
-      locationId,
-      isLoading,
-    } = this.state;
+    const {inventoryList, warehousName, locationId, isLoading} = this.state;
+    console.log(inventoryList);
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
         <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
-          {warehousName !== '' ||
-            (locationId !== '' && (
-              <Text
-                style={
-                  styles.title
-                }>{`Warehouse ${warehousName} ${locationId}`}</Text>
-            ))}
-          <View style={styles.headerContainer}>
-            <Text style={styles.text}>Sort By</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dropdown"
-                selectedValue={selectedSortBy}
-                onValueChange={(value) => this.sortList(value)}
-                style={{maxWidth: 150}}>
-                <Picker.Item
-                  label="Client"
-                  value="client"
-                  style={styles.text}
-                />
-                <Picker.Item
-                  label="Quantity"
-                  value="quantity"
-                  style={styles.text}
-                />
-              </Picker>
-            </View>
-          </View>
+          {(warehousName !== '' || locationId !== '') && (
+            <>
+              <Text style={styles.title}>{`Warehouse ${warehousName}`}</Text>
+              <Text style={styles.title}>{locationId}</Text>
+            </>
+          )}
           {!isLoading && (
             <>
               {inventoryList === null ? (
@@ -146,7 +106,10 @@ class SearchInventoryDetails extends React.Component {
                         value={item.product.category}
                         fontSize={14}
                       />
-                      <TextList title="Color" value={item.attributes.color} />
+                      <TextList
+                        title="Color"
+                        value={item.attributes.color ?? '-'}
+                      />
                       <TextList
                         title="EXP Date"
                         value={Format.formatDate(item.attributes.expiry_date)}
