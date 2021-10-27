@@ -147,7 +147,7 @@ class Warehouse extends React.Component{
     if(action) {
       // for prototype only
       const result = await postData('/inboundsMobile/'+receivingNumber+'/complete-receiving')
-      if(result !== 'object'){
+      if(typeof result !== 'object'){
         this.setState({notifbanner:result});
       } else {
         if(result.error !== undefined) this.setState({notifbanner:result.error});
@@ -212,7 +212,6 @@ class Warehouse extends React.Component{
               containerStyle={{width: '100%',justifyContent: 'center',height:20, marginTop:9}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0, backgroundColor:'#121C78'}]}
               titleStyle={[styles.deliveryText,{lineHeight:21,fontWeight:'400'}]}
-              onPress={this.toggleOverlay}
               title="Remarks"
             />
             </View>

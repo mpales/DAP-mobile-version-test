@@ -184,7 +184,10 @@ class Warehouse extends React.Component{
             if(typeof shipmentVAS === 'object' && shipmentVAS.error === undefined && shipmentVAS.some((o)=> inbound_receipts.includes(o.receipt_id) === true && Object.keys(o.inbound_shipment_va).length === 0) === true){
               this.setState({shipmentVAS: false});
             }
-          
+            const resultPallet = await getData('inboundsMobile/'+routes[index].params.number+'/pallet');
+            if(resultPallet.length === 0){
+              this.setState({notifbanner: 'You need Generate New Pallet ID First'});
+            } 
             this.props.setManifestList(result.products)
             this.setState({receivingNumber: routes[index].params.number, inboundNumber: result.inbound_number,_manifest:result.products,companyname:result.client,receiptid: result.inbound_receipt[result.inbound_receipt.length -1].receipt_no, updated: true  })
           } else {
@@ -200,6 +203,10 @@ class Warehouse extends React.Component{
             if(typeof shipmentVAS === 'object' && shipmentVAS.error === undefined && shipmentVAS.some((o)=> inbound_receipts.includes(o.receipt_id) === true && Object.keys(o.inbound_shipment_va).length === 0) === true){
               this.setState({shipmentVAS: false});
             }
+            const resultPallet = await getData('inboundsMobile/'+currentASN+'/pallet');
+            if(resultPallet.length === 0){
+              this.setState({notifbanner: 'You need Generate New Pallet ID First'});
+            } 
             this.props.setManifestList(result.products)
             this.setState({receivingNumber: currentASN,inboundNumber: result.inbound_number, _manifest:result.products, companyname:result.client,receiptid:  result.inbound_receipt[result.inbound_receipt.length -1].receipt_no, updated: true })
           } else {
@@ -227,7 +234,7 @@ class Warehouse extends React.Component{
       // for prototype only
       const result = await postData('/inboundsMobile/'+receivingNumber+'/complete-receiving')
       console.log(result);
-      if(result !== 'object'){
+      if(typeof result !== 'object'){
         this.setState({notifbanner:result});
       } else {
         if(result.error !== undefined) this.setState({notifbanner:result.error});
@@ -301,7 +308,7 @@ class Warehouse extends React.Component{
                                  containerStyle={{flexShrink:1,maxHeight:20}}
                                  inputContainerStyle={{...Mixins.containedInputDefaultContainer,maxHeight:20, paddingHorizontal: 0,
                                   paddingVertical: 0}} 
-                                 inputStyle={{...Mixins.containedInputDefaultStyle,marginHorizontal: 0}}
+                                 inputStyle={{...Mixins.containedInputDefaultStyle,...Mixins.small3,marginHorizontal: 0}}
             labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
             value={this.state.palletid}
                 disabled={true}
@@ -318,7 +325,6 @@ class Warehouse extends React.Component{
               containerStyle={{width: '100%',justifyContent: 'center',height:20, marginTop:9}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0, backgroundColor:'#121C78'}]}
               titleStyle={[styles.deliveryText,{lineHeight:21,fontWeight:'400'}]}
-              onPress={this.toggleOverlay}
               title="Remarks"
             />
             </View>

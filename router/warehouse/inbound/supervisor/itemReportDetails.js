@@ -179,7 +179,7 @@ class ConnoteReportDetails extends React.Component {
       <>
         <StatusBar barStyle="dark-content" />
         <View style={styles.container}>
-          <View style={styles.header}>
+          <View style={[styles.header,{paddingHorizontal:10}]}>
             <Text style={styles.headerTitle}>Report Details</Text>
           </View>
           <Overlay isVisible={this.state.overlayImage} onBackdropPress={this.toggleOverlay}>
@@ -204,6 +204,7 @@ class ConnoteReportDetails extends React.Component {
           <FlatList
             keyExtractor={(item,index)=>index}
               data={this.state.dataReports}
+              contentContainerStyle={{paddingHorizontal:10}}
               renderItem={this.renderInner}
             />
           </View>
@@ -218,7 +219,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    padding: 20,
+    paddingVertical:20,
+    paddingHorizontal:5,
   },
   header: {
     flexDirection: 'row',

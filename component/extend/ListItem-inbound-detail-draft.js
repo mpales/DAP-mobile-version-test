@@ -162,6 +162,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation, toDetailsDraf
         tension={100} // These props are passed to the parent component (here TouchableScale)
         activeScale={0.95}
         pad={0}
+        onPress={toDetailsDraft}
         >
         <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
@@ -193,7 +194,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation, toDetailsDraf
   </Text>
   </View>
   <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-  <View>
+  <View style={{flexDirection:'row', flex: 1}}> 
   <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
       {item.container_no}
   </Text>
@@ -206,7 +207,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation, toDetailsDraf
   </Text>
   </View>
   <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-  <View>
+  <View style={{flexDirection:'row', flex: 1}}> 
   <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
       {item.total_pallet}
   </Text>
@@ -219,7 +220,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation, toDetailsDraf
   </Text>
   </View>
   <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-  <View>
+  <View style={{flexDirection:'row', flex: 1}}> 
   <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
       {item.total_carton}
   </Text>
@@ -235,7 +236,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation, toDetailsDraf
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-                        <View>
+                        <View style={{flexDirection:'row', flex: 1}}> 
                         <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
                             {item.item_code}
                         </Text>
@@ -249,7 +250,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation, toDetailsDraf
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-                        <View>
+                        <View style={{flexDirection:'row', flex: 1}}> 
                         <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
                         {item.description}
                         </Text>
@@ -263,7 +264,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation, toDetailsDraf
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-                        <View>
+                        <View style={{flexDirection:'row', flex: 1}}> 
                         <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
                         {item.uom}
                         </Text>
@@ -277,7 +278,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation, toDetailsDraf
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-                        <View>
+                        <View style={{flexDirection:'row', flex: 1}}> 
                         <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
                         {item.qty_processed+ '/' +item.qty}
                         </Text>

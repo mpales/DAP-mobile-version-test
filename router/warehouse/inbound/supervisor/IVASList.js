@@ -72,7 +72,7 @@ class ConnoteReportDetails extends React.Component {
     );
   }
   _onPressSingleReports = (item)=>{ 
-    this.props.navigation.navigate('IVASDetailsSPV',{number:this.state.inboundID, shipmentID: item.inbound_shipment_va.id, clientVAS : item.inbound.company.company_name});
+    this.props.navigation.navigate('IVASDetailsSPV',{number:this.state.inboundID, shipmentID: item.inbound_shipment_va.id, clientVAS : item.inbound.client});
   }
   renderListVAS = ({item,index, separators})=>{
 
@@ -86,7 +86,7 @@ class ConnoteReportDetails extends React.Component {
       <Card containerStyle={styles.cardContainer} style={styles.card}>
        
         <View style={styles.detail}>
-          <DetailList title="Client" value={item.inbound.company.company_name} />
+          <DetailList title="Client" value={item.inbound.client} />
           <DetailList title="Recorded By" value={item.inbound_shipment_va.created_by  !== undefined ? item.inbound_shipment_va.created_by.firstName : null} />
           <DetailList title="Date and Time" value={item.inbound_shipment_va.created_on  !== undefined && item.inbound_shipment_va.created_on  !== null ? moment(item.inbound_shipment_va.created_on).format('DD/MM/YYY h:mm a') : null}/>
          
@@ -118,6 +118,7 @@ class ConnoteReportDetails extends React.Component {
             ListHeaderComponent={this.renderHeaderListVAS}
             keyExtractor={(item,index)=>index}
             data={this.state.itemIVAS}
+            contentContainerStyle={{paddingHorizontal:10}}
             renderItem={this.renderListVAS}
             />
        
@@ -132,7 +133,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    padding: 20,
+    paddingVertical:20,
+    paddingHorizontal:10,
   },
   header: {
     flexDirection: 'row',

@@ -95,10 +95,10 @@ class ConnoteReportDetails extends React.Component {
       <>
         <StatusBar barStyle="dark-content" />
         <ScrollView style={styles.container}>
-          <View style={styles.header}>
+          <View style={[styles.header,{paddingHorizontal:10}]}>
             <Text style={styles.headerTitle}>Shipment VAS Details</Text>
           </View>
-          <View style={styles.body}>
+          <View style={[styles.body,{paddingHorizontal:10}]}>
             <Card containerStyle={styles.cardContainer} style={styles.card}>
              
               <View style={styles.detail}>
@@ -120,14 +120,14 @@ class ConnoteReportDetails extends React.Component {
           <CheckBox
                 title="I Acknowledge"
                 textStyle={styles.textCheckbox}
-                containerStyle={styles.checkboxContainer}
+                containerStyle={[styles.checkboxContainer,{paddingHorizontal:10}]}
                 checked={this.state.acknowledged}
                 onPress={this.toggleCheckBox}
                 checkedIcon={this.checkedIcon()}
                 uncheckedIcon={this.uncheckedIcon()}
               />
           <Button
-              containerStyle={{flex:1, marginRight: 0,marginVertical:20}}
+              containerStyle={{flex:1, marginHorizontal: 10,marginVertical:20}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               title="Confirm"
@@ -136,7 +136,7 @@ class ConnoteReportDetails extends React.Component {
   
             />
               <Button
-              containerStyle={{flex:1, marginRight: 0,}}
+              containerStyle={{flex:1, marginHorizontal: 10,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={()=>{
@@ -155,7 +155,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    padding: 20,
+    paddingVertical:20,
+    paddingHorizontal:10,
   },
   header: {
     flexDirection: 'row',
