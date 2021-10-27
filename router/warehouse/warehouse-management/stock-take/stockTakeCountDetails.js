@@ -113,10 +113,6 @@ class StockTakeCountDetails extends React.Component {
                 value={stockTakeDetails.product.itemCode}
               />
               <TextList
-                title="Item Code"
-                value={stockTakeDetails.pallet ?? '-'}
-              />
-              <TextList
                 title="Description"
                 value={stockTakeDetails.product.description}
               />

@@ -39,7 +39,6 @@ const ListItemStockTakeCount = ({item, navigate}) => {
           style={[styles.sectionContainer, {flexDirection: 'column'}]}>
           <TextList title="Warehouse" value={item.warehouse.warehouse} />
           <TextList title="Location" value={item.warehouse.locationId} />
-          <TextList title="Pallet" value={item.pallet ?? '-'} />
           <TextList title="Item Code" value={item.product.itemCode} />
           <TextList title="Description" value={item.product.description} />
           <TextList title="Quantity" value={item.quantity} />
