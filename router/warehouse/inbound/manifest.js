@@ -100,6 +100,9 @@ class Warehouse extends React.Component{
       if(nextProps.keyStack === 'Manifest' && this.props.keyStack ==='Barcode'){
         this.setState({updated: true});
         return true;
+      } else if(nextProps.keyStack === 'Manifest' && this.props.keyStack ==='ReportManifest'){
+        this.setState({updated: true});
+        return true;
       } else if (nextProps.keyStack === 'Manifest' && this.props.keyStack ==='newItem'){
         this.setState({renderRefresh: true});
         return true;
