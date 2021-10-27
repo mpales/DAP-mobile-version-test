@@ -513,22 +513,31 @@ class Example extends React.Component {
                           <View style={styles.dividerInput}>
                           <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
                             const {qty,dataItem} = this.state;
-                            this.setState({qty:  qty < dataItem.qty ? qty+1: qty});
+                            this.setState({qty:  qty !== '' && qty < dataItem.qty ? qty+1: qty === '' ?  1 : qty});
                           }}  
                           containerStyle={{flexShrink:1, marginVertical: 5}}
                           badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
                           />
                           <Input 
                             containerStyle={{flex: 1,paddingVertical:0}}
+                            keyboardType="number-pad"
                             inputContainerStyle={styles.textInput} 
                             inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.h4,fontWeight: '600',lineHeight: 27,color:'#424141'}]}
                             labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                            placeholder={''+this.state.qty}
-                            disabled={true}
+                            value={String(this.state.qty)}
+                            onChangeText={(val)=>{
+                              if(val){
+                                let intQty = parseInt(val);
+                                this.setState({qty: intQty !== NaN && intQty <= this.state.dataItem.qty && intQty > 0 ? intQty : this.state.qty});
+                              } else {
+                                this.setState({qty:  ''});
+                              }
+                            
+                            }}
                             />
                            <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
                            const {qty,dataItem} = this.state;
-                            this.setState({qty: dataItem.qty_processed < qty && qty > 0 ? qty-1 : qty});
+                            this.setState({qty: qty !== '' && dataItem.qty_processed < qty && qty > 0 ? qty-1 : qty === '' ? 0 : qty});
                           }}  
                           containerStyle={{flexShrink:1, marginVertical: 5}}
                           badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
