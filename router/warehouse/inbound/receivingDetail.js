@@ -293,7 +293,7 @@ class Acknowledge extends React.Component {
               inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.status === 3 ? moment(data.eta).format("DD-MM-YYYY") : moment.unix(data.created_on).format("DD-MM-YYYY")}
+                placeholder={data.status === 3 ? moment(data.eta).format("DD-MM-YYYY") : moment(data.created_on).format("DD-MM-YYYY")}
                 disabled={true}
             />
          </View>
