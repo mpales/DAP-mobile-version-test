@@ -104,7 +104,7 @@ class Example extends React.Component {
       if(nextProps.keyStack === 'Barcode' && this.props.keyStack === 'newItem'){
         if (nextState.scanItem !== '0' && nextState.dataItem === null && nextProps.manifestList.some((element) => element.pId === nextState.scanItem)) {
           let item = nextProps.manifestList.find((element)=>element.pId === nextState.scanItem);
-          this.setState({dataItem: item, qty : item.qty_processed});
+          this.setState({dataItem: item, qty : 0});
         }
         return true;
       } else if (nextProps.keyStack === 'Barcode' && this.props.keyStack === 'POSMCameraMulti' && nextState.currentPOSM === true){
@@ -135,7 +135,7 @@ class Example extends React.Component {
     if(prevState.isConfirm !== this.state.isConfirm && this.state.isConfirm === true ){
       let FormData = await this.getPhotoReceivingGoods();
       let gradeIndex = grade.findIndex((o)=> o === this.state.ItemGrade)+1;
-      let incrementQty = this.state.qty - this.state.dataItem.qty_processed;
+      let incrementQty = this.state.qty;
       
       const ProcessItem = await postBlob('inboundsMobile/'+this.props.currentASN+'/'+this.state.scanItem+'/process-item', [
         ...FormData,
@@ -170,7 +170,7 @@ class Example extends React.Component {
          if(result.error !== undefined && this.props.keyStack === 'Barcode'){
           this.props.navigation.goBack();
          } else {
-          this.setState({dataItem: item, qty : item.is_transit === 1 ? 0 : item.qty_processed, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: true});
+          this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: true});
          }
         }
       } else if(this.state.indexItem !== null && this.state.multipleSKU === true){
@@ -179,7 +179,7 @@ class Example extends React.Component {
         if(result.error !== undefined && this.props.keyStack === 'Barcode'){
           this.props.navigation.goBack();
          } else {
-          this.setState({dataItem: item, qty :  item.is_transit === 1 ? 0 : item.qty_processed, ItemGrade: "Pick",currentPOSM: true, multipleSKU : false, filterMultipleSKU : null}); 
+          this.setState({dataItem: item, qty : 0, ItemGrade: "Pick",currentPOSM: true, multipleSKU : false, filterMultipleSKU : null}); 
          }
       }
     } 
@@ -189,7 +189,7 @@ class Example extends React.Component {
       let item = manifestList.find((element)=>element.pId === scanItem);  
       let indexItem = manifestList.findIndex((element)=> element.pId === scanItem);
       const result = await postData('inboundsMobile/'+this.props.currentASN+'/'+item.pId+'/switch-status/2')
-      this.setState({dataItem: item, qty : item.is_transit === 1 ? 0 : item.qty_processed, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: true});
+      this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: true});
     }
   }
   }
@@ -202,9 +202,10 @@ class Example extends React.Component {
     const {detectBarcode, manifestList} = this.props;
   
     const resultPallet = await getData('inboundsMobile/'+this.props.currentASN+'/pallet');
-    console.log(resultPallet);
     if(resultPallet.length > 0){
       this.setState({PalletArray:resultPallet, ItemPallet: resultPallet[0].palete_id});
+    } else {
+      this.props.navigation.goBack();
     }
     let items = manifestList.find((o)=> o.pId === scanItem);
     if(items !== undefined && items.is_transit !== 1){
@@ -225,7 +226,7 @@ class Example extends React.Component {
           if(result.error !== undefined){
             this.props.navigation.goBack();
            } else {
-            this.setState({dataItem: item, qty : item.is_transit === 1 ? 0 : item.qty_processed, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: true});
+            this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: true});
            }
         }
       } else if(this.state.indexItem !== null && this.state.multipleSKU === true){
@@ -234,7 +235,7 @@ class Example extends React.Component {
         if(result.error !== undefined){
           this.props.navigation.goBack();
          } else {
-          this.setState({dataItem: item, qty :  item.is_transit === 1 ? 0 : item.qty_processed, ItemGrade: "Pick", currentPOSM: true, filterMultipleSKU :null , multipleSKU: false}); 
+          this.setState({dataItem: item, qty :  0, ItemGrade: "Pick", currentPOSM: true, filterMultipleSKU :null , multipleSKU: false}); 
          }
       }
     }
@@ -243,7 +244,7 @@ class Example extends React.Component {
       let item = manifestList.find((element)=>element.pId === scanItem);  
       let indexItem = manifestList.findIndex((element)=> element.pId === scanItem);
       this.handleZoomInAnimation();
-      this.setState({dataItem: item, qty : item.is_transit === 1 ? 0 : item.qty_processed, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: true});
+      this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: true});
     }
   }
   }
@@ -392,15 +393,9 @@ class Example extends React.Component {
               <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
                <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                       {dataItem.is_transit !== 1 ? (<><View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>SKU</Text>
+                        <Text style={styles.labelPackage}>Item Code</Text>
                         <Text style={styles.infoPackage}>
                           {dataItem.item_code}
-                        </Text>
-                      </View>
-                      <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>Barcode</Text>
-                        <Text style={styles.infoPackage}>
-                          {dataItem.barcodes[dataItem.barcodes.length -1].code_number}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
@@ -410,10 +405,15 @@ class Example extends React.Component {
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>EXP Date</Text>
+                        <Text style={styles.labelPackage}>Barcode</Text>
                         <Text style={styles.infoPackage}>
-                        -
-                          {/* {moment.unix(dataItem.timestamp).format('DD/MM/YY')} */}
+                          {dataItem.barcodes[dataItem.barcodes.length -1].code_number}
+                        </Text>
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelPackage}>UOM</Text>
+                        <Text style={styles.infoPackage}>
+                        {dataItem.uom}
                         </Text>
                       </View></>) : (
                         <>
@@ -511,9 +511,9 @@ class Example extends React.Component {
                             <Text style={styles.qtyTitle}>Qty</Text>
                           </View>
                           <View style={styles.dividerInput}>
-                          <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
-                            const {qty,dataItem} = this.state;
-                            this.setState({qty:  qty !== '' && qty < dataItem.qty ? qty+1: qty === '' ?  1 : qty});
+                          <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
+                           const {qty,dataItem} = this.state;
+                            this.setState({qty: qty !== '' && qty > 0 ? qty-1 : qty === '' ? 0 : qty});
                           }}  
                           containerStyle={{flexShrink:1, marginVertical: 5}}
                           badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
@@ -528,16 +528,16 @@ class Example extends React.Component {
                             onChangeText={(val)=>{
                               if(val){
                                 let intQty = parseInt(val);
-                                this.setState({qty: intQty !== NaN && intQty <= this.state.dataItem.qty && intQty > 0 ? intQty : this.state.qty});
+                                this.setState({qty: intQty !== NaN && intQty > 0 ? intQty : this.state.qty});
                               } else {
                                 this.setState({qty:  ''});
                               }
                             
                             }}
                             />
-                           <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
-                           const {qty,dataItem} = this.state;
-                            this.setState({qty: qty !== '' && dataItem.qty_processed < qty && qty > 0 ? qty-1 : qty === '' ? 0 : qty});
+                          <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
+                            const {qty,dataItem} = this.state;
+                            this.setState({qty:  qty !== '' ? qty+1: qty === '' ?  1 : qty});
                           }}  
                           containerStyle={{flexShrink:1, marginVertical: 5}}
                           badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
@@ -897,6 +897,7 @@ class Example extends React.Component {
     //this.props.setBarcodeScanner(true);
     this.setState({
       dataCode: '0',
+      qty : qty === '' ? 0 : qty,
       enterAttr : false,
       isConfirm: dataItem.is_transit === 1 ? true : false,
       isPOSM: true,
@@ -1114,6 +1115,7 @@ const styles = StyleSheet.create({
     color: '#424141',
     fontWeight: '400',
     lineHeight: 18,
+    flex:1,
   },
   infoElement : {
     paddingHorizontal: 10,

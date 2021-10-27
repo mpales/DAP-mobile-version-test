@@ -199,7 +199,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
   </Text>
   </View>
   <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-  <View>
+  <View style={{flexDirection:'row', flex: 1}}> 
   <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
       {item.container_no}
   </Text>
@@ -212,7 +212,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
   </Text>
   </View>
   <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-  <View>
+  <View style={{flexDirection:'row', flex: 1}}> 
   <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
       {item.total_pallet}
   </Text>
@@ -225,7 +225,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
   </Text>
   </View>
   <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-  <View>
+  <View style={{flexDirection:'row', flex: 1}}> 
   <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
       {item.total_carton}
   </Text>
@@ -241,8 +241,8 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-                        <View>
-                        <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
+                        <View style={{flexDirection:'row', flex: 1}}> 
+                        <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400', flexShrink: 1}}>
                             {item.item_code}
                         </Text>
                         </View>
@@ -255,7 +255,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-                        <View>
+                        <View style={{flexDirection:'row', flex: 1}}> 
                         <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
                         {item.description}
                         </Text>
@@ -269,8 +269,8 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-                        <View>
-                        <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
+                        <View style={{flexDirection:'row', flex: 1}}> 
+                        <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400', flexShrink: 1}}>
                         {item.uom}
                         </Text>
                         </View>
@@ -283,8 +283,8 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-                        <View>
-                        <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
+                        <View style={{flexDirection:'row', flex: 1}}> 
+                        <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400', flexShrink: 1}}>
                         {item.qty_processed+ '/' +item.qty}
                         </Text>
                         </View>

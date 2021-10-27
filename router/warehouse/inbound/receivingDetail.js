@@ -181,14 +181,14 @@ class Acknowledge extends React.Component {
       const result = await postData('inboundsMobile/'+ receivingNumber + '/'+uploadCategory);
       if(typeof result !== 'object' && (result === 'Inbound status changed to received' || result === 'Inbound status changed to processing')){
         if(this.state.data.status === 3){
-          this.setState({updateData:true, submitDetail:false});
+          this.setState({updateData:true, submitDetail:false, errors: ''});
         } else {
           this.props.setActiveASN(receivingNumber);
           this.props.setCurrentASN(receivingNumber);
           this.props.setReportedManifest(null);
           this.props.setItemScanned([]);
           this.props.setManifestList([]);
-          this.setState({updateData:true, submitDetail:false});
+          this.setState({updateData:true, submitDetail:false, errors: ''});
           this.props.navigation.navigate(  {
             name: 'Manifest',
             params: {

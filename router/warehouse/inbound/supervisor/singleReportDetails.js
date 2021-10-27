@@ -177,7 +177,7 @@ class ConnoteReportDetails extends React.Component {
       <>
         <StatusBar barStyle="dark-content" />
         <ScrollView style={styles.container}>
-          <View style={styles.header}>
+          <View style={[styles.header,{paddingHorizontal:10}]}>
             <Text style={styles.headerTitle}>Report Details</Text>
           </View>
           <Overlay isVisible={this.state.overlayImage} onBackdropPress={this.toggleOverlay}>
@@ -198,7 +198,7 @@ class ConnoteReportDetails extends React.Component {
             imageContainerStyle={{}}
             />
           </Overlay>
-          <View style={styles.body}>
+          <View style={[styles.body,{paddingHorizontal:10}]}>
             <Card containerStyle={styles.cardContainer} style={styles.card}>
                 <View style={styles.header}>
                   <Text
@@ -231,9 +231,9 @@ class ConnoteReportDetails extends React.Component {
                 </View>
               </Card>
               {this.state.error !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.error}</Text>)}
-              <Text style={styles.detailText}>Resolution</Text>
+              <Text style={[styles.detailText,{paddingHorizontal:10}]}>Resolution</Text>
                 <TextInput
-                  style={styles.note}
+                  style={[styles.note,{marginHorizontal:10}]}
                   multiline={true}
                   numberOfLines={3}
                   textAlignVertical="top"
@@ -243,14 +243,14 @@ class ConnoteReportDetails extends React.Component {
                 <CheckBox
                       title="I Acknowledge"
                       textStyle={styles.textCheckbox}
-                      containerStyle={styles.checkboxContainer}
+                      containerStyle={[styles.checkboxContainer,{paddingHorizontal:20}]}
                       checked={this.state.acknowledged}
                       onPress={this.toggleCheckBox}
                       checkedIcon={this.checkedIcon()}
                       uncheckedIcon={this.uncheckedIcon()}
                     />
                 <Button
-                    containerStyle={{flex:1, marginRight: 0,}}
+                    containerStyle={{flex:1, marginHorizontal: 10,}}
                     buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
                     titleStyle={styles.deliveryText}
                     title="Confirm"
@@ -269,7 +269,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal:10,
   },
   header: {
     flexDirection: 'row',

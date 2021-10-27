@@ -144,8 +144,8 @@ class ConnoteDetails extends React.Component {
       <>
         <StatusBar barStyle="dark-content" />
         <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Item Details</Text>
+          <View style={[styles.header,{  paddingHorizontal:10,}]}>
+            <Text style={styles.headerTitle}>Product Details</Text>
             <TouchableOpacity
               style={styles.seeReportButton}
               onPress={this.navigateSeeReport}>
@@ -158,6 +158,7 @@ class ConnoteDetails extends React.Component {
             <FlatList
               data={this.state.dataActivities}
               ListHeaderComponent={this.renderHeader}
+              contentContainerStyle={{paddingHorizontal:10}}
               renderItem={({item}) => this.renderInner(item)}
             />
           </View>
@@ -171,7 +172,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    padding: 20,
+    paddingHorizontal:10,
+    paddingVertical:20,
   },
   header: {
     flexDirection: 'row',
@@ -181,7 +183,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     ...mixins.subtitle3,
     flex: 1,
-    fontSize: 24,
+    fontSize: 21,
     fontWeight: '700',
     color: '#424141',
   },
@@ -198,6 +200,7 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
+
   },
   cardContainer: {
     borderRadius: 5,

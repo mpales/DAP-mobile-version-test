@@ -142,7 +142,7 @@ class ConnoteDetails extends React.Component {
       <>
         <StatusBar barStyle="dark-content" />
         <View style={styles.container}>
-          <View style={styles.header}>
+          <View style={[styles.header,{paddingHorizontal:10}]}>
             <Text style={styles.headerTitle}>Item Details</Text>
          
           </View>
@@ -151,6 +151,7 @@ class ConnoteDetails extends React.Component {
             <FlatList
               data={this.state.dataActivities}
               ListHeaderComponent={this.renderHeader}
+              contentContainerStyle={{paddingHorizontal:10}}
               renderItem={({item}) => this.renderInner(item)}
             />
           </View>
@@ -163,7 +164,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal:10,
   },
   header: {
     flexDirection: 'row',
