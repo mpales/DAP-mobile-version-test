@@ -318,7 +318,7 @@ class Warehouse extends React.Component{
               onPress={()=>{
                 this.props.navigation.navigate('IVASListSPV', {number:this.state.receivingNumber})
               }}
-              title="Shipment VA"
+              title="Shipment VAS"
             />
             <Button
               containerStyle={{flex:1}}

@@ -466,7 +466,7 @@ class Warehouse extends React.Component{
               titleStyle={styles.deliveryText}
               onPress={this.goToIVAS}
               disabled={this.state.shipmentVAS}
-              title="Shipment VA"
+              title="Shipment VAS"
             />
             <Button
               containerStyle={{flex:1}}
