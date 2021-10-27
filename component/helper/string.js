@@ -52,3 +52,22 @@ export const cleanKeyString = (value) => {
     return newString.charAt(0).toUpperCase() + newString.slice(1);
   }
 };
+
+export const stockTakeJobStatus = (value) => {
+  let statusString;
+  switch (value) {
+    case 2:
+      statusString = 'Waiting';
+      break;
+    case 3:
+      statusString = 'In Progress';
+      break;
+    case 4:
+      statusString = 'Completed';
+      break;
+    default:
+      statusString = '';
+      break;
+  }
+  return statusString;
+};
