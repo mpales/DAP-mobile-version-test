@@ -23,7 +23,6 @@ class ClientStorageDetails extends React.Component {
 
   render() {
     const {storageDetails, selectedStatus} = this.state;
-    console.log(storageDetails);
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -56,12 +55,12 @@ class ClientStorageDetails extends React.Component {
                     value={storageDetails.item_code}
                   />
                   <TextList
-                    title="Barcode"
-                    value={storageDetails.barcode[0].code_number}
-                  />
-                  <TextList
                     title="Description"
                     value={storageDetails.description}
+                  />
+                  <TextList
+                    title="Barcode"
+                    value={storageDetails.barcode[0].code_number}
                   />
                   <TextList title="Grade" value={storageDetails.grade} />
                   <TextList title="Quantity" value={storageDetails.quantity} />
