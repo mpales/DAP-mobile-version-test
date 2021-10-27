@@ -1,5 +1,3 @@
-import {string} from 'prop-types';
-
 export const clientProductStatus = (value) => {
   let statusString;
   switch (value) {
@@ -54,6 +52,25 @@ export const cleanKeyString = (value) => {
 };
 
 export const stockTakeJobStatus = (value) => {
+  let statusString;
+  switch (value) {
+    case 2:
+      statusString = 'Waiting';
+      break;
+    case 3:
+      statusString = 'In Progress';
+      break;
+    case 4:
+      statusString = 'Completed';
+      break;
+    default:
+      statusString = '';
+      break;
+  }
+  return statusString;
+};
+
+export const stockTakeCountStatus = (value) => {
   let statusString;
   switch (value) {
     case 2:

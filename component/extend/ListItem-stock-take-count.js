@@ -8,6 +8,7 @@ import Mixins from '../../mixins';
 import {TextList} from './Text-list';
 // helper
 import {stockTakeJobStatusColor} from '../helper/status-color';
+import {stockTakeCountStatus} from '../helper/string';
 
 const ListItemStockTakeCount = ({item, navigate}) => {
   return (
@@ -15,7 +16,9 @@ const ListItemStockTakeCount = ({item, navigate}) => {
       <ListItem
         Component={TouchableScale}
         onPress={
-          item.status === 'In Progress' ? null : () => navigate(item.status)
+          stockTakeCountStatus(item.status) === 'In Progress'
+            ? null
+            : () => navigate(item)
         }
         friction={90} //
         tension={100} // These props are passed to the parent component (here TouchableScale)
@@ -25,18 +28,22 @@ const ListItemStockTakeCount = ({item, navigate}) => {
         <View
           style={[
             styles.leftList,
-            {backgroundColor: stockTakeJobStatusColor(item.status)},
+            {
+              backgroundColor: stockTakeJobStatusColor(
+                stockTakeCountStatus(item.status),
+              ),
+            },
           ]}
         />
         <ListItem.Content
           style={[styles.sectionContainer, {flexDirection: 'column'}]}>
-          <TextList title="Warehouse" value={item.warehouse} />
-          <TextList title="Location" value={item.location} />
-          <TextList title="Pallet" value={item.pallet} />
-          <TextList title="Item Code" value={item.itemCode} />
-          <TextList title="Description" value={item.description} />
+          <TextList title="Warehouse" value={item.warehouse.warehouse} />
+          <TextList title="Location" value={item.warehouse.locationId} />
+          <TextList title="Pallet" value={item.pallet ?? '-'} />
+          <TextList title="Item Code" value={item.product.itemCode} />
+          <TextList title="Description" value={item.product.description} />
           <TextList title="Quantity" value={item.quantity} />
-          <TextList title="UOM" value={item.UOM} />
+          <TextList title="UOM" value={item.productUom.packaging} />
           <TextList title="Grade" value={item.grade} />
         </ListItem.Content>
         <ListItem.Chevron
@@ -50,9 +57,15 @@ const ListItemStockTakeCount = ({item, navigate}) => {
         <View
           style={[
             styles.statusContainer,
-            {backgroundColor: stockTakeJobStatusColor(item.status)},
+            {
+              backgroundColor: stockTakeJobStatusColor(
+                stockTakeCountStatus(item.status),
+              ),
+            },
           ]}>
-          <Text style={styles.statusText}>{item.status}</Text>
+          <Text style={styles.statusText}>
+            {stockTakeCountStatus(item.status)}
+          </Text>
         </View>
       </ListItem>
     </ThemeProvider>
