@@ -54,7 +54,9 @@ const ListItemStockTake = ({item, navigate}) => {
               ),
             },
           ]}>
-          <Text style={styles.statusText}>{item.status}</Text>
+          <Text style={styles.statusText}>
+            {stockTakeJobStatus(item.status)}
+          </Text>
         </View>
       </ListItem>
     </ThemeProvider>
