@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Card} from 'react-native-elements';
+import {Card, Divider} from 'react-native-elements';
 import {connect} from 'react-redux';
 import mixins from '../../../../mixins';
 // component
@@ -69,34 +69,34 @@ class ConnoteDetails extends React.Component {
     const {_itemDetail} = this.state;
     return (
       <>
-       <Card containerStyle={styles.cardContainer} style={styles.card}>
-              <View style={styles.header}>
+          <Card containerStyle={[styles.cardContainer,{paddingHorizontal:0,paddingVertical:10}]} style={styles.card}>
+              <View style={[styles.header,{paddingHorizontal:20}]}>
                 <View>
                   <Text style={[styles.headerTitle, {flex: 0, fontSize: 20}]}>
-                    {_itemDetail.item_code}
+                  {_itemDetail.item_code}
                   </Text>
-                  <Text style={[styles.detailText, {lineHeight: 24}]}>
-                    {_itemDetail.basic.volume + ' CBM'}
-                  </Text>
-                  <Text style={[styles.detailText, {lineHeight: 24}]}>
-                    {_itemDetail.basic.weight + ' KG'}
-                  </Text>
+                
                 </View>
-                <Text style={styles.packageCounterText}>{_itemDetail.qty_processed+'/'+_itemDetail.qty}</Text>
+
               </View>
-              <View style={styles.detail}>
+              <View style={[styles.detail,{paddingVertical:10}]}>
+              <View style={[styles.detailSection,{paddingBottom:10}]}>
                 <DetailList title="Description" value={_itemDetail.description} />
-                <DetailList title="Quantity" value={_itemDetail.qty} />
-                <DetailList title="Color" value={_itemDetail.color} />
+                <DetailList title="Barcode" value={_itemDetail.barcodes[_itemDetail.barcodes.length - 1].code_number} />
                 <DetailList title="UOM" value={_itemDetail.uom} />
-                <DetailList
-                  title="Country"
-                  value="America"
-                />
-                <DetailList title="EXP Date" value="-" />
-                <DetailList title="Banch" value="01" />
-                <DetailList title="Class" value="A2" />
-                <View style={styles.reportSection}>
+                <DetailList title="Quantity" value={_itemDetail.qty} />
+                <DetailList title="Product Class" value={_itemDetail.product_class === 1 ? 'Normal Stock' : _itemDetail.product_class === 2 ? 'POSM' : _itemDetail.product_class === 3 ? 'Packaging Materials' : 'Samples'} />
+                <DetailList title="CBM" value={_itemDetail.basic.volume} />
+                <DetailList title="Weight" value={_itemDetail.basic.weight} />
+                </View>
+                <Divider/>
+                <View style={[styles.detailSection,{paddingVertical:10}]}>
+                  <Text style={styles.reportSectionTitle}>{'Product Category : '+ _itemDetail.category}</Text>
+                  <DetailList title="Color" value="-" />
+                  <DetailList title="EXP Date" value="-" />
+                  <DetailList title="Banch" value="-" />
+                </View>
+                <View style={[styles.reportSection,{paddingHorizontal:20}]}>
                   <Text style={styles.reportSectionTitle}>Report:</Text>
                   <DetailList
                     title="Total Report"
@@ -143,7 +143,7 @@ class ConnoteDetails extends React.Component {
         <StatusBar barStyle="dark-content" />
         <View style={styles.container}>
           <View style={[styles.header,{paddingHorizontal:10}]}>
-            <Text style={styles.headerTitle}>Item Details</Text>
+            <Text style={styles.headerTitle}>Product Details</Text>
          
           </View>
           <View style={styles.body}>
@@ -178,6 +178,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     color: '#424141',
+  },
+  detailSection: {
+    flexDirection: 'column',
+    paddingHorizontal:20,
   },
   seeReportButton: {
     flex: 1,
