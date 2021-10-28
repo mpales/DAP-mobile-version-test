@@ -126,7 +126,6 @@ class StockTakeCountList extends React.Component {
               <View>
                 <Text style={styles.text}>{jobData.jobId}</Text>
                 <Text style={styles.text}>{jobData.client.name}</Text>
-                <Text style={styles.text}>{jobData.warehouse.name}</Text>
               </View>
               <View>
                 <Text style={[styles.text, {textAlign: 'right'}]}>
