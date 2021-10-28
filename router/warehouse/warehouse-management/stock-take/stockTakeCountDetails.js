@@ -13,7 +13,9 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 // component
 import {TextList, TextListBig} from '../../../../component/extend/Text-list';
+import Banner from '../../../../component/banner/banner';
 // helper
+import {putData} from '../../../../component/helper/network';
 import Format from '../../../../component/helper/format';
 import {stockTakeCountStatus} from '../../../../component/helper/string';
 //style
@@ -28,6 +30,8 @@ class StockTakeCountDetails extends React.Component {
       stockTakeDetails: this.props.route.params?.stockTakeDetails ?? null,
       inputQuantity: 0,
       isShowModal: false,
+      error: '',
+      isShowBanner: false,
     };
     this.handleShowModal.bind(this);
     this.confirmStockTake.bind(this);
@@ -79,8 +83,27 @@ class StockTakeCountDetails extends React.Component {
     }
   };
 
-  confirmStockTake = () => {
-    this.props.navigation.navigate('StockTakeCountList');
+  confirmStockTake = async () => {
+    const {inputQuantity, stockTakeDetails} = this.state;
+    const data = {
+      quantity: inputQuantity === 0 ? 'non-blind' : inputQuantity,
+    };
+    const result = await putData(
+      `/stocks-mobile/stock-counts/confirm/${stockTakeDetails.id}`,
+      data,
+    );
+    if (result === 'Stock Count successfully confirmed') {
+      this.props.navigation.navigate('StockTakeCountList');
+    } else {
+      if (result.errors !== undefined && typeof result.errors === 'object') {
+        let message =
+          result.errors?.msg ?? errors[0]?.msg ?? 'Something went wrong';
+        this.setState({
+          error: message,
+          isShowBanner: true,
+        });
+      }
+    }
   };
 
   navigateToReportStockTakeCount = () => {
@@ -91,12 +114,26 @@ class StockTakeCountDetails extends React.Component {
     this.props.navigation.navigate('StockTakeReportDetails');
   };
 
+  closeBanner = () => {
+    this.setState({
+      isShowBanner: false,
+    });
+  };
+
   render() {
-    const {stockTakeDetails, isShowModal, inputQuantity} = this.state;
-    console.log(this.props.route.params);
+    const {
+      stockTakeDetails,
+      isShowModal,
+      inputQuantity,
+      isShowBanner,
+      error,
+    } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
+        {isShowBanner && error !== '' && (
+          <Banner title={error} closeBanner={this.closeBanner} />
+        )}
         {stockTakeDetails !== null && (
           <>
             <Card containerStyle={styles.cardContainer}>
@@ -153,7 +190,8 @@ class StockTakeCountDetails extends React.Component {
               />
             ) : (
               <>
-                {stockTakeDetails.quantity === 0 ? (
+                {stockTakeDetails?.quantity === undefined ||
+                parseInt(stockTakeDetails.quantity) === 0 ? (
                   <Button
                     title="Set Quantity"
                     titleStyle={styles.buttonText}
