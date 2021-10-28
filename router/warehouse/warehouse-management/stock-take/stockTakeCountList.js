@@ -58,9 +58,11 @@ class StockTakeCountList extends React.Component {
     if (search.length > 0) {
       filteredStockTakeCountList = stockTakeCountList.filter((job) => {
         return (
-          job.itemCode.toLowerCase().includes(search.toLowerCase()) ||
-          job.location.toLowerCase().includes(search.toLowerCase()) ||
-          job.pallet.toLowerCase().includes(search.toLowerCase())
+          job.product.itemCode.toLowerCase().includes(search.toLowerCase()) ||
+          job.warehouse.locationId
+            .toLowerCase()
+            .includes(search.toLowerCase()) ||
+          job.warehouse.warehouse.toLowerCase().includes(search.toLowerCase())
         );
       });
       if (filterStatus !== 'All') {
@@ -126,7 +128,6 @@ class StockTakeCountList extends React.Component {
               <View>
                 <Text style={styles.text}>{jobData.jobId}</Text>
                 <Text style={styles.text}>{jobData.client.name}</Text>
-                <Text style={styles.text}>{jobData.warehouse.name}</Text>
               </View>
               <View>
                 <Text style={[styles.text, {textAlign: 'right'}]}>
