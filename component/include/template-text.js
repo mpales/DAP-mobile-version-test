@@ -15,7 +15,9 @@ const styles = {
         color: '#2D2C2C',
         fontWeight: '500',
         lineHeight: 18,
-        minWidth:100,
+        width: 100,
+        textAlignVertical: "center",
+        paddingRight: 5,
       },
       textInput: {
         borderWidth: 1,

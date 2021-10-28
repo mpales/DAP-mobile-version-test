@@ -1161,8 +1161,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
-    minHeight: (screen.height * 70) / 100,
-    maxHeight: (screen.height * 70) / 100,
+    minHeight: (screen.height * 75) / 100,
+    maxHeight: (screen.height * 75) / 100,
     borderRadius: 10,
   },
   modalContainerAllTransit: {

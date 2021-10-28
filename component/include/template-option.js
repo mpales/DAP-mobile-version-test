@@ -10,11 +10,13 @@ const styles = {
         marginVertical: 3,
       },
       labelPackage: {
-        minWidth: 100,
+        width: 100,
         ...Mixins.small1,
         color: '#2D2C2C',
         fontWeight: '500',
         lineHeight: 18,
+        textAlignVertical: "center",
+        paddingRight: 5,
       },
       textInput: {
         borderWidth: 1,
