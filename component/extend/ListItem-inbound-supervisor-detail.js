@@ -127,7 +127,7 @@ const theme = {
 };
 const Manifest = ({item, index, drag, toReportDetail, navigation}) => {
 
-  let addAttribute = item.barcodes !== undefined && item.barcodes.length === 0 ? true :false;
+  let addAttribute = item.is_transit === undefined && item.basic.length !== null && item.basic.weight !== null && item.basic.width !== null && item.basic.height !== null && item.basic.volume !== null && item.basic.carton_pcs !== null ? false : item.is_transit !== undefined ? false : true;
   let status = 'grey';
   let textstatus = 'pending';
   switch (item.status) {

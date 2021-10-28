@@ -1,10 +1,10 @@
 import React from 'react';
 import {Text, Button,Image, Input, Divider} from 'react-native-elements';
-import {View} from 'react-native';
+import {View, Keyboard} from 'react-native';
 import {connect} from 'react-redux';
 import moment from 'moment';
 import Mixins from '../../../mixins';
-import {postData, getData} from '../../../component/helper/network';
+import {putData, getData} from '../../../component/helper/network';
 import Banner from '../../../component/banner/banner';
 class Acknowledge extends React.Component {
   constructor(props) {
@@ -25,6 +25,7 @@ class Acknowledge extends React.Component {
       weight: '',
       pcscarton: '',
       errors : '',
+      keyboardState : 'hide',
     };
     this.registerBarcode.bind(this);
     this.submitItem.bind(this);
@@ -42,12 +43,12 @@ class Acknowledge extends React.Component {
           sku : String(manifest.item_code), 
           description: String(manifest.description),
           uom : String(manifest.uom),
-          length: String(manifest.basic.length),
-          width: String(manifest.basic.width),
-          height: String(manifest.basic.height),
-          volweight: String(manifest.basic.volume),
-          weight: String(manifest.basic.weight),
-          pcscarton: String(manifest.basic.carton_pcs),
+          length: manifest.basic.length !== null ? String(manifest.basic.length) : '',
+          width: manifest.basic.width !== null ? String(manifest.basic.width) : '',
+          height: manifest.basic.height !== null ? String(manifest.basic.height) : '',
+          volweight: manifest.basic.volume !== null ? String(manifest.basic.volume) : '',
+          weight: manifest.basic.weight !== null ? String(manifest.basic.weight) : '',
+          pcscarton: manifest.basic.carton_pcs !== null ? String(manifest.basic.carton_pcs) : '',
         };
       }
       return {...state};
@@ -94,13 +95,41 @@ class Acknowledge extends React.Component {
     if(prevState.length !== this.state.length || prevState.width !== this.state.width || prevState.height !== this.state.height){
       const {length,width,height} = this.state;
       if(length !== '' && width !== '' && height !== ''){
-        let volweight = parseInt(length) * parseInt(width) * parseInt(height);
+        let volweight = parseFloat(length) * parseFloat(width) * parseFloat(height);
         this.setState({
-          volweight : volweight,
+          volweight : ''+volweight,
         });
       }
     }
   }
+
+  async componentDidMount(){
+    const {currentASN} = this.props;
+    const {productID} = this.state;
+    if(productID !== null){
+      const getAttributes = await getData('inboundsMobile/'+currentASN+'/'+productID+'/product-attributes');
+      this.setState({
+        length: getAttributes.basic.length !== null ? String(getAttributes.basic.length) : '',
+        width: getAttributes.basic.width !== null ? String(getAttributes.basic.width) : '',
+        height: getAttributes.basic.height !== null ? String(getAttributes.basic.height) : '',
+        volweight: getAttributes.basic.volume !== null ? String(getAttributes.basic.volume) : '',
+        weight: getAttributes.basic.weight !== null ? String(getAttributes.basic.weight) : '',
+        pcscarton: getAttributes.basic.carton_pcs !== null ? String(getAttributes.basic.carton_pcs) : '',
+      });
+    }
+    Keyboard.addListener("keyboardDidShow", this.keyboardDidShowHandle);
+    Keyboard.addListener("keyboardDidHide", this.keyboardDidHideHandle);
+  }
+  componentWillUnmount(){
+    Keyboard.removeListener("keyboardDidShow", this.keyboardDidShowHandle);
+    Keyboard.removeListener("keyboardDidHide", this.keyboardDidHideHandle);
+  }
+  keyboardDidShowHandle = ()=>{
+    this.setState({keyboardState:'show'})
+  };
+  keyboardDidHideHandle = ()=>{
+    this.setState({keyboardState:'hide'})
+  };
   registerBarcode = () => {
     const {productID} = this.state;
     this.props.navigation.navigate({
@@ -110,31 +139,65 @@ class Acknowledge extends React.Component {
       }
     })
   };
-  submitItem = ()=>{
-    const {manifestList} = this.props;
-    const {productID,dataCode, barcode, sku, expDate,mfgDate,size,color,classcode,country,height, weight} = this.state;
-    let manifest = []
-    
-      manifest = Array.from({length: manifestList.length}).map((num, index, arr) => {
-      if(productID === manifestList[index].pId){
-        return {
-          ...manifestList[index],
-        };
-      } else {
-      return manifestList[index];  
-      }
+  closeErrorBanner = ()=>{
+    this.setState({errors:''});
+  }
+  submitItem = async ()=>{
+    const {manifestList,currentASN} = this.props;
+    const {productID,length,width,height,volweight,weight,pcscarton} = this.state;
+    const updateAttr = await putData('inboundsMobile/'+currentASN+'/'+productID+'/product-attributes',{
+      length : parseFloat(length) ,
+      weight: parseFloat(weight),
+      width: parseFloat(width),
+      height: parseFloat(height),
+      volume: parseFloat(volweight),
+      pcs : parseInt(pcscarton),
     });
+    if(typeof updateAttr !== 'object'){
 
-    this.props.setManifestList(manifest)
-    this.props.setBottomBar(false);
-    this.props.navigation.navigate('Manifest');
+      const updatedManifestAttr = Array.from({length: manifestList.length}).map((num, index, arr) => {
+        if(productID === manifestList[index].pId){
+          return {
+            ...manifestList[index],
+            basic: {
+              ...manifestList[index].basic,
+              length : parseFloat(length) ,
+              weight: parseFloat(weight),
+              width: parseFloat(width),
+              height: parseFloat(height),
+              volume: parseFloat(volweight),
+              carton_pcs : parseInt(pcscarton),
+            }
+          };
+        } else {
+        return manifestList[index];  
+        }
+      });
+      Keyboard.removeListener("keyboardDidShow", this.keyboardDidShowHandle);
+      Keyboard.removeListener("keyboardDidHide", this.keyboardDidHideHandle);
+      this.props.setManifestList(updatedManifestAttr)
+      this.props.setBottomBar(false);
+      this.props.navigation.navigate('Manifest');
+    
+    } else {
+      if(updateAttr.error !== undefined){
+        this.setState({errors: updateAttr.error});
+      }
+    }
   }
  
   render(){
     const {barcode, sku,description, uom, length,width,height,volweight,weight,pcscarton} = this.state;
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
-         <View style={{flexDirection:'row', flexShrink:1}}>
+          {this.state.errors !== '' && (<Banner
+            title={this.state.errors}
+            backgroundColor="#F1811C"
+            closeBanner={this.closeErrorBanner}
+          />)}
+        {this.state.keyboardState === 'hide' && (
+        <> 
+        <View style={{flexDirection:'row', flexShrink:1}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
              <Text>Item Code</Text>
              </View>
@@ -197,6 +260,8 @@ class Acknowledge extends React.Component {
             />
          </View>
         <Divider />
+        </>
+        )}
         <Text style={{...Mixins.h6,lineHeight: 27,fontWeight:'700',color:'#424141'}}>Carton Dimensions</Text>
          <View style={{flexDirection:'row', flexShrink:1}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
@@ -208,6 +273,7 @@ class Acknowledge extends React.Component {
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({length:text})}}
+                keyboardType="number-pad"
                 value={length}
             />
          </View>
@@ -221,6 +287,7 @@ class Acknowledge extends React.Component {
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({width:text})}}
+                keyboardType="number-pad"
                 value={width}
             />
          </View>
@@ -234,6 +301,7 @@ class Acknowledge extends React.Component {
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({height:text})}}
+                keyboardType="number-pad"
                 value={height}
             />
          </View>
@@ -247,7 +315,7 @@ class Acknowledge extends React.Component {
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({volweight:text})}}
-                placeholder={volweight}
+                value={volweight}
                 disabled={volweight === '' ? true : false}
             />
          </View>
@@ -260,7 +328,9 @@ class Acknowledge extends React.Component {
               inputContainerStyle={styles.textInput} 
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
+                onChangeText={(text)=>{this.setState({weight:text})}}
                 value={weight}
+                keyboardType="number-pad"
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -274,15 +344,17 @@ class Acknowledge extends React.Component {
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({pcscarton:text})}}
                 value={pcscarton}
+                keyboardType="number-pad"
             />
          </View>
-         <Button
+        {this.state.keyboardState === 'hide' && ( <Button
               containerStyle={{flex:1, marginRight: 0,marginVertical:30}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.submitItem}
+              disabled={this.state.length !== '' && this.state.weight !== '' & this.state.pcscarton !== '' && this.state.volweight !== '' && this.state.width !== '' && this.state.height !== '' ? false : true}
               title="Update Attribute"
-            />
+            />)}
         </View>
     );
   }
