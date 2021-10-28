@@ -13,7 +13,9 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 //component
 import StockTakeCountItem from '../../../../component/extend/ListItem-stock-take-count';
+import Loading from '../../../../component/loading/loading';
 // helper
+import {getData} from '../../../../component/helper/network';
 import {stockTakeCountStatus} from '../../../../component/helper/string';
 import Format from '../../../../component/helper/format';
 //style
@@ -25,14 +27,20 @@ class StockTakeCountList extends React.Component {
     this.state = {
       filteredStockTakeCountList: null,
       jobData: this.props.route.params?.jobData ?? null,
-      stockTakeCountList:
-        this.props.route.params?.jobData?.productStorages ?? null,
+      stockTakeCountList: null,
+      isLoading: true,
       search: '',
       filterStatus: 'All',
     };
     this.handleFilterStatus.bind(this);
     this.updateSearch.bind(this);
     this.completeStockTake.bind(this);
+  }
+
+  componentDidMount() {
+    this.props.navigation.addListener('focus', () => {
+      this.getStockTakeProduct();
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -42,7 +50,27 @@ class StockTakeCountList extends React.Component {
     ) {
       this.filteredStockTakeCountList();
     }
+    if (prevState.stockTakeCountList !== this.state.stockTakeCountList) {
+      if (this.state.stockTakeCountList !== null) {
+        this.filteredStockTakeCountList();
+      }
+    }
   }
+
+  getStockTakeProduct = async () => {
+    const {jobData} = this.state;
+    const result = await getData(
+      `/stocks-mobile/stock-counts/${jobData.id}/products`,
+    );
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        stockTakeCountList: result,
+      });
+    }
+    this.setState({
+      isLoading: false,
+    });
+  };
 
   updateSearch = (search) => {
     this.setState({search});
@@ -50,6 +78,20 @@ class StockTakeCountList extends React.Component {
 
   handleFilterStatus = (value) => {
     this.setState({filterStatus: value});
+  };
+
+  checkButtonDisabled = () => {
+    const {stockTakeCountList} = this.state;
+    let foundData = true;
+    if (stockTakeCountList !== null) {
+      foundData = stockTakeCountList.find(
+        (el) => el.status === 'Waiting' || el.status === 'Reported',
+      );
+    }
+    if (foundData === undefined) {
+      return false;
+    }
+    return true;
   };
 
   filteredStockTakeCountList = () => {
@@ -112,6 +154,7 @@ class StockTakeCountList extends React.Component {
       filteredStockTakeCountList,
       search,
       filterStatus,
+      isLoading,
     } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
@@ -239,31 +282,40 @@ class StockTakeCountList extends React.Component {
             }
           />
         </ScrollView>
-        <FlatList
-          data={
-            search === '' && filterStatus === 'All'
-              ? stockTakeCountList
-              : filteredStockTakeCountList
-          }
-          renderItem={({item, index}) => (
-            <StockTakeCountItem
-              item={item}
-              navigate={this.navigateToStockTakeCountDetails}
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <>
+            <FlatList
+              data={
+                search === '' && filterStatus === 'All'
+                  ? stockTakeCountList
+                  : filteredStockTakeCountList
+              }
+              renderItem={({item, index}) => (
+                <StockTakeCountItem
+                  item={item}
+                  navigate={this.navigateToStockTakeCountDetails}
+                />
+              )}
+              keyExtractor={(item, index) => index}
+              showsVerticalScrollIndicator={false}
+              style={{marginBottom: 70}}
+              ListEmptyComponent={this.renderEmpty}
             />
-          )}
-          keyExtractor={(item, index) => index}
-          showsVerticalScrollIndicator={false}
-          style={{marginBottom: 70}}
-          ListEmptyComponent={this.renderEmpty}
-        />
-        <View style={styles.bottomButtonContainer}>
-          <Button
-            title="Complete Stock Take"
-            titleStyle={styles.buttonText}
-            buttonStyle={styles.button}
-            onPress={this.completeStockTake}
-          />
-        </View>
+            <View style={styles.bottomButtonContainer}>
+              <Button
+                title="Complete Stock Take"
+                titleStyle={styles.buttonText}
+                buttonStyle={styles.button}
+                onPress={this.completeStockTake}
+                disabled={this.checkButtonDisabled()}
+                disabledStyle={{backgroundColor: '#ABABAB'}}
+                disabledTitleStyle={{color: '#FFF'}}
+              />
+            </View>
+          </>
+        )}
       </SafeAreaProvider>
     );
   }
