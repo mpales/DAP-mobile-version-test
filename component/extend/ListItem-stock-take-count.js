@@ -8,18 +8,13 @@ import Mixins from '../../mixins';
 import {TextList} from './Text-list';
 // helper
 import {stockTakeJobStatusColor} from '../helper/status-color';
-import {stockTakeCountStatus} from '../helper/string';
 
 const ListItemStockTakeCount = ({item, navigate}) => {
   return (
     <ThemeProvider theme={theme}>
       <ListItem
         Component={TouchableScale}
-        onPress={
-          stockTakeCountStatus(item.status) === 'In Progress'
-            ? null
-            : () => navigate(item)
-        }
+        onPress={item.status === 'In Progress' ? null : () => navigate(item)}
         friction={90} //
         tension={100} // These props are passed to the parent component (here TouchableScale)
         activeScale={0.95}
@@ -29,9 +24,7 @@ const ListItemStockTakeCount = ({item, navigate}) => {
           style={[
             styles.leftList,
             {
-              backgroundColor: stockTakeJobStatusColor(
-                stockTakeCountStatus(item.status),
-              ),
+              backgroundColor: stockTakeJobStatusColor(item.status),
             },
           ]}
         />
@@ -57,14 +50,10 @@ const ListItemStockTakeCount = ({item, navigate}) => {
           style={[
             styles.statusContainer,
             {
-              backgroundColor: stockTakeJobStatusColor(
-                stockTakeCountStatus(item.status),
-              ),
+              backgroundColor: stockTakeJobStatusColor(item.status),
             },
           ]}>
-          <Text style={styles.statusText}>
-            {stockTakeCountStatus(item.status)}
-          </Text>
+          <Text style={styles.statusText}>{item.status}</Text>
         </View>
       </ListItem>
     </ThemeProvider>

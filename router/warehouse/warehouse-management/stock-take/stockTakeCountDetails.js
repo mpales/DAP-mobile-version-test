@@ -17,7 +17,6 @@ import Banner from '../../../../component/banner/banner';
 // helper
 import {putData} from '../../../../component/helper/network';
 import Format from '../../../../component/helper/format';
-import {stockTakeCountStatus} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
 
@@ -92,7 +91,7 @@ class StockTakeCountDetails extends React.Component {
       `/stocks-mobile/stock-counts/confirm/${stockTakeDetails.id}`,
       data,
     );
-    if (result === 'Stock Count successfully confirmed') {
+    if (result?.message === 'Stock Count successfully confirmed') {
       this.props.navigation.navigate('StockTakeCountList');
     } else {
       if (result.errors !== undefined && typeof result.errors === 'object') {
@@ -180,39 +179,43 @@ class StockTakeCountDetails extends React.Component {
               />
               <TextList title="Banch" value={stockTakeDetails.batchNo} />
             </Card>
-            {stockTakeCountStatus(stockTakeDetails.status) === 'Reported' ? (
-              <Button
-                type="clear"
-                title="See Report Detail"
-                containerStyle={styles.reportButton}
-                titleStyle={styles.reportButtonText}
-                onPress={this.navigateToStockTakeReportDetails}
-              />
-            ) : (
+            {stockTakeDetails.status !== 'Completed' && (
               <>
-                {stockTakeDetails?.quantity === undefined ||
-                parseInt(stockTakeDetails.quantity) === 0 ? (
+                {stockTakeDetails.status === 'Reported' ? (
                   <Button
-                    title="Set Quantity"
-                    titleStyle={styles.buttonText}
-                    buttonStyle={styles.button}
-                    onPress={this.handleShowModal}
+                    type="clear"
+                    title="See Report Detail"
+                    containerStyle={styles.reportButton}
+                    titleStyle={styles.reportButtonText}
+                    onPress={this.navigateToStockTakeReportDetails}
                   />
                 ) : (
-                  <Button
-                    title="Confirm"
-                    titleStyle={styles.buttonText}
-                    buttonStyle={styles.button}
-                    onPress={this.confirmStockTake}
-                  />
+                  <>
+                    {stockTakeDetails?.quantity === undefined ||
+                    parseInt(stockTakeDetails.quantity) === 0 ? (
+                      <Button
+                        title="Set Quantity"
+                        titleStyle={styles.buttonText}
+                        buttonStyle={styles.button}
+                        onPress={this.handleShowModal}
+                      />
+                    ) : (
+                      <Button
+                        title="Confirm"
+                        titleStyle={styles.buttonText}
+                        buttonStyle={styles.button}
+                        onPress={this.confirmStockTake}
+                      />
+                    )}
+                    <Button
+                      type="clear"
+                      title="Report"
+                      containerStyle={styles.reportButton}
+                      titleStyle={styles.reportButtonText}
+                      onPress={this.navigateToReportStockTakeCount}
+                    />
+                  </>
                 )}
-                <Button
-                  type="clear"
-                  title="Report"
-                  containerStyle={styles.reportButton}
-                  titleStyle={styles.reportButtonText}
-                  onPress={this.navigateToReportStockTakeCount}
-                />
               </>
             )}
           </>
