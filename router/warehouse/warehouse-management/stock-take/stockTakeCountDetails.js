@@ -107,7 +107,10 @@ class StockTakeCountDetails extends React.Component {
   };
 
   navigateToReportStockTakeCount = () => {
-    this.props.navigation.navigate('ReportStockTakeCount');
+    const {stockTakeDetails} = this.state;
+    this.props.navigation.navigate('ReportStockTakeCount', {
+      productId: stockTakeDetails.id,
+    });
   };
 
   navigateToStockTakeReportDetails = () => {
