@@ -47,7 +47,10 @@ export const cleanKeyString = (value) => {
   if (newString.toLowerCase() === 'uom') {
     return newString.toUpperCase();
   } else {
-    return newString.charAt(0).toUpperCase() + newString.slice(1);
+    let arrayString = newString
+      .split(' ')
+      .map((string) => string.charAt(0).toUpperCase() + string.slice(1));
+    return arrayString.join(' ');
   }
 };
 
