@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   View,
+  RefreshControl,
 } from 'react-native';
 import {Badge, Button, SearchBar} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
@@ -29,6 +30,7 @@ class StockTakeCountList extends React.Component {
       jobData: this.props.route.params?.jobData ?? null,
       stockTakeCountList: null,
       isLoading: true,
+      isRefreshing: false,
       search: '',
       filterStatus: 'All',
     };
@@ -58,6 +60,9 @@ class StockTakeCountList extends React.Component {
   }
 
   getStockTakeProduct = async () => {
+    this.setState({
+      isRefreshing: true,
+    });
     const {jobData} = this.state;
     const result = await getData(
       `/stocks-mobile/stock-counts/${jobData.id}/products`,
@@ -69,6 +74,7 @@ class StockTakeCountList extends React.Component {
     }
     this.setState({
       isLoading: false,
+      isRefreshing: false,
     });
   };
 
@@ -155,6 +161,7 @@ class StockTakeCountList extends React.Component {
       search,
       filterStatus,
       isLoading,
+      isRefreshing,
     } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
@@ -298,6 +305,8 @@ class StockTakeCountList extends React.Component {
                   navigate={this.navigateToStockTakeCountDetails}
                 />
               )}
+              refreshing={isRefreshing}
+              onRefresh={this.getStockTakeProduct}
               keyExtractor={(item, index) => index}
               showsVerticalScrollIndicator={false}
               style={{marginBottom: 70}}

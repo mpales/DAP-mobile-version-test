@@ -29,6 +29,7 @@ class StockTakeList extends React.Component {
       search: '',
       filterStatus: 'All',
       isLoading: true,
+      isRefreshing: false,
     };
     this.handleFilterStatus.bind(this);
     this.updateSearch.bind(this);
@@ -87,6 +88,9 @@ class StockTakeList extends React.Component {
   };
 
   getStockTakeList = async () => {
+    this.setState({
+      isRefreshing: true,
+    });
     const result = await getData('/stocks-mobile/stock-counts');
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
@@ -94,6 +98,10 @@ class StockTakeList extends React.Component {
         isLoading: false,
       });
     }
+    this.setState({
+      isLoading: false,
+      isRefreshing: false,
+    });
   };
 
   navigateToStockTakeCountList = (data) => {
@@ -121,6 +129,7 @@ class StockTakeList extends React.Component {
       search,
       filterStatus,
       isLoading,
+      isRefreshing,
     } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
@@ -261,6 +270,8 @@ class StockTakeList extends React.Component {
                   navigate={this.navigateToStockTakeCountList}
                 />
               )}
+              refreshing={isRefreshing}
+              onRefresh={this.getStockTakeList}
               keyExtractor={(item, index) => index}
               showsVerticalScrollIndicator={false}
               ListEmptyComponent={this.renderEmpty}
