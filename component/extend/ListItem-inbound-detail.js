@@ -131,7 +131,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
   const isCurrentManifest = useSelector(
     (state) => state.originReducer.filters.currentManifest,
   );
-  let addAttribute = item.is_transit === undefined && item.basic.length !== null && item.basic.weight !== null && item.basic.width !== null && item.basic.height !== null && item.basic.volume !== null && item.basic.carton_pcs !== null ? false : item.is_transit !== undefined ? false : true;
+  let addAttribute = item.is_transit === undefined && item.basic !== undefined && item.barcodes.length > 0 && item.basic.length !== null && item.basic.weight !== null && item.basic.width !== null && item.basic.height !== null && item.basic.volume !== null && item.basic.carton_pcs !== null ? false : item.is_transit !== undefined ? false : true;
   let status = 'grey';
   let textstatus = 'pending';
   switch (item.status) {

@@ -81,7 +81,7 @@ class Example extends React.Component {
       if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined && manifestList.some((element) => element.pId === routes[index].params.inputCode)) {
           setBarcodeScanner(false);
           let elementItem =  manifestList.find((element) => element.pId === routes[index].params.inputCode);
-          return {...state, scanItem: routes[index].params.inputCode, dataCode: elementItem.is_transit === 1 ? 'transit' :  elementItem.barcodes[elementItem.barcodes.length -1].code_number };
+          return {...state, scanItem: routes[index].params.inputCode, dataCode: elementItem.is_transit === 1 ? 'transit' :  elementItem.barcodes.length > 0 ? elementItem.barcodes[elementItem.barcodes.length -1].code_number : 'empty'  };
       } else if(routes[index].params !== undefined && routes[index].params.manualCode !== undefined && manifestList.some((element) => element.barcodes !== undefined && element.barcodes.some((element)=> routes[index].params.manualCode === element.code_number) === true)) {
         setBarcodeScanner(false);
         let elementItem =  manifestList.find((element) => element.barcodes !== undefined && element.barcodes.some((element)=> routes[index].params.manualCode === element.code_number) === true);
@@ -158,9 +158,9 @@ class Example extends React.Component {
       let arrayBarcodes = Array.from({length:items.barcodes.length}).map((num,index)=>{
         return items.barcodes[index].code_number;
       });
-    if (arrayBarcodes.includes(dataCode) && dataCode !== 0 && dataItem === null) {
+    if (((dataCode !== '0' && arrayBarcodes.includes(dataCode)) || dataCode === 'empty' ) && dataItem === null) {
       if(this.state.indexItem === null && this.state.multipleSKU === false) {
-        let foundIndex = manifestList.filter((element) => element.barcodes !== undefined && element.barcodes.some((o)=>o.code_number === dataCode ) === true );
+        let foundIndex = manifestList.filter((element) => (dataCode === 'empty' &&  element.barcodes !== undefined && (element.barcodes.length === 0 || element.barcodes.some((o)=>o.code_number === dataCode ) === true)) || ( dataCode !== 'empty' && element.barcodes !== undefined && element.barcodes.some((o)=>o.code_number === dataCode ) === true) );
         let indexItem = manifestList.findIndex((element)=> element.pId === scanItem);
         let item = manifestList.find((element)=>element.pId === scanItem);  
         if(foundIndex.length > 1) {
@@ -212,13 +212,15 @@ class Example extends React.Component {
       let arrayBarcodes = Array.from({length:items.barcodes.length}).map((num,index)=>{
         return items.barcodes[index].code_number;
       });
+  
+    if((arrayBarcodes.includes(dataCode) || dataCode === 'empty') && detectBarcode === false){
 
-    if(arrayBarcodes.includes(dataCode) && detectBarcode === false){
       this.handleZoomInAnimation();
       if(this.state.indexItem === null && this.state.multipleSKU === false) {
-        let foundIndex = manifestList.filter((element) => element.barcodes !== undefined && element.barcodes.some((o)=>o.code_number === dataCode ) === true );
+        let foundIndex = manifestList.filter((element) => (dataCode === 'empty' &&  element.barcodes !== undefined && (element.barcodes.length === 0 || element.barcodes.some((o)=>o.code_number === dataCode ) === true)) || ( dataCode !== 'empty' && element.barcodes !== undefined && element.barcodes.some((o)=>o.code_number === dataCode ) === true) );
         let indexItem = manifestList.findIndex((element)=> element.pId === scanItem);
         let item = manifestList.find((element)=>element.pId === scanItem);  
+       
         if(foundIndex.length > 1) {
           this.setState({multipleSKU: true, filterMultipleSKU : foundIndex});
         } else {
@@ -407,7 +409,7 @@ class Example extends React.Component {
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Barcode</Text>
                         <Text style={styles.infoPackage}>
-                          {dataItem.barcodes[dataItem.barcodes.length -1].code_number}
+                          {dataItem.barcodes.length === 0 ? 'EMPTY' : dataItem.barcodes[dataItem.barcodes.length -1].code_number}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
@@ -547,7 +549,7 @@ class Example extends React.Component {
                       )}
               </View>
             ) :  dataItem === null && this.state.multipleSKU === true ? (
-              <View style={[styles.sheetPackages,{marginHorizontal: 0, marginTop: 20, maxHeight: (screen.height * 45) / 100}]}>
+              <View style={[styles.sheetPackages,{marginHorizontal: 0, marginTop: 20, maxHeight: (screen.height * 35) / 100}]}>
             <FlatList
               keyExtractor={ (item, index) => index.toString()}
               horizontal={false}
@@ -568,7 +570,7 @@ class Example extends React.Component {
                             if(ref !== null)
                             this.refBatch.current = ref;
                           }}/>
-                      {this.state.dataItem.template.attributes.map((element,index)=>{
+                      {this.state.dataItem.template.attributes !== undefined && this.state.dataItem.template.attributes.map((element,index)=>{
                         if(element.field_type === 'text'){
                           return <TemplateText {...element} ref={(ref)=>{
                             if(ref !== null)
@@ -918,22 +920,24 @@ class Example extends React.Component {
     if(batchAttr.error !== undefined){
     errors.push(batchAttr.error);
     } 
-    for (let index = 0; index < this.state.dataItem.template.attributes.length; index++) {
-      const element = this.state.dataItem.template.attributes[index];
-      const refEl = this.refAttrArray.current[index];
-      let savedAttr = refEl.getSavedAttr();
-      if(savedAttr.error === undefined){
-        if(element.field_type === 'options'){
-          attributes.push({
-            [element.name]: element.values[savedAttr]
-          }); 
+    if(this.state.dataItem.template.attributes !== undefined){
+      for (let index = 0; index < this.state.dataItem.template.attributes.length; index++) {
+        const element = this.state.dataItem.template.attributes[index];
+        const refEl = this.refAttrArray.current[index];
+        let savedAttr = refEl.getSavedAttr();
+        if(savedAttr.error === undefined){
+          if(element.field_type === 'options'){
+            attributes.push({
+              [element.name]: element.values[savedAttr]
+            }); 
+          } else {
+            attributes.push({
+              [element.name]: savedAttr
+            });
+          }
         } else {
-          attributes.push({
-            [element.name]: savedAttr
-          });
+          errors.push(savedAttr.error);
         }
-      } else {
-        errors.push(savedAttr.error);
       }
     }
     if(errors.length === 0){
