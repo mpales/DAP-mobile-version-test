@@ -17,6 +17,7 @@ import Banner from '../../../../component/banner/banner';
 // helper
 import {putData} from '../../../../component/helper/network';
 import Format from '../../../../component/helper/format';
+import {cleanKeyString} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
 
@@ -165,18 +166,21 @@ class StockTakeCountDetails extends React.Component {
                 value={stockTakeDetails.product.category}
                 fontSize={14}
               />
-              <TextList
-                title="Color"
-                value={stockTakeDetails.attributes.color ?? '-'}
-              />
-              <TextList
-                title="EXP Date"
-                value={
-                  stockTakeDetails.attributes.expiry_date !== undefined
-                    ? Format.formatDate(stockTakeDetails.attributes.expiry_date)
-                    : '-'
-                }
-              />
+              {stockTakeDetails.attributes !== undefined &&
+                Object.keys(stockTakeDetails.attributes).map((key) => {
+                  return (
+                    <TextList
+                      title={cleanKeyString(key)}
+                      value={
+                        key.includes('date')
+                          ? Format.formatDate(
+                              stockTakeDetails.attributes.expiry_date,
+                            )
+                          : stockTakeDetails.attributes[key]
+                      }
+                    />
+                  );
+                })}
               <TextList title="Banch" value={stockTakeDetails.batchNo} />
             </Card>
             {stockTakeDetails.status !== 'Completed' && (

@@ -4,12 +4,12 @@ import {Card, Button} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
-import {Picker} from '@react-native-picker/picker';
 // component
 import {TextList, TextListBig} from '../../../../component/extend/Text-list';
 // helper
 import Format from '../../../../component/helper/format';
 import {getData} from '../../../../component/helper/network';
+import {cleanKeyString} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
 
@@ -106,14 +106,21 @@ class SearchInventoryDetails extends React.Component {
                         value={item.product.category}
                         fontSize={14}
                       />
-                      <TextList
-                        title="Color"
-                        value={item.attributes.color ?? '-'}
-                      />
-                      <TextList
-                        title="EXP Date"
-                        value={Format.formatDate(item.attributes.expiry_date)}
-                      />
+                      {item.attributes !== undefined &&
+                        Object.keys(item.attributes).map((key) => {
+                          return (
+                            <TextList
+                              title={cleanKeyString(key)}
+                              value={
+                                key.includes('date')
+                                  ? Format.formatDate(
+                                      item.attributes.expiry_date,
+                                    )
+                                  : item.attributes[key]
+                              }
+                            />
+                          );
+                        })}
                       <TextList title="Batch" value={item.batchNo} />
                     </Card>
                   ))}

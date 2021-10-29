@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import {TextList, TextListBig} from '../../../../component/extend/Text-list';
 // helper
 import Format from '../../../../component/helper/format';
+import {cleanKeyString} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
 import moment from 'moment';
@@ -76,16 +77,21 @@ class ClientStorageDetails extends React.Component {
                     value={storageDetails.category}
                     fontSize={14}
                   />
-                  <TextList
-                    title="Color"
-                    value={storageDetails.attributes.color}
-                  />
-                  <TextList
-                    title="EXP Date"
-                    value={Format.formatDate(
-                      storageDetails.attributes.expiry_date,
-                    )}
-                  />
+                  {storageDetails.attributes !== undefined &&
+                    Object.keys(storageDetails.attributes).map((key) => {
+                      return (
+                        <TextList
+                          title={cleanKeyString(key)}
+                          value={
+                            key.includes('date')
+                              ? Format.formatDate(
+                                  storageDetails.attributes.expiry_date,
+                                )
+                              : storageDetails.attributes[key]
+                          }
+                        />
+                      );
+                    })}
                   <TextList title="Batch" value={storageDetails.batch_no} />
                 </>
               ) : selectedStatus === 'salesOrder' ? (
@@ -128,16 +134,24 @@ class ClientStorageDetails extends React.Component {
                     value={storageDetails.category}
                     fontSize={14}
                   />
-                  <TextList
-                    title="Color"
-                    value={storageDetails.additional.attributes?.color}
-                  />
-                  <TextList
-                    title="EXP Date"
-                    value={Format.formatDate(
-                      storageDetails.additional.attributes.expiry_date,
+                  {storageDetails.additional.attributes !== undefined &&
+                    Object.keys(storageDetails.additional.attributes).map(
+                      (key) => {
+                        return (
+                          <TextList
+                            title={cleanKeyString(key)}
+                            value={
+                              key.includes('date')
+                                ? Format.formatDate(
+                                    storageDetails.additional.attributes
+                                      .expiry_date,
+                                  )
+                                : storageDetails.additional.attributes[key]
+                            }
+                          />
+                        );
+                      },
                     )}
-                  />
                   <TextList
                     title="Batch"
                     value={storageDetails.additional.batch_no}
@@ -172,16 +186,21 @@ class ClientStorageDetails extends React.Component {
                     value={storageDetails.product_category}
                     fontSize={14}
                   />
-                  <TextList
-                    title="Color"
-                    value={storageDetails.attributes.color}
-                  />
-                  <TextList
-                    title="EXP Date"
-                    value={Format.formatDate(
-                      storageDetails.attributes.expiry_date,
-                    )}
-                  />
+                  {storageDetails.attributes !== undefined &&
+                    Object.keys(storageDetails.attributes).map((key) => {
+                      return (
+                        <TextList
+                          title={cleanKeyString(key)}
+                          value={
+                            key.includes('date')
+                              ? Format.formatDate(
+                                  storageDetails.attributes.expiry_date,
+                                )
+                              : storageDetails.attributes[key]
+                          }
+                        />
+                      );
+                    })}
                   <TextList title="Batch" value={storageDetails.batch_no} />
                 </>
               )}
