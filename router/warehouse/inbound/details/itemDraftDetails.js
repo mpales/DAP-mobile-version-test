@@ -82,8 +82,8 @@ class ConnoteDetails extends React.Component {
               <View style={[styles.detail,{paddingVertical:10}]}>
               <View style={[styles.detailSection,{paddingBottom:10}]}>
                 <DetailList title="Description" value={_itemDetail.description} />
-                <DetailList title="Barcode" value={_itemDetail.barcodes[_itemDetail.barcodes.length - 1].code_number} />
-                <DetailList title="UOM" value={_itemDetail.uom} />
+                <DetailList title="Barcode" value={ _itemDetail.barcodes.length === 0 ? 'EMPTY' : _itemDetail.barcodes[_itemDetail.barcodes.length - 1].code_number} />
+             <DetailList title="UOM" value={_itemDetail.uom} />
                 <DetailList title="Quantity" value={_itemDetail.qty} />
                 <DetailList title="Product Class" value={_itemDetail.product_class === 1 ? 'Normal Stock' : _itemDetail.product_class === 2 ? 'POSM' : _itemDetail.product_class === 3 ? 'Packaging Materials' : 'Samples'} />
                 <DetailList title="CBM" value={_itemDetail.basic.volume} />
