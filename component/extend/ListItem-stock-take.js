@@ -6,7 +6,6 @@ import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg
 import Mixins from '../../mixins';
 // helper
 import {stockTakeJobStatusColor} from '../helper/status-color';
-import {stockTakeJobStatus} from '../helper/string';
 import Format from '../helper/format';
 
 const ListItemStockTake = ({item, navigate}) => {
@@ -24,9 +23,7 @@ const ListItemStockTake = ({item, navigate}) => {
           style={[
             styles.leftList,
             {
-              backgroundColor: stockTakeJobStatusColor(
-                stockTakeJobStatus(item.status),
-              ),
+              backgroundColor: stockTakeJobStatusColor(item.status),
             },
           ]}
         />
@@ -49,14 +46,10 @@ const ListItemStockTake = ({item, navigate}) => {
           style={[
             styles.statusContainer,
             {
-              backgroundColor: stockTakeJobStatusColor(
-                stockTakeJobStatus(item.status),
-              ),
+              backgroundColor: stockTakeJobStatusColor(item.status),
             },
           ]}>
-          <Text style={styles.statusText}>
-            {stockTakeJobStatus(item.status)}
-          </Text>
+          <Text style={styles.statusText}>{item.status}</Text>
         </View>
       </ListItem>
     </ThemeProvider>
