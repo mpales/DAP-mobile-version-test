@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -11,6 +12,11 @@ import {Avatar, Button, CheckBox} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
+import RNFetchBlob from 'rn-fetch-blob';
+// component
+import Banner from '../../../../component/banner/banner';
+// helper
+import {putBlob} from '../../../../component/helper/network';
 //style
 import Mixins from '../../../../mixins';
 // icon
@@ -21,9 +27,13 @@ class StockTakeReport extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      productId: this.props.route.params?.productId ?? null,
       reasonOption: '',
       otherReason: '',
       remarks: '',
+      quantity: '',
+      isShowBanner: false,
+      errorMessage: '',
     };
   }
 
@@ -56,15 +66,139 @@ class StockTakeReport extends React.Component {
     this.props.navigation.navigate('StockTakeReportCamera');
   };
 
-  submitReport = () => {
-    this.navigateToStockTakeCountList();
+  submitReport = async () => {
+    this.setState({
+      isShowBanner: false,
+      errorMessage: '',
+    });
+    const {
+      reasonOption,
+      otherReason,
+      remarks,
+      quantity,
+      productId,
+    } = this.state;
+    if (parseInt(reasonOption) === 3 && otherReason === '') {
+      this.setState({
+        isShowBanner: true,
+        errorMessage: 'Reason Details Is Required',
+      });
+      return;
+    }
+    let pictureData = await this.getStockTakeReportPhoto();
+    let body = [
+      {
+        name: 'reportType',
+        data: reasonOption.toString(),
+      },
+      {
+        name: 'otherType',
+        data: otherReason.toString(),
+      },
+      {
+        name: 'reportedQuantity',
+        data: quantity.toString(),
+      },
+      {
+        name: 'remark',
+        data: remarks.toString(),
+      },
+      ...pictureData,
+    ];
+    putBlob(`/stocks-mobile/stock-counts/report/${productId}`, body, () => {})
+      .then((result) => {
+        if (
+          result.message !== undefined &&
+          result.message === 'Stock count successfully reported'
+        ) {
+          this.props.addStockTakeReportPhotoList([]);
+          this.props.stockTakeReportPhotoSubmitted(false);
+          this.navigateToStockTakeCountList();
+        } else if (result.errors !== undefined) {
+          this.setState({
+            isShowBanner: true,
+            errorMessage: result.errors[0].msg,
+          });
+        } else if (result.error !== undefined) {
+          this.setState({
+            isShowBanner: true,
+            errorMessage: result.error,
+          });
+        } else if (result === 'Not found') {
+          this.setState({
+            isShowBanner: true,
+            errorMessage: result,
+          });
+        }
+      })
+      .catch((error) => {
+        this.setState({
+          isShowBanner: true,
+          errorMessage: 'Something went wrong',
+        });
+      });
+  };
+
+  getStockTakeReportPhoto = async () => {
+    const {stockTakeReportPhotoList} = this.props;
+    const dirs = RNFetchBlob.fs.dirs;
+    let formData = [];
+    for (let i = 0; i < stockTakeReportPhotoList.length; i++) {
+      let newFilePathName,
+        name,
+        filename,
+        path,
+        type = '';
+      let arr = stockTakeReportPhotoList[i].split('/');
+      newFilePathName = `${dirs.DocumentDir}/${arr[arr.length - 1]}`;
+      await RNFetchBlob.fs
+        .stat(
+          Platform.OS === 'ios' ? newFilePathName : stockTakeReportPhotoList[i],
+        )
+        .then((FSStat) => {
+          name = FSStat.filename.replace('.', '-');
+          filename = FSStat.filename;
+          path = FSStat.path;
+          type = FSStat.type;
+        });
+      if (type === 'file') {
+        formData.push({
+          name: 'photos',
+          filename: filename,
+          type: 'image/jpg',
+          data: Platform.OS === 'ios' ? path : RNFetchBlob.wrap(path),
+        });
+      }
+    }
+    return formData;
+  };
+
+  closeBanner = () => {
+    this.setState({
+      isShowBanner: false,
+      errorMessage: '',
+    });
   };
 
   render() {
-    const {reasonOption, otherReason, remarks} = this.state;
+    const {
+      reasonOption,
+      otherReason,
+      remarks,
+      quantity,
+      isShowBanner,
+      errorMessage,
+    } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="default" />
+        {isShowBanner && errorMessage !== '' && (
+          <Banner
+            title={errorMessage}
+            closeBanner={this.closeBanner}
+            backgroundColor="#F1811C"
+          />
+        )}
         <ScrollView
           style={{paddingHorizontal: 20}}
           showsVerticalScrollIndicator={false}>
@@ -79,8 +213,8 @@ class StockTakeReport extends React.Component {
               textStyle={Mixins.subtitle3}
               size={25}
               containerStyle={styles.checkbox}
-              checked={reasonOption === 'damage item'}
-              onPress={() => this.handleReportOptions('damage item')}
+              checked={reasonOption === 0}
+              onPress={() => this.handleReportOptions(0)}
             />
             <CheckBox
               title="Item Missing"
@@ -91,8 +225,8 @@ class StockTakeReport extends React.Component {
               textStyle={Mixins.subtitle3}
               size={25}
               containerStyle={styles.checkbox}
-              checked={reasonOption === 'item missing'}
-              onPress={() => this.handleReportOptions('item missing')}
+              checked={reasonOption === 1}
+              onPress={() => this.handleReportOptions(1)}
             />
             <CheckBox
               title="Expired item"
@@ -103,8 +237,8 @@ class StockTakeReport extends React.Component {
               textStyle={Mixins.subtitle3}
               size={25}
               containerStyle={styles.checkbox}
-              checked={reasonOption === 'expired item'}
-              onPress={() => this.handleReportOptions('expired item')}
+              checked={reasonOption === 2}
+              onPress={() => this.handleReportOptions(2)}
             />
             <CheckBox
               title="Other"
@@ -115,10 +249,10 @@ class StockTakeReport extends React.Component {
               textStyle={Mixins.subtitle3}
               size={25}
               containerStyle={styles.checkbox}
-              checked={reasonOption === 'other'}
-              onPress={() => this.handleReportOptions('other')}
+              checked={reasonOption === 3}
+              onPress={() => this.handleReportOptions(3)}
             />
-            {reasonOption === 'other' ? (
+            {reasonOption === 3 ? (
               <TextInput
                 style={styles.textInput}
                 onChangeText={(text) => this.onChangeReasonInput(text)}
@@ -134,10 +268,10 @@ class StockTakeReport extends React.Component {
                 </Text>
                 <TextInput
                   style={styles.textInput}
-                  onChangeText={(text) => this.onChangeReasonInput(text)}
+                  onChangeText={(text) => this.setState({quantity: text})}
                   textAlignVertical="top"
                   keyboardType="number-pad"
-                  value={otherReason}
+                  value={quantity}
                 />
               </>
             )}
@@ -193,6 +327,9 @@ class StockTakeReport extends React.Component {
               buttonStyle={styles.submitButton}
               titleStyle={styles.submitText}
               onPress={this.submitReport}
+              disabledStyle={{backgroundColor: '#ABABAB'}}
+              disabledTitleStyle={{color: '#FFF'}}
+              disabled={!this.props.isStockTakeReportPhotoSubmitted}
             />
           </View>
         </ScrollView>
@@ -271,6 +408,7 @@ function mapStateToProps(state) {
   return {
     isStockTakeReportPhotoSubmitted:
       state.originReducer.filters.isStockTakeReportPhotoSubmitted,
+    stockTakeReportPhotoList: state.originReducer.stockTakeReportPhotoList,
   };
 }
 
@@ -278,6 +416,12 @@ const mapDispatchToProps = (dispatch) => {
   return {
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
+    },
+    addStockTakeReportPhotoList: (uri) => {
+      return dispatch({type: 'StockTakeReportPhotoList', payload: uri});
+    },
+    stockTakeReportPhotoSubmitted: (proof) => {
+      return dispatch({type: 'StockTakeReportPhotoSubmitted', payload: proof});
     },
   };
 };
