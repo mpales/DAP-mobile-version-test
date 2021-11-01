@@ -114,7 +114,11 @@ class StockTakeCountDetails extends React.Component {
   };
 
   navigateToStockTakeReportDetails = () => {
-    this.props.navigation.navigate('StockTakeReportDetails');
+    const {stockTakeDetails} = this.state;
+    this.props.navigation.navigate('StockTakeReportDetails', {
+      productId: stockTakeDetails.id,
+      productUOM: stockTakeDetails.productUom.packaging,
+    });
   };
 
   closeBanner = () => {
@@ -401,6 +405,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
+    },
+    setStockTakeId: (id) => {
+      return dispatch({type: 'StockTakeId', payload: id});
     },
   };
 };
