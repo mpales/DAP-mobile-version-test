@@ -37,6 +37,7 @@ class StockTakeList extends React.Component {
 
   componentDidMount() {
     this.props.navigation.addListener('focus', () => {
+      this.props.setStockTakeId(null);
       this.getStockTakeList();
       this.props.setBottomBar(true);
     });
@@ -87,20 +88,25 @@ class StockTakeList extends React.Component {
     }
   };
 
-  getStockTakeList = async () => {
+  refreshStockTakeList = async () => {
     this.setState({
       isRefreshing: true,
     });
+    await this.getStockTakeList();
+    this.setState({
+      isRefreshing: false,
+    });
+  };
+
+  getStockTakeList = async () => {
     const result = await getData('/stocks-mobile/stock-counts');
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
         jobList: result,
-        isLoading: false,
       });
     }
     this.setState({
       isLoading: false,
-      isRefreshing: false,
     });
   };
 
@@ -271,7 +277,7 @@ class StockTakeList extends React.Component {
                 />
               )}
               refreshing={isRefreshing}
-              onRefresh={this.getStockTakeList}
+              onRefresh={this.refreshStockTakeList}
               keyExtractor={(item, index) => index}
               showsVerticalScrollIndicator={false}
               ListEmptyComponent={this.renderEmpty}
@@ -358,6 +364,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
+    },
+    setStockTakeId: (id) => {
+      return dispatch({type: 'StockTakeId', payload: id});
     },
   };
 };

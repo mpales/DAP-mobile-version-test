@@ -72,6 +72,7 @@ const initialState = {
     currentIVAS: [],
     logged: false,
     ApplicationNavigational: null,
+    stockTakeId: null,
   },
 };
 
@@ -857,6 +858,14 @@ export default function appReducer(state = initialState, action) {
       return {
         ...state,
         deviceSignature: action.payload,
+      };
+    case 'StockTakeId':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          stockTakeId: action.payload,
+        },
       };
     // end
     // Do something here based on the different types of actions
