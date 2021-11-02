@@ -18,7 +18,10 @@ import Checkmark from '../../../../assets/icon/iconmonstr-check-mark-7 1mobile.s
 // component
 import DetailList from '../../../../component/extend/Card-detail';
 import ImageLoading from '../../../../component/loading/image';
+import Banner from '../../../../component/banner/banner';
 import {getData, getBlob,postData, postBlob} from '../../../../component/helper/network';
+import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
+import TouchableScale from 'react-native-touchable-scale';
 import moment from 'moment';
 const window = Dimensions.get('screen');
 class ConnoteReportDetails extends React.Component {
@@ -37,6 +40,10 @@ class ConnoteReportDetails extends React.Component {
       overlayImage : false,
       overlayImageString: null,
       overlayImageFilename : null,
+      acknowledged:false,
+      error: '',
+      activeReportId: null,
+      isShowBanner: false,
     };
     this.toggleOverlay.bind(this);
     this.renderPhotoProof.bind(this);
@@ -88,6 +95,47 @@ class ConnoteReportDetails extends React.Component {
       overlayImageFilename: item !== undefined ? ''+item.inbound_id+''+item.inbound_product_id+''+item.report_id+''+item.id+'.png' : null,
     });
   }
+  
+  checkedIcon = () => {
+    return (
+      <View
+        style={
+          styles.checked
+        }>
+        <Checkmark height="14" width="14" fill="#FFFFFF" />
+      </View>
+    );
+  };
+  
+  uncheckedIcon = () => {
+    return <View style={styles.unchecked} />;
+  };
+  acknowledgedReport = async ()=>{
+    const {receivingNumber, inboundID, activeReportId, acknowledged,resolution} = this.state;
+    let data = {
+      acknowledge: acknowledged >>> 0,
+      resolution: 'test',
+    };
+    let result = await postData('/inboundsMobile/'+inboundID+'/'+receivingNumber+'/reports/'+activeReportId,data); 
+    if(result !== 'object'){
+      this.setState({acknowledged:false});
+    } else {
+      if(result.errors !== undefined){
+        let dumpError = '';
+        result.errors.forEach(element => {
+          dumpError += element.msg + ' ';
+        });
+        this.setState({error:dumpError});
+      } else if(result.error !== undefined){
+        this.setState({error:result.error});
+      }
+    }
+  }
+  toggleCheckBox = () => {
+    this.setState({
+      acknowledged: !this.state.acknowledged,
+    });
+  };
   renderPhotoProof = ({item,index})=>{
     return (<TouchableOpacity onPress={()=>this.toggleOverlay(item)}><ImageLoading 
         ref={ ref => {
@@ -120,11 +168,13 @@ class ConnoteReportDetails extends React.Component {
         return {...item.inbound_report_photos[index],report_id:item.id,inbound_id:item.inbound_id,inbound_product_id:item.inbound_product_id}
       });
       return (
-        <TouchableHighlight
+        <TouchableScale
         key={item.key}
-        onPress={() => this._onPressSingleReports(item)}
+        onPress={() => {this.setState({activeReportId:item.id})}}
         onShowUnderlay={separators.highlight}
-        onHideUnderlay={separators.unhighlight}>
+        onHideUnderlay={separators.unhighlight}
+        activeScale={0.9}
+        >
           <Card containerStyle={styles.cardContainer} style={styles.card}>
           <View style={styles.header}>
             <Text
@@ -139,12 +189,16 @@ class ConnoteReportDetails extends React.Component {
             <DetailList title="Report By" value={item.reported_by.firstName} />
             <DetailList title="Date and Time" value={moment(item.reported_on).format('DD/MM/YYY h:mm a')} />
             <DetailList title="Photo Proof" value={''} />
-            <FlatList
+            <View style={{flexDirection:'row'}}>            
+              <FlatList
                   horizontal={true}
+                  contentContainerStyle={{flex:1}}
                   keyExtractor={(item,index)=>index}
                   data={photoData}
                   renderItem={this.renderPhotoProof}
             />
+            <ArrowDown fill="black" height="26" width="26" style={{flexShrink:1, transform:[{rotate:'-90deg'}]}}/>
+            </View>
             <Text style={styles.detailText}>Note</Text>
             <TextInput
               style={styles.note}
@@ -154,9 +208,31 @@ class ConnoteReportDetails extends React.Component {
               value={item.description}
               editable={false}
             />
+
+               {this.state.activeReportId === item.id && (
+                 <>
+                 <CheckBox
+                      title="I Acknowledge"
+                      textStyle={styles.textCheckbox}
+                      containerStyle={[styles.checkboxContainer,{paddingHorizontal:0}]}
+                      checked={this.state.acknowledged}
+                      onPress={this.toggleCheckBox}
+                      checkedIcon={this.checkedIcon()}
+                      uncheckedIcon={this.uncheckedIcon()}
+                    />
+                <Button
+                    containerStyle={{flex:1, marginHorizontal: 0,}}
+                    buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
+                    titleStyle={styles.deliveryText}
+                    title="Confirm"
+                    onPress={this.acknowledgedReport}
+                    disabled={(this.state.acknowledged === false)}
+                  />
+                  </>
+                  )}
           </View>
         </Card> 
-    </TouchableHighlight>);
+    </TouchableScale>);
     }
   checkedIcon = () => {
     return (
@@ -173,15 +249,20 @@ class ConnoteReportDetails extends React.Component {
     return <View style={styles.unchecked} />;
   };
   
-  
+  closeBanner = () => {
+    this.setState({
+      isShowBanner: false,
+    });
+  };
+
   render() {
     return (
       <>
         <StatusBar barStyle="dark-content" />
         <View style={styles.container}>
-          <View style={[styles.header,{paddingHorizontal:10}]}>
-            <Text style={styles.headerTitle}>Report Details</Text>
-          </View>
+        {this.state.isShowBanner && this.state.error !== '' && (
+          <Banner title={this.state.error} closeBanner={this.closeBanner} backgroundColor="#F1811C" />
+        )}
           <Overlay isVisible={this.state.overlayImage} onBackdropPress={this.toggleOverlay}>
             <ImageLoading 
             ref={ ref => {
@@ -203,6 +284,13 @@ class ConnoteReportDetails extends React.Component {
           <View style={styles.body}>
           <FlatList
             keyExtractor={(item,index)=>index}
+              ListHeaderComponent={()=>{
+                return (
+                  <View style={[styles.header,{paddingTop:20,paddingBottom:10}]}>
+                  <Text style={styles.headerTitle}>Report Details</Text>
+                </View>
+                );
+              }}
               data={this.state.dataReports}
               contentContainerStyle={{paddingHorizontal:10}}
               renderItem={this.renderInner}
@@ -219,7 +307,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    paddingVertical:20,
+    paddingVertical:0,
     paddingHorizontal:5,
   },
   header: {

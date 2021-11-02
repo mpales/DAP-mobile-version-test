@@ -189,7 +189,7 @@ class Warehouse extends React.Component{
             }
             const resultPallet = await getData('inboundsMobile/'+routes[index].params.number+'/pallet');
             if(resultPallet.length === 0){
-              this.setState({notifbanner: 'You need Generate New Pallet ID First'});
+              this.setState({notifbanner: 'Generate New Pallet ID First'});
             } 
             this.props.setManifestList(result.products)
             this.setState({receivingNumber: routes[index].params.number, inboundNumber: result.inbound_number,_manifest:result.products,companyname:result.client,receiptid: result.inbound_receipt[result.inbound_receipt.length -1].receipt_no, updated: true  })
@@ -208,7 +208,7 @@ class Warehouse extends React.Component{
             }
             const resultPallet = await getData('inboundsMobile/'+currentASN+'/pallet');
             if(resultPallet.length === 0){
-              this.setState({notifbanner: 'You need Generate New Pallet ID First'});
+              this.setState({notifbanner: 'Generate New Pallet ID First'});
             } 
             this.props.setManifestList(result.products)
             this.setState({receivingNumber: currentASN,inboundNumber: result.inbound_number, _manifest:result.products, companyname:result.client,receiptid:  result.inbound_receipt[result.inbound_receipt.length -1].receipt_no, updated: true })
@@ -311,7 +311,7 @@ class Warehouse extends React.Component{
                                  containerStyle={{flexShrink:1,maxHeight:20}}
                                  inputContainerStyle={{...Mixins.containedInputDefaultContainer,maxHeight:20, paddingHorizontal: 0,
                                   paddingVertical: 0}} 
-                                 inputStyle={{...Mixins.containedInputDefaultStyle,...Mixins.small3,marginHorizontal: 0}}
+                                 inputStyle={{...Mixins.containedInputDefaultStyle,...Mixins.small3,marginHorizontal: 0, color:'black'}}
             labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
             value={this.state.palletid}
                 disabled={true}

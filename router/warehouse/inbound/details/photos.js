@@ -174,8 +174,8 @@ class Photos extends React.Component {
   render() {
     return (
         <View style={[StyleSheet.absoluteFill,{backgroundColor:'white',paddingHorizontal:40,paddingVertical:20}]}>
-            <Card>
-            <Card.Title style={{textAlign:'left',...Mixins.subtitle3,color:'#424141',fontWeight:'600',lineHeight:21}}>Receiving Photo</Card.Title>
+            <Card containerStyle={{margin:0}}>
+            <Card.Title style={{textAlign:'left',...Mixins.subtitle3,color:'#424141',fontWeight:'600',lineHeight:21}}>Photo Proof Before Opening Container</Card.Title>
            
             <FlatList
             horizontal={false}
@@ -198,8 +198,8 @@ class Photos extends React.Component {
                         }}
                 title='Update Photos' />
             </Card>
-            <Card containerStyle={{marginVertical:20}}>
-            <Card.Title style={{textAlign:'left',...Mixins.subtitle3,color:'#424141',fontWeight:'600',lineHeight:21}}>Pre-Processing Photo</Card.Title>
+            <Card containerStyle={{marginVertical:10,marginHorizontal:0}}>
+            <Card.Title style={{textAlign:'left',...Mixins.subtitle3,color:'#424141',fontWeight:'600',lineHeight:21}}>Photo Proof After Opening Container</Card.Title>
             <FlatList
             horizontal={false}
             keyExtractor={(item,index)=>index}

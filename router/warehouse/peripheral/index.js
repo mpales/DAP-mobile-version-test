@@ -401,7 +401,7 @@ class Example extends React.Component {
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>Descript</Text>
+                        <Text style={styles.labelPackage}>Description</Text>
                         <Text style={styles.infoPackage}>
                           {dataItem.description}
                         </Text>
@@ -528,13 +528,7 @@ class Example extends React.Component {
                             labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                             value={String(this.state.qty)}
                             onChangeText={(val)=>{
-                              if(val){
-                                let intQty = parseInt(val);
-                                this.setState({qty: intQty !== NaN && intQty > 0 ? intQty : this.state.qty});
-                              } else {
-                                this.setState({qty:  ''});
-                              }
-                            
+                              this.setState({qty:  val});
                             }}
                             />
                           <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
@@ -570,7 +564,7 @@ class Example extends React.Component {
                             if(ref !== null)
                             this.refBatch.current = ref;
                           }}/>
-                      {this.state.dataItem.template.attributes !== undefined && this.state.dataItem.template.attributes.map((element,index)=>{
+                      {(this.state.dataItem.template !== undefined && this.state.dataItem.template !== null && this.state.dataItem.template.attributes !== undefined && this.state.dataItem.template.attributes !== null ) && this.state.dataItem.template.attributes.map((element,index)=>{
                         if(element.field_type === 'text'){
                           return <TemplateText {...element} ref={(ref)=>{
                             if(ref !== null)
@@ -920,7 +914,7 @@ class Example extends React.Component {
     if(batchAttr.error !== undefined){
     errors.push(batchAttr.error);
     } 
-    if(this.state.dataItem.template.attributes !== undefined){
+    if(this.state.dataItem.template !== undefined && this.state.dataItem.template !== null && this.state.dataItem.template.attributes !== undefined && this.state.dataItem.template.attributes !== null){
       for (let index = 0; index < this.state.dataItem.template.attributes.length; index++) {
         const element = this.state.dataItem.template.attributes[index];
         const refEl = this.refAttrArray.current[index];

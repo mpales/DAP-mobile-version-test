@@ -227,6 +227,7 @@ class List extends React.Component {
                                     index={i} 
                                     item={data} 
                                     ToManifest={()=>{
+                                        this.props.setCurrentASN(data.id);
                                         this.props.setBottomBar(false);
                                         this.props.navigation.navigate('ManifestSupervisor',   {
                                             number: data.id,
