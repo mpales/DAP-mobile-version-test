@@ -170,7 +170,9 @@ class StockTakeReportDetails extends React.Component {
                       styles.headerTitle,
                       {marginBottom: 10, color: '#E03B3B', fontSize: 20},
                     ]}>
-                    {reportData.reason}
+                    {reportData.otherType === ''
+                      ? reportData.reportType
+                      : reportData.otherType}
                   </Text>
                 </View>
                 <View>
