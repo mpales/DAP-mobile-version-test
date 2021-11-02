@@ -17,7 +17,6 @@ import StockTakeCountItem from '../../../../component/extend/ListItem-stock-take
 import Loading from '../../../../component/loading/loading';
 // helper
 import {getData} from '../../../../component/helper/network';
-import {stockTakeCountStatus} from '../../../../component/helper/string';
 import Format from '../../../../component/helper/format';
 //style
 import Mixins from '../../../../mixins';
@@ -40,9 +39,7 @@ class StockTakeCountList extends React.Component {
   }
 
   componentDidMount() {
-    this.props.navigation.addListener('focus', () => {
-      this.getStockTakeProduct();
-    });
+    this.getStockTakeProduct();
     this.props.setStockTakeId(this.state.jobData.id);
   }
 
@@ -57,6 +54,22 @@ class StockTakeCountList extends React.Component {
       if (this.state.stockTakeCountList !== null) {
         this.filteredStockTakeCountList();
       }
+    }
+    if (
+      prevProps.keyStack !== this.props.keyStack &&
+      prevProps.keyStack === 'StockTakeCountDetails' &&
+      this.props.keyStack === 'StockTakeCountList'
+    ) {
+      setTimeout(() => {
+        this.getStockTakeProduct();
+      }, 1000);
+    }
+    if (
+      prevProps.keyStack !== this.props.keyStack &&
+      prevProps.keyStack === 'ReportStockTakeCount' &&
+      this.props.keyStack === 'StockTakeCountList'
+    ) {
+      this.getStockTakeProduct();
     }
   }
 
@@ -123,14 +136,14 @@ class StockTakeCountList extends React.Component {
       if (filterStatus !== 'All') {
         filteredStockTakeCountList = filteredStockTakeCountList.filter(
           (job) => {
-            return stockTakeCountStatus(job.status) === filterStatus;
+            return job.status === filterStatus;
           },
         );
       }
     } else {
       if (filterStatus !== 'All') {
         filteredStockTakeCountList = stockTakeCountList.filter((job) => {
-          return stockTakeCountStatus(job.status) === filterStatus;
+          return job.status === filterStatus;
         });
       }
     }
@@ -432,56 +445,10 @@ const styles = StyleSheet.create({
   },
 });
 
-const STOCKTAKECOUNT = [
-  {
-    warehouse: 'KEPPEL',
-    status: 'Waiting',
-    location: 'JP2 C05-002',
-    pallet: 'JP2 C05-002',
-    itemCode: '561961',
-    description: 'DAP ITEMS',
-    quantity: '2000',
-    UOM: 'PCS',
-    grade: '01',
-  },
-  {
-    warehouse: 'KEPPEL',
-    status: 'In Progress',
-    location: 'JP2 C05-002',
-    pallet: 'JP2 C05-002',
-    itemCode: '561961',
-    description: 'DAP ITEMS',
-    quantity: '2000',
-    UOM: 'PCS',
-    grade: '01',
-  },
-  {
-    warehouse: 'KEPPEL',
-    status: 'Reported',
-    location: 'JP2 C05-002',
-    pallet: 'JP2 C05-002',
-    itemCode: '561961',
-    description: 'DAP ITEMS',
-    quantity: '2000',
-    UOM: 'PCS',
-    grade: '01',
-  },
-
-  {
-    warehouse: 'KEPPEL',
-    status: 'Waiting',
-    location: 'JP2 C05-002',
-    pallet: 'JP2 C05-002',
-    itemCode: '561961',
-    description: 'DAP ITEMS',
-    quantity: '2000',
-    UOM: 'PCS',
-    grade: '01',
-  },
-];
-
 function mapStateToProps(state) {
-  return {};
+  return {
+    keyStack: state.originReducer.filters.keyStack,
+  };
 }
 
 const mapDispatchToProps = (dispatch) => {
