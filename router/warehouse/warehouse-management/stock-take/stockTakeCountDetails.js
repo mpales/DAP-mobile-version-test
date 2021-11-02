@@ -40,6 +40,13 @@ class StockTakeCountDetails extends React.Component {
     this.handleInput.bind(this);
   }
 
+  componentDidMount() {
+    const {stockTakeDetails} = this.state;
+    if (stockTakeDetails !== null && stockTakeDetails.status === 'Waiting') {
+      this.lockUnlockProduct(3);
+    }
+  }
+
   componentDidUpdate(prevProps, prevState) {
     if (prevState.inputQuantity !== this.state.inputQuantity) {
       if (this.state.inputQuantity < 0) {
@@ -47,6 +54,13 @@ class StockTakeCountDetails extends React.Component {
           inputQuantity: 0,
         });
       }
+    }
+  }
+
+  componentWillUnmount() {
+    const {stockTakeDetails} = this.state;
+    if (stockTakeDetails !== null && stockTakeDetails.status === 'Waiting') {
+      this.lockUnlockProduct(2);
     }
   }
 
@@ -81,6 +95,15 @@ class StockTakeCountDetails extends React.Component {
         inputQuantity: this.state.inputQuantity - 1,
       });
     }
+  };
+
+  lockUnlockProduct = async (status) => {
+    const {stockTakeDetails} = this.state;
+    const {stockTakeId} = this.props;
+    const result = await putData(
+      `/stocks-mobile/stock-counts/${stockTakeId}/products/${stockTakeDetails.id}/status/${status}/lock-unlock`,
+    );
+    console.log(result);
   };
 
   confirmStockTake = async () => {
@@ -401,6 +424,7 @@ const STOCKTAKEDETAIL = {
 function mapStateToProps(state) {
   return {
     stockTakeId: state.originReducer.filters.stockTakeId,
+    keyStack: state.originReducer.filters.keyStack,
   };
 }
 

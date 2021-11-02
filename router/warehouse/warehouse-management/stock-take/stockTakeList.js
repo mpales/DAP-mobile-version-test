@@ -16,7 +16,6 @@ import StockTakeItem from '../../../../component/extend/ListItem-stock-take';
 import Loading from '../../../../component/loading/loading';
 // helper
 import {getData} from '../../../../component/helper/network';
-import {stockTakeJobStatus} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
 
@@ -74,13 +73,13 @@ class StockTakeList extends React.Component {
         });
         if (filterStatus !== 'All') {
           filteredJobList = filteredJobList.filter((job) => {
-            return stockTakeJobStatus(job.status) === filterStatus;
+            return job.status === filterStatus;
           });
         }
       } else {
         if (filterStatus !== 'All') {
           filteredJobList = jobList.filter((job) => {
-            return stockTakeJobStatus(job.status) === filterStatus;
+            return job.status === filterStatus;
           });
         }
       }
