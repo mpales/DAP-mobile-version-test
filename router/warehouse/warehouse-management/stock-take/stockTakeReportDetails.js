@@ -11,17 +11,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Button, Card, CheckBox, Overlay} from 'react-native-elements';
+import {Card, Overlay} from 'react-native-elements';
 import {connect} from 'react-redux';
 import mixins from '../../../../mixins';
 import moment from 'moment';
 // component
 import {TextList} from '../../../../component/extend/Text-list';
-import DetailList from '../../../../component/extend/Card-detail';
 import FormatHelper from '../../../../component/helper/format';
 import ImageLoading from '../../../../component/loading/image';
 // helper
-import {getBlob, postData} from '../../../../component/helper/network';
+import {getBlob, getData} from '../../../../component/helper/network';
 // icon
 import Checkmark from '../../../../assets/icon/iconmonstr-check-mark-2 (1) 1mobile.svg';
 
@@ -34,13 +33,15 @@ class StockTakeReportDetails extends React.Component {
     super(props);
     this.state = {
       productId: this.props.route.params?.productId ?? null,
-      selectedReportId: null,
+      productUOM: this.props.route.params?.productUOM ?? null,
+      reportData: null,
       resolution: '',
       overlayImage: false,
       overlayImageString: null,
       overlayImageFilename: null,
       isMounted: false,
       acknowledged: false,
+      isLoading: true,
     };
     this.toggleCheckBox.bind(this);
     this.toggleOverlay.bind(this);
@@ -54,58 +55,55 @@ class StockTakeReportDetails extends React.Component {
         this.overlayThumb.init();
       }
     }
-    if (prevState.isMounted !== this.state.isMounted) {
+    if (prevState.reportData !== this.state.reportData) {
       this.initPhotoThumb();
-    }
-    if (prevState.selectedReportId !== this.state.selectedReportId) {
-      if (this.state.selectedReportId === null) {
-        this.initPhotoThumb();
-      }
     }
   }
 
   componentDidMount() {
+    this.getStockCountProductReport();
     this.setState({
       isMounted: true,
     });
   }
 
+  getStockCountProductReport = async () => {
+    const {productId} = this.state;
+    const {stockTakeId} = this.props;
+    const result = await getData(
+      `/stocks-mobile/stock-counts/${stockTakeId}/products/${productId}/reports`,
+    );
+    if (typeof result === 'object' && result.errros === undefined) {
+      this.setState({
+        reportData: result,
+        isLoading: false,
+      });
+      console.log(result);
+    }
+  };
+
   initPhotoThumb = () => {
-    REPORTDATA.photos.forEach((element) => {
-      this.arrayImageProcessingRef[element.photoId].init();
+    const {reportData} = this.state;
+    reportData.photo.forEach((element) => {
+      this.arrayImageProcessingRef[element.id].init();
     });
   };
 
-  toggleOverlay = (item, reportId) => {
+  toggleOverlay = (item) => {
     const {overlayImage, showAllReport, productId} = this.state;
+    const {stockTakeId} = this.props;
     this.setState({
       overlayImage: !overlayImage,
-      overlayImageString: `https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//84/MTA-3060811/kardus-box_kardus-dus-karton-box-polos-packing-kecil-20x10x8_full02.jpg`,
-      overlayImageFilename: item.photoId,
+      overlayImageString: `	
+      /stocks-mobile/stock-counts/${stockTakeId}/products/${productId}/reports/${item.id}/photo`,
+      overlayImageFilename: item.id,
     });
-    // this.setState({
-    //   overlayImage: !overlayImage,
-    //   overlayImageString: `/cmobile/receive/connote-details/${
-    //     this.props.manifestId
-    //   }/${
-    //     showAllReport ? 'manifest' : productId
-    //   }/report-photo/full/${reportId}/${item.photoId}`,
-    //   overlayImageFilename: item.photoId,
-    // });
   };
 
   toggleCheckBox = () => {
     const {acknowledged} = this.state;
     this.setState({
       acknowledged: !acknowledged,
-    });
-  };
-
-  selectReport = (reportId) => {
-    this.setState({
-      selectedReportId: this.state.selectedReportId === null ? reportId : null,
-      resolution: '',
-      acknowledged: false,
     });
   };
 
@@ -127,31 +125,23 @@ class StockTakeReportDetails extends React.Component {
     });
   };
 
-  renderPhotoProof = (item, reportId) => {
+  renderPhotoProof = (item) => {
     const {productId} = this.state;
+    const {stockTakeId} = this.props;
     return (
-      <TouchableOpacity onPress={() => this.toggleOverlay(item, reportId)}>
+      <TouchableOpacity onPress={() => this.toggleOverlay(item)}>
         <ImageLoading
           ref={(ref) => {
-            this.arrayImageProcessingRef[item.photoId] = ref;
+            this.arrayImageProcessingRef[item.id] = ref;
           }}
           callbackToFetch={async (indicatorTick) => {
             return await getBlob(
-              'https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//84/MTA-3060811/kardus-box_kardus-dus-karton-box-polos-packing-kecil-20x10x8_full02.jpg',
-              {filename: `${item.photoId}.jpg`},
+              `/stocks-mobile/stock-counts/${stockTakeId}/products/${productId}/reports/${item.id}/thumb`,
+              {filename: item.id + '.jpg'},
               (received, total) => {
                 indicatorTick(received);
               },
             );
-            // return await getBlob(
-            //   `/cmobile/receive/connote-details/${this.props.manifestId}/${
-            //     showAllReport ? 'manifest' : productId
-            //   }/report-photo/thumbs/${reportId}/${item.photoId}`,
-            //   {filename: item.photoId + '.jpg'},
-            //   (received, total) => {
-            //     indicatorTick(received);
-            //   },
-            // );
           }}
           containerStyle={{width: 65, height: 65, margin: 5}}
           style={{width: 65, height: 65, backgroundColor: 'black'}}
@@ -163,91 +153,91 @@ class StockTakeReportDetails extends React.Component {
   };
 
   render() {
-    const {reportedBy, dateTime, notes, reason, quantity, UOM} = REPORTDATA;
+    const {reportData, isLoading, productUOM} = this.state;
     return (
-      <>
+      <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" />
-        <SafeAreaView style={styles.container}>
+        <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Report Details</Text>
           </View>
-          <Overlay
-            isVisible={this.state.overlayImage}
-            onBackdropPress={this.toggleOverlay}>
-            <ImageLoading
-              ref={(ref) => {
-                this.overlayThumb = ref;
-              }}
-              callbackToFetch={async (indicatorTick) => {
-                return await getBlob(
-                  this.state.overlayImageString,
-                  {filename: this.state.overlayImageFilename},
-                  (received, total) => {
-                    indicatorTick(received.reportPhotoThumb);
-                  },
-                );
-              }}
-              containerStyle={{
-                width: window.width * 0.8,
-                height: window.width * 0.8,
-              }}
-              style={{
-                width: window.width * 0.8,
-                height: window.width * 0.8,
-                backgroundColor: 'black',
-              }}
-              imageStyle={{
-                width: window.width * 0.8,
-                height: window.width * 0.8,
-              }}
-              imageContainerStyle={{}}
-            />
-          </Overlay>
-          <View style={styles.body}>
-            <Card containerStyle={styles.cardContainer} style={styles.card}>
-              <View style={styles.header}>
-                <Text
-                  style={[
-                    styles.headerTitle,
-                    {marginBottom: 10, color: '#E03B3B', fontSize: 20},
-                  ]}>
-                  {reason}
-                </Text>
-              </View>
-              <View style={styles.detail}>
-                <TextList
-                  title="Report By"
-                  value={`${reportedBy.firstName} ${reportedBy.lastName}`}
-                />
-                <TextList
-                  title="Date and Time"
-                  value={FormatHelper.formatDateTime(dateTime)}
-                />
-                <TextList title="Quantity" value={quantity} />
-                <TextList title="UOM" value={UOM} />
-                <TextList title="Photo Proof" value="" />
-                <FlatList
-                  horizontal={true}
-                  keyExtractor={(item, index) => index}
-                  data={REPORTDATA.photos}
-                  renderItem={({item, index}) =>
-                    this.renderPhotoProof(item, REPORTDATA.reportId)
-                  }
-                />
-                <Text style={styles.detailText}>Remarks</Text>
-                <TextInput
-                  style={styles.note}
-                  multiline={true}
-                  numberOfLines={3}
-                  textAlignVertical="top"
-                  value={notes}
-                  editable={false}
-                />
-              </View>
-            </Card>
-          </View>
-        </SafeAreaView>
-      </>
+          {!isLoading && reportData !== null && (
+            <View style={styles.body}>
+              <Card containerStyle={styles.cardContainer} style={styles.card}>
+                <View style={styles.header}>
+                  <Text
+                    style={[
+                      styles.headerTitle,
+                      {marginBottom: 10, color: '#E03B3B', fontSize: 20},
+                    ]}>
+                    {reportData.reason}
+                  </Text>
+                </View>
+                <View>
+                  <TextList
+                    title="Report By"
+                    value={`${reportData.reportedBy.firstName} ${reportData.reportedBy.lastName}`}
+                  />
+                  <TextList
+                    title="Date and Time"
+                    value={FormatHelper.formatDateTime(reportData.reportedOn)}
+                  />
+                  <TextList title="Quantity" value={reportData.quantity} />
+                  <TextList title="UOM" value={productUOM} />
+                  <TextList title="Photo Proof" value="" />
+                  <FlatList
+                    horizontal={true}
+                    keyExtractor={(item, index) => index}
+                    data={reportData.photo}
+                    renderItem={({item, index}) => this.renderPhotoProof(item)}
+                  />
+                  <Text style={styles.detailText}>Remarks</Text>
+                  <TextInput
+                    style={styles.note}
+                    multiline={true}
+                    numberOfLines={3}
+                    textAlignVertical="top"
+                    value={reportData.remark}
+                    editable={false}
+                  />
+                </View>
+              </Card>
+            </View>
+          )}
+        </ScrollView>
+        <Overlay
+          isVisible={this.state.overlayImage}
+          onBackdropPress={this.toggleOverlay}>
+          <ImageLoading
+            ref={(ref) => {
+              this.overlayThumb = ref;
+            }}
+            callbackToFetch={async (indicatorTick) => {
+              return await getBlob(
+                this.state.overlayImageString,
+                {filename: this.state.overlayImageFilename},
+                (received, total) => {
+                  indicatorTick(received.reportPhotoThumb);
+                },
+              );
+            }}
+            containerStyle={{
+              width: window.width * 0.8,
+              height: window.width * 0.8,
+            }}
+            style={{
+              width: window.width * 0.8,
+              height: window.width * 0.8,
+              backgroundColor: 'black',
+            }}
+            imageStyle={{
+              width: window.width * 0.8,
+              height: window.width * 0.8,
+            }}
+            imageContainerStyle={{}}
+          />
+        </Overlay>
+      </SafeAreaView>
     );
   }
 }
@@ -293,7 +283,6 @@ const styles = StyleSheet.create({
   },
   body: {
     flexShrink: 1,
-    marginBottom: 20,
   },
   cardContainer: {
     borderRadius: 5,
@@ -359,7 +348,9 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  return {};
+  return {
+    stockTakeId: state.originReducer.filters.stockTakeId,
+  };
 };
 
 const mapDispatchToProps = (dispatch) => {

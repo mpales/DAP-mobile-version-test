@@ -85,11 +85,12 @@ class StockTakeCountDetails extends React.Component {
 
   confirmStockTake = async () => {
     const {inputQuantity, stockTakeDetails} = this.state;
+    const {stockTakeId} = this.props;
     const data = {
       quantity: inputQuantity === 0 ? 'non-blind' : inputQuantity,
     };
     const result = await putData(
-      `/stocks-mobile/stock-counts/confirm/${stockTakeDetails.id}`,
+      `/stocks-mobile/stock-counts/${stockTakeId}/products/${stockTakeDetails.id}/confirm`,
       data,
     );
     if (result?.message === 'Stock Count successfully confirmed') {
@@ -114,7 +115,11 @@ class StockTakeCountDetails extends React.Component {
   };
 
   navigateToStockTakeReportDetails = () => {
-    this.props.navigation.navigate('StockTakeReportDetails');
+    const {stockTakeDetails} = this.state;
+    this.props.navigation.navigate('StockTakeReportDetails', {
+      productId: stockTakeDetails.id,
+      productUOM: stockTakeDetails.productUom.packaging,
+    });
   };
 
   closeBanner = () => {
@@ -394,13 +399,18 @@ const STOCKTAKEDETAIL = {
 };
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    stockTakeId: state.originReducer.filters.stockTakeId,
+  };
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
+    },
+    setStockTakeId: (id) => {
+      return dispatch({type: 'StockTakeId', payload: id});
     },
   };
 };
