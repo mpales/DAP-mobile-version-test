@@ -13,6 +13,9 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 //component
 import Relocation from '../../../../component/extend/ListItem-relocation';
+import Loading from '../../../../component/loading/loading';
+// helper
+import {getData} from '../../../../component/helper/network';
 //style
 import Mixins from '../../../../mixins';
 import moment from 'moment';
@@ -25,9 +28,17 @@ class RelocationList extends React.Component {
       jobList: STOCK,
       search: '',
       filterStatus: 'All',
+      isLoading: true,
+      isRefreshing: false,
     };
     this.handleFilterStatus.bind(this);
     this.updateSearch.bind(this);
+  }
+
+  componentDidMount() {
+    this.props.navigation.addListener('focus', () => {
+      this.getRelocatonJobList();
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -38,6 +49,28 @@ class RelocationList extends React.Component {
       this.filterJoblist();
     }
   }
+
+  refreshRelocationList = async () => {
+    this.setState({
+      isRefreshing: true,
+    });
+    await this.getRelocatonJobList();
+    this.setState({
+      isRefreshing: false,
+    });
+  };
+
+  getRelocatonJobList = async () => {
+    const result = await getData('/stocks/stock-relocations');
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        jobList: result,
+      });
+    }
+    this.setState({
+      isLoading: false,
+    });
+  };
 
   updateSearch = (search) => {
     this.setState({search});
@@ -85,111 +118,142 @@ class RelocationList extends React.Component {
     this.props.navigation.navigate('RequestRelocation');
   };
 
+  renderEmpty = () => {
+    return (
+      <View
+        style={{
+          marginTop: '50%',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <Text style={{...Mixins.subtitle3}}>No Job List</Text>
+      </View>
+    );
+  };
+
   render() {
-    const {search, filterStatus, jobList, filteredJobList} = this.state;
+    const {
+      search,
+      filterStatus,
+      jobList,
+      filteredJobList,
+      isLoading,
+      isRefreshing,
+    } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: 15,
-            paddingHorizontal: 20,
-          }}>
-          <Text style={styles.searchTitle}>Search</Text>
-          <Button
-            buttonStyle={{
-              ...Mixins.bgButtonPrimary,
-              paddingTop: 0,
-              paddingBottom: 0,
-            }}
-            title="Request Relocation"
-            titleStyle={{...Mixins.subtitle3, lineHeight: 20}}
-            onPress={this.navigateToRequestRelocation}
-          />
-        </View>
-        <SearchBar
-          onChangeText={this.updateSearch}
-          value={this.state.search}
-          lightTheme={true}
-          inputStyle={styles.searchInputText}
-          searchIcon=""
-          containerStyle={styles.searchContainer}
-          inputContainerStyle={styles.searchInputContainer}
-        />
-        <ScrollView
-          style={styles.badgeContainer}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}>
-          <Badge
-            value="All"
-            onPress={() => this.handleFilterStatus('All')}
-            badgeStyle={
-              this.state.filterStatus === 'All'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'All'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-          <Badge
-            value="Waiting"
-            onPress={() => this.handleFilterStatus('Waiting')}
-            badgeStyle={
-              this.state.filterStatus === 'Waiting'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'Waiting'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-          <Badge
-            value="In Progress"
-            onPress={() => this.handleFilterStatus('In Progress')}
-            badgeStyle={
-              this.state.filterStatus === 'In Progress'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'In Progress'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-          <Badge
-            value="Completed"
-            onPress={() => this.handleFilterStatus('Completed')}
-            badgeStyle={
-              this.state.filterStatus === 'Completed'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'Completed'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-        </ScrollView>
-        <FlatList
-          data={
-            search === '' && filterStatus === 'All' ? jobList : filteredJobList
-          }
-          renderItem={({item, index}) => (
-            <Relocation item={item} navigate={this.navigateToDetails} />
-          )}
-          keyExtractor={(item, index) => index}
-          showsVerticalScrollIndicator={false}
-        />
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: 15,
+                paddingHorizontal: 20,
+              }}>
+              <Text style={styles.searchTitle}>Search</Text>
+              <Button
+                buttonStyle={{
+                  ...Mixins.bgButtonPrimary,
+                  paddingTop: 0,
+                  paddingBottom: 0,
+                }}
+                title="Request Relocation"
+                titleStyle={{...Mixins.subtitle3, lineHeight: 20}}
+                onPress={this.navigateToRequestRelocation}
+              />
+            </View>
+            <SearchBar
+              onChangeText={this.updateSearch}
+              value={this.state.search}
+              lightTheme={true}
+              inputStyle={styles.searchInputText}
+              searchIcon=""
+              containerStyle={styles.searchContainer}
+              inputContainerStyle={styles.searchInputContainer}
+            />
+            <ScrollView
+              style={styles.badgeContainer}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}>
+              <Badge
+                value="All"
+                onPress={() => this.handleFilterStatus('All')}
+                badgeStyle={
+                  this.state.filterStatus === 'All'
+                    ? styles.badgeSelected
+                    : styles.badge
+                }
+                textStyle={
+                  this.state.filterStatus === 'All'
+                    ? styles.badgeTextSelected
+                    : styles.badgeText
+                }
+              />
+              <Badge
+                value="Waiting"
+                onPress={() => this.handleFilterStatus('Waiting')}
+                badgeStyle={
+                  this.state.filterStatus === 'Waiting'
+                    ? styles.badgeSelected
+                    : styles.badge
+                }
+                textStyle={
+                  this.state.filterStatus === 'Waiting'
+                    ? styles.badgeTextSelected
+                    : styles.badgeText
+                }
+              />
+              <Badge
+                value="In Progress"
+                onPress={() => this.handleFilterStatus('In Progress')}
+                badgeStyle={
+                  this.state.filterStatus === 'In Progress'
+                    ? styles.badgeSelected
+                    : styles.badge
+                }
+                textStyle={
+                  this.state.filterStatus === 'In Progress'
+                    ? styles.badgeTextSelected
+                    : styles.badgeText
+                }
+              />
+              <Badge
+                value="Completed"
+                onPress={() => this.handleFilterStatus('Completed')}
+                badgeStyle={
+                  this.state.filterStatus === 'Completed'
+                    ? styles.badgeSelected
+                    : styles.badge
+                }
+                textStyle={
+                  this.state.filterStatus === 'Completed'
+                    ? styles.badgeTextSelected
+                    : styles.badgeText
+                }
+              />
+            </ScrollView>
+            <FlatList
+              data={
+                search === '' && filterStatus === 'All'
+                  ? jobList
+                  : filteredJobList
+              }
+              renderItem={({item, index}) => (
+                <Relocation item={item} navigate={this.navigateToDetails} />
+              )}
+              refreshing={isRefreshing}
+              onRefresh={this.refreshRelocationList}
+              keyExtractor={(item, index) => index}
+              showsVerticalScrollIndicator={false}
+              ListEmptyComponent={this.renderEmpty}
+            />
+          </>
+        )}
       </SafeAreaProvider>
     );
   }
