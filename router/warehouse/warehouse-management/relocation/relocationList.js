@@ -87,10 +87,10 @@ class RelocationList extends React.Component {
     if (search.length > 0) {
       filteredJobList = jobList.filter((job) => {
         return (
-          job.client.toLowerCase().includes(search.toLowerCase()) ||
-          job.jobId.toLowerCase().includes(search.toLowerCase()) ||
+          job.clientName.toLowerCase().includes(search.toLowerCase()) ||
+          job.code.toLowerCase().includes(search.toLowerCase()) ||
           job.itemCode.toLowerCase().includes(search.toLowerCase()) ||
-          job.warehouse.toLowerCase().includes(search.toLowerCase())
+          job.warehouseNameFrom.toLowerCase().includes(search.toLowerCase())
         );
       });
       if (filterStatus !== 'All') {
