@@ -20,7 +20,7 @@ import {
   RefreshControl,
   ActivityIndicator
 } from 'react-native';
-import {Avatar, Card, Overlay, Button, SearchBar, Badge, Input} from 'react-native-elements';
+import {Avatar, Card, Overlay, Button, SearchBar, Badge, Input, Tooltip} from 'react-native-elements';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect, Provider} from 'react-redux';
@@ -194,25 +194,35 @@ class Warehouse extends React.Component{
           style={styles.body}>
             <View style={[styles.sectionContent,{marginTop: 20}]}>
             <View style={[styles.sectionContentTitle, {flexDirection: 'row'}]}>
-            <View style={[styles.titleHead,{flexShrink :1,minWidth: 180}]}>
+            <View style={[styles.titleHead,{flex :1, paddingRight:20}]}>
             <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{this.state.inboundNumber}</Text>
-            <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{this.state.companyname}</Text>
-            </View>
-            <View style={[styles.contentHead,{flex: 1,alignSelf:'flex-end', flexDirection: 'column'}]}>
+            <Tooltip 
+            withPointer={true} 
+            skipAndroidStatusBar ={true}  
+            popover={<Text>Info here</Text>} 
+            width={300} 
+            containerStyle={{left:20}}>
             <Button
-              containerStyle={{width: '100%',justifyContent: 'center',height:20,marginTop:2}}
+              containerStyle={{width: '100%',justifyContent: 'center', marginTop:9}}
+              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0, backgroundColor:'#121C78'}]}
+              titleStyle={[styles.deliveryText,{lineHeight:36,fontWeight:'400'}]}
+              title="Remarks"
+              disabledTitleStyle={[styles.deliveryText,{lineHeight:36,fontWeight:'400'}]}
+              disabledStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0, backgroundColor:'#121C78'}]}
+              disabled={true}
+            />
+            </Tooltip>
+            </View>
+            <View style={[styles.contentHead,{flex: 1}]}>
+            <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{this.state.companyname}</Text>
+            <Button
+              containerStyle={{width: '100%',justifyContent: 'center',marginTop:9}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0}]}
-              titleStyle={[styles.deliveryText,{lineHeight:21,fontWeight:'400'}]}
+              titleStyle={[styles.deliveryText,{lineHeight:36,fontWeight:'400'}]}
               onPress={()=>{
                 this.props.navigation.navigate('PhotosDraftSPV', {number:this.state.receivingNumber})
               }}
               title="Inbound Photos"
-            />
-              <Button
-              containerStyle={{width: '100%',justifyContent: 'center',height:20, marginTop:9}}
-              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0, backgroundColor:'#121C78'}]}
-              titleStyle={[styles.deliveryText,{lineHeight:21,fontWeight:'400'}]}
-              title="Remarks"
             />
             </View>
             </View>
