@@ -32,12 +32,12 @@ const styles = {
         lineHeight: 18,
       },
       containerCheckbox: {
-        flexDirection: 'row',
-        flex: 1,
+        flexDirection: 'column',
+        flexShrink: 1,
         justifyContent: 'center',
       },
       checkboxContainer: {
-        flex:1,
+        flexShrink:1,
         borderWidth: 0,
         backgroundColor: 'transparent',
         margin: 0,

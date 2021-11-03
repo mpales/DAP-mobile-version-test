@@ -157,9 +157,9 @@ class App extends React.Component<IProps, IState> {
       }
       let user = {
         id: 0,
-        role: type,
+        role: role,
         name: this.state.email,
-        type: role,
+        type: type,
         userRights: result.userRights,
       };
       this.props.login(user);
