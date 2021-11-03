@@ -14,7 +14,7 @@ export const TextList = ({title, value}) => (
 
 export const TextListBig = ({title, value, fontSize}) => (
   <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-    <View>
+    <View style={{width: 90}}>
       <Text
         style={
           fontSize === undefined
@@ -64,7 +64,7 @@ export const CustomTextList = ({title, value, separateQuantity}) => {
       ) : (
         <Text
           style={
-            title === 'Quantity' || (title === 'Grade' && value === 'expired')
+            title === 'Quantity' || title === 'Grade'
               ? [styles.valueText, {color: '#E03B3B', fontWeight: 'bold'}]
               : styles.valueText
           }>
