@@ -25,7 +25,7 @@ class RelocationList extends React.Component {
     super(props);
     this.state = {
       filteredJobList: null,
-      jobList: STOCK,
+      jobList: null,
       search: '',
       filterStatus: 'All',
       isLoading: true,
@@ -108,9 +108,11 @@ class RelocationList extends React.Component {
     this.setState({filteredJobList: filteredJobList});
   };
 
-  navigateToDetails = () => {
+  navigateToDetails = (relocationId) => {
     this.props.setBottomBar(false);
-    this.props.navigation.navigate('RelocationDetails');
+    this.props.navigation.navigate('RelocationDetails', {
+      relocationId: relocationId,
+    });
   };
 
   navigateToRequestRelocation = () => {
@@ -325,80 +327,6 @@ const styles = StyleSheet.create({
     color: 'white',
   },
 });
-const STOCK = [
-  {
-    jobId: '09123',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'Toberto',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-    status: 'Waiting',
-  },
-  {
-    jobId: '09123',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'Roberto',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-    status: 'Completed',
-  },
-  {
-    jobId: '09123',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'Boberto',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-    status: 'Waiting',
-  },
-  {
-    jobId: '09123',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'Foberto',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-    status: 'In Progress',
-  },
-  {
-    jobId: '09123',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'Goberto',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-    status: 'Completed',
-  },
-  {
-    jobId: '09123',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'Friberg',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-    status: 'In Progress',
-  },
-];
 
 function mapStateToProps(state) {
   return {};

@@ -6,6 +6,11 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 // component
 import {TextList, TextListBig} from '../../../../component/extend/Text-list';
+import Loading from '../../../../component/loading/loading';
+import Banner from '../../../../component/banner/banner';
+// helper
+import {getData} from '../../../../component/helper/network';
+import Format from '../../../../component/helper/format';
 //style
 import Mixins from '../../../../mixins';
 import moment from 'moment';
@@ -14,111 +19,174 @@ class RelocationDetails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      relocationJobId: null,
-      relocateFrom: RELOCATEFROM,
-      relocateTo: RELOCATETO,
+      relocationId: this.props.route.params?.relocationId ?? null,
+      relocationDetails: null,
+      errorMessage: '',
+      isLoading: true,
     };
   }
+
+  componentDidMount() {
+    this.getRelocationJobDetails();
+  }
+
+  getRelocationJobDetails = async () => {
+    const {relocationId} = this.state;
+    if (relocationId === null) return;
+    const result = await getData(
+      `/stocks/stock-relocations/${relocationId}/details`,
+    );
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        relocationDetails: result,
+      });
+    } else if (result.error !== undefined) {
+      this.setState({
+        errorMessage: result.error,
+      });
+    }
+    this.setState({isLoading: false});
+  };
+
+  closeBanner = () => {
+    this.setState({
+      errorMessage: '',
+    });
+  };
 
   navigateToConfirmRelocation = () => {
     this.props.navigation.navigate('ConfirmRelocation');
   };
 
   render() {
-    const {relocateFrom, relocateTo} = this.state;
+    const {errorMessage, isLoading, relocationDetails} = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
-        <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
-          <Text style={styles.title}>Relocate From</Text>
-          <Card containerStyle={styles.cardContainer}>
-            <TextList title="Warehouse" value={relocateFrom.warehouse} />
-            <TextList
-              title="Job Request Date"
-              value={relocateFrom.jobRequestDate}
-            />
-            <TextList title="Client" value={relocateFrom.client} />
-            <TextList title="Location" value={relocateFrom.location} />
-            <TextList title="Item Code" value={relocateFrom.itemCode} />
-            <TextList title="Description" value={relocateFrom.description} />
-            <TextList title="Request By" value={relocateFrom.requestBy} />
-            <TextList title="Grade" value={relocateFrom.grade} />
-            <TextList title="Expiry Date" value={relocateFrom.expiryDate} />
-            <TextList title="Batch No" value={relocateFrom.batchNo} />
-            <TextList title="Reason Code" value={relocateFrom.reasonCode} />
-            <TextList title="Remarks" value={relocateFrom.remarks} />
-            <View style={{borderWidth: 1, borderRadius: 5, padding: 10}}>
-              <TextListBig title="Quantity" value={relocateFrom.quantity} />
-              <TextListBig title="UOM" value={relocateFrom.UOM} />
-            </View>
-          </Card>
-          <View style={styles.blueContainer}>
-            <View style={{flex: 1, flexDirection: 'row'}}>
-              <View style={{flex: 1}}>
-                <Text style={styles.blueContainerText}>Move Quantity</Text>
-              </View>
-              <View style={{flex: 1}}>
-                <Text style={styles.blueContainerText}>
-                  {relocateFrom.quantity}
-                </Text>
-              </View>
-            </View>
-            <View style={{flex: 1, flexDirection: 'row'}}>
-              <View style={{flex: 1}}>
-                <Text style={styles.blueContainerText}>UOM</Text>
-              </View>
-              <View style={{flex: 1}}>
-                <Text style={styles.blueContainerText}>{relocateFrom.UOM}</Text>
-              </View>
-            </View>
-          </View>
-          <Text style={styles.title}>Relocate To</Text>
-          <Card containerStyle={styles.cardContainer}>
-            <TextList title="Warehouse" value={relocateTo.warehouse} />
-            <TextList title="Location" value={relocateTo.location} />
-            <TextList title="Item Code" value={relocateTo.itemCode} />
-            <TextList title="Description" value={relocateTo.description} />
-            <TextList
-              title="Destination Grade"
-              value={relocateTo.destinationGrade}
-            />
-          </Card>
-          <Button
-            title="Start Relocate"
-            titleStyle={styles.buttonText}
-            buttonStyle={styles.button}
-            onPress={this.navigateToConfirmRelocation}
+        {!isLoading && errorMessage !== '' && (
+          <Banner
+            title={errorMessage}
+            backgroundColor="#F07120"
+            closeBanner={this.closeBanner}
           />
-        </ScrollView>
+        )}
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
+            <Text style={styles.title}>Relocate From</Text>
+            <Card containerStyle={styles.cardContainer}>
+              <TextList
+                title="Warehouse"
+                value={relocationDetails.warehouseNameFrom}
+              />
+              <TextList
+                title="Job Request Date"
+                value={Format.formatDate(relocationDetails.createdOn)}
+              />
+              <TextList title="Client" value={relocationDetails.clientName} />
+              <TextList
+                title="Location"
+                value={relocationDetails.locationIdFrom}
+              />
+              <TextList title="Item Code" value={relocationDetails.itemCode} />
+              <TextList
+                title="Description"
+                value={relocationDetails.description}
+              />
+              <TextList
+                title="Request By"
+                value={`${relocationDetails.createdBy.firstName} ${relocationDetails.createdBy.lastName}`}
+              />
+              <TextList
+                title="Grade"
+                value={relocationDetails.productGradeFrom}
+              />
+              <TextList
+                title="Expiry Date"
+                value={
+                  relocationDetails.attributes.expiry_date !== undefined
+                    ? Format.formatDate(
+                        relocationDetails.attributes.expiry_date,
+                      )
+                    : '-'
+                }
+              />
+              <TextList title="Batch No" value={relocationDetails.batchNo} />
+              <TextList
+                title="Reason Code"
+                value={relocationDetails.reasonCode}
+              />
+              <TextList
+                title="Remarks"
+                value={
+                  relocationDetails.remark !== ''
+                    ? relocationDetails.remark
+                    : '-'
+                }
+              />
+              <View style={{borderWidth: 1, borderRadius: 5, padding: 10}}>
+                <TextListBig
+                  title="Quantity"
+                  value={relocationDetails.quantityTo}
+                />
+                <TextListBig title="UOM" value={relocationDetails.uom} />
+              </View>
+            </Card>
+            <View style={styles.blueContainer}>
+              <View style={{flex: 1, flexDirection: 'row'}}>
+                <View style={{flex: 1}}>
+                  <Text style={styles.blueContainerText}>Move Quantity</Text>
+                </View>
+                <View style={{flex: 1}}>
+                  <Text style={styles.blueContainerText}>
+                    {relocationDetails.quantityTo}
+                  </Text>
+                </View>
+              </View>
+              <View style={{flex: 1, flexDirection: 'row'}}>
+                <View style={{flex: 1}}>
+                  <Text style={styles.blueContainerText}>UOM</Text>
+                </View>
+                <View style={{flex: 1}}>
+                  <Text style={styles.blueContainerText}>
+                    {relocationDetails.uom}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <Text style={styles.title}>Relocate To</Text>
+            <Card containerStyle={styles.cardContainer}>
+              <TextList
+                title="Warehouse"
+                value={relocationDetails.warehouseNameTo}
+              />
+              <TextList
+                title="Location"
+                value={relocationDetails.locationIdTo}
+              />
+              <TextList title="Item Code" value={relocationDetails.itemCode} />
+              <TextList
+                title="Description"
+                value={relocationDetails.description}
+              />
+              <TextList
+                title="Destination Grade"
+                value={relocationDetails.productGradeTo}
+              />
+            </Card>
+            <Button
+              title="Start Relocate"
+              titleStyle={styles.buttonText}
+              buttonStyle={styles.button}
+              onPress={this.navigateToConfirmRelocation}
+            />
+          </ScrollView>
+        )}
       </SafeAreaProvider>
     );
   }
 }
-
-const RELOCATEFROM = {
-  warehouse: 'KEPPEL',
-  jobRequestDate: moment().subtract(1, 'days').unix(),
-  client: 'BG5G',
-  location: 'JP2 C05-002',
-  itemCode: '256000912',
-  description: 'ERGOBLOM V2 BLUE DESK',
-  requestBy: 'BS5G',
-  grade: '01',
-  expiryDate: '-',
-  batchNo: '01',
-  reasonCode: '0990',
-  remarks: '-',
-  quantity: 30,
-  UOM: 'PAIR',
-};
-
-const RELOCATETO = {
-  warehouse: 'KEPPEL',
-  location: 'JP2 C05-002',
-  itemCode: '256000912',
-  description: 'ERGOBLOM V2 BLUE DESK',
-  destinationGrade: '01',
-};
 
 const styles = StyleSheet.create({
   body: {
