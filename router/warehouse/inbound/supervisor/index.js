@@ -49,7 +49,6 @@ class SupervisorInbound extends React.Component {
 
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
-    
     if(indexBottomBar === 0 && key !== 'UpdatePhotosSPV' ){
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);

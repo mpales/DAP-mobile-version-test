@@ -148,7 +148,7 @@ export default function appReducer(state = initialState, action) {
       return {
         ...state,
         userRole: {
-          type: action.payload.role,
+          type: action.payload.type,
           id: action.payload.id,
           name: action.payload.name,
           role: action.payload.role,

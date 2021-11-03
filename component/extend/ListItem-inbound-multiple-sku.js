@@ -156,7 +156,7 @@ const Manifest = ({item, index, selectIndex}) => {
                     <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
                         <View style={{width:100}}>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
-                       Descript
+                       Description
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>

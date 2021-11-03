@@ -133,8 +133,10 @@ class Acknowledge extends React.Component {
                   title="INBOUND SUPERVISOR"
                   overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle]}
                   onPress={()=>{
-                    this.props.setBottomBar(false);
-                    this.props.navigation.navigate('Inbound',{screen:'SupervisorMode'});
+                    if(this.props.userRole.role === 'SPV'){
+                      this.props.setBottomBar(false);
+                      this.props.navigation.navigate('Inbound',{screen:'SupervisorMode'});
+                    }
                   }}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}

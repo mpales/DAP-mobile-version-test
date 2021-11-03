@@ -18,6 +18,8 @@ import DetailList from '../../../../component/extend/Card-detail';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {getData, postData} from '../../../../component/helper/network';
 import Loading from '../../../../component/loading/loading';
+import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
+import TouchableScale from 'react-native-touchable-scale';
 import moment from 'moment';
 class ConnoteReportDetails extends React.Component {
   constructor(props) {
@@ -77,11 +79,13 @@ class ConnoteReportDetails extends React.Component {
   renderListVAS = ({item,index, separators})=>{
 
     return (
-      <TouchableHighlight
+      <TouchableScale
       key={item.key}
       onPress={() => this._onPressSingleReports(item)}
       onShowUnderlay={separators.highlight}
-      onHideUnderlay={separators.unhighlight}>
+      onHideUnderlay={separators.unhighlight}
+      activeScale={0.9}
+      >
       <View style={styles.body}>
       <Card containerStyle={styles.cardContainer} style={styles.card}>
        
@@ -90,10 +94,14 @@ class ConnoteReportDetails extends React.Component {
           <DetailList title="Recorded By" value={item.inbound_shipment_va.created_by  !== undefined ? item.inbound_shipment_va.created_by.firstName : null} />
           <DetailList title="Date and Time" value={item.inbound_shipment_va.created_on  !== undefined && item.inbound_shipment_va.created_on  !== null ? moment(item.inbound_shipment_va.created_on).format('DD/MM/YYY h:mm a') : null}/>
          
-        <View style={{marginVertical:10}}> 
+        <View style={{marginVertical:10, flexDirection:'row'}}> 
+        <View style={{flex:1, alignContent:'flex-start'}}>        
         <Text style={{...Mixins.body1,lineHeight:20,fontWeight:'700',color:'#2D2C2C'}}>
-         { item.inbound_shipment_va.inbound_shipment === 1 ?  'Un-Stuffing From Truck' : item.inbound_shipment_va.inbound_shipment === 2 ? 'Un-Stuffing From 20’ Container' : item.inbound_shipment_va.inbound_shipment === 3 ? 'Un-Stuffing From 40’ Container' : null}
-          </Text>
+        { item.inbound_shipment_va.inbound_shipment === 1 ?  'Un-Stuffing From Truck' : item.inbound_shipment_va.inbound_shipment === 2 ? 'Un-Stuffing From 20’ Container' : item.inbound_shipment_va.inbound_shipment === 3 ? 'Un-Stuffing From 40’ Container' : null}  
+      </Text>
+      </View>
+
+        <ArrowDown fill="black" height="26" width="26" style={{flexShrink:1,alignContent:'flex-end', transform:[{rotate:'-90deg'}]}}/>
           </View>
           <DetailList title="Number Pallet" value={item.inbound_shipment_va.inbound_shipment_no_pallet} />
           <DetailList title="Number Cartons" value={item.inbound_shipment_va.inbound_shipment_no_carton} />
@@ -101,7 +109,7 @@ class ConnoteReportDetails extends React.Component {
         </View>
       </Card>
     </View>
-    </TouchableHighlight>
+    </TouchableScale>
     );
   }
   render() {

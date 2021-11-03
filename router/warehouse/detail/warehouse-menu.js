@@ -17,6 +17,7 @@ import WarehouseDrawer from '../../../assets/icon/warehouse-bottom-drawer-mobile
 import IconBubble26Mobile from '../../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import IconGear2Mobile from '../../../assets/icon/iconmonstr-gear-2mobile.svg';
 import IconBell2Mobile from '../../../assets/icon/iconmonstr-bell-2mobile.svg';
+import IconMenu from '../../../assets/icon/iconmonstr-menu-6 1mobile.svg';
 import IconTime17Mobile from '../../../assets/icon/iconmonstr-time-17 1mobile.svg';  
 import LogoSmall from '../../../assets/dap_logo_hires1-e1544435829468 5small.svg';
 import {popToLogout} from '../../../component/helper/persist-login';
@@ -43,9 +44,23 @@ class WarehouseMenu extends React.Component {
   }
 
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextProps.isDrawer !== this.props.isDrawer) {
+      this.drawerRef.current = true;
+    } else {
+      this.drawerRef.current = false;
+    }
+
+    return true;
+  }
   renderView = ()=> {
     return (
       <View style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
+          <IconMenu fill="white" height="24" width="24" style={{position:'absolute', top: screen.height * 0.05,left: screen.width * 0.05}}
+          onPress={()=>{
+            this.props.toggleDrawer(true);
+          }}
+          />
           <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 100}}>
              <LogoSmall width="135" height="70" style={{alignSelf:'center'}}/>
           </View>
@@ -389,6 +404,7 @@ function mapStateToProps(state) {
     userRole: state.originReducer.userRole,
     isPhotoProofSubmitted: state.originReducer.filters.isPhotoProofSubmitted,
     isSignatureSubmitted: state.originReducer.filters.isSignatureSubmitted,
+    isDrawer: state.originReducer.filters.isDrawer,
   };
 }
 

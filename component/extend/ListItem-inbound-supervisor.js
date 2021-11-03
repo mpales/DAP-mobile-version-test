@@ -136,7 +136,7 @@ const Manifest = ({item, index, ToManifest}) => {
       labelstatus = 'Waiting';
       break;
       case 4:
-        status = '#F1811C';
+        status = '#F8B511';
         labelstatus = 'Received';
         break;
         case 5:

@@ -40,6 +40,7 @@ const screen = Dimensions.get('screen');
 const grade = ["Pick", "Buffer", "Damage", "Defective", "Short Expiry", "Expired", "No Stock", "Reserve"];
 const pallet = ["PLDAP 0091", "PLDAP 0092", "PLDAP 0093", "PLDAP 0094"];
 class Example extends React.Component {
+  _unsubscribe = null;
   refAttrArray = React.createRef(null);
   refBatch = React.createRef(null);
   animatedValue = new Animated.Value(0);
@@ -100,21 +101,6 @@ class Example extends React.Component {
     return {...state};
   }
   shouldComponentUpdate(nextProps, nextState) {
-    if(this.props.keyStack !== nextProps.keyStack){
-      if(nextProps.keyStack === 'Barcode' && this.props.keyStack === 'newItem'){
-        if (nextState.scanItem !== '0' && nextState.dataItem === null && nextProps.manifestList.some((element) => element.pId === nextState.scanItem)) {
-          let item = nextProps.manifestList.find((element)=>element.pId === nextState.scanItem);
-          this.setState({dataItem: item, qty : 0});
-        }
-        return true;
-      } else if (nextProps.keyStack === 'Barcode' && this.props.keyStack === 'POSMCameraMulti' && nextState.currentPOSM === true){
-        const {routes, index} = nextProps.navigation.dangerouslyGetState();
-        if(routes[index].params !== undefined && routes[index].params.upload === true){
-          this.setState({uploadPOSM: true});
-          return false;
-        }
-      } 
-    }
     if((this.state.ItemGrade !== nextState.ItemGrade || this.state.ItemPallet !== nextState.ItemPallet) && nextState.dataItem === this.state.dataItem){
       return false;
     } else if(nextState.isPOSM === true && nextState.dataItem === null){
@@ -196,11 +182,20 @@ class Example extends React.Component {
   componentWillUnmount(){
     this.props.setBarcodeScanner(true);
     this.props.addPOSMPostpone(null);
+    this._unsubscribe();
   }
   async componentDidMount(){
     const {scanItem,dataCode} = this.state;
     const {detectBarcode, manifestList} = this.props;
-  
+    this._unsubscribe = this.props.navigation.addListener('focus', () => {
+      // do something
+      if(this.state.currentPOSM === true && this.state.isPOSM === true){
+        const {routes, index} = this.props.navigation.dangerouslyGetState();
+        if(routes[index].params !== undefined && routes[index].params.upload === true){
+          this.setState({uploadPOSM: true});
+        }
+      }
+    });
     const resultPallet = await getData('inboundsMobile/'+this.props.currentASN+'/pallet');
     if(resultPallet.length > 0){
       this.setState({PalletArray:resultPallet, ItemPallet: resultPallet[0].palete_id});
@@ -401,7 +396,7 @@ class Example extends React.Component {
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>Descript</Text>
+                        <Text style={styles.labelPackage}>Description</Text>
                         <Text style={styles.infoPackage}>
                           {dataItem.description}
                         </Text>
@@ -528,13 +523,7 @@ class Example extends React.Component {
                             labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                             value={String(this.state.qty)}
                             onChangeText={(val)=>{
-                              if(val){
-                                let intQty = parseInt(val);
-                                this.setState({qty: intQty !== NaN && intQty > 0 ? intQty : this.state.qty});
-                              } else {
-                                this.setState({qty:  ''});
-                              }
-                            
+                              this.setState({qty:  val});
                             }}
                             />
                           <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
@@ -570,7 +559,7 @@ class Example extends React.Component {
                             if(ref !== null)
                             this.refBatch.current = ref;
                           }}/>
-                      {this.state.dataItem.template.attributes !== undefined && this.state.dataItem.template.attributes.map((element,index)=>{
+                      {(this.state.dataItem.template !== undefined && this.state.dataItem.template !== null && this.state.dataItem.template.attributes !== undefined && this.state.dataItem.template.attributes !== null ) && this.state.dataItem.template.attributes.map((element,index)=>{
                         if(element.field_type === 'text'){
                           return <TemplateText {...element} ref={(ref)=>{
                             if(ref !== null)
@@ -737,7 +726,7 @@ class Example extends React.Component {
                 </View>
               </View>
             )}
-            <View style={styles.buttonSheetContainer}>
+            <View style={[styles.buttonSheetContainer,{alignItems:'flex-end',justifyContent:'flex-end',alignContent:'flex-end', backgroundColor:'transparent', flex:1}]}>
                 <View style={styles.buttonSheet}>
                   {dataItem !== null && this.state.isConfirm === false && this.state.isPOSM === false && this.state.enterAttr === false ? (
                     <Button
@@ -920,7 +909,7 @@ class Example extends React.Component {
     if(batchAttr.error !== undefined){
     errors.push(batchAttr.error);
     } 
-    if(this.state.dataItem.template.attributes !== undefined){
+    if(this.state.dataItem.template !== undefined && this.state.dataItem.template !== null && this.state.dataItem.template.attributes !== undefined && this.state.dataItem.template.attributes !== null){
       for (let index = 0; index < this.state.dataItem.template.attributes.length; index++) {
         const element = this.state.dataItem.template.attributes[index];
         const refEl = this.refAttrArray.current[index];
@@ -1143,7 +1132,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   buttonSheet: {
-    flexGrow: 1,
+    flexShrink: 1,
     flexDirection:'row',
   },
   deliverTitle: {
@@ -1165,8 +1154,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
-    minHeight: (screen.height * 75) / 100,
-    maxHeight: (screen.height * 75) / 100,
+    minHeight: (screen.height * 80) / 100,
+    maxHeight: (screen.height * 80) / 100,
     borderRadius: 10,
   },
   modalContainerAllTransit: {

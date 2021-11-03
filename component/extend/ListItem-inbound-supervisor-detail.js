@@ -125,7 +125,10 @@ const theme = {
   },
   
 };
-const Manifest = ({item, index, drag, toReportDetail, navigation}) => {
+const Manifest = ({item, index, drag, toReportDetail, navigation, currentManifest}) => {
+  const isCurrentManifest = useSelector(
+    (state) => state.originReducer.filters.currentManifest,
+  );
   let addAttribute = item.is_transit === undefined && item.basic !== undefined && item.barcodes.length > 0 && item.basic.length !== null && item.basic.weight !== null && item.basic.width !== null && item.basic.height !== null && item.basic.volume !== null && item.basic.carton_pcs !== null ? false : item.is_transit !== undefined ? false : true;
    let status = 'grey';
   let textstatus = 'pending';
@@ -159,7 +162,9 @@ const Manifest = ({item, index, drag, toReportDetail, navigation}) => {
         tension={100} // These props are passed to the parent component (here TouchableScale)
         activeScale={0.95}
         pad={0}
-        onPress={toReportDetail}
+        onPress={()=>{
+          currentManifest(item.pId)
+        }}
         >
         <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
@@ -238,7 +243,7 @@ const Manifest = ({item, index, drag, toReportDetail, navigation}) => {
                     <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
                         <View style={{width:100}}>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
-                       Descript
+                       Description
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
@@ -315,7 +320,32 @@ const Manifest = ({item, index, drag, toReportDetail, navigation}) => {
                 </View>
               </View>
           </View>
-     
+          {(isCurrentManifest === item.pId) && (
+            <View style={[styles.buttonContainer,{flexDirection:'column',flex: 1,width:'100%'}]}>
+            <Button
+              containerStyle={{flex:1, paddingVertical: 4, paddingHorizontal: 0,}}
+              buttonStyle={[styles.navigationButton]}
+              titleStyle={[styles.deliveryText,{paddingHorizontal: 10}]}
+              onPress={toReportDetail}
+              title="Report Details"
+            />
+            <Button
+              containerStyle={{flexShrink:1, paddingVertical: 4, paddingHorizontal: 0}}
+              buttonStyle={[styles.navigationButton, {backgroundColor: '#fff', borderWidth: 1, borderColor: '#D5D5D5'}]}
+              titleStyle={[styles.deliveryText,{color:'#E03B3B',paddingHorizontal: 10}]}
+              onPress={()=>{
+                navigation.navigate('Inbound',{
+                  screen: 'ReportManifest',
+                  params: {
+                      dataCode: item.pId,
+                  }
+                })
+              }}
+              title="Report Item"
+            />
+           
+          </View>)}
+        
         </ListItem.Content>
       </ListItem>
     </ThemeProvider>

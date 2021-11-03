@@ -1,6 +1,6 @@
 import React from 'react';
 import {Text, Button, Input, Avatar, Image, CheckBox, LinearProgress} from 'react-native-elements';
-import {View} from 'react-native';
+import {View, ScrollView} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
 import moment from 'moment';
@@ -230,71 +230,158 @@ class Acknowledge extends React.Component {
     if(data === null)
     return <Loading />
     return (
-        <View style={{flexGrow: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
+        <ScrollView style={{flexGrow: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
          <View style={{flexDirection:'row', flexShrink:1}}>
-             <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 130, alignItems: 'flex-start',marginRight: 20}}>
-                 <Text>Client</Text>
+             <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
+                 <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Client</Text>
              </View>
              <Input 
-                containerStyle={{flex: 1,paddingVertical:0}}
+                containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 placeholder={data.client}
                 disabled={true}
+                leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
-              <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 130, alignItems: 'flex-start',marginRight: 20}}>
-                   <Text>Ref #</Text>
+              <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
+              <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Ref #</Text>
              </View>
              <Input 
-              containerStyle={{flex: 1,paddingVertical:0}}
+              containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
               inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
               inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
               labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 placeholder={data.reference_id }
                 disabled={true}
+                leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
             />
          </View>
-         {data.status === 3 && (<View style={{flexDirection:'row', flexShrink:1}}>
-             <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 130, alignItems: 'flex-start',marginRight: 20}}>
-                 <Text>Container  #</Text>
+         {data.status === 3 && (
+           <>
+         {data.container_no !== '' ? (
+         <>
+         <View style={{flexDirection:'row', flexShrink:1}}>
+             <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
+             <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Shipment Type</Text>
              </View>
              <Input 
-                containerStyle={{flex: 1,paddingVertical:0}}
+                containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
+                inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                placeholder="FCL"
+                disabled={true}
+                leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
+            />
+         </View>
+         <View style={{flexDirection:'row', flexShrink:1}}>
+             <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
+             <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Container  #</Text>
+             </View>
+             <Input 
+                containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 placeholder={data.container_no }
                 disabled={true}
-            />
-         </View>)}
-         <View style={{flexDirection:'row', flexShrink:1}}>
-         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 130, alignItems: 'flex-start',marginRight: 20}}>            
-         <Text>Status</Text>
-             </View>
-             <Input 
-                containerStyle={{flex: 1,paddingVertical:0}}
-                inputContainerStyle={[styles.textInput,{backgroundColor:'#F8B511'}]} 
-                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21,textTransform: 'uppercase', color:'#fff'}]}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                value={data.status === 3 ? 'Waiting' : data.status === 4 ? "Received" : data.status === 5 ? "Processing" : data.status === 6 ? "Processed" : "Reported" }
-                disabled={false}
+                leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
-         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 130, alignItems: 'flex-start',marginRight: 20}}>
-         <Text>{data.status === 3 ? "ETA Date" : "Received Date"}</Text>
+             <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
+             <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Container Size</Text>
+             </View>
+             <Input 
+                 containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
+                inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                placeholder="134"
+                disabled={true}
+                leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
+            />
+         </View>
+         </>
+         ) : (
+          <>
+          <View style={{flexDirection:'row', flexShrink:1}}>
+              <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
+              <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Shipment Type</Text>
+              </View>
+              <Input 
+                 containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
+                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
+                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
+                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                 placeholder="LCL"
+                 disabled={true}
+                 leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
+             />
+          </View>
+          <View style={{flexDirection:'row', flexShrink:1}}>
+              <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
+              <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Pallet Type</Text>
+              </View>
+              <Input 
+                containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
+                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
+                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
+                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                 placeholder="Palletized"
+                 disabled={true}
+                 leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
+             />
+          </View>
+          <View style={{flexDirection:'row', flexShrink:1}}>
+              <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
+              <Text style={{...Mixins.subtitle3,lineHeight:21,}}># of Pallet</Text>
+              </View>
+              <Input 
+                 containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
+                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
+                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
+                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                 placeholder="134"
+                 disabled={true}
+                 leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
+             />
+          </View>
+          </>
+         )}     
+           </>
+         )}
+      
+         <View style={{flexDirection:'row', flexShrink:1, paddingVertical:5}}>
+         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>            
+         <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Status</Text>
+             </View>
+             <Input 
+               containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0,maxHeight:30}} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,backgroundColor:'#F8B511',borderRadius:5,fontWeight:'600',lineHeight: 21,textTransform: 'uppercase', color:'#fff', textAlign:'center'}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                value={data.status === 3 ? 'Waiting' : data.status === 4 ? "Received" : data.status === 5 ? "Processing" : data.status === 6 ? "Processed" : "Reported" }
+                disabled={false}
+                leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
+            />
+         </View>
+         <View style={{flexDirection:'row', flexShrink:1}}>
+         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
+         <Text style={{...Mixins.subtitle3,lineHeight:21,}}>{data.status === 3 ? "ETA Date" : "Received Date"}</Text>
          
            </View>
              <Input 
-              containerStyle={{flex: 1,paddingVertical:0}}
+              containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
               inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 placeholder={data.status === 3 ? moment(data.eta).format("DD-MM-YYYY") : moment(data.created_on).format("DD-MM-YYYY")}
                 disabled={true}
+                leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
             />
          </View>
         <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
@@ -337,7 +424,9 @@ class Acknowledge extends React.Component {
                 <View style={{marginVertical: 5}}>
                 <LinearProgress value={this.state.progressLinearVal} color="primary" style={{width:80}} variant="determinate"/>
                 </View>
-                <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Photo Proof Container</Text>
+                <View style={{maxWidth: 150}}>
+                <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>{ data.status === 3 ? 'Photo Proof Before Opening Container' : 'Photo Proof After Opening Container'}</Text>
+                </View>
                {this.state.errors !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.errors}</Text>)}
                 </>)}
                 </View>
@@ -351,7 +440,7 @@ class Acknowledge extends React.Component {
               disabled={!this.state.submitDetail}
             />
           <Button
-              containerStyle={{flexShrink:1, marginRight: 0,}}
+              containerStyle={{flexShrink:1, marginBottom: 10,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={()=>{
@@ -366,7 +455,16 @@ class Acknowledge extends React.Component {
               title="Inbound Details"
         
             />
-        </View>
+
+            <View style={{flexDirection:'column',flexShrink:1, marginVertical:20}}>
+              <Text style={{...Mixins.subtitle3,lineHeight:21}}>Remarks</Text>
+              <View style={styles.remark}>
+              <Text style={styles.remarkText}>
+              Lorem ipsum      Lorem ipsum      Lorem ipsum      Lorem ipsum     Lorem ipsum      Lorem ipsum
+              </Text>
+              </View>
+            </View>
+        </ScrollView>
     );
   }
 }
@@ -378,6 +476,29 @@ const styles = {
     fontWeight: '400',
     color: '#6C6B6B',
     textAlign: 'center',
+  },
+  remarkText:{
+    ...Mixins.body3,
+    lineHeight:18,
+    color:'black',
+  },
+  remark : {
+    borderRadius: 5,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    marginVertical:15,
+    marginHorizontal:5,
+    padding: 20,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    flexDirection:'row',
+    flexShrink:1,
+    minWidth:320,
+    elevation: 2,
   },
   checkboxContainer: {
     width: '100%',

@@ -29,6 +29,7 @@ class ReportManifest extends React.Component {
             _manifest : null,
             errors: '',
             progressLinearVal : 0,
+            qtyreported : "0",
             submitPhoto:false,
         };
         this.getPhotoReceivingGoods.bind(this);
@@ -69,7 +70,6 @@ class ReportManifest extends React.Component {
         if(prevState.submitPhoto !== this.state.submitPhoto && this.state.submitPhoto === true){
             if(this.props.photoReportPostpone !== null){
                 this.setState({submitPhoto:false});
-                await this.handleSubmit();
             } else {
                 this.setState({submitPhoto:false,errors:'take a Photo Report before continue process'})
             }
@@ -125,7 +125,12 @@ class ReportManifest extends React.Component {
                 this.props.setReportedASN(currentASN);
                 this.props.addPhotoReportPostpone(null);
                 this.props.setReportedManifest(dataCode);
-                this.props.navigation.navigate('Manifest');
+                const {routes,index} = this.props.navigation.dangerouslyGetState();
+                if(routes[index-1].name === 'SupervisorMode'){
+                    this.props.navigation.navigate('SupervisorMode');
+                } else {
+                    this.props.navigation.navigate('Manifest')
+                }
             } else {
               if(typeof result === 'object'){
                 if(result.errors !== undefined){
@@ -201,7 +206,47 @@ class ReportManifest extends React.Component {
                     />
                 </View>
                 <View style={styles.contentContainer}>
-                    <Text style={[styles.title, {marginBottom: 5}]}>Description :</Text>
+                <View style={{marginBottom:5}}>
+                    <Text style={styles.title}>Quantity Item:</Text>
+                    <Input
+                    containerStyle={{paddingHorizontal:0,marginHorizontal:0}}
+                        inputContainerStyle={{borderBottomWidth:0}}
+                            style={{...styles.textInput,margin:0}}
+                            keyboardType='number-pad'
+                            inputStyle={{margin:0}}
+                            onChangeText={(val)=>{
+                                this.setState({qtyreported:  val});
+                            }}
+                            multiline={false}
+                            numberOfLines={1}
+                            value={this.state.qtyreported}
+                            rightIcon={()=>{
+                                return (
+                                    <View style={{flexDirection:'column', backgroundColor:'transparent',position:'absolute',right:0,bottom:0,justifyContent:'center', flex:1, minWidth:30}}>
+                                        <ArrowDown width="20" height="15" fill="black" style={{flexShrink:1,marginBottom:5,transform:[
+                                        { rotate: "180deg" },
+                                        ]}}
+                                        onPress={()=>{
+                                            const {qtyreported} = this.state;
+                                            let qty = parseInt(qtyreported)
+                                            this.setState({qtyreported:  qtyreported === '' || qty === NaN ? '0' : ''+ (qty+1) });
+                                        }}
+                                        />
+                                        <ArrowDown width="20" height="15"  fill="black" style={{flexShrink:1}}
+                                        
+                                        onPress={()=>{
+                                            const {qtyreported} = this.state;
+                                            let qty = parseInt(qtyreported)
+                                            this.setState({qtyreported:  qtyreported === '' || qty === NaN ? '0' : ''+ (qty-1) });
+                                        }}
+                                        />
+                                    </View>
+                                );
+                            }}
+                        />
+                    </View>
+                    <View style={{marginBottom:5}}>
+                    <Text style={styles.title}>Remarks :</Text>
                     <TextInput
                             style={styles.textInput}
                             onChangeText={this.onChangeReasonInput}
@@ -210,7 +255,7 @@ class ReportManifest extends React.Component {
                             textAlignVertical="top"
                             value={this.state.otherReason}
                         />
-
+                    </View>
                         <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
                         <Avatar onPress={()=>{
                                        if(this.props.photoReportID === null || this.props.photoReportID === this.state.dataCode){
@@ -249,7 +294,7 @@ class ReportManifest extends React.Component {
                                         <View style={{marginVertical: 5}}>
                                         <LinearProgress value={this.state.progressLinearVal} color="primary" style={{width:80}} variant="determinate"/>
                                         </View>
-                                        <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Photo Proof Container</Text>
+                                        <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Photo Proof</Text>
                                         {this.state.errors !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.errors}</Text>)}
                                 </View>
                                 <Button
@@ -258,7 +303,7 @@ class ReportManifest extends React.Component {
               titleStyle={styles.deliveryText}
               onPress={this.handleSubmit}
               title="Submit"
-              disabled={this.props.photoReportPostpone === null || (this.props.photoReportID !== null && this.props.photoReportID !== this.state.dataCode) || this.state.reasonOption === '' ? true : false}
+              disabled={this.props.photoReportPostpone === null || (this.props.photoReportID !== null && this.props.photoReportID !== this.state.dataCode) || this.state.reasonOption === ''? true : false}
               />
                 </View>
             </View>

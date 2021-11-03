@@ -261,10 +261,7 @@ class WarehouseNavigator extends React.Component {
           this.props.keyStack === 'ManifestSupervisor' &&
           this.props.indexBottomBar === 0
         ) {
-          this.navigationRef.current.navigate('SupervisorMode', {
-            screen: 'ListSupervisor',
-          });
-          return true;
+          return false;
         } else if (
           this.props.keyStack === 'PhotosDraftSPV' &&
           this.props.indexBottomBar === 0

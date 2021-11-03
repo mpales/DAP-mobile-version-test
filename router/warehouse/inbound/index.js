@@ -1,6 +1,7 @@
 import React from 'react';
 import {Image, Text, TouchableOpacity, View, Platform} from 'react-native';
 import {createStackNavigator, HeaderBackButton, Header} from '@react-navigation/stack';
+import {CommonActions} from '@react-navigation/native'
 import {connect} from 'react-redux';
 import {Button} from 'react-native-elements';
 import IconDelivery8Mobile from '../../../assets/icon/iconmonstr-delivery-8 1mobile.svg';
@@ -56,7 +57,7 @@ class HomeNavigator extends React.Component {
   }
   setWrapperofStack = (index,key) => {
     const {indexBottomBar} = this.props;
-    if(indexBottomBar === 0 && key !== 'SupervisorMode' && key !== 'SupervisorMode' && key !== 'POSMPhoto' && key !== 'DetailsDraft'){
+    if(indexBottomBar === 0 && key !== 'SupervisorMode' && key !== 'POSMPhoto' && key !== 'DetailsDraft'){
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }
@@ -96,7 +97,9 @@ class HomeNavigator extends React.Component {
                 },
               })
             },
-            headerShown: false,
+            headerShown: true,
+            headerTitle: '',
+            headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
             headerLeft: (props) => {
@@ -445,7 +448,7 @@ class HomeNavigator extends React.Component {
         <Stack.Screen
           name="ReportManifest"
           component={ReportManifest}
-          options={() => ({
+          options={({navigation}) => ({
             headerStyle: {
               backgroundColor: '#121C78',
               elevation: 0,
@@ -458,9 +461,14 @@ class HomeNavigator extends React.Component {
               })
             },
             headerLeft: (props) => {
+              const {routes,index} = navigation.dangerouslyGetState();
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.navigation.navigate('Manifest')
+                  if(routes[index-1].name === 'SupervisorMode'){
+                    navigation.navigate('SupervisorMode');
+                  } else {
+                    this.props.navigation.navigate('Manifest')
+                  }
                 }
               }
               />);

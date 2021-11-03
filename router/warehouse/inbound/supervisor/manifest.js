@@ -35,7 +35,7 @@ import EmptyIlustrate from '../../../../assets/icon/Groupempty.svg';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component{
-
+  _unsubscribe = null;
   constructor(props) {
     super(props);
 
@@ -63,14 +63,7 @@ class Warehouse extends React.Component{
     return {...state};
   }
   shouldComponentUpdate(nextProps, nextState) {
-    if(this.props.keyStack !== nextProps.keyStack){
-      if(nextProps.keyStack === 'Manifest' && this.props.keyStack ==='newItem'){
-        this.setState({updated: true});
-        return true;
-      } else if(nextProps.keyStack === 'Manifest'){
-        return true;
-      }
-    }
+  
     return true;
   }
   async componentDidUpdate(prevProps, prevState, snapshot) {
@@ -105,6 +98,10 @@ class Warehouse extends React.Component{
   async componentDidMount() {
     const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest} = this.props;
     const {receivingNumber, _manifest, search} = this.state;
+    this._unsubscribe = navigation.addListener('focus', (test) => {
+      this.setState({updated: true});
+      // do something
+    });
     if(receivingNumber === null){
       const {routes, index} = navigation.dangerouslyGetState();
       // if(manifestList.length === 0 && search === ''){
@@ -134,6 +131,9 @@ class Warehouse extends React.Component{
           navigation.popToTop();
         }
     }
+  }
+  componentWillUnmount(){
+    this._unsubscribe();
   }
   toggleOverlay =()=> {
     const {_visibleOverlay} = this.state;
@@ -283,6 +283,7 @@ class Warehouse extends React.Component{
                     index={i} 
                     item={u} 
                     navigation={this.props.navigation}
+                    currentManifest={this.props.setCurrentManifest}
                     toReportDetail={()=>{
                       this.props.navigation.navigate('ReportDetailsSPV',{number:this.state.receivingNumber, productID : u.pId});
                     }}
