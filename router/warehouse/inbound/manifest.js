@@ -18,9 +18,11 @@ import {
   Text,
   TouchableOpacity,
   RefreshControl,
-  ActivityIndicator
+  ActivityIndicator,
+  PixelRatio,
+  Modal
 } from 'react-native';
-import {Avatar, Card, Overlay, Button, SearchBar, Badge, Input} from 'react-native-elements';
+import {Avatar, Card, Overlay, Button, SearchBar, Badge, Input, Tooltip} from 'react-native-elements';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect, Provider} from 'react-redux';
@@ -299,16 +301,33 @@ class Warehouse extends React.Component{
           style={styles.body}>
             <View style={[styles.sectionContent,{marginTop: 20}]}>
             <View style={[styles.sectionContentTitle, {flexDirection: 'row'}]}>
-            <View style={[styles.titleHead,{flexShrink :1,minWidth: 180}]}>
+            <View style={[styles.titleHead,{flex :1, paddingRight:20}]}>
             <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{this.state.inboundNumber}</Text>
             <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{this.state.companyname}</Text>
-            <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{"Receipt #: "+ this.state.receiptid}</Text>
+            
+            <Tooltip 
+            withPointer={true} 
+            skipAndroidStatusBar ={true}  
+            popover={<Text>Info here</Text>} 
+            width={300} 
+            containerStyle={{left:20}}>
+            <Button
+                          containerStyle={{width: '100%',justifyContent: 'center', marginTop:9}}
+                          buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0, backgroundColor:'#121C78'}]}
+                          titleStyle={[styles.deliveryText,{lineHeight:36,fontWeight:'400'}]}
+                          disabledStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0, backgroundColor:'#121C78'}]}
+                          disabledTitleStyle={[styles.deliveryText,{lineHeight:36,fontWeight:'400'}]}
+                          title="Remarks"
+                          disabled={true}
+                        />
+            </Tooltip>
             </View>
-            <View style={[styles.contentHead,{flexShrink: 1,alignSelf:'flex-end', flexDirection: 'column'}]}>
-            <View style={[styles.headPallet,{flexDirection:'row', flexShrink:1}]}>
+            <View style={[styles.contentHead,{flex: 1,alignSelf:'flex-end', flexDirection: 'column'}]}>
+            <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold', textAlign:'right'}}>{"Receipt #: "+ this.state.receiptid}</Text>
+            <View style={[styles.headPallet,{flexDirection:'row', flex:1, justifyContent:'center', alignItems:'center'}]}>
               <Text style={{...Mixins.subtitle3,color:'#424141',lineHeight: 21,fontWeight: '600'}}>Pallet ID : </Text>
               <Input 
-                                 containerStyle={{flexShrink:1,maxHeight:20}}
+                                 containerStyle={{flexShrink:1,maxHeight:20,marginHorizontal:0,paddingHorizontal:0}}
                                  inputContainerStyle={{...Mixins.containedInputDefaultContainer,maxHeight:20, paddingHorizontal: 0,
                                   paddingVertical: 0}} 
                                  inputStyle={{...Mixins.containedInputDefaultStyle,...Mixins.small3,marginHorizontal: 0, color:'black'}}
@@ -318,17 +337,11 @@ class Warehouse extends React.Component{
             />
             </View>
             <Button
-              containerStyle={{width: '100%',justifyContent: 'center',height:20,marginTop:2}}
+              containerStyle={{width: '100%',justifyContent: 'center',marginTop:2}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0}]}
-              titleStyle={[styles.deliveryText,{lineHeight:21,fontWeight:'400'}]}
+              titleStyle={[styles.deliveryText,{lineHeight:36,fontWeight:'400'}]}
               onPress={this.generatePalletID}
               title="New Pallet ID"
-            />
-              <Button
-              containerStyle={{width: '100%',justifyContent: 'center',height:20, marginTop:9}}
-              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0, backgroundColor:'#121C78'}]}
-              titleStyle={[styles.deliveryText,{lineHeight:21,fontWeight:'400'}]}
-              title="Remarks"
             />
             </View>
             </View>
@@ -578,6 +591,7 @@ const styles = StyleSheet.create({
     ...Mixins.subtitle3,
     lineHeight: 21,
     color: '#ffffff',
+    fontSize: PixelRatio.get() > 2.75 ? 12 : 14,   
   },
   overlayContainerStyle: {
     position:'absolute',

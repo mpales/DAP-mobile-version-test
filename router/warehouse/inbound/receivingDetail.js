@@ -424,8 +424,8 @@ class Acknowledge extends React.Component {
                 <View style={{marginVertical: 5}}>
                 <LinearProgress value={this.state.progressLinearVal} color="primary" style={{width:80}} variant="determinate"/>
                 </View>
-                <View style={{maxWidth: 150}}>
-                <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>{ data.status === 3 ? 'Photo Proof Before Opening Container' : 'Photo Proof After Opening Container'}</Text>
+                <View style={{maxWidth: 150, justifyContent:'center'}}>
+                <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B', textAlign:'center'}}>{ data.status === 3 ? 'Photo Proof Before Opening Container' : 'Photo Proof After Opening Container'}</Text>
                 </View>
                {this.state.errors !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.errors}</Text>)}
                 </>)}
