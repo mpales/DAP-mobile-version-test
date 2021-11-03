@@ -108,11 +108,17 @@ class RelocationList extends React.Component {
     this.setState({filteredJobList: filteredJobList});
   };
 
-  navigateToDetails = (relocationId) => {
+  navigateToDetails = (relocationId, status) => {
     this.props.setBottomBar(false);
-    this.props.navigation.navigate('RelocationDetails', {
-      relocationId: relocationId,
-    });
+    if (status === 'In Progress') {
+      this.props.navigation.navigate('ConfirmRelocation', {
+        relocationId: relocationId,
+      });
+    } else {
+      this.props.navigation.navigate('RelocationDetails', {
+        relocationId: relocationId,
+      });
+    }
   };
 
   navigateToRequestRelocation = () => {

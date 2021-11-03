@@ -91,3 +91,36 @@ export const stockTakeCountStatus = (value) => {
   }
   return statusString;
 };
+
+export const productGradeToString = (value) => {
+  let gradeString;
+  switch (value) {
+    case 1:
+      gradeString = 'PICK';
+      break;
+    case 2:
+      gradeString = 'BUFFER';
+      break;
+    case 3:
+      gradeString = 'DAMAGE';
+      break;
+    case 4:
+      gradeString = 'DEFECTIVE';
+      break;
+    case 5:
+      gradeString = 'SHORT EXPIRY';
+      break;
+    case 6:
+      gradeString = 'EXPIRED';
+      break;
+    case 7:
+      gradeString = 'NO STOCK';
+      break;
+    case 8:
+      gradeString = 'RESERVE';
+    default:
+      gradeString = '';
+      break;
+  }
+  return gradeString;
+};
