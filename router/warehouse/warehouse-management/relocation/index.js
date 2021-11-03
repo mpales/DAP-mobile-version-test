@@ -101,6 +101,15 @@ class WarehouseManagement extends React.Component {
           name="ConfirmRelocation"
           options={{
             headerTitle: 'Relocate',
+            headerLeft: (props) => (
+              <HeaderBackButton
+                {...props}
+                onPress={() => {
+                  this.props.setBottomBar(true);
+                  this.props.navigation.navigate('RelocationList');
+                }}
+              />
+            ),
           }}
         />
         <Stack.Screen

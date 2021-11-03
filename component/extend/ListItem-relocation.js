@@ -15,7 +15,7 @@ const Manifest = ({item, navigate}) => {
     <ThemeProvider theme={theme}>
       <ListItem
         Component={TouchableScale}
-        onPress={() => navigate(item.id)}
+        onPress={() => navigate(item.id, item.status)}
         friction={90} //
         tension={100} // These props are passed to the parent component (here TouchableScale)
         activeScale={0.95}
