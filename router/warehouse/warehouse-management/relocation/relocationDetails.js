@@ -9,11 +9,11 @@ import {TextList, TextListBig} from '../../../../component/extend/Text-list';
 import Loading from '../../../../component/loading/loading';
 import Banner from '../../../../component/banner/banner';
 // helper
-import {getData} from '../../../../component/helper/network';
+import {getData, putData} from '../../../../component/helper/network';
 import Format from '../../../../component/helper/format';
+import {productGradeToString} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
-import moment from 'moment';
 
 class RelocationDetails extends React.Component {
   constructor(props) {
@@ -23,6 +23,7 @@ class RelocationDetails extends React.Component {
       relocationDetails: null,
       errorMessage: '',
       isLoading: true,
+      isSubmitting: false,
     };
   }
 
@@ -54,12 +55,42 @@ class RelocationDetails extends React.Component {
     });
   };
 
+  startRelocate = async () => {
+    this.setState({
+      isSubmitting: true,
+    });
+    const {relocationId} = this.state;
+    const result = await putData(
+      `/stocks-mobile/stock-relocations/${relocationId}/start-relocate`,
+    );
+    if (
+      result.message === 'Stock relocation started' &&
+      result.error === undefined
+    ) {
+      this.navigateToConfirmRelocation();
+    } else if (result.error !== undefined) {
+      this.setState({
+        errorMessage: result.error,
+      });
+    }
+    this.setState({
+      isSubmitting: false,
+    });
+  };
+
   navigateToConfirmRelocation = () => {
-    this.props.navigation.navigate('ConfirmRelocation');
+    this.props.navigation.navigate('ConfirmRelocation', {
+      relocationId: this.state.relocationId,
+    });
   };
 
   render() {
-    const {errorMessage, isLoading, relocationDetails} = this.state;
+    const {
+      errorMessage,
+      isLoading,
+      relocationDetails,
+      isSubmitting,
+    } = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -70,7 +101,7 @@ class RelocationDetails extends React.Component {
             closeBanner={this.closeBanner}
           />
         )}
-        {isLoading ? (
+        {isLoading && relocationDetails === null ? (
           <Loading />
         ) : (
           <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
@@ -100,7 +131,7 @@ class RelocationDetails extends React.Component {
               />
               <TextList
                 title="Grade"
-                value={relocationDetails.productGradeFrom}
+                value={productGradeToString(relocationDetails.productGradeFrom)}
               />
               <TextList
                 title="Expiry Date"
@@ -172,14 +203,17 @@ class RelocationDetails extends React.Component {
               />
               <TextList
                 title="Destination Grade"
-                value={relocationDetails.productGradeTo}
+                value={productGradeToString(relocationDetails.productGradeTo)}
               />
             </Card>
             <Button
               title="Start Relocate"
               titleStyle={styles.buttonText}
               buttonStyle={styles.button}
-              onPress={this.navigateToConfirmRelocation}
+              disabled={isSubmitting}
+              onPress={this.startRelocate}
+              disabledStyle={{backgroundColor: '#ABABAB'}}
+              disabledTitleStyle={{color: '#FFF'}}
             />
           </ScrollView>
         )}

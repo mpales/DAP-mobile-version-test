@@ -13,6 +13,11 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 // component
 import {TextList, CustomTextList} from '../../../../component/extend/Text-list';
+import Banner from '../../../../component/banner/banner';
+import Loading from '../../../../component/loading/loading';
+// helper
+import {getData} from '../../../../component/helper/network';
+import {productGradeToString} from '../../../../component/helper/string';
 // style
 import Mixins from '../../../../mixins';
 // icon
@@ -24,14 +29,38 @@ class RelocationConfirm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentLocation: CURRENTLOCATION,
-      newLocation: NEWLOCATION,
+      relocationId: this.props.route.params?.relocationId ?? null,
+      relocationDetails: null,
       showOverlay: false,
+      errorMessage: '',
+      isLoading: true,
     };
     this.handleShowOverlay.bind(this);
     this.confirmRelocation.bind(this);
     this.navigateToRelocationJobList.bind(this);
   }
+
+  componentDidMount() {
+    this.getRelocationJobDetails();
+  }
+
+  getRelocationJobDetails = async () => {
+    const {relocationId} = this.state;
+    if (relocationId === null) return;
+    const result = await getData(
+      `/stocks/stock-relocations/${relocationId}/details`,
+    );
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        relocationDetails: result,
+      });
+    } else if (result.error !== undefined) {
+      this.setState({
+        errorMessage: result.error,
+      });
+    }
+    this.setState({isLoading: false});
+  };
 
   handleShowOverlay = (value) => {
     this.setState({
@@ -50,102 +79,164 @@ class RelocationConfirm extends React.Component {
   };
 
   render() {
-    const {currentLocation, newLocation} = this.state;
+    const {errorMessage, isLoading, relocationDetails} = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
-        <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
-          <Card containerStyle={styles.cardContainer}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.cardTitle}>Current Location</Text>
-              <TextList title="Location" value={currentLocation.location} />
-              <TextList title="Item Code" value={currentLocation.itemCode} />
-              <TextList
-                title="Description"
-                value={currentLocation.description}
-              />
-              <CustomTextList
-                title="Quantity"
-                value={`${currentLocation.quantity}-${currentLocation.locationOpacity}`}
-                separateQuantity={true}
-              />
-              <TextList title="UOM" value={currentLocation.UOM} />
-              <CustomTextList title="Grade" value={currentLocation.grade} />
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.cardTitle}>New Location</Text>
-              <TextList title="Location" value={newLocation.location} />
-              <TextList title="Item Code" value={newLocation.itemCode} />
-              <TextList title="Description" value={newLocation.description} />
-              <CustomTextList
-                title="Quantity"
-                value={`${newLocation.quantity}-${newLocation.locationOpacity}`}
-                separateQuantity={true}
-              />
-              <TextList title="UOM" value={newLocation.UOM} />
-              <CustomTextList title="Grade" value={newLocation.grade} />
-            </View>
-          </Card>
-          <Button
-            title="Confirm Relocation"
-            titleStyle={styles.buttonText}
-            buttonStyle={styles.button}
-            onPress={this.confirmRelocation}
+        {!isLoading && errorMessage !== '' && (
+          <Banner
+            title={errorMessage}
+            backgroundColor="#F07120"
+            closeBanner={this.closeBanner}
           />
-        </ScrollView>
-        <Overlay
-          overlayStyle={{borderRadius: 10, padding: 0}}
-          isVisible={this.state.showOverlay}>
-          <View
-            style={{
-              flexShrink: 1,
-              width: window.width * 0.9,
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderBottomWidth: 1,
-                borderBottomColor: '#ABABAB',
-                paddingVertical: 15,
-              }}>
-              <CheckmarkIcon height="24" width="24" fill="#17B055" />
-              <Text
-                style={{
-                  ...Mixins.subtitle3,
-                  fontSize: 18,
-                  lineHeight: 25,
-                  marginLeft: 10,
-                  color: '#17B055',
-                }}>
-                Relocation Successful
-              </Text>
-            </View>
-            <View style={{padding: 20}}>
-              <Text style={styles.cardTitle}>New Location</Text>
-              <TextList title="Location" value={newLocation.location} />
-              <TextList title="Item Code" value={newLocation.itemCode} />
-              <TextList title="Description" value={newLocation.description} />
-              <TextList title="Quantity" value={newLocation.quantity} />
-              <CustomTextList
-                title="Quantity"
-                value={newLocation.locationOpacity}
-              />
-              <TextList title="UOM" value={newLocation.UOM} />
-              <CustomTextList title="Grade" value={newLocation.grade} />
+        )}
+        {isLoading && relocationDetails === null ? (
+          <Loading />
+        ) : (
+          <>
+            <ScrollView
+              style={styles.body}
+              showsVerticalScrollIndicator={false}>
+              <Card containerStyle={styles.cardContainer}>
+                <View style={styles.sectionContainer}>
+                  <Text style={styles.cardTitle}>Current Location</Text>
+                  <TextList
+                    title="Location"
+                    value={relocationDetails.locationIdFrom}
+                  />
+                  <TextList
+                    title="Item Code"
+                    value={relocationDetails.itemCode}
+                  />
+                  <TextList
+                    title="Description"
+                    value={relocationDetails.description}
+                  />
+                  <CustomTextList
+                    title="Quantity"
+                    value={`${relocationDetails.quantityFrom}-${
+                      relocationDetails.quantityFrom -
+                      relocationDetails.quantityTo
+                    }`}
+                    separateQuantity={true}
+                  />
+                  <TextList title="UOM" value={relocationDetails.uom} />
+                  <CustomTextList
+                    title="Grade"
+                    value={productGradeToString(
+                      relocationDetails.productGradeFrom,
+                    )}
+                  />
+                </View>
+                <View style={styles.sectionContainer}>
+                  <Text style={styles.cardTitle}>New Location</Text>
+                  <TextList
+                    title="Location"
+                    value={relocationDetails.locationIdTo}
+                  />
+                  <TextList
+                    title="Item Code"
+                    value={relocationDetails.itemCode}
+                  />
+                  <TextList
+                    title="Description"
+                    value={relocationDetails.description}
+                  />
+                  <CustomTextList
+                    title="Quantity"
+                    value={`${relocationDetails.quantityFrom}-${
+                      relocationDetails.quantityFrom +
+                      relocationDetails.quantityTo
+                    }`}
+                    separateQuantity={true}
+                  />
+                  <TextList title="UOM" value={relocationDetails.uom} />
+                  <CustomTextList
+                    title="Grade"
+                    value={productGradeToString(
+                      relocationDetails.productGradeTo,
+                    )}
+                  />
+                </View>
+              </Card>
               <Button
-                title="Back To List"
+                title="Confirm Relocation"
                 titleStyle={styles.buttonText}
-                buttonStyle={[
-                  styles.button,
-                  {marginHorizontal: 0, marginTop: 20},
-                ]}
-                onPress={this.navigateToRelocationJobList}
+                buttonStyle={styles.button}
+                onPress={this.confirmRelocation}
               />
-            </View>
-          </View>
-        </Overlay>
+            </ScrollView>
+            <Overlay
+              overlayStyle={{borderRadius: 10, padding: 0}}
+              isVisible={this.state.showOverlay}>
+              <View
+                style={{
+                  flexShrink: 1,
+                  width: window.width * 0.9,
+                }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: '#ABABAB',
+                    paddingVertical: 15,
+                  }}>
+                  <CheckmarkIcon height="24" width="24" fill="#17B055" />
+                  <Text
+                    style={{
+                      ...Mixins.subtitle3,
+                      fontSize: 18,
+                      lineHeight: 25,
+                      marginLeft: 10,
+                      color: '#17B055',
+                    }}>
+                    Relocation Successful
+                  </Text>
+                </View>
+                <View style={{padding: 20}}>
+                  <Text style={styles.cardTitle}>New Location</Text>
+                  <TextList
+                    title="Location"
+                    value={relocationDetails.locationIdTo}
+                  />
+                  <TextList
+                    title="Item Code"
+                    value={relocationDetails.itemCode}
+                  />
+                  <TextList
+                    title="Description"
+                    value={relocationDetails.description}
+                  />
+                  <CustomTextList
+                    title="Quantity"
+                    value={`${
+                      relocationDetails.quantityFrom +
+                      relocationDetails.quantityTo
+                    }`}
+                  />
+                  <TextList title="UOM" value={relocationDetails.uom} />
+                  <CustomTextList
+                    title="Grade"
+                    value={productGradeToString(
+                      relocationDetails.productGradeTo,
+                    )}
+                  />
+                  <Button
+                    title="Back To List"
+                    titleStyle={styles.buttonText}
+                    buttonStyle={[
+                      styles.button,
+                      {marginHorizontal: 0, marginTop: 20},
+                    ]}
+                    onPress={this.navigateToRelocationJobList}
+                  />
+                </View>
+              </View>
+            </Overlay>
+          </>
+        )}
       </SafeAreaProvider>
     );
   }
@@ -199,26 +290,6 @@ const styles = StyleSheet.create({
     lineHeight: 25,
   },
 });
-
-const CURRENTLOCATION = {
-  location: 'JP2 C05-002',
-  itemCode: '342045002',
-  description: 'ERGOBLOM V2 BLUE DESK',
-  quantity: 30,
-  locationOpacity: 0,
-  UOM: 'Pair',
-  grade: '01',
-};
-
-const NEWLOCATION = {
-  location: 'AW-00214',
-  itemCode: '342045002',
-  description: 'ERGOBLOM V2 BLUE DESK (HTH-512W LARGE TABLE/SHELF)',
-  quantity: 30,
-  locationOpacity: 60,
-  UOM: 'Pair',
-  grade: 'expired',
-};
 
 function mapStateToProps(state) {
   return {};
