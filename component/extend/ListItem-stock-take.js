@@ -29,6 +29,11 @@ const ListItemStockTake = ({item, navigate}) => {
         />
         <ListItem.Content
           style={[styles.sectionContainer, {flexDirection: 'column'}]}>
+          {item.recount !== undefined && (
+            <View style={styles.recountContainer}>
+              <Text style={styles.recountText}>Recount</Text>
+            </View>
+          )}
           <Text style={styles.valueText}>{Format.formatDate(item.date)}</Text>
           <Text style={styles.valueText}>{`JOB ID ${item.jobId}`}</Text>
           <Text style={styles.valueText}>{item.client.name}</Text>
@@ -122,6 +127,22 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: '#424141',
     fontWeight: '400',
+  },
+  recountContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderRadius: 5,
+    borderColor: '#D5D5D5',
+    borderWidth: 1,
+    paddingHorizontal: 5,
+    marginBottom: 5,
+  },
+  recountText: {
+    ...Mixins.subtitle3,
+    color: '#F07120',
+    lineHeight: 21,
+    fontWeight: '600',
   },
 });
 
