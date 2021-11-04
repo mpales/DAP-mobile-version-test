@@ -192,20 +192,22 @@ class StockTakeCountList extends React.Component {
             paddingHorizontal: 20,
           }}>
           {jobData !== null && (
-            <>
-              <View>
-                <Text style={styles.text}>{jobData.jobId}</Text>
-                <Text style={styles.text}>{jobData.client.name}</Text>
-              </View>
-              <View>
+            <View style={{flex: 1}}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                }}>
+                <Text style={styles.text}>{`JOB ID ${jobData.jobId}`}</Text>
                 <Text style={[styles.text, {textAlign: 'right'}]}>
                   {Format.formatDate(jobData.date)}
                 </Text>
-                <Text style={[styles.text, {textAlign: 'right'}]}>
-                  {jobData.client.code}
-                </Text>
               </View>
-            </>
+              <Text
+                style={
+                  styles.text
+                }>{`${jobData.client.name} (${jobData.client.code})`}</Text>
+            </View>
           )}
         </View>
         <SearchBar
