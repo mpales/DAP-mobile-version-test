@@ -246,6 +246,7 @@ class List extends React.Component {
                                               });
                                         } else {
                                             this.props.setCurrentASN(data.id);
+                                            this.props.setManifestType(data.type);
                                              this.props.navigation.navigate(  {
                                                 name: 'Manifest',
                                                  params: {
@@ -404,6 +405,9 @@ const mapDispatchToProps = (dispatch) => {
       },
       setCurrentASN : (data)=> {
         return dispatch({type:'setASN', payload: data});
+      },
+      setManifestType : (data)=> {
+        return dispatch({type:'setManifestType', payload: data});
       },
       //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
     };

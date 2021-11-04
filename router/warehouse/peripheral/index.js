@@ -120,14 +120,12 @@ class Example extends React.Component {
     }
     if(prevState.isConfirm !== this.state.isConfirm && this.state.isConfirm === true ){
       let FormData = await this.getPhotoReceivingGoods();
-      let gradeIndex = grade.findIndex((o)=> o === this.state.ItemGrade)+1;
       let incrementQty = this.state.qty;
       
       const ProcessItem = await postBlob('inboundsMobile/'+this.props.currentASN+'/'+this.state.scanItem+'/process-item', [
         ...FormData,
         {name: 'palletId', data: String(this.state.ItemPallet)},
         {name: 'batchNo', data: String(this.state.batchNo)},
-        {name: 'grade', data: String(gradeIndex)},
         {name: 'qty', data: String(incrementQty)},
         {name: 'attributes', data: JSON.stringify(this.state.attrData)},
       ]).then((result)=>{
@@ -440,7 +438,7 @@ class Example extends React.Component {
                         <Text style={styles.labelPackage}>Pallet ID</Text>
                       { this.state.isConfirm === true ? (  
                       <Text style={styles.infoPackage}>
-                        {this.state.PalletArray.find((o)=>o.palete_id === this.state.ItemPallet)['pallet_no']}
+                        {this.state.PalletArray.some((o)=>o.palete_id === this.state.ItemPallet) === true ? this.state.PalletArray.find((o)=>o.palete_id === this.state.ItemPallet)['pallet_no'] : null}
                         </Text>) 
                         :(  
                         <View style={styles.infoElement}>
@@ -468,32 +466,7 @@ class Example extends React.Component {
                       {dataItem.is_transit !== 1 && (
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Grade</Text>
-                    
-                       { this.state.isConfirm === true ? (
-                       <Text style={styles.infoPackage}>{this.state.ItemGrade}</Text>
-                       ) :(     
-                       <View style={styles.infoElement}>
-                         <SelectDropdown
-                            buttonStyle={{maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
-                            buttonTextStyle={{...styles.infoPackage,textAlign:'left',}}
-                            data={grade}
-                            defaultValue={this.state.ItemGrade}
-                            onSelect={(selectedItem, index) => {
-                              this.setState({itemGrade:selectedItem});
-                            }}
-                            buttonTextAfterSelection={(selectedItem, index) => {
-                              // text represented after item is selected
-                              // if data array is an array of objects then return selectedItem.property to render after item is selected
-                              return selectedItem
-                            }}
-                            rowTextForSelection={(item, index) => {
-                              // text represented for each item in dropdown
-                              // if data array is an array of objects then return item.property to represent item in dropdown
-                              return item
-                            }}
-                          />    
-                          </View>
-                          )}
+                        <Text style={styles.infoPackage}>{ this.props.ManifestType === 1 ? ( dataItem.rework === 0 ? 'SIT -> Buffer' : 'Rework -> Buffer') : (dataItem.rework === 0 ? 'SIT-> Pick' : 'Rework -> Pick')}</Text>
                     
                       </View>)}
 
@@ -1242,6 +1215,7 @@ function mapStateToProps(state) {
     manifestList: state.originReducer.manifestList,
     keyStack: state.originReducer.filters.keyStack,
     POSMPostpone: state.originReducer.filters.POSMPostpone,
+    ManifestType : state.originReducer.filters.currentManifestType,
   };
 }
 

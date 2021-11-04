@@ -55,6 +55,7 @@ const initialState = {
     isConnectedSelector: true,
     warehouse_module: '',
     currentASN: null,
+    currentManifestType: null,
     currentManifest: null,
     activeASN: [],
     completeASN: [],
@@ -398,6 +399,14 @@ export default function appReducer(state = initialState, action) {
           currentIVAS: initialState.filters.currentIVAS,
         },
       };
+      case 'setManifestType':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            currentManifestType: action.payload,
+          },
+        };
     case 'setCurrentManifest':
       return {
         ...state,
