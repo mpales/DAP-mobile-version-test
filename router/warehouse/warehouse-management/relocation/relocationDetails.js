@@ -11,7 +11,10 @@ import Banner from '../../../../component/banner/banner';
 // helper
 import {getData, putData} from '../../../../component/helper/network';
 import Format from '../../../../component/helper/format';
-import {productGradeToString} from '../../../../component/helper/string';
+import {
+  productGradeToString,
+  reasonCodeToString,
+} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
 
@@ -146,7 +149,7 @@ class RelocationDetails extends React.Component {
               <TextList title="Batch No" value={relocationDetails.batchNo} />
               <TextList
                 title="Reason Code"
-                value={relocationDetails.reasonCode}
+                value={reasonCodeToString(relocationDetails.reasonCode)}
               />
               <TextList
                 title="Remarks"
