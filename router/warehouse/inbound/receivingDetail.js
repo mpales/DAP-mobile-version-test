@@ -345,7 +345,7 @@ class Acknowledge extends React.Component {
                  inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                  inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                  labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                 placeholder="134"
+                 placeholder={String(data.no_of_pallet)}
                  disabled={true}
                  leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
              />

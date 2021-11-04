@@ -104,6 +104,27 @@ class ConnoteReportDetails extends React.Component {
     let photoData = Array.from({length:item.inbound_report_photos.length}).map((num,index)=>{
       return {...item.inbound_report_photos[index],report_id:item.id,inbound_id:item.inbound_id,inbound_product_id:item.inbound_product_id}
     });
+    let report_title = 'Other';
+    switch (item.report) {
+      case 1:
+        report_title = 'Damage Item'
+        break;
+        case 2:
+          report_title = 'Item Missing'
+          break;
+          case 3:
+            report_title = 'Excess Item'
+            break;
+            case 4:
+              report_title = 'Others'
+              break;
+              case 5:
+                report_title = 'Expired Item'
+                break;
+                        
+      default:
+        break;
+    }
     return (<Card containerStyle={styles.cardContainer} style={styles.card}>
     <View style={styles.header}>
       <Text
@@ -111,7 +132,7 @@ class ConnoteReportDetails extends React.Component {
           styles.headerTitle,
           {marginBottom: 10, color: '#E03B3B', fontSize: 20},
         ]}>
-        {item.report}
+        {report_title }
       </Text>
     </View>
     <View style={styles.detail}>

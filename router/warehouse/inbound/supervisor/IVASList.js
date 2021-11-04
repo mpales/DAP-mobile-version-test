@@ -94,7 +94,6 @@ class ConnoteReportDetails extends React.Component {
        
         <View style={styles.detail}>
           <DetailList title="Client" value={item.inbound.client} />
-          <DetailList title="Active Receipt" value={item.current_active === true ? 'Active' : 'Not Active' } />
           <DetailList title="Recorded By" value={item.inbound_shipment_va.created_by  !== undefined ? item.inbound_shipment_va.created_by.firstName : null} />
           <DetailList title="Date and Time" value={item.inbound_shipment_va.created_on  !== undefined && item.inbound_shipment_va.created_on  !== null ? moment(item.inbound_shipment_va.created_on).format('DD/MM/YYY h:mm a') : null}/>
          
