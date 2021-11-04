@@ -110,9 +110,7 @@ class StockTakeCountList extends React.Component {
     const {stockTakeCountList} = this.state;
     let foundData = true;
     if (stockTakeCountList !== null) {
-      foundData = stockTakeCountList.find(
-        (el) => el.status === 'Waiting' || el.status === 'Reported',
-      );
+      foundData = stockTakeCountList.find((el) => el.status === 'Waiting');
     }
     if (foundData === undefined) {
       return false;
@@ -168,7 +166,7 @@ class StockTakeCountList extends React.Component {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        <Text style={{...Mixins.subtitle3}}>No Job List</Text>
+        <Text style={{...Mixins.subtitle3}}>No Result</Text>
       </View>
     );
   };
@@ -239,20 +237,6 @@ class StockTakeCountList extends React.Component {
             }
           />
           <Badge
-            value="Reported"
-            onPress={() => this.handleFilterStatus('Reported')}
-            badgeStyle={
-              this.state.filterStatus === 'Reported'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'Reported'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-          <Badge
             value="Waiting"
             onPress={() => this.handleFilterStatus('Waiting')}
             badgeStyle={
@@ -281,15 +265,15 @@ class StockTakeCountList extends React.Component {
             }
           />
           <Badge
-            value="Recount"
-            onPress={() => this.handleFilterStatus('Recount')}
+            value="Reported"
+            onPress={() => this.handleFilterStatus('Reported')}
             badgeStyle={
-              this.state.filterStatus === 'Recount'
+              this.state.filterStatus === 'Reported'
                 ? styles.badgeSelected
                 : styles.badge
             }
             textStyle={
-              this.state.filterStatus === 'Recount'
+              this.state.filterStatus === 'Reported'
                 ? styles.badgeTextSelected
                 : styles.badgeText
             }
