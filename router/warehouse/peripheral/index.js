@@ -156,7 +156,7 @@ class Example extends React.Component {
          if(result.error !== undefined && this.props.keyStack === 'Barcode'){
           this.props.navigation.goBack();
          } else {
-          this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: true});
+          this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: Boolean(item.take_photo)});
          }
         }
       } else if(this.state.indexItem !== null && this.state.multipleSKU === true){
@@ -165,7 +165,7 @@ class Example extends React.Component {
         if(result.error !== undefined && this.props.keyStack === 'Barcode'){
           this.props.navigation.goBack();
          } else {
-          this.setState({dataItem: item, qty : 0, ItemGrade: "Pick",currentPOSM: true, multipleSKU : false, filterMultipleSKU : null}); 
+          this.setState({dataItem: item, qty : 0, ItemGrade: "Pick",currentPOSM: Boolean(item.take_photo), multipleSKU : false, filterMultipleSKU : null}); 
          }
       }
     } 
@@ -175,7 +175,7 @@ class Example extends React.Component {
       let item = manifestList.find((element)=>element.pId === scanItem);  
       let indexItem = manifestList.findIndex((element)=> element.pId === scanItem);
       const result = await postData('inboundsMobile/'+this.props.currentASN+'/'+item.pId+'/switch-status/2')
-      this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: true});
+      this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: Boolean(item.take_photo)});
     }
   }
   }
@@ -223,7 +223,7 @@ class Example extends React.Component {
           if(result.error !== undefined){
             this.props.navigation.goBack();
            } else {
-            this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: true});
+            this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: Boolean(item.take_photo)});
            }
         }
       } else if(this.state.indexItem !== null && this.state.multipleSKU === true){
@@ -232,7 +232,7 @@ class Example extends React.Component {
         if(result.error !== undefined){
           this.props.navigation.goBack();
          } else {
-          this.setState({dataItem: item, qty :  0, ItemGrade: "Pick", currentPOSM: true, filterMultipleSKU :null , multipleSKU: false}); 
+          this.setState({dataItem: item, qty :  0, ItemGrade: "Pick", currentPOSM: Boolean(item.take_photo), filterMultipleSKU :null , multipleSKU: false}); 
          }
       }
     }
@@ -241,23 +241,25 @@ class Example extends React.Component {
       let item = manifestList.find((element)=>element.pId === scanItem);  
       let indexItem = manifestList.findIndex((element)=> element.pId === scanItem);
       this.handleZoomInAnimation();
-      this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: true});
+      this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: Boolean(item.take_photo)});
     }
   }
   }
   getPhotoReceivingGoods = async () => {
     const {POSMPostpone} = this.props;
     let formdata = [];
-    for (let index = 0; index < POSMPostpone.length; index++) {
-      let name,filename,path,type ='';
-      await RNFetchBlob.fs.stat(POSMPostpone[index]).then((FSStat)=>{
-        name = FSStat.filename.replace('.','-');
-        filename= FSStat.filename;
-        path = FSStat.path;
-        type = FSStat.type;
-      });
-      if(type === 'file')
-      formdata.push({ name : 'photos', filename : filename, type:'image/jpg', data: RNFetchBlob.wrap(path)})
+    if(POSMPostpone !== null){
+      for (let index = 0; index < POSMPostpone.length; index++) {
+        let name,filename,path,type ='';
+        await RNFetchBlob.fs.stat(POSMPostpone[index]).then((FSStat)=>{
+          name = FSStat.filename.replace('.','-');
+          filename= FSStat.filename;
+          path = FSStat.path;
+          type = FSStat.type;
+        });
+        if(type === 'file')
+        formdata.push({ name : 'photos', filename : filename, type:'image/jpg', data: RNFetchBlob.wrap(path)})
+      }
     }
     return formdata;
   }
@@ -889,9 +891,9 @@ class Example extends React.Component {
     this.setState({
       dataCode: '0',
       qty : qty === '' ? 0 : qty,
-      enterAttr : false,
+      enterAttr : dataItem.take_photo === 1 ? false : true,
       isConfirm: dataItem.is_transit === 1 ? true : false,
-      isPOSM: true,
+      isPOSM: Boolean(dataItem.take_photo),
     });
     // for prototype only
     let arr = this.makeScannedItem(scanItem,qty);

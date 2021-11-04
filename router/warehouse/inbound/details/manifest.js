@@ -48,6 +48,7 @@ class Warehouse extends React.Component{
       _manifest: [],
       updated: false,
       renderRefresh: false,
+      remark : '',
     };
 
     this.setFiltered.bind(this);
@@ -120,7 +121,7 @@ class Warehouse extends React.Component{
             //   return {...manifestDummy[index],...result.inbound_products[index]}
             // });
             this.props.setManifestList(result.products)
-            this.setState({receivingNumber: routes[index].params.number,inboundNumber: result.inbound_number,_manifest:result.products,companyname:result.client, updated: true})
+            this.setState({receivingNumber: routes[index].params.number,inboundNumber: result.inbound_number,_manifest:result.products,companyname:result.client,remark: result.remarks, updated: true})
           } else {
             navigation.popToTop();
           }
@@ -132,7 +133,7 @@ class Warehouse extends React.Component{
             //   return {...manifestDummy[index],...result.inbound_products[index]}
             // });
             this.props.setManifestList(result.products)
-          this.setState({receivingNumber: currentASN,inboundNumber: result.inbound_number, _manifest:result.products, companyname:result.client, updated: true})
+          this.setState({receivingNumber: currentASN,inboundNumber: result.inbound_number, _manifest:result.products, companyname:result.client,remark: result.remarks, updated: true})
           } else {
             navigation.popToTop();
           }
@@ -173,7 +174,7 @@ class Warehouse extends React.Component{
             <Tooltip 
             withPointer={true} 
             skipAndroidStatusBar ={true}  
-            popover={<Text>Info here</Text>} 
+            popover={<Text style={Mixins.body3}>{this.state.remark}</Text>} 
             width={300} 
             containerStyle={{left:20}}>
             <Button

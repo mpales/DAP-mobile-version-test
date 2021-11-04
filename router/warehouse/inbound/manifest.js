@@ -56,6 +56,7 @@ class Warehouse extends React.Component{
       updated: false,
       notifbanner : '',
       renderRefresh: false,
+      remark: '',
     };
     this.goToIVAS.bind(this);
     this.toggleOverlay.bind(this);
@@ -194,7 +195,7 @@ class Warehouse extends React.Component{
               this.setState({notifbanner: 'Generate New Pallet ID First'});
             } 
             this.props.setManifestList(result.products)
-            this.setState({receivingNumber: routes[index].params.number, inboundNumber: result.inbound_number,_manifest:result.products,companyname:result.client,receiptid: result.inbound_receipt[result.inbound_receipt.length -1].receipt_no, updated: true  })
+            this.setState({receivingNumber: routes[index].params.number, inboundNumber: result.inbound_number,_manifest:result.products,companyname:result.client,receiptid: result.inbound_receipt[result.inbound_receipt.length -1].receipt_no,remark: result.remarks, updated: true  })
           } else {
             navigation.popToTop();
           }
@@ -213,7 +214,7 @@ class Warehouse extends React.Component{
               this.setState({notifbanner: 'Generate New Pallet ID First'});
             } 
             this.props.setManifestList(result.products)
-            this.setState({receivingNumber: currentASN,inboundNumber: result.inbound_number, _manifest:result.products, companyname:result.client,receiptid:  result.inbound_receipt[result.inbound_receipt.length -1].receipt_no, updated: true })
+            this.setState({receivingNumber: currentASN,inboundNumber: result.inbound_number, _manifest:result.products, companyname:result.client,receiptid:  result.inbound_receipt[result.inbound_receipt.length -1].receipt_no,remark: result.remarks, updated: true })
           } else {
             navigation.popToTop();
           }
@@ -308,7 +309,7 @@ class Warehouse extends React.Component{
             <Tooltip 
             withPointer={true} 
             skipAndroidStatusBar ={true}  
-            popover={<Text>Info here</Text>} 
+            popover={<Text style={Mixins.body3}>{this.state.remark}</Text>} 
             width={300} 
             containerStyle={{left:20}}>
             <Button

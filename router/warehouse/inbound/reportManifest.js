@@ -111,12 +111,14 @@ class ReportManifest extends React.Component {
       }
     handleSubmit = async () => {
         const {currentASN} = this.props;
-        const {dataCode, _manifest} = this.state;
+        const {dataCode, _manifest, qtyreported} = this.state;
         let FormData = await this.getPhotoReceivingGoods();
+        let parsedQty = parseInt(qtyreported) === NaN ? 0 : parseInt(qtyreported);
         postBlob('/inboundsMobile/'+currentASN+'/'+_manifest.pId+'/reports', [
             // element with property `filename` will be transformed into `file` in form data
             { name : 'report', data: this.state.reasonOption},
             {name :'description', data : this.state.otherReason},
+            {name : 'qty', data : parsedQty},
             // custom content type
             ...FormData,
           ], this.listenToProgressUpload).then(result=>{

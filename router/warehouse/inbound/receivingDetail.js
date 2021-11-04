@@ -261,7 +261,7 @@ class Acknowledge extends React.Component {
          </View>
          {data.status === 3 && (
            <>
-         {data.container_no !== '' ? (
+         {data.shipment_type === 2 ? (
          <>
          <View style={{flexDirection:'row', flexShrink:1}}>
              <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
@@ -300,7 +300,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="134"
+                placeholder={data.container_size}
                 disabled={true}
                 leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
             />
@@ -331,7 +331,7 @@ class Acknowledge extends React.Component {
                  inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                  inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                  labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                 placeholder="Palletized"
+                 placeholder={data.pallet_type === 1 ? 'Loose' : 'Palletized' }
                  disabled={true}
                  leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
              />

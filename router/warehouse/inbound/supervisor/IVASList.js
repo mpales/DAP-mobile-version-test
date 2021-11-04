@@ -81,7 +81,10 @@ class ConnoteReportDetails extends React.Component {
     return (
       <TouchableScale
       key={item.key}
-      onPress={() => this._onPressSingleReports(item)}
+      onPress={() => 
+        {if(item.inbound_shipment_va.inbound_shipment !== undefined)
+          this._onPressSingleReports(item)
+        }}
       onShowUnderlay={separators.highlight}
       onHideUnderlay={separators.unhighlight}
       activeScale={0.9}
@@ -91,6 +94,7 @@ class ConnoteReportDetails extends React.Component {
        
         <View style={styles.detail}>
           <DetailList title="Client" value={item.inbound.client} />
+          <DetailList title="Active Receipt" value={item.current_active === true ? 'Active' : 'Not Active' } />
           <DetailList title="Recorded By" value={item.inbound_shipment_va.created_by  !== undefined ? item.inbound_shipment_va.created_by.firstName : null} />
           <DetailList title="Date and Time" value={item.inbound_shipment_va.created_on  !== undefined && item.inbound_shipment_va.created_on  !== null ? moment(item.inbound_shipment_va.created_on).format('DD/MM/YYY h:mm a') : null}/>
          
@@ -101,7 +105,7 @@ class ConnoteReportDetails extends React.Component {
       </Text>
       </View>
 
-        <ArrowDown fill="black" height="26" width="26" style={{flexShrink:1,alignContent:'flex-end', transform:[{rotate:'-90deg'}]}}/>
+        {item.inbound_shipment_va.inbound_shipment !== undefined && (<ArrowDown fill="black" height="26" width="26" style={{flexShrink:1,alignContent:'flex-end', transform:[{rotate:'-90deg'}]}}/>)}
           </View>
           <DetailList title="Number Pallet" value={item.inbound_shipment_va.inbound_shipment_no_pallet} />
           <DetailList title="Number Cartons" value={item.inbound_shipment_va.inbound_shipment_no_carton} />
