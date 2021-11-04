@@ -18,7 +18,8 @@ import {
   Text,
   TouchableOpacity,
   RefreshControl,
-  ActivityIndicator
+  ActivityIndicator,
+  PixelRatio,
 } from 'react-native';
 import {Avatar, Card, Overlay, Button, SearchBar, Badge, Input, Tooltip} from 'react-native-elements';
 
@@ -49,7 +50,8 @@ class Warehouse extends React.Component{
       _manifest: [],
       updated: false,
       notifbanner : '',
-      renderRefresh:false
+      renderRefresh:false,
+      remark : '',
     };
 
     this.setFiltered.bind(this);
@@ -114,7 +116,7 @@ class Warehouse extends React.Component{
           if(typeof result === 'object' && result.error === undefined){
           
             this.props.setManifestList(result.products)
-            this.setState({receivingNumber: routes[index].params.number,inboundNumber:result.inbound_number,_manifest:result.products,companyname:result.client, updated: true })
+            this.setState({receivingNumber: routes[index].params.number,inboundNumber:result.inbound_number,_manifest:result.products,companyname:result.client,remark: result.remarks, updated: true })
           } else {
             navigation.popToTop();
           }
@@ -123,7 +125,7 @@ class Warehouse extends React.Component{
           if(typeof result === 'object' && result.error === undefined){
           
             this.props.setManifestList(result.products)
-            this.setState({receivingNumber: routes[index].params.number,inboundNumber:result.inbound_number,_manifest:result.products,companyname:result.client, updated:true})
+            this.setState({receivingNumber: routes[index].params.number,inboundNumber:result.inbound_number,_manifest:result.products,companyname:result.client,remark: result.remarks, updated:true})
           } else {
             navigation.popToTop();
           }
@@ -199,7 +201,7 @@ class Warehouse extends React.Component{
             <Tooltip 
             withPointer={true} 
             skipAndroidStatusBar ={true}  
-            popover={<Text>Info here</Text>} 
+            popover={<Text style={Mixins.body3}>{this.state.remark}</Text>} 
             width={300} 
             containerStyle={{left:20}}>
             <Button
@@ -441,6 +443,7 @@ const styles = StyleSheet.create({
     ...Mixins.subtitle3,
     lineHeight: 21,
     color: '#ffffff',
+    fontSize: PixelRatio.get() > 2.75 ? 12 : 14,   
   },
   overlayContainerStyle: {
     position:'absolute',

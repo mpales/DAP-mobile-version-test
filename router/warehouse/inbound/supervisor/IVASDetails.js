@@ -55,13 +55,14 @@ class ConnoteReportDetails extends React.Component {
     const {inboundID, shipmentID} = this.state;
     if(prevProps.keyStack !== this.props.keyStack && this.props.keyStack  === 'IVASDetailsSPV'){
       const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+ shipmentID );
-      this.setState({itemIVAS:result, acknowledged:Boolean(Number(result.acknowledged))});
+      this.setState({itemIVAS:result, acknowledged:result.current_active});
     }
   }
   async componentDidMount(){
     const {inboundID, shipmentID} = this.state;
     const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+ shipmentID );
-    this.setState({itemIVAS:result, acknowledged:Boolean(Number(result.acknowledged))});
+    console.log(result);
+    this.setState({itemIVAS:result.inbound_shipment_va, acknowledged:false});
   }
   checkedIcon = () => {
     return (
@@ -132,8 +133,7 @@ class ConnoteReportDetails extends React.Component {
               titleStyle={styles.deliveryText}
               title="Confirm"
               onPress={this.acknowledgedSPVConfirm}
-              disabled={!this.state.acknowledged}
-  
+              disabled={(this.state.acknowledged === false)}
             />
               <Button
               containerStyle={{flex:1, marginHorizontal: 10,}}

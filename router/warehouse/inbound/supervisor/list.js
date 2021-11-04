@@ -228,6 +228,7 @@ class List extends React.Component {
                                     item={data} 
                                     ToManifest={()=>{
                                         this.props.setCurrentASN(data.id);
+                                        this.props.setManifestType(data.type);
                                         this.props.setBottomBar(false);
                                         this.props.navigation.navigate('ManifestSupervisor',   {
                                             number: data.id,
@@ -408,6 +409,9 @@ const mapDispatchToProps = (dispatch) => {
       },
       setCurrentASN : (data)=> {
         return dispatch({type:'setASN', payload: data});
+      },
+      setManifestType : (data)=> {
+        return dispatch({type:'setManifestType', payload: data});
       },
       //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
     };

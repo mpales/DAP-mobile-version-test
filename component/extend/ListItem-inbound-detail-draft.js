@@ -129,8 +129,8 @@ const Manifest = ({item, index, drag, currentManifest, navigation, toDetailsDraf
   const isCurrentManifest = useSelector(
     (state) => state.originReducer.filters.currentManifest,
   );
-  let addAttribute = item.is_transit === undefined && item.basic !== undefined && item.barcodes.length > 0 && item.basic.length !== null && item.basic.weight !== null && item.basic.width !== null && item.basic.height !== null && item.basic.volume !== null && item.basic.carton_pcs !== null ? false : item.is_transit !== undefined ? false : true;
-  let status = 'grey';
+  let addAttribute = item.is_transit === undefined && item.input_basic_attributes === 0 ? false : item.is_transit !== undefined ? false : true;
+   let status = 'grey';
   let textstatus = 'pending';
   switch (item.status) {
     case 1:
@@ -167,17 +167,35 @@ const Manifest = ({item, index, drag, currentManifest, navigation, toDetailsDraf
         <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
         <ListItem.Content style={styles.sectionContainer}>
-        <Badge value={textstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 15,}} containerStyle={{alignSelf: 'flex-end'}} badgeStyle={{backgroundColor: status}} />
-          <View style={[styles.detailContainer,{flexDirection:'row', flex: 1}]}>
-              <View style={[styles.detail,{flexDirection:'column',flexGrow: 1, paddingVertical: 0}]}>
-
-                   {addAttribute && ( <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5', width:50,paddingHorizontal:10}}>
+        <View style={{flexDirection:"row", flexGrow:1, justifyContent:'center',alignContent:'center',alignItems:'center'}}>
+          <View style={{flexDirection:'row', flexShrink:1,}}>
+        {addAttribute && ( <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5',paddingHorizontal:10, marginRight:5}}>
                         
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#F07120', fontWeight: '500'}}>
                         New
                         </Text>
                         
                     </View>)}
+                    {item.take_photo === 1 && ( <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5',paddingHorizontal:10, marginRight:5}}>
+                        
+                        <Text style={{...Mixins.small1,lineHeight: 18,color: '#F07120', fontWeight: '500'}}>
+                        Photo
+                        </Text>
+                        
+                    </View>)}
+                    {item.rework === 1 && ( <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5',paddingHorizontal:10, marginRight:5}}>
+                        
+                        <Text style={{...Mixins.small1,lineHeight: 18,color: '#F07120', fontWeight: '500'}}>
+                        Rework
+                        </Text>
+                        
+                    </View>)}
+                    </View>
+        <Badge value={textstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 15,}} containerStyle={{alignSelf: 'flex-end', flex:1,justifyContent:'flex-end', alignContent:'flex-end', alignItems:'flex-end', flexDirection:'row'}} badgeStyle={{backgroundColor: status}} />
+        </View>
+              <View style={[styles.detailContainer,{flexDirection:'row', flex: 1}]}>
+              <View style={[styles.detail,{flexDirection:'column',flexGrow: 1, paddingVertical: 0}]}>
+            
                     {category !== 'default' && (<View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,backgroundColor:'#F07120', width:97,paddingHorizontal:10}}>
                         
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#FFFFFF', fontWeight: '500'}}>
