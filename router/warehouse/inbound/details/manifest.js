@@ -18,7 +18,8 @@ import {
   Text,
   TouchableOpacity,
   RefreshControl,
-  ActivityIndicator
+  ActivityIndicator,
+  PixelRatio,
 } from 'react-native';
 import {Avatar, Card, Overlay, Button, SearchBar, Badge, Input, Tooltip} from 'react-native-elements';
 
@@ -400,6 +401,7 @@ const styles = StyleSheet.create({
     ...Mixins.subtitle3,
     lineHeight: 21,
     color: '#ffffff',
+    fontSize: PixelRatio.get() > 2.75 ? 12 : 14,   
   },
   overlayContainerStyle: {
     position:'absolute',
