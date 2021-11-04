@@ -229,7 +229,19 @@ class StockTakeReport extends React.Component {
               onPress={() => this.handleReportOptions(1)}
             />
             <CheckBox
-              title="Expired item"
+              title="Excess Item"
+              checkedIcon="dot-circle-o"
+              uncheckedIcon="circle-o"
+              checkedColor="#2A3386"
+              uncheckedColor="#6C6B6B"
+              textStyle={Mixins.subtitle3}
+              size={25}
+              containerStyle={styles.checkbox}
+              checked={reasonOption === 4}
+              onPress={() => this.handleReportOptions(4)}
+            />
+            <CheckBox
+              title="Expired Item"
               checkedIcon="dot-circle-o"
               uncheckedIcon="circle-o"
               checkedColor="#2A3386"
@@ -329,7 +341,10 @@ class StockTakeReport extends React.Component {
               onPress={this.submitReport}
               disabledStyle={{backgroundColor: '#ABABAB'}}
               disabledTitleStyle={{color: '#FFF'}}
-              disabled={!this.props.isStockTakeReportPhotoSubmitted}
+              disabled={
+                reasonOption !== 1 &&
+                !this.props.isStockTakeReportPhotoSubmitted
+              }
             />
           </View>
         </ScrollView>
