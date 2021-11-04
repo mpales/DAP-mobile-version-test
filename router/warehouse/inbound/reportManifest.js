@@ -111,14 +111,30 @@ class ReportManifest extends React.Component {
       }
     handleSubmit = async () => {
         const {currentASN} = this.props;
-        const {dataCode, _manifest, qtyreported} = this.state;
+        const {dataCode, _manifest, qtyreported, reasonOption} = this.state;
         let FormData = await this.getPhotoReceivingGoods();
-        let parsedQty = parseInt(qtyreported) === NaN ? 0 : parseInt(qtyreported);
+        let intOption = '0';
+        switch (reasonOption) {
+            case 'damage-goods':
+                intOption = '1';
+                break;
+            case 'missing-item':
+                intOption = '2';
+                break;
+            case 'excess-item':
+                intOption = '3';
+                break;
+            case 'other':
+                intOption = '4';
+                break;
+            default:
+                break;
+        } 
         postBlob('/inboundsMobile/'+currentASN+'/'+_manifest.pId+'/reports', [
             // element with property `filename` will be transformed into `file` in form data
-            { name : 'report', data: this.state.reasonOption},
+            { name : 'report', data: intOption},
             {name :'description', data : this.state.otherReason},
-            {name : 'qty', data : parsedQty},
+            {name : 'qty', data : qtyreported},
             // custom content type
             ...FormData,
           ], this.listenToProgressUpload).then(result=>{
@@ -163,7 +179,7 @@ class ReportManifest extends React.Component {
                 <View style={styles.contentContainer}>
                     <Text style={styles.title}>Report</Text>
                     <CheckBox
-                        title='Damage goods'
+                        title='Damage Item'
                         checkedIcon='dot-circle-o'
                         uncheckedIcon='circle-o'
                         checkedColor='#2A3386'
@@ -185,15 +201,15 @@ class ReportManifest extends React.Component {
                         onPress={() => this.handleReasonOptions('missing-item')}
                     />
                                         <CheckBox
-                        title='Expired Date'
+                        title='Excess Item'
                         checkedIcon='dot-circle-o'
                         uncheckedIcon='circle-o'
                         checkedColor='#2A3386'
                         uncheckedColor='#6C6B6B'
                         size={25}
                         containerStyle={styles.checkbox}
-                        checked={this.state.reasonOption === 'exp-date'}
-                        onPress={() => this.handleReasonOptions('exp-date')}
+                        checked={this.state.reasonOption === 'excess-item'}
+                        onPress={() => this.handleReasonOptions('excess-item')}
                     />
                                         <CheckBox
                         title='Other'
