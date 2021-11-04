@@ -16,7 +16,7 @@ import {TextList, CustomTextList} from '../../../../component/extend/Text-list';
 import Banner from '../../../../component/banner/banner';
 import Loading from '../../../../component/loading/loading';
 // helper
-import {getData} from '../../../../component/helper/network';
+import {getData, putData} from '../../../../component/helper/network';
 import {productGradeToString} from '../../../../component/helper/string';
 // style
 import Mixins from '../../../../mixins';
@@ -34,6 +34,7 @@ class RelocationConfirm extends React.Component {
       showOverlay: false,
       errorMessage: '',
       isLoading: true,
+      isSubmitting: false,
     };
     this.handleShowOverlay.bind(this);
     this.confirmRelocation.bind(this);
@@ -62,14 +63,34 @@ class RelocationConfirm extends React.Component {
     this.setState({isLoading: false});
   };
 
+  confirmRelocation = async () => {
+    this.setState({
+      isSubmitting: true,
+    });
+    const {relocationId} = this.state;
+    const result = await putData(
+      `/stocks-mobile/stock-relocations/${relocationId}/confirm-relocation`,
+    );
+    if (typeof result === 'object' && result.message === 'Relocation Success') {
+      this.handleShowOverlay(true);
+    } else if (result.error !== undefined) {
+      this.setState({
+        errorMessage: result.error,
+      });
+    } else if (typeof result === 'string') {
+      this.setState({
+        errorMessage: result,
+      });
+    }
+    this.setState({
+      isSubmitting: false,
+    });
+  };
+
   handleShowOverlay = (value) => {
     this.setState({
       showOverlay: value ?? false,
     });
-  };
-
-  confirmRelocation = () => {
-    this.handleShowOverlay(true);
   };
 
   navigateToRelocationJobList = () => {
@@ -78,8 +99,19 @@ class RelocationConfirm extends React.Component {
     this.props.navigation.navigate('RelocationList');
   };
 
+  closeBanner = () => {
+    this.setState({
+      errorMessage: '',
+    });
+  };
+
   render() {
-    const {errorMessage, isLoading, relocationDetails} = this.state;
+    const {
+      errorMessage,
+      isLoading,
+      isSubmitting,
+      relocationDetails,
+    } = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -144,10 +176,7 @@ class RelocationConfirm extends React.Component {
                   />
                   <CustomTextList
                     title="Quantity"
-                    value={`${relocationDetails.quantityFrom}-${
-                      relocationDetails.quantityFrom +
-                      relocationDetails.quantityTo
-                    }`}
+                    value={`${0}-${relocationDetails.quantityTo}`}
                     separateQuantity={true}
                   />
                   <TextList title="UOM" value={relocationDetails.uom} />
@@ -164,6 +193,9 @@ class RelocationConfirm extends React.Component {
                 titleStyle={styles.buttonText}
                 buttonStyle={styles.button}
                 onPress={this.confirmRelocation}
+                disabled={isSubmitting}
+                disabledStyle={{backgroundColor: '#ABABAB'}}
+                disabledTitleStyle={{color: '#FFF'}}
               />
             </ScrollView>
             <Overlay

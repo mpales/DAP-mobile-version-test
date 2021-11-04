@@ -109,6 +109,7 @@ class RelocationList extends React.Component {
   };
 
   navigateToDetails = (relocationId, status) => {
+    if (status === 'Completed') return;
     this.props.setBottomBar(false);
     if (status === 'In Progress') {
       this.props.navigation.navigate('ConfirmRelocation', {
