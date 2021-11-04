@@ -177,30 +177,39 @@ class Acknowledge extends React.Component {
   }
   detailSubmited = async () => {
       const {receivingNumber} = this.state;
-      let uploadCategory = this.state.data.status === 3 ? 'receiving' : 'processing';
-      const result = await postData('inboundsMobile/'+ receivingNumber + '/'+uploadCategory);
-      if(typeof result !== 'object' && (result === 'Inbound status changed to received' || result === 'Inbound status changed to processing')){
-        if(this.state.data.status === 3){
-          this.setState({updateData:true, submitDetail:false, errors: ''});
-        } else {
-          this.props.setActiveASN(receivingNumber);
-          this.props.setCurrentASN(receivingNumber);
-          this.props.setReportedManifest(null);
-          this.props.setItemScanned([]);
-          this.props.setManifestList([]);
-          this.setState({updateData:true, submitDetail:false, errors: ''});
-          this.props.navigation.navigate(  {
-            name: 'Manifest',
-            params: {
-              number: receivingNumber,
-            },
-          })
-        }
+      if(this.state.data.status >= 5){
+        this.props.navigation.navigate(  {
+          name: 'Manifest',
+          params: {
+            number: receivingNumber,
+          },
+        })
       } else {
-        if(typeof result === 'object'){
-          this.setState({errors: result.error});
+        let uploadCategory = this.state.data.status === 3 ? 'receiving' : 'processing';
+        const result = await postData('inboundsMobile/'+ receivingNumber + '/'+uploadCategory);
+        if(typeof result !== 'object' && (result === 'Inbound status changed to received' || result === 'Inbound status changed to processing')){
+          if(this.state.data.status === 3){
+            this.setState({updateData:true, submitDetail:false, errors: ''});
+          } else {
+            this.props.setActiveASN(receivingNumber);
+            this.props.setCurrentASN(receivingNumber);
+            this.props.setReportedManifest(null);
+            this.props.setItemScanned([]);
+            this.props.setManifestList([]);
+            this.setState({updateData:true, submitDetail:false, errors: ''});
+            this.props.navigation.navigate(  {
+              name: 'Manifest',
+              params: {
+                number: receivingNumber,
+              },
+            })
+          }
         } else {
-          this.setState({errors: result});
+          if(typeof result === 'object'){
+            this.setState({errors: result.error});
+          } else {
+            this.setState({errors: result});
+          }
         }
       }
   }
@@ -436,8 +445,8 @@ class Acknowledge extends React.Component {
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.detailSubmited}
-              title={data.status === 3 ? 'Receive Goods' : 'Start Processing'}
-              disabled={!this.state.submitDetail}
+              title={data.status === 3 ? 'Receive Goods' : data.status === 4 ? 'Start Processing' : 'Go to Processing'}
+              disabled={ data.status < 5 ? (!this.state.submitDetail) : false}
             />
           <Button
               containerStyle={{flexShrink:1, marginBottom: 10,}}

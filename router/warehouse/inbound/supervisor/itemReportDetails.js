@@ -111,13 +111,24 @@ class ConnoteReportDetails extends React.Component {
     return <View style={styles.unchecked} />;
   };
   acknowledgedReport = async ()=>{
-    const {receivingNumber, inboundID, activeReportId, acknowledged,resolution} = this.state;
+    const {receivingNumber, inboundID, activeReportId, acknowledged,resolution, dataReports} = this.state;
     let data = {
       acknowledge: acknowledged >>> 0,
       resolution: 'test',
     };
     let result = await postData('/inboundsMobile/'+inboundID+'/'+receivingNumber+'/reports/'+activeReportId,data); 
     if(result !== 'object'){
+      this.setState({dataReports: Array.from({length:dataReports.length}).map((num,index)=>{
+        if(activeReportId === dataReports[index].id){
+          return {
+            ...dataReports[index],
+            acknowledged: 1,
+          };
+        } else {
+          return dataReports[index];
+        }
+      })
+    })
       this.setState({acknowledged:false});
     } else {
       if(result.errors !== undefined){
@@ -191,7 +202,7 @@ class ConnoteReportDetails extends React.Component {
       return (
         <TouchableScale
         key={item.key}
-        onPress={() => {this.setState({activeReportId:item.id})}}
+        onPress={() => {this.setState({activeReportId:item.id, acknowledged : this.state.activeReportId === item.id ? this.state.acknowledged : false})}}
         onShowUnderlay={separators.highlight}
         onHideUnderlay={separators.unhighlight}
         activeScale={0.9}
@@ -201,7 +212,7 @@ class ConnoteReportDetails extends React.Component {
             <Text
               style={[
                 styles.headerTitle,
-                {marginBottom: 10, color: '#E03B3B', fontSize: 20},
+                {marginBottom: 10, color: '#E03B3B', fontSize: 20, color: item.acknowledged === 1 ? '#17B055' : '#E03B3B'},
               ]}>
               {report_title}
             </Text>
@@ -236,10 +247,11 @@ class ConnoteReportDetails extends React.Component {
                       title="I Acknowledge"
                       textStyle={styles.textCheckbox}
                       containerStyle={[styles.checkboxContainer,{paddingHorizontal:0}]}
-                      checked={this.state.acknowledged}
+                      checked={item.acknowledged === 1 ? true : this.state.acknowledged}
                       onPress={this.toggleCheckBox}
                       checkedIcon={this.checkedIcon()}
                       uncheckedIcon={this.uncheckedIcon()}
+                      disabled={item.acknowledged === 1 ? true : false }
                     />
                 <Button
                     containerStyle={{flex:1, marginHorizontal: 0,}}
@@ -247,7 +259,7 @@ class ConnoteReportDetails extends React.Component {
                     titleStyle={styles.deliveryText}
                     title="Confirm"
                     onPress={this.acknowledgedReport}
-                    disabled={(this.state.acknowledged === false)}
+                    disabled={(this.state.acknowledged === false || item.acknowledged === 1)}
                   />
                   </>
                   )}
