@@ -8,6 +8,7 @@ import Mixins from '../../mixins';
 import {TextList} from './Text-list';
 // helper
 import {stockTakeJobStatusColor} from '../helper/status-color';
+import {productGradeToString} from '../helper/string';
 
 const ListItemStockTakeCount = ({item, navigate}) => {
   return (
@@ -40,8 +41,8 @@ const ListItemStockTakeCount = ({item, navigate}) => {
           <TextList title="Item Code" value={item.product.itemCode} />
           <TextList title="Description" value={item.product.description} />
           <TextList title="Quantity" value={item.quantity ?? '-'} />
-          <TextList title="UOM" value={item.productUom.packaging} />
-          <TextList title="Grade" value={item.grade} />
+          <TextList title="UOM" value={item.productUom.packaging ?? '-'} />
+          <TextList title="Grade" value={productGradeToString(item.grade)} />
         </ListItem.Content>
         <ListItem.Chevron
           size={16}

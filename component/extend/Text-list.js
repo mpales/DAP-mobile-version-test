@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Mixins from '../../mixins';
 
 export const TextList = ({title, value}) => (
@@ -14,7 +14,7 @@ export const TextList = ({title, value}) => (
 
 export const TextListBig = ({title, value, fontSize}) => (
   <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
-    <View style={{width: 90}}>
+    <View>
       <Text
         style={
           fontSize === undefined
@@ -74,6 +74,25 @@ export const CustomTextList = ({title, value, separateQuantity}) => {
     </View>
   );
 };
+
+export const NavigateTextList = ({title, value, navigate}) => (
+  <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
+    <View style={{width: 100}}>
+      <Text style={styles.titleText}>{title}</Text>
+    </View>
+    <Text style={styles.separatorText}>:</Text>
+    <TouchableOpacity onPress={navigate}>
+      <Text
+        style={{
+          ...styles.valueText,
+          color: '#E03B3B',
+          textDecorationLine: 'underline',
+        }}>
+        {`${value} Report(s)`}
+      </Text>
+    </TouchableOpacity>
+  </View>
+);
 
 const styles = StyleSheet.create({
   titleText: {

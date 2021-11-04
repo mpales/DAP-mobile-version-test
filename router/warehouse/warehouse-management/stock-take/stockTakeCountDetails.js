@@ -12,12 +12,19 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 // component
-import {TextList, TextListBig} from '../../../../component/extend/Text-list';
+import {
+  TextList,
+  TextListBig,
+  NavigateTextList,
+} from '../../../../component/extend/Text-list';
 import Banner from '../../../../component/banner/banner';
 // helper
 import {putData} from '../../../../component/helper/network';
 import Format from '../../../../component/helper/format';
-import {cleanKeyString} from '../../../../component/helper/string';
+import {
+  cleanKeyString,
+  productGradeToString,
+} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
 
@@ -139,6 +146,7 @@ class StockTakeCountDetails extends React.Component {
 
   navigateToStockTakeReportDetails = () => {
     const {stockTakeDetails} = this.state;
+    if (stockTakeDetails.status !== 'Reported') return;
     this.props.navigation.navigate('StockTakeReportDetails', {
       productId: stockTakeDetails.id,
       productUOM: stockTakeDetails.productUom.packaging,
@@ -177,21 +185,27 @@ class StockTakeCountDetails extends React.Component {
                 value={stockTakeDetails.warehouse.locationId}
               />
               <TextList
-                title="Pallet"
+                title="Item Code"
                 value={stockTakeDetails.product.itemCode}
               />
               <TextList
                 title="Description"
                 value={stockTakeDetails.product.description}
               />
-              <TextList title="Quantity" value={stockTakeDetails.quantity} />
+              <TextList
+                title="Quantity"
+                value={stockTakeDetails.quantity ?? '-'}
+              />
               <TextList
                 title="UOM"
                 value={stockTakeDetails.productUom.packaging}
               />
-              <TextList title="Grade" value={stockTakeDetails.grade} />
+              <TextList
+                title="Grade"
+                value={productGradeToString(stockTakeDetails.grade)}
+              />
               <View style={styles.lineSeparator} />
-              <Text>Attributes</Text>
+              <Text style={Mixins.subtitle3}>Attributes</Text>
               <TextListBig
                 title="Product Category"
                 value={stockTakeDetails.product.category}
@@ -201,6 +215,7 @@ class StockTakeCountDetails extends React.Component {
                 Object.keys(stockTakeDetails.attributes).map((key) => {
                   return (
                     <TextList
+                      key={key}
                       title={cleanKeyString(key)}
                       value={
                         key.includes('date')
@@ -212,47 +227,43 @@ class StockTakeCountDetails extends React.Component {
                     />
                   );
                 })}
-              <TextList title="Banch" value={stockTakeDetails.batchNo} />
+              <TextList title="Batch" value={stockTakeDetails.batchNo} />
+              <View style={styles.lineSeparator} />
+              <Text style={Mixins.subtitle3}>Report</Text>
+              <NavigateTextList
+                title="Total report"
+                value={stockTakeDetails.status === 'Reported' ? '1' : '0'}
+                navigate={this.navigateToStockTakeReportDetails}
+              />
             </Card>
-            {stockTakeDetails.status !== 'Completed' && (
-              <>
-                {stockTakeDetails.status === 'Reported' ? (
+            {stockTakeDetails.status !== 'Completed' &&
+              stockTakeDetails.status !== 'Reported' && (
+                <>
+                  {stockTakeDetails?.quantity === undefined ||
+                  parseInt(stockTakeDetails.quantity) === 0 ? (
+                    <Button
+                      title="Enter Quantity"
+                      titleStyle={styles.buttonText}
+                      buttonStyle={styles.button}
+                      onPress={this.handleShowModal}
+                    />
+                  ) : (
+                    <Button
+                      title="Confirm Quantity"
+                      titleStyle={styles.buttonText}
+                      buttonStyle={styles.button}
+                      onPress={this.confirmStockTake}
+                    />
+                  )}
                   <Button
                     type="clear"
-                    title="See Report Detail"
+                    title="Report"
                     containerStyle={styles.reportButton}
                     titleStyle={styles.reportButtonText}
-                    onPress={this.navigateToStockTakeReportDetails}
+                    onPress={this.navigateToReportStockTakeCount}
                   />
-                ) : (
-                  <>
-                    {stockTakeDetails?.quantity === undefined ||
-                    parseInt(stockTakeDetails.quantity) === 0 ? (
-                      <Button
-                        title="Set Quantity"
-                        titleStyle={styles.buttonText}
-                        buttonStyle={styles.button}
-                        onPress={this.handleShowModal}
-                      />
-                    ) : (
-                      <Button
-                        title="Confirm"
-                        titleStyle={styles.buttonText}
-                        buttonStyle={styles.button}
-                        onPress={this.confirmStockTake}
-                      />
-                    )}
-                    <Button
-                      type="clear"
-                      title="Report"
-                      containerStyle={styles.reportButton}
-                      titleStyle={styles.reportButtonText}
-                      onPress={this.navigateToReportStockTakeCount}
-                    />
-                  </>
-                )}
-              </>
-            )}
+                </>
+              )}
           </>
         )}
         {isShowModal && (
@@ -264,9 +275,9 @@ class StockTakeCountDetails extends React.Component {
                 <Text style={Mixins.h4}>Qty</Text>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <Button
-                    title="+"
+                    title="-"
                     buttonStyle={styles.roundButton}
-                    onPress={this.handlePlus}
+                    onPress={this.handleMinus}
                   />
                   <TextInput
                     value={inputQuantity.toString()}
@@ -276,9 +287,9 @@ class StockTakeCountDetails extends React.Component {
                     onChangeText={(text) => this.handleInput(text)}
                   />
                   <Button
-                    title="-"
+                    title="+"
                     buttonStyle={styles.roundButton}
-                    onPress={this.handleMinus}
+                    onPress={this.handlePlus}
                   />
                 </View>
               </View>
@@ -287,6 +298,9 @@ class StockTakeCountDetails extends React.Component {
                 titleStyle={styles.buttonText}
                 buttonStyle={[styles.button, {marginHorizontal: 0}]}
                 onPress={this.confirmStockTake}
+                disabled={inputQuantity < 1}
+                disabledStyle={{backgroundColor: '#ABABAB'}}
+                disabledTitleStyle={{color: '#FFF'}}
               />
               <Button
                 type="clear"
