@@ -130,7 +130,7 @@ class ConnoteReportDetails extends React.Component {
       <Text
         style={[
           styles.headerTitle,
-          {marginBottom: 10, color: '#E03B3B', fontSize: 20},
+          {marginBottom: 10, color: '#E03B3B', fontSize: 20, color: item.acknowledged === 1 ? '#17B055' : '#E03B3B'},
         ]}>
         {report_title }
       </Text>
