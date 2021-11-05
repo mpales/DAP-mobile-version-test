@@ -170,9 +170,9 @@ class StockTakeReportDetails extends React.Component {
                       styles.headerTitle,
                       {marginBottom: 10, color: '#E03B3B', fontSize: 20},
                     ]}>
-                    {reportData.otherType === ''
-                      ? reportData.reportType
-                      : reportData.otherType}
+                    {!!reportData.otherType
+                      ? reportData.otherType
+                      : reportData.reportType}
                   </Text>
                 </View>
                 <View>
@@ -184,7 +184,10 @@ class StockTakeReportDetails extends React.Component {
                     title="Date and Time"
                     value={FormatHelper.formatDateTime(reportData.reportedOn)}
                   />
-                  <TextList title="Quantity" value={reportData.quantity} />
+                  <TextList
+                    title="Quantity"
+                    value={!!reportData.quantity ? reportData.quantity : '-'}
+                  />
                   <TextList title="UOM" value={productUOM} />
                   <TextList title="Photo Proof" value="" />
                   <FlatList
@@ -243,27 +246,6 @@ class StockTakeReportDetails extends React.Component {
     );
   }
 }
-
-const REPORTDATA = {
-  reportId: '123123123',
-  dateTime: moment().subtract(1, 'days').unix(),
-  reason: 'Damage Item',
-  reportedBy: {
-    firstName: 'Kim',
-    lastName: 'Tan',
-  },
-  quantity: '32',
-  UOM: 'PCS',
-  notes: 'Theres some crack on packages',
-  photos: [
-    {
-      photoId: 'kardus-box_kardus-dus',
-    },
-    {
-      photoId: 'kardus-box_kardus-duss',
-    },
-  ],
-};
 
 const styles = StyleSheet.create({
   container: {

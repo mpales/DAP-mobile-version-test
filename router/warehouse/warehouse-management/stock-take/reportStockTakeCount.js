@@ -42,6 +42,8 @@ class StockTakeReport extends React.Component {
       ...this.state,
       isShowBanner: false,
       reasonOption: selectedValue,
+      otherReason: '',
+      quantity: '',
     });
   };
 
@@ -105,7 +107,14 @@ class StockTakeReport extends React.Component {
       },
       ...pictureData,
     ];
-    putBlob(`/stocks-mobile/stock-counts/report/${productId}`, body, () => {})
+    if (reasonOption === 3 && body[2].name === 'reportedQuantity') {
+      body.splice(2, 1);
+    }
+    putBlob(
+      `/stocks-mobile/stock-counts/${this.props.stockTakeId}/products/${productId}/reports`,
+      body,
+      () => {},
+    )
       .then((result) => {
         if (
           result.message !== undefined &&
@@ -424,6 +433,7 @@ function mapStateToProps(state) {
     isStockTakeReportPhotoSubmitted:
       state.originReducer.filters.isStockTakeReportPhotoSubmitted,
     stockTakeReportPhotoList: state.originReducer.stockTakeReportPhotoList,
+    stockTakeId: state.originReducer.filters.stockTakeId,
   };
 }
 
