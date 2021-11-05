@@ -48,7 +48,8 @@ import {
 } from './component/helper/persist-login';
 import MenuWarehouse from './router/warehouse/detail/warehouse-menu';
 import LogoLarge from './assets/dap_logo_hires1-e1544435829468 5large.svg';
-import SplashScreen from 'react-native-splash-screen'
+import SplashScreen from 'react-native-splash-screen';
+import DeviceInfo from 'react-native-device-info';
 enableScreens(false);
 class App extends React.Component<IProps, IState> {
   keyboardDidShowListener: any;
@@ -265,6 +266,10 @@ class App extends React.Component<IProps, IState> {
               <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
           </View>
+          <Text
+            style={
+              styles.versionText
+            }>{`Version ${DeviceInfo.getVersion()}`}</Text>
         </View>
       </>
     );
@@ -385,6 +390,13 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     textAlign: 'center',
   },
+  versionText: {
+    ...Mixins.subtitle3,
+    color: '#FFF',
+    position: 'absolute',
+    bottom: 0,
+    left: 20,
+  },
 });
 type IState = {
   email: string;
@@ -502,7 +514,8 @@ const NavigationWrapper = (props) => {
   }, [isConnected]); // Only re-run the effect if count changes
 
   return (
-    <SafeAreaProvider style={{backgroundColor:'#121C78', width:'100%',height:'100%'}}>
+    <SafeAreaProvider
+      style={{backgroundColor: '#121C78', width: '100%', height: '100%'}}>
       <NavigationContainer
         ref={navigationRef}
         onReady={() => {
@@ -541,13 +554,13 @@ const Root = (props) => {
   });
   const [routeName, setRoute] = React.useState('Login');
 
-  React.useEffect(()=>{
-    if(!isLoading){
+  React.useEffect(() => {
+    if (!isLoading) {
       SplashScreen.hide();
     }
-  },[isLoading]);
-  
-  if(isLoading) return null;
+  }, [isLoading]);
+
+  if (isLoading) return null;
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>

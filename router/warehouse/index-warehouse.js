@@ -33,6 +33,7 @@ import Settings from './settings/index';
 import WMS from './warehouse-management';
 import Notification from './notification';
 import {Button, Avatar} from 'react-native-elements';
+import DeviceInfo from 'react-native-device-info';
 import IconHome7Mobile from '../../assets/icon/iconmonstr-home-7mobile.svg';
 import WarehouseRelocationIcon from '../../assets/icon/warehouse-mobile.svg';
 import IconBubble26Mobile from '../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
@@ -213,6 +214,7 @@ class WarehouseNavigator extends React.Component {
       <DrawerContentScrollView
         contentContainerStyle={{
           paddingTop: 0,
+          flex: 1,
         }}
         {...props}>
         <SafeAreaView edges={['top']} style={{backgroundColor: '#F1811C'}}>
@@ -230,6 +232,9 @@ class WarehouseNavigator extends React.Component {
         </SafeAreaView>
         <DrawerItemList {...props} />
         <DrawerItem label="Logout" onPress={this.drawerLogout} />
+        <Text style={styles.versionText}>
+          {`Version ${DeviceInfo.getVersion()}`}
+        </Text>
       </DrawerContentScrollView>
     );
   };
@@ -517,6 +522,11 @@ const styles = {
   },
   drawerAvatar: {
     flexShrink: 1,
+  },
+  versionText: {
+    position: 'absolute',
+    bottom: 0,
+    left: 20,
   },
 };
 function mapStateToProps(state) {

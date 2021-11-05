@@ -26,6 +26,7 @@ import {
 } from '@react-navigation/drawer';
 import {AnyAction, Dispatch} from 'redux';
 import {connect} from 'react-redux';
+import DeviceInfo from 'react-native-device-info';
 import CCM from '.';
 import Settings from '../settings/index';
 import Notification from '../notification';
@@ -550,6 +551,7 @@ class WarehouseNavigator extends React.Component {
       <DrawerContentScrollView
         contentContainerStyle={{
           paddingTop: 0,
+          flex: 1,
         }}
         {...props}>
         <SafeAreaView edges={['top']} style={{backgroundColor: '#F1811C'}}>
@@ -567,6 +569,9 @@ class WarehouseNavigator extends React.Component {
         </SafeAreaView>
         <DrawerItemList {...props} />
         <DrawerItem label="Logout" onPress={this.drawerLogout} />
+        <Text style={styles.versionText}>
+          {`Version ${DeviceInfo.getVersion()}`}
+        </Text>
       </DrawerContentScrollView>
     );
   };
@@ -854,6 +859,11 @@ const styles = {
   },
   drawerAvatar: {
     flexShrink: 1,
+  },
+  versionText: {
+    position: 'absolute',
+    bottom: 0,
+    left: 20,
   },
 };
 function mapStateToProps(state) {
