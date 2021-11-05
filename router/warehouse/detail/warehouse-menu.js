@@ -1,16 +1,36 @@
 import React from 'react';
-import {Text, Button,Image, Avatar} from 'react-native-elements';
-import {TextInput, View, Dimensions,TouchableOpacity, BackHandler, InteractionManager, Platform} from 'react-native';
+import {Text, Button, Image, Avatar} from 'react-native-elements';
+import {
+  TextInput,
+  View,
+  Dimensions,
+  TouchableOpacity,
+  BackHandler,
+  InteractionManager,
+  Platform,
+} from 'react-native';
+import DeviceInfo from 'react-native-device-info';
 import Inbound from '../../../assets/icon/iconmonstr-shipping-box-8mobile.svg';
 import Outbound from '../../../assets/icon/iconmonstr-shipping-box-9mobile.svg';
 import Warehouse from '../../../assets/icon/iconmonstr-building-6mobile.svg';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
-import {createBottomTabNavigator,BottomTabBar } from '@react-navigation/bottom-tabs';
-import { createDrawerNavigator,DrawerContentScrollView,
-  DrawerItemList, DrawerItem} from '@react-navigation/drawer';
-  import {createCompatNavigatorFactory} from '@react-navigation/compat';
-import { CommonActions, NavigationRouteContext, NavigationContext} from '@react-navigation/native';
+import {
+  createBottomTabNavigator,
+  BottomTabBar,
+} from '@react-navigation/bottom-tabs';
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+} from '@react-navigation/drawer';
+import {createCompatNavigatorFactory} from '@react-navigation/compat';
+import {
+  CommonActions,
+  NavigationRouteContext,
+  NavigationContext,
+} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import IconHome7Mobile from '../../../assets/icon/iconmonstr-home-7mobile.svg';
 import WarehouseDrawer from '../../../assets/icon/warehouse-bottom-drawer-mobile.svg';
@@ -18,7 +38,7 @@ import IconBubble26Mobile from '../../../assets/icon/iconmonstr-speech-bubble-26
 import IconGear2Mobile from '../../../assets/icon/iconmonstr-gear-2mobile.svg';
 import IconBell2Mobile from '../../../assets/icon/iconmonstr-bell-2mobile.svg';
 import IconMenu from '../../../assets/icon/iconmonstr-menu-6 1mobile.svg';
-import IconTime17Mobile from '../../../assets/icon/iconmonstr-time-17 1mobile.svg';  
+import IconTime17Mobile from '../../../assets/icon/iconmonstr-time-17 1mobile.svg';
 import LogoSmall from '../../../assets/dap_logo_hires1-e1544435829468 5small.svg';
 import {popToLogout} from '../../../component/helper/persist-login';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -35,14 +55,12 @@ class WarehouseMenu extends React.Component {
       isShowSignature: false,
     };
     this.drawerRef = React.createRef();
-   
 
-    this._CustomBottomTabContent.bind(this)
+    this._CustomBottomTabContent.bind(this);
     this._CustomDrawerContent.bind(this);
     this.drawerLogout.bind(this);
     this.renderView.bind(this);
   }
-
 
   shouldComponentUpdate(nextProps, nextState) {
     if (nextProps.isDrawer !== this.props.isDrawer) {
@@ -53,128 +71,161 @@ class WarehouseMenu extends React.Component {
 
     return true;
   }
-  renderView = ()=> {
+  renderView = () => {
     return (
-      <View style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
-          <IconMenu fill="white" height="24" width="24" style={{position:'absolute', top: screen.height * 0.05,left: screen.width * 0.05}}
-          onPress={()=>{
+      <View
+        style={{
+          flex: 1,
+          flexDirection: 'column',
+          backgroundColor: '#121C78',
+          paddingHorizontal: 22,
+        }}>
+        <IconMenu
+          fill="white"
+          height="24"
+          width="24"
+          style={{
+            position: 'absolute',
+            top: screen.height * 0.05,
+            left: screen.width * 0.05,
+          }}
+          onPress={() => {
             this.props.toggleDrawer(true);
           }}
-          />
-          <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 100}}>
-             <LogoSmall width="135" height="70" style={{alignSelf:'center'}}/>
-          </View>
-           
-          <Button
-                containerStyle={ {marginVertical: 10, borderRadius: 10}}
-                icon={() => (
-                    <Inbound height="60" width="60" fill="#ABABAB" />
-                )}
-                iconContainerStyle={[Mixins.rectDefaultButtonIconStyle]}
-                title="INBOUND"
-                titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
-                onPress={()=>{
-                  this.props.setBottomBar(true);
-                  this.props.setWarehouseModule('INBOUND');
-                  this.props.navigation.navigate('Details')}}
-                buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
-              />
-                 
-          <Button
-               containerStyle={ {marginVertical: 10, borderRadius: 10}}
-                 icon={() => (
-                    <Outbound height="60" width="60" fill="#ABABAB" />
-                )}
-                iconContainerStyle={Mixins.rectDefaultButtonIconStyle}
-                title="OUTBOUND"
-                titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
-                onPress={()=>{
-                  this.props.setBottomBar(true);
-                  this.props.setWarehouseModule('OUTBOUND');
-                    this.props.navigation.navigate('Details')}}
-                    buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
-                    />
-                 
-          <Button
-          containerStyle={ {marginVertical: 10, borderRadius: 10}}
-            icon={() => (
-                    <Warehouse height="60" width="60" fill="#ABABAB" />
-                )}
-                iconContainerStyle={[Mixins.rectDefaultButtonIconStyle,{}]}
-                title="WAREHOUSE"
-                titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
-                onPress={()=>{
-                  this.props.setBottomBar(true);
-                  this.props.setWarehouseModule('WAREHOUSE');
-                    this.props.navigation.navigate('Details')}}
-                    buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
-                    />
+        />
+        <View
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            marginVertical: 100,
+          }}>
+          <LogoSmall width="135" height="70" style={{alignSelf: 'center'}} />
         </View>
+
+        <Button
+          containerStyle={{marginVertical: 10, borderRadius: 10}}
+          icon={() => <Inbound height="60" width="60" fill="#ABABAB" />}
+          iconContainerStyle={[Mixins.rectDefaultButtonIconStyle]}
+          title="INBOUND"
+          titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36, flex: 1}}
+          onPress={() => {
+            this.props.setBottomBar(true);
+            this.props.setWarehouseModule('INBOUND');
+            this.props.navigation.navigate('Details');
+          }}
+          buttonStyle={{
+            backgroundColor: '#FFFFFF',
+            paddingVertical: 15,
+            paddingHorizontal: 35,
+          }}
+        />
+
+        <Button
+          containerStyle={{marginVertical: 10, borderRadius: 10}}
+          icon={() => <Outbound height="60" width="60" fill="#ABABAB" />}
+          iconContainerStyle={Mixins.rectDefaultButtonIconStyle}
+          title="OUTBOUND"
+          titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36, flex: 1}}
+          onPress={() => {
+            this.props.setBottomBar(true);
+            this.props.setWarehouseModule('OUTBOUND');
+            this.props.navigation.navigate('Details');
+          }}
+          buttonStyle={{
+            backgroundColor: '#FFFFFF',
+            paddingVertical: 15,
+            paddingHorizontal: 35,
+          }}
+        />
+
+        <Button
+          containerStyle={{marginVertical: 10, borderRadius: 10}}
+          icon={() => <Warehouse height="60" width="60" fill="#ABABAB" />}
+          iconContainerStyle={[Mixins.rectDefaultButtonIconStyle, {}]}
+          title="WAREHOUSE"
+          titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36, flex: 1}}
+          onPress={() => {
+            this.props.setBottomBar(true);
+            this.props.setWarehouseModule('WAREHOUSE');
+            this.props.navigation.navigate('Details');
+          }}
+          buttonStyle={{
+            backgroundColor: '#FFFFFF',
+            paddingVertical: 15,
+            paddingHorizontal: 35,
+          }}
+        />
+      </View>
     );
-  }
-  drawerLogout = async ()=>{
+  };
+  drawerLogout = async () => {
     await postData('/auth/logout');
     this.props.removeJwtToken(null);
     popToLogout();
   };
-  _CustomDrawerContent = (props) =>  {
-    const {navigation,state} = props;
+  _CustomDrawerContent = (props) => {
+    const {navigation, state} = props;
     let {isDrawer} = this.props;
-    const isDrawerOpen = state.history.some(it => it.type === 'drawer');
-      if(this.drawerRef.current){
-        if(isDrawer){
-          navigation.openDrawer();
-        } else {
-          navigation.closeDrawer();
-        } 
-        this.drawerRef.current = false;
+    const isDrawerOpen = state.history.some((it) => it.type === 'drawer');
+    if (this.drawerRef.current) {
+      if (isDrawer) {
+        navigation.openDrawer();
       } else {
-        this.props.toggleDrawer(isDrawerOpen);
+        navigation.closeDrawer();
       }
+      this.drawerRef.current = false;
+    } else {
+      this.props.toggleDrawer(isDrawerOpen);
+    }
 
-  return (
-    <DrawerContentScrollView contentContainerStyle={{
-      paddingTop: 0,
-   }}
-  {...props} >
-      <SafeAreaView  edges={[ 'top']} style={{backgroundColor:'#F1811C'}}>
-      <View style={styles.drawerHead}>
-        <Avatar
-        size={43}
-        rounded 
-        containerStyle={styles.drawerAvatar}
-          source={{
-            uri:
-              'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
-          }}
-          >
-        </Avatar>
-        <Text style={styles.drawerText}>Driver Name</Text>
-        </View>
+    return (
+      <DrawerContentScrollView
+        contentContainerStyle={{
+          paddingTop: 0,
+          flex: 1,
+        }}
+        {...props}>
+        <SafeAreaView edges={['top']} style={{backgroundColor: '#F1811C'}}>
+          <View style={styles.drawerHead}>
+            <Avatar
+              size={43}
+              rounded
+              containerStyle={styles.drawerAvatar}
+              source={{
+                uri:
+                  'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
+              }}></Avatar>
+            <Text style={styles.drawerText}>Driver Name</Text>
+          </View>
         </SafeAreaView>
-      <DrawerItemList {...props} />
-      <DrawerItem
-        label="Logout"
-        onPress={this.drawerLogout}
-      />
-    </DrawerContentScrollView> );
-  }
- 
+        <DrawerItemList {...props} />
+        <DrawerItem label="Logout" onPress={this.drawerLogout} />
+        <Text style={styles.versionText}>
+          {`Version ${DeviceInfo.getVersion()}`}
+        </Text>
+      </DrawerContentScrollView>
+    );
+  };
+
   _CustomBottomTabContent = (props) => {
-    const {navigation,state,descriptors} = props;
+    const {navigation, state, descriptors} = props;
     const focusedOptions = descriptors[state.routes[state.index].key].options;
 
-    if (focusedOptions.tabBarVisible === false || this.props.bottomBar === false) {
+    if (
+      focusedOptions.tabBarVisible === false ||
+      this.props.bottomBar === false
+    ) {
       return null;
     }
-    return (<BottomTabBar  {...props}/>);
+    return <BottomTabBar {...props} />;
   };
 
   deliveryTab = createCompatNavigatorFactory(createBottomTabNavigator)(
     {
       Home: {
         screen: this.renderView,
-        navigationOptions:  ({ navigation }) => ({
+        navigationOptions: ({navigation}) => ({
           tabBarIcon: ({color, focused}) => (
             <Button
               buttonStyle={
@@ -182,8 +233,9 @@ class WarehouseMenu extends React.Component {
                   ? {backgroundColor: '#F07120'}
                   : {backgroundColor: 'transparent'}
               }
-              onPress={()=> {
-                navigation.navigate('Home')}}
+              onPress={() => {
+                navigation.navigate('Home');
+              }}
               icon={() => (
                 <IconHome7Mobile height="22" width="24" fill={color} />
               )}
@@ -193,7 +245,7 @@ class WarehouseMenu extends React.Component {
       },
       Notification: {
         screen: Notification,
-        navigationOptions:  ({ navigation }) => ({
+        navigationOptions: ({navigation}) => ({
           tabBarIcon: ({color, focused}) => (
             <Button
               buttonStyle={
@@ -201,7 +253,7 @@ class WarehouseMenu extends React.Component {
                   ? {backgroundColor: '#F07120'}
                   : {backgroundColor: 'transparent'}
               }
-              onPress={()=> navigation.navigate('Notification')}
+              onPress={() => navigation.navigate('Notification')}
               icon={() => (
                 <IconBubble26Mobile height="22" width="24" fill={color} />
               )}
@@ -211,7 +263,7 @@ class WarehouseMenu extends React.Component {
       },
       Other: {
         screen: Settings,
-        navigationOptions:  ({ navigation }) => ({
+        navigationOptions: ({navigation}) => ({
           tabBarIcon: ({color, focused}) => (
             <Button
               buttonStyle={
@@ -219,7 +271,7 @@ class WarehouseMenu extends React.Component {
                   ? {backgroundColor: '#F07120'}
                   : {backgroundColor: 'transparent'}
               }
-              onPress={()=> navigation.navigate('Other')}
+              onPress={() => navigation.navigate('Other')}
               icon={() => (
                 <IconGear2Mobile height="22" width="24" fill={color} />
               )}
@@ -229,8 +281,8 @@ class WarehouseMenu extends React.Component {
       },
     },
     {
-      tabBar : (props)=> {
-        return this._CustomBottomTabContent(props)
+      tabBar: (props) => {
+        return this._CustomBottomTabContent(props);
       },
       initialRouteName: 'Home',
       tabBarOptions: {
@@ -251,33 +303,55 @@ class WarehouseMenu extends React.Component {
           borderTopRightRadius: 15,
           borderColor: 'transparent',
           overflow: 'hidden',
-          paddingHorizontal: screen.width * 10 / 100,
+          paddingHorizontal: (screen.width * 10) / 100,
         },
       },
     },
   );
   render() {
-    return (<Drawer.Navigator 
-    initialRouteName="Home" 
-    drawerStyle={Mixins.verticalBarExpand}
-    drawerContent={this._CustomDrawerContent} 
-    contentContainerStyle={styles.drawerContainer} 
-    drawerContentOptions={{activeBackgroundColor: '#ffffff',inactiveBackgroundColor: '#ffffff',activeTintColor:'#6C6B6B',inactiveTintColor: '#6C6B6B',
-    labelStyle:Mixins.button,
-    itemStyle: Mixins.verticalBarMargin}}>
-    <Drawer.Screen name="Notifications" component={this.deliveryTab} 
-    options={{
-      drawerIcon:({ focused, color, size })=>(<IconBell2Mobile height="20" width="17" fill='#2D2C2C'/>),
-    }}/>
-    <Drawer.Screen name="History" component={this.deliveryTab} 
-    options={{
-      drawerIcon:({ focused, color, size })=>(<IconTime17Mobile height="20" width="17" fill="#2D2C2C"/>),
-    }}/>
-    <Drawer.Screen name="Settings" component={this.deliveryTab} 
-    options={{
-      drawerIcon:({ focused, color, size })=>(<IconGear2Mobile height="20" width="17" fill="#2D2C2C"/>),
-    }}/>
-  </Drawer.Navigator>);
+    return (
+      <Drawer.Navigator
+        initialRouteName="Home"
+        drawerStyle={Mixins.verticalBarExpand}
+        drawerContent={this._CustomDrawerContent}
+        contentContainerStyle={styles.drawerContainer}
+        drawerContentOptions={{
+          activeBackgroundColor: '#ffffff',
+          inactiveBackgroundColor: '#ffffff',
+          activeTintColor: '#6C6B6B',
+          inactiveTintColor: '#6C6B6B',
+          labelStyle: Mixins.button,
+          itemStyle: Mixins.verticalBarMargin,
+        }}>
+        <Drawer.Screen
+          name="Notifications"
+          component={this.deliveryTab}
+          options={{
+            drawerIcon: ({focused, color, size}) => (
+              <IconBell2Mobile height="20" width="17" fill="#2D2C2C" />
+            ),
+          }}
+        />
+        <Drawer.Screen
+          name="History"
+          component={this.deliveryTab}
+          options={{
+            drawerIcon: ({focused, color, size}) => (
+              <IconTime17Mobile height="20" width="17" fill="#2D2C2C" />
+            ),
+          }}
+        />
+        <Drawer.Screen
+          name="Settings"
+          component={this.deliveryTab}
+          options={{
+            drawerIcon: ({focused, color, size}) => (
+              <IconGear2Mobile height="20" width="17" fill="#2D2C2C" />
+            ),
+          }}
+        />
+      </Drawer.Navigator>
+    );
   }
 }
 
@@ -373,11 +447,11 @@ const styles = {
     paddingTop: 0,
   },
   checkmark: {
-    position: 'absolute', 
-    bottom: 62, 
-    right: 16
+    position: 'absolute',
+    bottom: 62,
+    right: 16,
   },
-  drawerContainer : {
+  drawerContainer: {
     paddingTop: 0,
   },
   drawerHead: {
@@ -386,14 +460,19 @@ const styles = {
     paddingVertical: 25,
     backgroundColor: '#F1811C',
   },
-  drawerText : {
+  drawerText: {
     flexShrink: 1,
     ...Mixins.verticalBarExpandText,
     ...Mixins.button,
     color: 'white',
   },
-  drawerAvatar : {
+  drawerAvatar: {
     flexShrink: 1,
+  },
+  versionText: {
+    position: 'absolute',
+    bottom: 0,
+    left: 20,
   },
 };
 function mapStateToProps(state) {
@@ -418,12 +497,13 @@ const mapDispatchToProps = (dispatch) => {
     toggleDrawer: (bool) => {
       return dispatch({type: 'ToggleDrawer', payload: bool});
     },
-    signatureSubmittedHandler: (signature) => dispatch({type: 'Signature', payload: signature}),
+    signatureSubmittedHandler: (signature) =>
+      dispatch({type: 'Signature', payload: signature}),
     setBottomBar: (toggle) => dispatch({type: 'BottomBar', payload: toggle}),
-    setStartDelivered : (toggle) => {
+    setStartDelivered: (toggle) => {
       return dispatch({type: 'startDelivered', payload: toggle});
     },
-    setWarehouseModule : (toggle) => {
+    setWarehouseModule: (toggle) => {
       return dispatch({type: 'warehouseModule', payload: toggle});
     },
     removeJwtToken: (token) => {
@@ -434,4 +514,3 @@ const mapDispatchToProps = (dispatch) => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(WarehouseMenu);
-
