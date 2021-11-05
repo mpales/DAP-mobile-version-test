@@ -469,7 +469,7 @@ class Acknowledge extends React.Component {
               <Text style={{...Mixins.subtitle3,lineHeight:21}}>Remarks</Text>
               <View style={styles.remark}>
               <Text style={styles.remarkText}>
-              Lorem ipsum      Lorem ipsum      Lorem ipsum      Lorem ipsum     Lorem ipsum      Lorem ipsum
+            {data.remarks}
               </Text>
               </View>
             </View>

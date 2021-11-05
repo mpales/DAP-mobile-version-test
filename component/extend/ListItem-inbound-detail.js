@@ -347,7 +347,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
               titleStyle={[styles.deliveryText,{paddingHorizontal: 10}]}
               onPress={()=>{
                 navigation.navigate({
-                  name: 'Barcode',
+                  name: 'ItemProcess',
                   params: {
                       inputCode: item.pId,
                   }

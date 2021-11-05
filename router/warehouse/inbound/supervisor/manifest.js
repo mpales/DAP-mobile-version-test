@@ -148,7 +148,7 @@ class Warehouse extends React.Component{
     this.toggleOverlay();
     if(action) {
       // for prototype only
-      const result = await postData('/inboundsMobile/'+receivingNumber+'/complete-receiving')
+      const result = await postData('/inboundsMobile/'+receivingNumber+'/confirm-putaway')
       if(typeof result !== 'object'){
         this.setState({notifbanner:result});
       } else {

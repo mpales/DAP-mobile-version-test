@@ -13,6 +13,7 @@ const initialState = {
   stockTakeReportPhotoList: [],
   route: ROUTE,
   inboundList: [],
+  VASList : [],
   inboundSPVList: [],
   putawayList: [],
   outboundTask: [],
@@ -72,6 +73,9 @@ const initialState = {
     currentList: null,
     currentIVAS: [],
     logged: false,
+    activeVAS: [],
+    completeVAS: [],
+    ReportedVAS : [],
     ApplicationNavigational: null,
     stockTakeId: null,
   },
@@ -697,6 +701,11 @@ export default function appReducer(state = initialState, action) {
         ...state,
         inboundList: action.payload,
       };
+      case 'VASList':
+        return {
+          ...state,
+          VASList: action.payload,
+        };
     case 'InboundSPVList':
       return {
         ...state,
@@ -787,6 +796,30 @@ export default function appReducer(state = initialState, action) {
           currentIVAS: [...state.filters.currentIVAS, action.payload],
         },
       };
+      case 'activeVAS':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            activeVAS: [...state.filters.activeVAS, action.payload],
+          },
+        };
+        case 'completeVAS':
+          return {
+            ...state,
+            filters: {
+              ...state.filters,
+              completeVAS: [...state.filters.completeVAS, action.payload],
+            },
+          };
+          case 'ReportedVAS':
+            return {
+              ...state,
+              filters: {
+                ...state.filters,
+                ReportedVAS: [...state.filters.ReportedVAS, action.payload],
+              },
+            };
     case 'fromBarcode':
       return {
         ...state,

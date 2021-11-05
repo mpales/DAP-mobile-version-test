@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import WarehouseInNavigator from './warehouse/inbound/index-inbound';
 import WarehouseOutNavigator from './warehouse/outbound/index-outbound';
 import WarehouseNavigator from './warehouse/index-warehouse';
+import VASNavigator from './warehouse/VAS/index-VAS';
 import DeliveryNavigator from './delivery';
 import {Overlay} from 'react-native-elements';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -608,6 +609,64 @@ class Details extends React.Component {
         Navigate = (
           <>
             <WarehouseNavigator />
+            <Overlay
+              isVisible={visible}
+              onBackdropPress={this.toggleOverlay}
+              fullScreen={true}
+              overlayStyle={{justifyContent: 'center', alignItems: 'center'}}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  textAlign: 'center',
+                  color: '#000000',
+                  marginVertical: 40,
+                }}>
+                {this.state.overlayString}
+              </Text>
+              <View
+                style={{
+                  width: '100%',
+                  flexDirection: 'row',
+                  justifyContent: 'space-evenly',
+                }}>
+                <TouchableOpacity
+                  style={[
+                    {
+                      width: '40%',
+                      height: 40,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      borderRadius: 5,
+                    },
+                    {borderWidth: 1, borderColor: '#ABABAB'},
+                  ]}
+                  onPress={() => this.handleConfirm(false)}>
+                  <Text style={[{color: '#6C6B6B'}]}>No</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    {
+                      width: '40%',
+                      height: 40,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      borderRadius: 5,
+                    },
+                    {backgroundColor: '#F07120'},
+                  ]}
+                  onPress={() => this.handleConfirm(true)}>
+                  <Text style={[{color: '#fff'}]}>Yes</Text>
+                </TouchableOpacity>
+              </View>
+            </Overlay>
+          </>
+        );
+      }else if (this.props.warehouse_module === 'VAS') {
+        Navigate = (
+          <>
+            <VASNavigator />
             <Overlay
               isVisible={visible}
               onBackdropPress={this.toggleOverlay}

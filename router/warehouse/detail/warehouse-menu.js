@@ -1,14 +1,6 @@
 import React from 'react';
-import {Text, Button, Image, Avatar} from 'react-native-elements';
-import {
-  TextInput,
-  View,
-  Dimensions,
-  TouchableOpacity,
-  BackHandler,
-  InteractionManager,
-  Platform,
-} from 'react-native';
+import {Text, Button,Image, Avatar} from 'react-native-elements';
+import {TextInput, View, Dimensions,TouchableOpacity, BackHandler, InteractionManager, Platform, ScrollView} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import Inbound from '../../../assets/icon/iconmonstr-shipping-box-8mobile.svg';
 import Outbound from '../../../assets/icon/iconmonstr-shipping-box-9mobile.svg';
@@ -38,7 +30,8 @@ import IconBubble26Mobile from '../../../assets/icon/iconmonstr-speech-bubble-26
 import IconGear2Mobile from '../../../assets/icon/iconmonstr-gear-2mobile.svg';
 import IconBell2Mobile from '../../../assets/icon/iconmonstr-bell-2mobile.svg';
 import IconMenu from '../../../assets/icon/iconmonstr-menu-6 1mobile.svg';
-import IconTime17Mobile from '../../../assets/icon/iconmonstr-time-17 1mobile.svg';
+import IconTime17Mobile from '../../../assets/icon/iconmonstr-time-17 1mobile.svg';  
+import IconVAS from '../../../assets/icon/iconmonstr-delivery-15mobile.svg';
 import LogoSmall from '../../../assets/dap_logo_hires1-e1544435829468 5small.svg';
 import {popToLogout} from '../../../component/helper/persist-login';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -73,90 +66,78 @@ class WarehouseMenu extends React.Component {
   }
   renderView = () => {
     return (
-      <View
-        style={{
-          flex: 1,
-          flexDirection: 'column',
-          backgroundColor: '#121C78',
-          paddingHorizontal: 22,
-        }}>
-        <IconMenu
-          fill="white"
-          height="24"
-          width="24"
-          style={{
-            position: 'absolute',
-            top: screen.height * 0.05,
-            left: screen.width * 0.05,
-          }}
-          onPress={() => {
+      <ScrollView style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
+          <IconMenu fill="white" height="24" width="24" style={{position:'absolute', top: screen.height * 0.05}}
+          onPress={()=>{
             this.props.toggleDrawer(true);
           }}
-        />
-        <View
-          style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
-            marginVertical: 100,
-          }}>
-          <LogoSmall width="135" height="70" style={{alignSelf: 'center'}} />
-        </View>
-
-        <Button
-          containerStyle={{marginVertical: 10, borderRadius: 10}}
-          icon={() => <Inbound height="60" width="60" fill="#ABABAB" />}
-          iconContainerStyle={[Mixins.rectDefaultButtonIconStyle]}
-          title="INBOUND"
-          titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36, flex: 1}}
-          onPress={() => {
-            this.props.setBottomBar(true);
-            this.props.setWarehouseModule('INBOUND');
-            this.props.navigation.navigate('Details');
-          }}
-          buttonStyle={{
-            backgroundColor: '#FFFFFF',
-            paddingVertical: 15,
-            paddingHorizontal: 35,
-          }}
-        />
-
-        <Button
-          containerStyle={{marginVertical: 10, borderRadius: 10}}
-          icon={() => <Outbound height="60" width="60" fill="#ABABAB" />}
-          iconContainerStyle={Mixins.rectDefaultButtonIconStyle}
-          title="OUTBOUND"
-          titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36, flex: 1}}
-          onPress={() => {
-            this.props.setBottomBar(true);
-            this.props.setWarehouseModule('OUTBOUND');
-            this.props.navigation.navigate('Details');
-          }}
-          buttonStyle={{
-            backgroundColor: '#FFFFFF',
-            paddingVertical: 15,
-            paddingHorizontal: 35,
-          }}
-        />
-
-        <Button
-          containerStyle={{marginVertical: 10, borderRadius: 10}}
-          icon={() => <Warehouse height="60" width="60" fill="#ABABAB" />}
-          iconContainerStyle={[Mixins.rectDefaultButtonIconStyle, {}]}
-          title="WAREHOUSE"
-          titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36, flex: 1}}
-          onPress={() => {
-            this.props.setBottomBar(true);
-            this.props.setWarehouseModule('WAREHOUSE');
-            this.props.navigation.navigate('Details');
-          }}
-          buttonStyle={{
-            backgroundColor: '#FFFFFF',
-            paddingVertical: 15,
-            paddingHorizontal: 35,
-          }}
-        />
-      </View>
+          />
+          <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 100}}>
+             <LogoSmall width="135" height="70" style={{alignSelf:'center'}}/>
+          </View>
+           
+          <Button
+                containerStyle={ {marginVertical: 10, borderRadius: 10}}
+                icon={() => (
+                    <Inbound height="60" width="60" fill="#ABABAB" />
+                )}
+                iconContainerStyle={[Mixins.rectDefaultButtonIconStyle]}
+                title="INBOUND"
+                titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
+                onPress={()=>{
+                  this.props.setBottomBar(true);
+                  this.props.setWarehouseModule('INBOUND');
+                  this.props.navigation.navigate('Details')}}
+                buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
+              />
+                 
+          <Button
+               containerStyle={ {marginVertical: 10, borderRadius: 10}}
+                 icon={() => (
+                    <Outbound height="60" width="60" fill="#ABABAB" />
+                )}
+                iconContainerStyle={Mixins.rectDefaultButtonIconStyle}
+                title="OUTBOUND"
+                titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
+                onPress={()=>{
+                  this.props.setBottomBar(true);
+                  this.props.setWarehouseModule('OUTBOUND');
+                    this.props.navigation.navigate('Details')}}
+                    buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
+                    />
+                 
+          <Button
+          containerStyle={ {marginVertical: 10, borderRadius: 10}}
+            icon={() => (
+                    <Warehouse height="60" width="60" fill="#ABABAB" />
+                )}
+                iconContainerStyle={[Mixins.rectDefaultButtonIconStyle,{}]}
+                title="WAREHOUSE"
+                titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
+                onPress={()=>{
+                  this.props.setBottomBar(true);
+                  this.props.setWarehouseModule('WAREHOUSE');
+                    this.props.navigation.navigate('Details')}}
+                    buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
+                    />
+                             
+          <Button
+          containerStyle={ {marginVertical: 10, borderRadius: 10}}
+            icon={() => (
+                    <IconVAS height="60" width="60" fill="#ABABAB" />
+                )}
+                iconContainerStyle={[Mixins.rectDefaultButtonIconStyle,{}]}
+                title="VAS"
+                titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
+                onPress={()=>{
+                  // // vas navigate
+                  // this.props.setBottomBar(true);
+                  // this.props.setWarehouseModule('VAS');
+                  //   this.props.navigation.navigate('Details');
+                }}
+                    buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
+                    />
+        </ScrollView>
     );
   };
   drawerLogout = async () => {
@@ -196,7 +177,7 @@ class WarehouseMenu extends React.Component {
                 uri:
                   'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
               }}></Avatar>
-            <Text style={styles.drawerText}>Driver Name</Text>
+            <Text style={styles.drawerText}>Operator Name</Text>
           </View>
         </SafeAreaView>
         <DrawerItemList {...props} />
