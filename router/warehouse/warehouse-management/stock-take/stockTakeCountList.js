@@ -110,9 +110,7 @@ class StockTakeCountList extends React.Component {
     const {stockTakeCountList} = this.state;
     let foundData = true;
     if (stockTakeCountList !== null) {
-      foundData = stockTakeCountList.find(
-        (el) => el.status === 'Waiting' || el.status === 'Reported',
-      );
+      foundData = stockTakeCountList.find((el) => el.status === 'Waiting');
     }
     if (foundData === undefined) {
       return false;
@@ -168,7 +166,7 @@ class StockTakeCountList extends React.Component {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        <Text style={{...Mixins.subtitle3}}>No Job List</Text>
+        <Text style={{...Mixins.subtitle3}}>No Result</Text>
       </View>
     );
   };
@@ -194,20 +192,22 @@ class StockTakeCountList extends React.Component {
             paddingHorizontal: 20,
           }}>
           {jobData !== null && (
-            <>
-              <View>
-                <Text style={styles.text}>{jobData.jobId}</Text>
-                <Text style={styles.text}>{jobData.client.name}</Text>
-              </View>
-              <View>
+            <View style={{flex: 1}}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                }}>
+                <Text style={styles.text}>{`JOB ID ${jobData.jobId}`}</Text>
                 <Text style={[styles.text, {textAlign: 'right'}]}>
                   {Format.formatDate(jobData.date)}
                 </Text>
-                <Text style={[styles.text, {textAlign: 'right'}]}>
-                  {jobData.client.code}
-                </Text>
               </View>
-            </>
+              <Text
+                style={
+                  styles.text
+                }>{`${jobData.client.name} (${jobData.client.code})`}</Text>
+            </View>
           )}
         </View>
         <SearchBar
@@ -234,20 +234,6 @@ class StockTakeCountList extends React.Component {
             }
             textStyle={
               this.state.filterStatus === 'All'
-                ? styles.badgeTextSelected
-                : styles.badgeText
-            }
-          />
-          <Badge
-            value="Reported"
-            onPress={() => this.handleFilterStatus('Reported')}
-            badgeStyle={
-              this.state.filterStatus === 'Reported'
-                ? styles.badgeSelected
-                : styles.badge
-            }
-            textStyle={
-              this.state.filterStatus === 'Reported'
                 ? styles.badgeTextSelected
                 : styles.badgeText
             }
@@ -281,15 +267,15 @@ class StockTakeCountList extends React.Component {
             }
           />
           <Badge
-            value="Recount"
-            onPress={() => this.handleFilterStatus('Recount')}
+            value="Reported"
+            onPress={() => this.handleFilterStatus('Reported')}
             badgeStyle={
-              this.state.filterStatus === 'Recount'
+              this.state.filterStatus === 'Reported'
                 ? styles.badgeSelected
                 : styles.badge
             }
             textStyle={
-              this.state.filterStatus === 'Recount'
+              this.state.filterStatus === 'Reported'
                 ? styles.badgeTextSelected
                 : styles.badgeText
             }

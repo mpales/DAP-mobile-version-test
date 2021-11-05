@@ -122,7 +122,7 @@ class StockTakeList extends React.Component {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        <Text style={{...Mixins.subtitle3}}>No Job List</Text>
+        <Text style={{...Mixins.subtitle3}}>No Result</Text>
       </View>
     );
   };
@@ -230,20 +230,6 @@ class StockTakeList extends React.Component {
                 }
                 textStyle={
                   filterStatus === 'Reported'
-                    ? styles.badgeTextSelected
-                    : styles.badgeText
-                }
-              />
-              <Badge
-                value="Recount"
-                onPress={() => this.handleFilterStatus('Recount')}
-                badgeStyle={
-                  filterStatus === 'Recount'
-                    ? styles.badgeSelected
-                    : styles.badge
-                }
-                textStyle={
-                  filterStatus === 'Recount'
                     ? styles.badgeTextSelected
                     : styles.badgeText
                 }

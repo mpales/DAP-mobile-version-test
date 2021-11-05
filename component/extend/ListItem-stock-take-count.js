@@ -8,6 +8,7 @@ import Mixins from '../../mixins';
 import {TextList} from './Text-list';
 // helper
 import {stockTakeJobStatusColor} from '../helper/status-color';
+import {productGradeToString} from '../helper/string';
 
 const ListItemStockTakeCount = ({item, navigate}) => {
   return (
@@ -30,13 +31,18 @@ const ListItemStockTakeCount = ({item, navigate}) => {
         />
         <ListItem.Content
           style={[styles.sectionContainer, {flexDirection: 'column'}]}>
+          {item.recount !== undefined && (
+            <View style={styles.recountContainer}>
+              <Text style={styles.recountText}>Recount</Text>
+            </View>
+          )}
           <TextList title="Warehouse" value={item.warehouse.warehouse} />
           <TextList title="Location" value={item.warehouse.locationId} />
           <TextList title="Item Code" value={item.product.itemCode} />
           <TextList title="Description" value={item.product.description} />
-          <TextList title="Quantity" value={item.quantity} />
-          <TextList title="UOM" value={item.productUom.packaging} />
-          <TextList title="Grade" value={item.grade} />
+          <TextList title="Quantity" value={item.quantity ?? '-'} />
+          <TextList title="UOM" value={item.productUom.packaging ?? '-'} />
+          <TextList title="Grade" value={productGradeToString(item.grade)} />
         </ListItem.Content>
         <ListItem.Chevron
           size={16}
@@ -126,6 +132,22 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: '#424141',
     fontWeight: '400',
+  },
+  recountContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderRadius: 5,
+    borderColor: '#D5D5D5',
+    borderWidth: 1,
+    paddingHorizontal: 5,
+    marginBottom: 5,
+  },
+  recountText: {
+    ...Mixins.subtitle3,
+    color: '#F07120',
+    lineHeight: 21,
+    fontWeight: '600',
   },
 });
 
