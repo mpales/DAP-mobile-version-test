@@ -19,10 +19,11 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { connect } from 'react-redux';
 //component
-import Inbound from '../../../component/extend/ListItem-inbound';
+import VASManifest from '../../../component/extend/ListItem-VAS';
 //style
 import Mixins from '../../../mixins';
 //icon
+import SelectDropdown from 'react-native-select-dropdown'
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import moment from 'moment';
 import {getData} from '../../../component/helper/network';
@@ -37,8 +38,8 @@ class List extends React.Component {
         this.state = {
             search: '',
             filtered : 0,
-            list : [],
             type: null,
+            sortBy : '',
             renderGoBack : false,
             renderRefresh : false,
         };
@@ -66,7 +67,28 @@ class List extends React.Component {
     }
     updateASN = async ()=>{
         const {type} = this.state;
-        const result = await getData('inboundsMobile/type/'+type);
+        const {activeVAS, completeVAS,ReportedVAS} = this.props;
+        const result = Array.from({length: ASN.length}).map((num,index)=>{
+            if(activeVAS.includes(ASN[index].number)){
+                return {
+                    ...ASN[index],
+                    status : 'progress',
+                };
+            } else if (completeVAS.includes(ASN[index].number)){
+                return {
+                    ...ASN[index],
+                    status: 'completed',
+                };
+            } else if(ReportedVAS.includes(ASN[index].number)){
+                return {
+                    ...ASN[index],
+                    status: 'reported'
+                }
+            } else {
+                return ASN[index];
+            }
+
+        });
         this.setState({renderGoBack: false, renderRefresh: false});
         if(Array.isArray(result)){
             return result;
@@ -74,22 +96,7 @@ class List extends React.Component {
             return [];
         }
     }
-    updateStatus = async ()=>{
-        const {type} = this.state;
-        const {inboundList} = this.props;
-        const result = await getData('inboundsMobile/status');
-        let updatedStatus = [];
-        for (let index = 0; index < inboundList.length; index++) {
-            const element = inboundList[index];
-            const elementStatus = result.find((o)=>o.id === element.id);
-           updatedStatus[index] = {
-             ...element,
-             ...elementStatus,  
-           };
-        }
-        this.setState({renderGoBack: false, renderRefresh: false});
-       return updatedStatus;
-    }
+    
     shouldComponentUpdate(nextProps, nextState) {
         if(this.props.keyStack !== nextProps.keyStack){
         if(nextProps.keyStack === 'List'){
@@ -100,49 +107,44 @@ class List extends React.Component {
         return true;
     }
     async componentDidUpdate(prevProps, prevState, snapshot) {
-        if(prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true){
-            const resultedList =  await this.updateASN();
-            this.props.setInboundLIst(resultedList);
-        }
-        let filtered = (prevState.renderGoBack !== this.state.renderGoBack || prevState.renderRefresh !== this.state.renderRefresh || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search) && this.props.inboundList.length > 0 ? this.state.filtered : null;
+        let filtered = prevState.renderGoBack !== this.state.renderGoBack || prevState.renderRefresh !== this.state.renderRefresh || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
         if(filtered === 0) {
-            let AllASN = await this.updateStatus();
-            this.setState({list:AllASN.filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            let AllASN = await this.updateASN();
+            this.props.setVASList(AllASN.filter((element)=> element.client.indexOf(this.state.search) > -1));
         } else if(filtered === 1){
-            let PendingASN = await this.updateStatus();
-            this.setState({list:PendingASN.filter((element)=> element.status === 3).filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            let PendingASN = await this.updateASN();
+            this.props.setVASList(PendingASN.filter((element)=> element.status === 'pending').filter((element)=> element.client.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
-            let ProgressASN = await this.updateStatus();
-            this.setState({list:ProgressASN.filter((element)=> element.status === 4).filter((element)=> element.client.indexOf(this.state.search)> -1)});
+            let ProgressASN = await this.updateASN();
+            this.props.setVASList(ProgressASN.filter((element)=> element.status === 'progress').filter((element)=> element.client.indexOf(this.state.search)> -1));
         }else if(filtered === 3){
-            let CompleteASN = await this.updateStatus();
-            this.setState({list:CompleteASN.filter((element)=> element.status === 5).filter((element)=> element.client.indexOf(this.state.search) > -1)})
+            let CompleteASN = await this.updateASN();
+            this.props.setVASList(CompleteASN.filter((element)=> element.status === 'complete').filter((element)=> element.client.indexOf(this.state.search) > -1));
         }else if(filtered === 4){
-            let ReportedASN = await this.updateStatus();
-            this.setState({list:ReportedASN.filter((element)=> element.status === 6).filter((element)=> element.client.indexOf(this.state.search) > -1)})
-        }else if(filtered === 5){
-            let ReportedASN = await this.updateStatus();
-            this.setState({list:ReportedASN.filter((element)=> element.status === 7).filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            let ReportedASN = await this.updateASN();
+            this.props.setVASList(ReportedASN.filter((element)=> element.status === 'reported').filter((element)=> element.client.indexOf(this.state.search) > -1));
         }
         
         
     }
     async componentDidMount() {
-        const resultedList =  await this.updateASN();
-        this.props.setInboundLIst(resultedList);
+
         const {filtered} = this.state;
         if(filtered === 0) {
-            this.setState({list:resultedList.filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            let AllASN = await this.updateASN();
+            this.props.setVASList(AllASN.filter((element)=> element.client.indexOf(this.state.search) > -1));
         }else if(filtered === 1){
-            this.setState({list:resultedList.filter((element)=> element.status === 3).filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            let PendingASN = await this.updateASN();
+            this.props.setVASList(PendingASN.filter((element)=> element.status === 'pending').filter((element)=> element.client.indexOf(this.state.search) > -1));
         } else if(filtered === 2){
-            this.setState({list:resultedList.filter((element)=> element.status === 4).filter((element)=> element.client.indexOf(this.state.search)> -1)});
+            let ProgressASN = await this.updateASN();
+            this.props.setVASList(ProgressASN.filter((element)=> element.status === 'progress').filter((element)=> element.client.indexOf(this.state.search)> -1));
         }else if(filtered === 3){
-            this.setState({list:resultedList.filter((element)=> element.status === 5).filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            let CompleteASN = await this.updateASN();
+            this.props.setVASList(CompleteASN.filter((element)=> element.status === 'complete').filter((element)=> element.client.indexOf(this.state.search) > -1));
         }else if(filtered === 4){
-            this.setState({list:resultedList.filter((element)=> element.status === 6).filter((element)=> element.client.indexOf(this.state.search) > -1)});
-        }else if(filtered === 5){
-            this.setState({list:resultedList.filter((element)=> element.status === 7).filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            let ReportedASN = await this.updateASN();
+            this.props.setVASList(ReportedASN.filter((element)=> element.status === 'reported').filter((element)=> element.client.indexOf(this.state.search) > -1));
         }
     }
     _onRefresh = () => {
@@ -164,32 +166,64 @@ class List extends React.Component {
                     style={styles.body} 
                     showsVerticalScrollIndicator={false}
                 >
-                        <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141', paddingHorizontal: 20, marginTop: 15}}>Search</Text>
-                         <SearchBar
-              placeholder="Type Here..."
-              onChangeText={this.updateSearch}
-              value={this.state.search}
-              lightTheme={true}
-              inputStyle={{backgroundColor: '#fff'}}
-              placeholderTextColor="#2D2C2C"
-              searchIcon={() => (
-                <IconSearchMobile height="20" width="20" fill="#2D2C2C" />
-              )}
-              containerStyle={{
-                backgroundColor: 'transparent',
-                borderTopWidth: 0,
-                borderBottomWidth: 0,
-                paddingHorizontal: 20,
-                marginVertical: 5,
-              }}
-              inputContainerStyle={{
-                backgroundColor: 'white',
-                borderWidth: 1,
-                borderBottomWidth: 1,
-                borderColor: '#D5D5D5',
-              }}
-              leftIconContainerStyle={{backgroundColor: 'white'}}
-            />
+            <View style={{flexDirection:'row', paddingHorizontal:15, marginVertical:20 }}>
+                    <View style={{flexDirection:'column', marginRight:10}}>
+                    <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141',}}>Search</Text>
+                    <SearchBar
+                    placeholder="Type Here..."
+                    onChangeText={this.updateSearch}
+                    value={this.state.search}
+                    lightTheme={true}
+                    inputStyle={{backgroundColor: '#fff'}}
+                    placeholderTextColor="#2D2C2C"
+                    searchIcon={() => (
+                        <IconSearchMobile height="20" width="20" fill="#2D2C2C" />
+                    )}
+                    containerStyle={{
+                        backgroundColor: 'transparent',
+                        borderTopWidth: 0,
+                        borderBottomWidth: 0,
+                        paddingHorizontal: 20,
+                        marginVertical: 5,
+                    }}
+                    inputContainerStyle={{
+                        backgroundColor: 'white',
+                        borderWidth: 1,
+                        borderBottomWidth: 1,
+                        borderColor: '#D5D5D5',
+                    }}
+                    leftIconContainerStyle={{backgroundColor: 'white'}}
+                    />
+                    </View>
+
+                    <View style={{flexDirection:'column', marginRight:10}}>
+                    <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141',}}>Sort By</Text>
+                    <SelectDropdown
+                            buttonStyle={{maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
+                            buttonTextStyle={{ paddingHorizontal: 10,
+                                ...Mixins.small1,
+                                color: '#424141',
+                                fontWeight: '400',
+                                lineHeight: 18,
+                                flex:1,textAlign:'left',}}
+                            data={['Client','Test', 'VAS', 'OVAS'] }
+                            defaultValueByIndex={0}
+                            onSelect={(selectedItem, index) => {
+                              this.setState({sortBy:selectedItem});
+                            }}
+                            buttonTextAfterSelection={(selectedItem, index) => {
+                              // text represented after item is selected
+                              // if data array is an array of objects then return selectedItem.property to render after item is selected
+                              return selectedItem;
+                            }}
+                            rowTextForSelection={(item, index) => {
+                              // text represented for each item in dropdown
+                              // if data array is an array of objects then return item.property to represent item in dropdown
+                              return item;
+                            }}
+                          />
+                    </View>
+            </View>
                     <View style={styles.sectionContent}>
                         <Card containerStyle={styles.cardContainer}>
                         <ScrollView style={styles.headingCard} horizontal={true}>
@@ -208,67 +242,43 @@ class List extends React.Component {
                     textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
-                    value="Received"
+                    value="Progress"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(2)}
                     badgeStyle={this.state.filtered === 2 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                            <Badge
-                    value="Processing"
+                    value="Completed"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(3)}
                     badgeStyle={this.state.filtered === 3 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                            <Badge
-                    value="Processed"
+                    value="Reported"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(4)}
                     badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
-                          <Badge
-                    value="Cancelled"
-                    containerStyle={styles.badgeSort}
-                    onPress={()=> this.setFiltered(5)}
-                    badgeStyle={this.state.filtered === 5 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 5 ? styles.badgeActiveTint : styles.badgeInactiveTint }
-                    />
                      </ScrollView>
                             {
-                            this.props.inboundList.length === 0 ? 
+                            this.props.VASList.length === 0 ? 
                             (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
                               <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
                               <Text style={{  ...Mixins.subtitle3,}}>Scroll down to Refresh</Text>
                               </View>)
                             :
-                            this.state.list.map((data, i, arr) => {
+                            this.props.VASList.map((data, i, arr) => {
                                 return (
-                                    <Inbound 
+                                    <VASManifest 
                                     key={i} 
                                     index={i} 
                                     item={data} 
                                     ToManifest={()=>{
                                         this.props.setBottomBar(false);
-                                       if(data.status === 3 || data.status === 4){
-                                            this.props.navigation.navigate(   {
-                                                name: 'ReceivingDetail',
-                                                params: {
-                                                  number: data.id,
-                                                  submitPhoto:false,
-                                                },
-                                              });
-                                        } else {
-                                            this.props.setCurrentASN(data.id);
-                                            this.props.setManifestType(data.type);
-                                             this.props.navigation.navigate(  {
-                                                name: 'Manifest',
-                                                 params: {
-                                                  number: data.id,
-                                                },
-                                           })
-                                        }
+                                        this.props.navigation.navigate('ItemTransitDetail');
                                     }}
                                
                                 />
@@ -401,29 +411,19 @@ const ASN = [
 
 function mapStateToProps(state) {
     return {
-        ReportedASN: state.originReducer.filters.ReportedASN,
-        activeASN : state.originReducer.filters.activeASN,
-        completeASN : state.originReducer.filters.completeASN,
-        inboundList: state.originReducer.inboundList,
-        completedInboundList: state.originReducer.completedInboundList,
+        ReportedVAS: state.originReducer.filters.ReportedVAS,
+        activeVAS : state.originReducer.filters.activeVAS,
+        completeVAS : state.originReducer.filters.completeVAS,
+        VASList: state.originReducer.VASList,
         keyStack: state.originReducer.filters.keyStack,
     };
   }
   
 const mapDispatchToProps = (dispatch) => {
     return { 
-    setInboundLIst: (data) => {
-            return dispatch({type: 'InboundList', payload: data});
+      setVASList: (data) => {
+            return dispatch({type: 'VASList', payload: data});
         },
-      setBottomBar: (toggle) => {
-        return dispatch({type: 'BottomBar', payload: toggle});
-      },
-      setCurrentASN : (data)=> {
-        return dispatch({type:'setASN', payload: data});
-      },
-      setManifestType : (data)=> {
-        return dispatch({type:'setManifestType', payload: data});
-      },
       //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
     };
   };

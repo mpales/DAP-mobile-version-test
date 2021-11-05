@@ -8,7 +8,7 @@ import {
   View,
   Dimensions,
   FlatList,
-  Keyboard
+  ScrollView
 } from 'react-native';
 import {
 Button,
@@ -42,6 +42,7 @@ const grade = ["Pick", "Buffer", "Damage", "Defective", "Short Expiry", "Expired
 const pallet = ["PLDAP 0091", "PLDAP 0092", "PLDAP 0093", "PLDAP 0094"];
 class Example extends React.Component {
   _unsubscribe = null;
+  _unsubscribeLock = null;
   refAttrArray = React.createRef(null);
   refBatch = React.createRef(null);
   animatedValue = new Animated.Value(0);
@@ -66,7 +67,6 @@ class Example extends React.Component {
       isConfirm : false,
       uploadPOSM : false,
       filterMultipleSKU : null,
-      keyboardState: 'hide',
     };
     this.refBatch.current = null;
     this.refAttrArray.current = [];
@@ -85,19 +85,9 @@ class Example extends React.Component {
           setBarcodeScanner(false);
           let elementItem =  manifestList.find((element) => element.pId === routes[index].params.inputCode);
           return {...state, scanItem: routes[index].params.inputCode, dataCode: elementItem.is_transit === 1 ? 'transit' :  elementItem.barcodes.length > 0 ? elementItem.barcodes[elementItem.barcodes.length -1].code_number : 'empty'  };
-      } else if(routes[index].params !== undefined && routes[index].params.manualCode !== undefined && manifestList.some((element) => element.barcodes !== undefined && element.barcodes.some((element)=> routes[index].params.manualCode === element.code_number) === true)) {
-        setBarcodeScanner(false);
-        let elementItem =  manifestList.find((element) => element.barcodes !== undefined && element.barcodes.some((element)=> routes[index].params.manualCode === element.code_number) === true);
-        return {...state, scanItem: elementItem.pId, dataCode: routes[index].params.manualCode};
-      } else if(dataCode !== '0' && dataCode !== 'transit' && manifestList.some((element) =>  element.barcodes !== undefined && element.barcodes.some((element)=> dataCode === element.code_number) === true)) {
-        setBarcodeScanner(false);
-        let elementItem =  manifestList.find((element) => element.barcodes !== undefined && element.barcodes.some((element)=> dataCode === element.code_number) === true);
-        return {...state, scanItem: elementItem.pId};
-      } else if(dataCode === 'transit' && manifestList.some((o)=> o.is_transit === 1)){
-        setBarcodeScanner(false);
-        let elementItem =  manifestList.find((element) => element.is_transit === 1);
-        return {...state, scanItem: elementItem.pId};
-      }
+      } else {
+        navigation.goBack();
+      } 
       return {...state};
     } 
     return {...state};
@@ -149,20 +139,20 @@ class Example extends React.Component {
         let foundIndex = manifestList.filter((element) => (dataCode === 'empty' &&  element.barcodes !== undefined && (element.barcodes.length === 0 || element.barcodes.some((o)=>o.code_number === dataCode ) === true)) || ( dataCode !== 'empty' && element.barcodes !== undefined && element.barcodes.some((o)=>o.code_number === dataCode ) === true) );
         let indexItem = manifestList.findIndex((element)=> element.pId === scanItem);
         let item = manifestList.find((element)=>element.pId === scanItem);  
-        if(foundIndex.length > 1) {
-          this.setState({multipleSKU: true, filterMultipleSKU : foundIndex});
-        } else {
+        // if(foundIndex.length > 1) {
+        //   this.setState({multipleSKU: true, filterMultipleSKU : foundIndex});
+        // } else {
           const result = await postData('inboundsMobile/'+this.props.currentASN+'/'+item.pId+'/switch-status/2')
-         if(result.error !== undefined && this.props.keyStack === 'Barcode'){
+          if(result.error !== undefined && this.props.keyStack === 'ItemProcess'){
           this.props.navigation.goBack();
          } else {
           this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: Boolean(item.take_photo)});
          }
-        }
+        // }
       } else if(this.state.indexItem !== null && this.state.multipleSKU === true){
         let item = manifestList[this.state.indexItem];  
         const result = await postData('inboundsMobile/'+this.props.currentASN+'/'+item.pId+'/switch-status/2')
-        if(result.error !== undefined && this.props.keyStack === 'Barcode'){
+        if(result.error !== undefined && this.props.keyStack === 'ItemProcess'){
           this.props.navigation.goBack();
          } else {
           this.setState({dataItem: item, qty : 0, ItemGrade: "Pick",currentPOSM: Boolean(item.take_photo), multipleSKU : false, filterMultipleSKU : null}); 
@@ -180,17 +170,14 @@ class Example extends React.Component {
   }
   }
   componentWillUnmount(){
-    Keyboard.removeListener("keyboardDidShow", this.keyboardDidShowHandle);
-    Keyboard.removeListener("keyboardDidHide", this.keyboardDidHideHandle);
     this.props.setBarcodeScanner(true);
     this.props.addPOSMPostpone(null);
     this._unsubscribe();
+    this._unsubscribeLock();
   }
   async componentDidMount(){
     const {scanItem,dataCode} = this.state;
     const {detectBarcode, manifestList} = this.props;
-    Keyboard.addListener("keyboardDidShow", this.keyboardDidShowHandle);
-    Keyboard.addListener("keyboardDidHide", this.keyboardDidHideHandle);
     this._unsubscribe = this.props.navigation.addListener('focus', () => {
       // do something
       if(this.state.currentPOSM === true && this.state.isPOSM === true){
@@ -198,6 +185,14 @@ class Example extends React.Component {
         if(routes[index].params !== undefined && routes[index].params.upload === true){
           this.setState({uploadPOSM: true});
         }
+      }
+    });
+    this._unsubscribeLock = this.props.navigation.addListener('state', async (test) => {
+      // do something
+      const {dataItem} = this.state;
+      const {currentASN} = this.props;
+      if(dataItem !== null && test.data.state.routes[test.data.state.index].name ==='Manifest'){
+        const result = await postData('inboundsMobile/'+currentASN+'/'+dataItem.pId+'/switch-status/1')
       }
     });
     const resultPallet = await getData('inboundsMobile/'+this.props.currentASN+'/pallet');
@@ -220,16 +215,16 @@ class Example extends React.Component {
         let indexItem = manifestList.findIndex((element)=> element.pId === scanItem);
         let item = manifestList.find((element)=>element.pId === scanItem);  
        
-        if(foundIndex.length > 1) {
-          this.setState({multipleSKU: true, filterMultipleSKU : foundIndex});
-        } else {
+        // if(foundIndex.length > 1) {
+        //   this.setState({multipleSKU: true, filterMultipleSKU : foundIndex});
+        // } else {
           const result = await postData('inboundsMobile/'+this.props.currentASN+'/'+item.pId+'/switch-status/2')
           if(result.error !== undefined){
             this.props.navigation.goBack();
            } else {
             this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: Boolean(item.take_photo)});
            }
-        }
+        // }
       } else if(this.state.indexItem !== null && this.state.multipleSKU === true){
         let item = manifestList[this.state.indexItem];  
         const result = await postData('inboundsMobile/'+this.props.currentASN+'/'+item.pId+'/switch-status/2')
@@ -249,12 +244,6 @@ class Example extends React.Component {
     }
   }
   }
-  keyboardDidShowHandle = ()=>{
-    this.setState({keyboardState:'show'})
-  };
-  keyboardDidHideHandle = ()=>{
-    this.setState({keyboardState:'hide'})
-  };
   getPhotoReceivingGoods = async () => {
     const {POSMPostpone} = this.props;
     let formdata = [];
@@ -299,91 +288,8 @@ class Example extends React.Component {
     const {dataItem, dataCode, qty, scanItem} = this.state;
     return (
       <View style={styles.modalOverlay}>
-        <Animated.View
-          style={
-           ( dataItem !== null && this.state.enterAttr !== true && this.state.isConfirm !== true && this.state.isPOSM !== true) || (dataItem === null && this.state.multipleSKU === true)
-              ? [
-                  dataItem !== null && dataItem.is_transit !== 1 ? styles.modalContainerAll : styles.modalContainerAllTransit,
-                  {
-                    transform: [
-                      {
-                        scaleX: this.animatedValue.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0, 1],
-                        }),
-                      },
-                      {
-                        scaleY: this.animatedValue.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0, 1],
-                        }),
-                      },
-                    ],
-                  },
-                ]
-              : dataItem !== null && this.state.isConfirm === true ?
-              [ dataItem !== null &&  dataItem.is_transit !== 1 ? styles.modalContainerSmallConfirm : styles.modalContainerSmallConfirmTransit,
-              {
-                transform: [
-                  {
-                    scaleX: this.animatedValue.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0, 1],
-                    }),
-                  },
-                  {
-                    scaleY: this.animatedValue.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0, 1],
-                    }),
-                  },
-                ],
-              },] 
-              : dataItem !== null && this.state.enterAttr === true ? 
-              [styles.modalContainerEnterAttr,
-              {
-                transform: [
-                  {
-                    scaleX: this.animatedValue.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0, 1],
-                    }),
-                  },
-                  {
-                    scaleY: this.animatedValue.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0, 1],
-                    }),
-                  },
-                ],
-              },]
-              : [
-                  styles.modalContainerSmall,
-                  {
-                    transform: [
-                      {
-                        scaleX: this.animatedValue.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0, 1],
-                        }),
-                      },
-                      {
-                        scaleY: this.animatedValue.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0, 1],
-                        }),
-                      },
-                    ],
-                  },
-                ]
-          }>
           <View style={[styles.sectionSheetDetail, {marginHorizontal: 0, marginTop:0}]}>
-          <View style={styles.modalHeader}>
-              {dataItem === null && this.state.multipleSKU === false ? (
-                <XMarkIcon height="24" width="24" fill="#E03B3B" />
-              ) : (
-                <CheckmarkIcon height="24" width="24" fill="#17B055" />
-              )}
+            <View style={styles.modalHeader}>
               {dataItem !== null ? (
                 <Text style={styles.modalHeaderText}>
                   {this.state.isConfirm === true ? ' Item Processed ' : this.state.enterAttr === true ? 'Enter Item Attribute' : this.state.isPOSM === true ? 'Photo Required' : ' Item Found'}                
@@ -392,14 +298,13 @@ class Example extends React.Component {
               <Text style={styles.modalHeaderText}>
                 Multiple SKU Found                
                 </Text>): (
-                <Text style={[styles.modalHeaderText, {color: '#E03B3B'}]}>
+                <Text style={styles.modalHeaderText}>
                   Item Not Found
                 </Text>
               )}
             </View>
-            <Divider color="#D5D5D5" />
             {(dataItem !== null && ((this.state.enterAttr === false && this.state.isPOSM === false) || this.state.isConfirm === true )) ? (
-              <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
+              <View style={styles.sheetPackages}>
                <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                       {dataItem.is_transit !== 1 ? (<><View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Item Code</Text>
@@ -525,7 +430,7 @@ class Example extends React.Component {
                       )}
               </View>
             ) :  dataItem === null && this.state.multipleSKU === true ? (
-              <View style={[styles.sheetPackages,{marginHorizontal: 0, marginTop: 20, maxHeight: (screen.height * 35) / 100}]}>
+              <View style={styles.sheetPackages}>
             <FlatList
               keyExtractor={ (item, index) => index.toString()}
               horizontal={false}
@@ -534,9 +439,8 @@ class Example extends React.Component {
             />
              </View>
             ) : dataItem !== null && this.state.enterAttr === true ? (
-              <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: this.state.keyboardState === 'hide' ? 20 : 60}]}>
-               <View
-                      style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
+              <View style={styles.sheetPackages}>
+              <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                       <View style={{justifyContent:'center', alignItems:'center'}}>
                         <Text style={{...Mixins.small3, color:'red'}}>
                           {this.state.errorAttr}
@@ -569,105 +473,11 @@ class Example extends React.Component {
                           }}/>
                         }
                       })}
-                      {/* <View style={[styles.dividerContent,{marginVertical:3}]}>
-                        <Text style={styles.labelPackage}>Batch #</Text>
-                        <Input 
-                          containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
-                          inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
-                            inputStyle={Mixins.containedInputDefaultStyle}
-                            labelStyle={Mixins.containedInputDefaultLabel}
-                            placeholder=""
-                        />
-                      </View>
-                      <View style={[styles.dividerContent,{marginVertical:3}]}>
-                        <Text style={styles.labelPackage}>Lot #</Text>
-                        <Input 
-                             containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
-                             inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
-                            inputStyle={Mixins.containedInputDefaultStyle}
-                            labelStyle={Mixins.containedInputDefaultLabel}
-                            placeholder=""
-                        />
-                      </View>
-                      <View style={[styles.dividerContent,{marginVertical:3,marginRight:10}]}>
-                        <Text style={styles.labelPackage}>Exp Date </Text>
-                        <Input 
-                          containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
-                          inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
-                         inputStyle={Mixins.containedInputDefaultStyle}
-                         labelStyle={Mixins.containedInputDefaultLabel}
-                            placeholder=""
-                        />
-                                 <Text style={{...Mixins.body3,lineHeight:18,fontWeight:'400',color:'#424141',paddingVertical:6}}>dd-MM-yy</Text>
-                     
-                      </View>
-                      <View style={[styles.dividerContent,{marginVertical:3, marginRight:10}]}>
-                        <Text style={styles.labelPackage}>Mfg Date</Text>
-                        <Input 
-                           containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
-                           inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
-                          inputStyle={Mixins.containedInputDefaultStyle}
-                          labelStyle={Mixins.containedInputDefaultLabel}
-                            placeholder=""
-                        />
-                     
-                     <Text style={{...Mixins.body3,lineHeight:18,fontWeight:'400',color:'#424141',paddingVertical:6}}>dd-MM-yy</Text>
-         
-                      </View>
-                      <View style={[styles.dividerContent,{marginVertical:3}]}>
-                        <Text style={styles.labelPackage}>Size</Text>
-                        <Input 
-                            containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
-                            inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
-                           inputStyle={Mixins.containedInputDefaultStyle}
-                           labelStyle={Mixins.containedInputDefaultLabel}
-                            placeholder=""
-                        />
-                      </View>
-                      <View style={[styles.dividerContent,{marginVertical:3}]}>
-                        <Text style={styles.labelPackage}>Color</Text>
-                        <Input 
-                            containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
-                            inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
-                           inputStyle={Mixins.containedInputDefaultStyle}
-                           labelStyle={Mixins.containedInputDefaultLabel}
-                            placeholder=""
-                        />
-                      </View>
-                      <View style={[styles.dividerContent,{marginVertical:3}]}>
-                        <Text style={styles.labelPackage}>Class</Text>
-                        <Input 
-                             containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
-                             inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
-                            inputStyle={Mixins.containedInputDefaultStyle}
-                            labelStyle={Mixins.containedInputDefaultLabel}
-                            placeholder=""
-                        />
-                      </View>
-                      <View style={[styles.dividerContent,{marginVertical:3}]}>
-                        <Text style={styles.labelPackage}>Country</Text>
-                        <Input 
-                           containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
-                           inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
-                          inputStyle={Mixins.containedInputDefaultStyle}
-                          labelStyle={Mixins.containedInputDefaultLabel}
-                            placeholder=""
-                        />
-                      </View>
-                      <View style={[styles.dividerContent,{marginVertical:3}]}>
-                        <Text style={styles.labelPackage}>C. Lot #</Text>
-                        <Input 
-                           containerStyle={{flexShrink: 1,paddingVertical:0,maxHeight:30}}
-                           inputContainerStyle={[styles.textInput,{paddingVertical: 0,maxHeight:30}]} 
-                          inputStyle={Mixins.containedInputDefaultStyle}
-                          labelStyle={Mixins.containedInputDefaultLabel}
-                            placeholder=""
-                        />
-                      </View> */}
+                  
                 </View>
               </View>
             ) : this.state.dataItem !== null && this.state.isPOSM === true ? (
-              <View style={[styles.sheetPackages,{alignItems: 'center',justifyContent: 'center',marginHorizontal: 32, marginTop: 20}]}>
+              <View style={[styles.sheetPackages,{justifyContent:'center',alignItems:'center'}]}>
               <Avatar
                 onPress={()=>{
                   this.props.navigation.navigate('POSMPhoto');
@@ -695,7 +505,7 @@ class Example extends React.Component {
                 <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Take Photo</Text>
               </View>
             ): (
-              <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
+              <View style={styles.sheetPackages}>
                <View
                       style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                       <View style={styles.dividerContent}>
@@ -713,7 +523,7 @@ class Example extends React.Component {
                 </View>
               </View>
             )}
-            { this.state.keyboardState === 'hide' && (<View style={[styles.buttonSheetContainer,{alignItems:'flex-end',justifyContent:'flex-end',alignContent:'flex-end', backgroundColor:'transparent', flex:1}]}>
+            <View style={[styles.buttonSheetContainer,{alignItems:'flex-end',justifyContent:'flex-end',alignContent:'flex-end', backgroundColor:'transparent', flex:1}]}>
                 <View style={styles.buttonSheet}>
                   {dataItem !== null && this.state.isConfirm === false && this.state.isPOSM === false && this.state.enterAttr === false ? (
                     <Button
@@ -775,13 +585,13 @@ class Example extends React.Component {
                         })}}
                       title="Report Item"
                     />
-                    <Button
+                    {/* <Button
                       containerStyle={{flex: 1, marginTop: 10, marginLeft: 5}}
                       buttonStyle={styles.cancelButton}
                       titleStyle={styles.backText}
                       onPress={this.handleCancel}
                       title="Cancel"
-                    />
+                    /> */}
                     </>
                 ) : (
                   <Button
@@ -796,9 +606,8 @@ class Example extends React.Component {
                   />
                 )}
               </View>
-            </View>)}
+            </View>
           </View>
-        </Animated.View>
       </View>
     );
   };
@@ -935,7 +744,7 @@ class Example extends React.Component {
     const { dataItem,dataCode } = this.state;
     const {detectBarcode} = this.props;
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         {detectBarcode === false   && (this.state.scanItem === "0" || (this.state.scanItem !== "0" && this.state.dataItem !== null) || (this.state.scanItem !== "0" && this.state.multipleSKU === true)) === true && (
           <this.renderModal/>
         ) }
@@ -950,10 +759,8 @@ class Example extends React.Component {
         >
           <this.renderInner />
         </Modalize>)} */}
-        <TouchableWithoutFeedback onPress={() => {}}>
-          <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} useManualMenu={true}/>
-        </TouchableWithoutFeedback>
-      </View>
+     
+      </ScrollView>
     );
   }
 }
@@ -968,15 +775,11 @@ const styles = StyleSheet.create({
     maxHeight: 40,
   },
   modalOverlay: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    flexDirection:'column',
+    flexShrink:1,
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10,
   },
   search: {
     borderColor: 'gray',
@@ -986,8 +789,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   container: {
-    flex: 1,
-    backgroundColor: '#F5FCFF',
+    flexGrow: 1,
+    flexDirection:'column',
+    backgroundColor: '#FFFFFF',
   },
   box: {
     width: IMAGE_SIZE,
@@ -1111,7 +915,22 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   sheetPackages: {
+    width: screen.width - 40,
+    marginHorizontal: 20,
+    marginVertical:10,
+    borderRadius:13,
+    padding:20,
     flexShrink: 1,
+    shadowColor: "#000",
+shadowOffset: {
+	width: 0,
+	height: 2,
+},
+shadowOpacity: 0.23,
+shadowRadius: 2.62,
+
+elevation: 4,
+backgroundColor:'white'
   },
   buttonSheetContainer: {
     flexDirection: 'column',
@@ -1188,13 +1007,17 @@ const styles = StyleSheet.create({
   },
   modalHeader: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 20,
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    marginTop:20,
+    marginBottom:0,
+    marginHorizontal:20,
+    
   },
   modalHeaderText: {
-    color: '#17B055',
-    marginLeft: 10,
+    ...Mixins.h6,
+    color: '#424141',
+    fontWeight:'700',
   },
   cancelButton: {
     backgroundColor: '#FFF',

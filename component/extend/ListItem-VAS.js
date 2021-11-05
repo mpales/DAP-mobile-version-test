@@ -105,35 +105,23 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
   let status = 'grey';
   let labelstatus = '';
   switch (item.status) {
-    case 3:
+    case 'pending':
       status = '#ABABAB';
       labelstatus = 'Waiting';
       break;
-      case 4:
+      case 'progress':
         status = '#F8B511';
-        labelstatus = 'Received';
+        labelstatus = 'Progress';
         break;
-        case 5:
-          status = '#F1811C';
-          labelstatus = 'Processing';
-          break;
-          case 6:
+          case 'complete':
             status = '#17B055';
-            labelstatus = 'Processed'
+            labelstatus = 'Completed'
             break;
-            case 7:
+            case 'reported':
               status = '#E03B3B';
-              labelstatus = 'Cancelled'
+              labelstatus = 'Reported'
               break;
-              case 8:
-                status = '#17B055';
-                labelstatus = 'Putaway'
-                break;
-                case 9:
-                  status = '#17B055';
-                  labelstatus = 'Completed'
-                  break;
-              default:
+    default:
       break;
   }
   return (
@@ -151,13 +139,13 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         </View>
         <ListItem.Content style={styles.sectionContainer}>
         <ListItem.Title style={{...Mixins.body3,lineHeight: 18,color: '#ABABAB', fontWeight: '600'}}>
-        {moment(item.eta).format("DD-MM-YYYY")}
+        {moment.unix(item.timestamp).format("DD-MM-YYYY")}
         </ListItem.Title>
         <ListItem.Subtitle style={{...Mixins.body1, lineHeight: 21, color: '#424141', fontWeight: '600'}}>
-        {item.reference_id}
+        {item.number}
         </ListItem.Subtitle>
-        <Text style={styles.descText}>{item.client}</Text>
-        <Text style={styles.descText}>{item.total_product_processed+'/'+item.total_product+' Lines Complete'}</Text>
+        <Text style={styles.descText}>{item.desc}</Text>
+        <Text style={styles.descText}>{item.ref}</Text>
         </ListItem.Content>
         <View style={styles.labelContainer}>
         <Badge value={labelstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />

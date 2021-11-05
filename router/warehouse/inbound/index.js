@@ -10,6 +10,7 @@ import IconMenu6Mobile from '../../../assets/icon/iconmonstr-menu-6 1mobile.svg'
 import IconUser40Mobile from '../../../assets/icon/iconmonstr-user-40mobile.svg';
 import IconBell2Mobile from '../../../assets/icon/iconmonstr-bell-2mobile.svg';
 import Camera from '../peripheral';
+import ItemProcess from './itemProcess';
 import Manifest from './manifest';
 import List from './list';
 import ManualInput from './manualInput';
@@ -339,6 +340,27 @@ class HomeNavigator extends React.Component {
             },
             headerTitle:'',
             headerTransparent: true,
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+          })}
+        />
+        <Stack.Screen
+          name="ItemProcess"
+          component={ItemProcess}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTitle:'Process Item',
+            headerTransparent: false,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
           })}

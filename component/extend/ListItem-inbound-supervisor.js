@@ -149,9 +149,17 @@ const Manifest = ({item, index, ToManifest}) => {
             break;
             case 7:
               status = '#E03B3B';
-              labelstatus = 'Reported'
+              labelstatus = 'Cancelled'
               break;
-    default:
+              case 8:
+                status = '#17B055';
+                labelstatus = 'Putaway'
+                break;
+                case 9:
+                  status = '#17B055';
+                  labelstatus = 'Completed'
+                  break;
+              default:
       break;
   }
   return (
