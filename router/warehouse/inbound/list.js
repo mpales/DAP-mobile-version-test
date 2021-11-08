@@ -107,22 +107,22 @@ class List extends React.Component {
         let filtered = (prevState.renderGoBack !== this.state.renderGoBack || prevState.renderRefresh !== this.state.renderRefresh || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search) && this.props.inboundList.length > 0 ? this.state.filtered : null;
         if(filtered === 0) {
             let AllASN = await this.updateStatus();
-            this.setState({list:AllASN.filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            this.setState({list:AllASN.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         } else if(filtered === 1){
             let PendingASN = await this.updateStatus();
-            this.setState({list:PendingASN.filter((element)=> element.status === 3).filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            this.setState({list:PendingASN.filter((element)=> element.status === 3).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         } else if(filtered === 2){
             let ProgressASN = await this.updateStatus();
-            this.setState({list:ProgressASN.filter((element)=> element.status === 4).filter((element)=> element.client.indexOf(this.state.search)> -1)});
+            this.setState({list:ProgressASN.filter((element)=> element.status === 4).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }else if(filtered === 3){
             let CompleteASN = await this.updateStatus();
-            this.setState({list:CompleteASN.filter((element)=> element.status === 5).filter((element)=> element.client.indexOf(this.state.search) > -1)})
+            this.setState({list:CompleteASN.filter((element)=> element.status === 5).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)})
         }else if(filtered === 4){
             let ReportedASN = await this.updateStatus();
-            this.setState({list:ReportedASN.filter((element)=> element.status === 6).filter((element)=> element.client.indexOf(this.state.search) > -1)})
+            this.setState({list:ReportedASN.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)})
         }else if(filtered === 5){
             let ReportedASN = await this.updateStatus();
-            this.setState({list:ReportedASN.filter((element)=> element.status === 7).filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            this.setState({list:ReportedASN.filter((element)=> element.status === 7).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }
         
         
@@ -132,17 +132,17 @@ class List extends React.Component {
         this.props.setInboundLIst(resultedList);
         const {filtered} = this.state;
         if(filtered === 0) {
-            this.setState({list:resultedList.filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            this.setState({list:resultedList.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }else if(filtered === 1){
-            this.setState({list:resultedList.filter((element)=> element.status === 3).filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            this.setState({list:resultedList.filter((element)=> element.status === 3).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         } else if(filtered === 2){
-            this.setState({list:resultedList.filter((element)=> element.status === 4).filter((element)=> element.client.indexOf(this.state.search)> -1)});
+            this.setState({list:resultedList.filter((element)=> element.status === 4).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }else if(filtered === 3){
-            this.setState({list:resultedList.filter((element)=> element.status === 5).filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            this.setState({list:resultedList.filter((element)=> element.status === 5).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }else if(filtered === 4){
-            this.setState({list:resultedList.filter((element)=> element.status === 6).filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            this.setState({list:resultedList.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }else if(filtered === 5){
-            this.setState({list:resultedList.filter((element)=> element.status === 7).filter((element)=> element.client.indexOf(this.state.search) > -1)});
+            this.setState({list:resultedList.filter((element)=> element.status === 7).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }
     }
     _onRefresh = () => {

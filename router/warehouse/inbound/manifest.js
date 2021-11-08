@@ -37,10 +37,9 @@ import BlankList from '../../../assets/icon/Group 5122blanklist.svg';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component{
-
+  _unsubscribe = null;
   constructor(props) {
     super(props);
-
     this.state = {
       inboundCode: this.props.route.params?.code ?? '',
       _visibleOverlay : false,
@@ -156,21 +155,28 @@ class Warehouse extends React.Component{
     let filtered = prevState.renderRefresh !== this.state.renderRefresh || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.updated !== this.state.updated ? this.state.filtered : null;
    
     if(filtered === 0) {
-      this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && element.item_code.indexOf(this.state.search) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
+      this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
       } else if(filtered === 1){
-        this.setState({_manifest: manifestList.filter((element)=> element.status === 1).filter((element)=> (element.item_code !== undefined && element.item_code.indexOf(this.state.search) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=> element.status === 1).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
       } else if(filtered === 2){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && element.item_code.indexOf(this.state.search) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false});
       }else if(filtered === 3){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && element.item_code.indexOf(this.state.search) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
       }else if(filtered === 4){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 4).filter((element)=> (element.item_code !== undefined && element.item_code.indexOf(this.state.search) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false});
       } 
    
   }
   async componentDidMount() {
     const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest} = this.props;
     const {receivingNumber, _manifest, search} = this.state;
+    this._unsubscribe = this.props.navigation.addListener('focus', () => {
+      // do something
+      if(this.props.manifestError !== null){
+        this.setState({notifbanner: this.props.manifestError});
+        this.props.setItemError(null);
+      }
+    });
     if(receivingNumber === null){
       const {routes, index} = navigation.dangerouslyGetState();
       // if(manifestList.length === 0 && search === ''){
@@ -222,8 +228,11 @@ class Warehouse extends React.Component{
           navigation.popToTop();
         }
     }
-  }
  
+  }
+ componentWillUnmount(){
+  this._unsubscribe();
+ }
   setFiltered = (num)=>{
     this.setState({filtered:num});
 }
@@ -307,11 +316,23 @@ class Warehouse extends React.Component{
             <Text style={{...Mixins.small1,lineHeight: 18,color:'#424141',fontWeight:'bold'}}>{this.state.companyname}</Text>
             
             <Tooltip 
-            withPointer={true} 
+            withPointer={false} 
+            backgroundColor="#FFFFFF"
             skipAndroidStatusBar ={true}  
-            popover={<Text style={Mixins.body3}>{this.state.remark}</Text>} 
+            popover={<Text style={[Mixins.body3,{color:'black'}]}>{this.state.remark}</Text>} 
             width={300} 
-            containerStyle={{left:20}}>
+            containerStyle={{
+              left: (Dimensions.get('screen').width / 8),
+              top: (Dimensions.get('screen').height / 4),
+              shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            
+            elevation: 5,}}>
             <Button
                           containerStyle={{width: '100%',justifyContent: 'center', marginTop:9}}
                           buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0, backgroundColor:'#121C78'}]}
@@ -827,6 +848,7 @@ function mapStateToProps(state) {
     currentASN : state.originReducer.filters.currentASN,
     ReportedManifest : state.originReducer.filters.ReportedManifest,
     keyStack: state.originReducer.filters.keyStack,
+    manifestError: state.originReducer.filters.manifestError,
     // end
   };
 }
@@ -867,6 +889,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setItemGrade : (grade)=>{
       return dispatch({type:'BarcodeGrade', payload: grade});
+    },
+    setItemError : (error)=>{
+      return dispatch({type:'ManifestError', payload: error});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
