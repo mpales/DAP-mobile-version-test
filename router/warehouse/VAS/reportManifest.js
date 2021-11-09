@@ -37,13 +37,13 @@ class ReportManifest extends React.Component {
         this.handleSubmit.bind(this);
     }
     static getDerivedStateFromProps(props,state){
-        const {inboundList,navigation, manifestList} = props;
+        const {inboundList,navigation, VASList} = props;
         const {dataCode} = state;
         if(dataCode === '0'){
             const {routes, index} = navigation.dangerouslyGetState();
             if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
                 // for prototype only should be params ID from backend
-                let manifest = manifestList.find((element)=>element.pId === routes[index].params.dataCode);
+                let manifest = VASList.find((element)=>element.number === routes[index].params.dataCode);
               return {...state, dataCode: routes[index].params.dataCode, _manifest:manifest};
             }
         }
@@ -112,59 +112,64 @@ class ReportManifest extends React.Component {
     handleSubmit = async () => {
         const {currentASN} = this.props;
         const {dataCode, _manifest, qtyreported, reasonOption} = this.state;
-        let FormData = await this.getPhotoReceivingGoods();
-        let intOption = '0';
-        switch (reasonOption) {
-            case 'damage-goods':
-                intOption = '1';
-                break;
-            case 'missing-item':
-                intOption = '2';
-                break;
-            case 'excess-item':
-                intOption = '3';
-                break;
-            case 'other':
-                intOption = '4';
-                break;
-            default:
-                break;
-        } 
-        postBlob('/inboundsMobile/'+currentASN+'/'+_manifest.pId+'/reports', [
-            // element with property `filename` will be transformed into `file` in form data
-            { name : 'report', data: intOption},
-            {name :'description', data : this.state.otherReason},
-            {name : 'qty', data : qtyreported},
-            // custom content type
-            ...FormData,
-          ], this.listenToProgressUpload).then(result=>{
-            if(typeof result !== 'object' && result === 'Report submitted successfully'){
-                this.props.setBottomBar(false);
-                this.props.setReportedASN(currentASN);
-                this.props.addPhotoReportPostpone(null);
-                this.props.setReportedManifest(dataCode);
-                const {routes,index} = this.props.navigation.dangerouslyGetState();
-                if(routes[index-1].name === 'SupervisorMode'){
-                    this.props.navigation.navigate('SupervisorMode');
-                } else {
-                    this.props.navigation.navigate('Manifest')
-                }
-            } else {
-              if(typeof result === 'object'){
-                if(result.errors !== undefined){
-                    let errors = '';
-                    result.errors.forEach(element => {
-                        errors += element.msg + ' ';
-                    });
-                    this.setState({errors:errors});
-                } else {
-                    this.setState({errors: result.error});
-                }
-              } else {
-                this.setState({errors: result});
-              }
-            }
-          });
+        this.props.setBottomBar(false);
+    //    this.props.setReportedASN(currentASN);
+        this.props.addPhotoReportPostpone(null);
+        this.props.setReportedVAS(dataCode);
+        this.props.navigation.navigate('List');
+        // let FormData = await this.getPhotoReceivingGoods();
+        // let intOption = '0';
+        // switch (reasonOption) {
+        //     case 'damage-goods':
+        //         intOption = '1';
+        //         break;
+        //     case 'missing-item':
+        //         intOption = '2';
+        //         break;
+        //     case 'excess-item':
+        //         intOption = '3';
+        //         break;
+        //     case 'other':
+        //         intOption = '4';
+        //         break;
+        //     default:
+        //         break;
+        // } 
+        // postBlob('/inboundsMobile/'+currentASN+'/'+_manifest.pId+'/reports', [
+        //     // element with property `filename` will be transformed into `file` in form data
+        //     { name : 'report', data: intOption},
+        //     {name :'description', data : this.state.otherReason},
+        //     {name : 'qty', data : qtyreported},
+        //     // custom content type
+        //     ...FormData,
+        //   ], this.listenToProgressUpload).then(result=>{
+        //     if(typeof result !== 'object' && result === 'Report submitted successfully'){
+        //         this.props.setBottomBar(false);
+        //         this.props.setReportedASN(currentASN);
+        //         this.props.addPhotoReportPostpone(null);
+        //         this.props.setReportedManifest(dataCode);
+        //         const {routes,index} = this.props.navigation.dangerouslyGetState();
+        //         if(routes[index-1].name === 'SupervisorMode'){
+        //             this.props.navigation.navigate('SupervisorMode');
+        //         } else {
+        //             this.props.navigation.navigate('Manifest')
+        //         }
+        //     } else {
+        //       if(typeof result === 'object'){
+        //         if(result.errors !== undefined){
+        //             let errors = '';
+        //             result.errors.forEach(element => {
+        //                 errors += element.msg + ' ';
+        //             });
+        //             this.setState({errors:errors});
+        //         } else {
+        //             this.setState({errors: result.error});
+        //         }
+        //       } else {
+        //         this.setState({errors: result});
+        //       }
+        //     }
+        //   });
     }
     onChangeReasonInput = (value) => {
         this.setState({
@@ -439,7 +444,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
     return {
-        manifestList: state.originReducer.manifestList,
+        VASList: state.originReducer.VASList,
         photoReportPostpone: state.originReducer.photoReportPostpone,
         currentASN : state.originReducer.filters.currentASN,
         photoReportID: state.originReducer.photoReportID,
@@ -452,11 +457,8 @@ const mapDispatchToProps = (dispatch) => {
         setBottomBar: (toggle) => {
             return dispatch({type: 'BottomBar', payload: toggle});
         },
-        setReportedManifest: (data) => {
-            return dispatch({type:'ReportedManifest', payload: data});
-        },
-        setReportedASN: (data) => {
-            return dispatch({type:'ReportedASN', payload: data});
+        setReportedVAS: (data) => {
+            return dispatch({type:'ReportedVAS', payload: data});
         },
         addPhotoReportPostpone: (uri) => dispatch({type: 'PhotoReportPostpone', payload: uri}),
     };

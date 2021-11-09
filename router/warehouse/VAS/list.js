@@ -69,21 +69,21 @@ class List extends React.Component {
         const {type} = this.state;
         const {activeVAS, completeVAS,ReportedVAS} = this.props;
         const result = Array.from({length: ASN.length}).map((num,index)=>{
-            if(activeVAS.includes(ASN[index].number)){
+            if (completeVAS.includes(ASN[index].number)){
                 return {
                     ...ASN[index],
-                    status : 'progress',
-                };
-            } else if (completeVAS.includes(ASN[index].number)){
-                return {
-                    ...ASN[index],
-                    status: 'completed',
+                    status: 'complete',
                 };
             } else if(ReportedVAS.includes(ASN[index].number)){
                 return {
                     ...ASN[index],
                     status: 'reported'
                 }
+            } else if(activeVAS.includes(ASN[index].number)){
+                return {
+                    ...ASN[index],
+                    status : 'progress',
+                };
             } else {
                 return ASN[index];
             }
@@ -289,7 +289,13 @@ class List extends React.Component {
                                     item={data} 
                                     ToManifest={()=>{
                                         this.props.setBottomBar(false);
-                                        this.props.navigation.navigate('ItemTransitDetail');
+                                        this.props.navigation.navigate( {
+                                            name: 'ItemVASDetail',
+                                            params: {
+                                              bayScanned : false,
+                                              dataCode : data.number,
+                                            },
+                                          });
                                     }}
                                
                                 />
