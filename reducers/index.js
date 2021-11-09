@@ -78,6 +78,7 @@ const initialState = {
     ReportedVAS : [],
     ApplicationNavigational: null,
     stockTakeId: null,
+    manifestError : null,
   },
 };
 
@@ -338,6 +339,14 @@ export default function appReducer(state = initialState, action) {
           POSMPostpone: action.payload,
         },
       };
+      case 'ManifestError':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            manifestError: action.payload,
+          },
+        };
     case 'addPhotoProofID':
       return {
         ...state,
