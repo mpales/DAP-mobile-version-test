@@ -131,9 +131,9 @@ class WarehouseMenu extends React.Component {
                 titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
                 onPress={()=>{
                   // // vas navigate
-                  // this.props.setBottomBar(true);
-                  // this.props.setWarehouseModule('VAS');
-                  //   this.props.navigation.navigate('Details');
+                   this.props.setBottomBar(true);
+                   this.props.setWarehouseModule('VAS');
+                    this.props.navigation.navigate('Details');
                 }}
                     buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
                     />

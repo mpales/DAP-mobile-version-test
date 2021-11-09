@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Card, Divider} from 'react-native-elements';
+import {Card, Divider, Button} from 'react-native-elements';
 import {connect} from 'react-redux';
 import mixins from '../../../mixins';
 // component
@@ -152,6 +152,7 @@ const styles = StyleSheet.create({
   reportButton: {
     backgroundColor: '#fff',
     borderRadius: 5,
+    borderWidth:1,
     borderColor:'#424141'
   },
   container: {
