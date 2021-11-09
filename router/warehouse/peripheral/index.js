@@ -154,6 +154,7 @@ class Example extends React.Component {
         } else {
           const result = await postData('inboundsMobile/'+this.props.currentASN+'/'+item.pId+'/switch-status/2')
          if(result.error !== undefined && this.props.keyStack === 'Barcode'){
+          this.props.setItemError(result.error);
           this.props.navigation.goBack();
          } else {
           this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: Boolean(item.take_photo)});
@@ -163,6 +164,7 @@ class Example extends React.Component {
         let item = manifestList[this.state.indexItem];  
         const result = await postData('inboundsMobile/'+this.props.currentASN+'/'+item.pId+'/switch-status/2')
         if(result.error !== undefined && this.props.keyStack === 'Barcode'){
+          this.props.setItemError(result.error);
           this.props.navigation.goBack();
          } else {
           this.setState({dataItem: item, qty : 0, ItemGrade: "Pick",currentPOSM: Boolean(item.take_photo), multipleSKU : false, filterMultipleSKU : null}); 
@@ -201,9 +203,14 @@ class Example extends React.Component {
       }
     });
     const resultPallet = await getData('inboundsMobile/'+this.props.currentASN+'/pallet');
-    if(resultPallet.length > 0){
+    if(resultPallet.length > 0 && typeof resultPallet === 'object' && resultPallet.error === undefined){
       this.setState({PalletArray:resultPallet, ItemPallet: resultPallet[0].palete_id});
     } else {
+      if(typeof resultPallet === 'object' && resultPallet.error !== undefined){
+        this.props.setItemError(resultPallet.error);
+      } else {
+        this.props.setItemError('Generate New Pallet ID First');
+      }
       this.props.navigation.goBack();
     }
     let items = manifestList.find((o)=> o.pId === scanItem);
@@ -225,6 +232,7 @@ class Example extends React.Component {
         } else {
           const result = await postData('inboundsMobile/'+this.props.currentASN+'/'+item.pId+'/switch-status/2')
           if(result.error !== undefined){
+            this.props.setItemError(result.error);
             this.props.navigation.goBack();
            } else {
             this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: Boolean(item.take_photo)});
@@ -234,6 +242,7 @@ class Example extends React.Component {
         let item = manifestList[this.state.indexItem];  
         const result = await postData('inboundsMobile/'+this.props.currentASN+'/'+item.pId+'/switch-status/2')
         if(result.error !== undefined){
+          this.props.setItemError(result.error);
           this.props.navigation.goBack();
          } else {
           this.setState({dataItem: item, qty :  0, ItemGrade: "Pick", currentPOSM: Boolean(item.take_photo), filterMultipleSKU :null , multipleSKU: false}); 
@@ -1244,6 +1253,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setItemGrade : (grade)=>{
       return dispatch({type:'BarcodeGrade', payload: grade});
+    },
+    setItemError : (error)=>{
+      return dispatch({type:'ManifestError', payload: error});
     },
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
