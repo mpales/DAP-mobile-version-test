@@ -45,7 +45,7 @@ class Acknowledge extends React.Component {
                   }}
                   title="IVAS"
                   overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle]}
-                  onPress={()=> this.props.navigation.navigate('VAS',{screen:"List", type:'asn'})}
+                  onPress={()=> this.props.navigation.navigate('VAS',{screen:"List", type:'IVAS'})}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
@@ -65,7 +65,7 @@ class Acknowledge extends React.Component {
                   }}
                   title="OVAS"
                   overlayContainerStyle={Mixins.buttonFloatedAvatarDefaultOverlayStyle}
-                  onPress={()=> this.props.navigation.navigate('VAS',{screen:"List", type:'grn'})}
+                  onPress={()=> this.props.navigation.navigate('VAS',{screen:"List", type:'OVAS'})}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
@@ -87,7 +87,7 @@ class Acknowledge extends React.Component {
                   }}
                   title="DISPOSAL"
                   overlayContainerStyle={[Mixins.buttonFloatedAvatarDefaultOverlayStyle]}
-                  onPress={()=> this.props.navigation.navigate('VAS',{screen:"List",type:'others'})}
+                  onPress={()=> this.props.navigation.navigate('VAS',{screen:"List",type:'DISPOSAL'})}
                   activeOpacity={0.7}
                   containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
                   placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}

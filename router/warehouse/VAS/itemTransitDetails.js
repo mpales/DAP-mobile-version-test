@@ -26,13 +26,13 @@ class ConnoteDetails extends React.Component {
     };
   }
   static getDerivedStateFromProps(props,state){
-    const {navigation, manifestList} = props;
+    const {navigation, VASList} = props;
     const {dataCode, _itemDetail} = state;
     if(dataCode === '0'){
       const {routes, index} = navigation.dangerouslyGetState();
       if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-        if( manifestList.some((element)=> element.pId === routes[index].params.dataCode)){
-          let manifest = manifestList.find((element)=>element.pId === routes[index].params.dataCode);
+        if( VASList.some((element)=> element.number === routes[index].params.dataCode)){
+          let manifest = VASList.find((element)=>element.number === routes[index].params.dataCode);
           return {...state, dataCode: routes[index].params.dataCode, _itemDetail:manifest};    
         }
         return {...state, dataCode: routes[index].params.dataCode};
@@ -42,7 +42,11 @@ class ConnoteDetails extends React.Component {
     
     return {...state};
   }
-
+  componentDidUpdate(prevProps, prevState) {
+    if(this.props.VASList !== prevProps.VASList){
+     this.setState({dataCode:'0'});
+    }
+  }
   componentDidMount(){
   }
   navigateSeeReport = () => {
@@ -89,38 +93,70 @@ class ConnoteDetails extends React.Component {
         <StatusBar barStyle="dark-content" />
         <View style={styles.container}>
           <View style={styles.body}>
-            <Card containerStyle={styles.cardContainer} style={styles.card}>
-             
-              <View style={styles.detail}>
-              <DetailList title="Client" value="" />
-              <DetailList title="Warehouse" value="" />
-              <DetailList title="Location" value="" />
-              <DetailList title="Item Code" value="" />
-              <DetailList title="Description" value="" />
-                <Divider />
-                <View style={styles.header}>
-                  <Text style={[styles.detailText, {lineHeight: 24}]}>
-                  Delivery Information
-                  </Text>
-                </View>
+            <Card containerStyle={styles.cardContainer} style={{}}>
+              <View style={{...styles.detail,paddingHorizontal:20, marginBottom:10}}>
+              <DetailList title="Client" value={_itemDetail.transport} />
+              <DetailList title="Warehouse" value={_itemDetail.desc} />
+              <DetailList title="Location" value={_itemDetail.ref} />
+              <DetailList title="Item Code" value={_itemDetail.number} />
+              <DetailList title="Description" value={_itemDetail.rcpt} />
+              </View>
+              <Divider />
+              <View style={{...styles.detail,paddingHorizontal:20, marginTop:10}}>
                 <DetailList title="Job Type" value="Re-Labeling" />
                 <DetailList title="Labeling Required" value="40" />
                 <DetailList title="UOM" value="PCS" />
-              </View>
+                </View>
             </Card>
-            <Button
+{ (_itemDetail.status === 'progress' || _itemDetail.status === 'pending') ? (            
+<>
+<Button
               containerStyle={{flexShrink:1, marginVertical: 10,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
-              title="Start Job"
+              onPress={()=>{
+                if(_itemDetail.status === 'pending'){
+                  this.props.navigation.navigate({
+                    name:"Barcode",
+                    params: {
+                      inputCode : _itemDetail.number,
+                    },
+                  });
+                } else {
+                  this.props.setCompleteVAS( _itemDetail.number);
+                  this.props.navigation.navigate('List');
+                }
+              }}
+              title={_itemDetail.status === 'pending' ? "Start Job" : 'Complete Job'}
             />
           <Button
               containerStyle={{flexShrink:1, marginBottom: 10,}}
               buttonStyle={[styles.reportButton, {paddingHorizontal: 0}]}
               titleStyle={{...styles.deliveryText,color:'#E03B3B'}}
+              onPress={()=>{
+                this.props.navigation.navigate({
+                  name:"ReportManifest",
+                  params: {
+                    dataCode : _itemDetail.number,
+                    submitPhoto: false,
+                  },
+                })
+              }}
               title="Report"
         
             />
+  </>          ) : (
+       <Button
+       containerStyle={{flexShrink:1, marginBottom: 10,}}
+       buttonStyle={[styles.reportButton, {paddingHorizontal: 0}]}
+       titleStyle={{...styles.deliveryText,color:'#E03B3B'}}
+       onPress={()=>{
+         this.props.navigation.navigate('ItemReportDetail')
+       }}
+       title="See Report Detail"
+ 
+     />
+  ) }
 
             <View style={{flexDirection:'column',flexShrink:1, marginVertical:20}}>
               <Text style={{...mixins.subtitle3,lineHeight:21}}>Remarks</Text>
@@ -214,6 +250,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#fff',
     marginHorizontal: 0,
+    paddingHorizontal:0,
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: {
@@ -267,12 +304,16 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
   return {
-    manifestList: state.originReducer.manifestList,
+    VASList: state.originReducer.VASList,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
-  return {};
+  return {
+    setCompleteVAS: (data) => {
+      return dispatch({type:'completeVAS', payload: data});
+  },
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ConnoteDetails);

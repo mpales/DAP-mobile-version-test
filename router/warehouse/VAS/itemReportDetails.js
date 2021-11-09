@@ -41,11 +41,7 @@ class ConnoteReportDetails extends React.Component {
     const {navigation} = props;
     const {receivingNumber} = state;
     if(receivingNumber === null){
-      const {routes, index} = navigation.dangerouslyGetState();
-      if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
-        return {...state, receivingNumber: routes[index].params.number};
-      }
-      return {...state};
+      return {...state, receivingNumber: '392cb872-9607-4e78-9bdb-8be184ba93b4'};    
     } 
     
     return {...state};
@@ -67,7 +63,7 @@ class ConnoteReportDetails extends React.Component {
   async componentDidMount(){
     const {receivingNumber} = this.state;
     const {currentASN} = this.props;
-    const result = await getData('/inboundsMobile/'+currentASN+'/'+receivingNumber+'/reports');
+    const result = await getData('/inboundsMobile/283d28b3-285c-4ac4-93ef-521cab387f60/'+receivingNumber+'/reports');
     if(typeof result === 'object' && result.error === undefined){
       this.setState({dataReports:result})
     } else {
