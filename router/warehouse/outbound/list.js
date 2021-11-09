@@ -113,15 +113,8 @@ class List extends React.Component {
           }
         } 
         let filtered = prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || this.state.updated === true ? this.state.filtered : null;
-        console.log('test'+ filtered);
         if(filtered === 0) {
-          this.setState({_list: outboundList.sort((a,b)=>{
-            if(a.scanned !== a.total_qty && b.scanned === b.total_qty)
-            return -1;
-            if(a.scanned === a.total_qty && b.scanned !== b.total_qty)
-            return 1;
-            return a.scanned < b.scanned ? 1 : -1;  
-        }).filter((element)=> element.description.indexOf(this.state.search) > -1), updated: false});
+          this.setState({_list: outboundList.filter((element)=> element.description.indexOf(this.state.search) > -1), updated: false});
           } else if(filtered === 1){
             this.setState({_list: outboundList.filter((element)=> element.scanned === -1).filter((element)=> element.description.indexOf(this.state.search) > -1), updated: false});
           } else if(filtered === 2){
@@ -260,15 +253,8 @@ class List extends React.Component {
                                 textstatus = 'Completed'
                                 status = 'green';
                               }
-                              let printheader = this.state.filtered === 0 && i > 0 && data.scanned !== arr[i -1].scanned;
                                 return (
-                                <>
-                                {printheader && 
-                                <View style={{paddingVertical: 10}}>
-                                  <Text style={{...Mixins.h6,fontWeight: '600',lineHeight: 27}}>
-                                    {textstatus}
-                                    </Text></View>
-                                }
+                                
                                 <OutboundDetail 
                                     key={i} 
                                     index={i} 
@@ -288,7 +274,7 @@ class List extends React.Component {
                                     // for prototype only
                                     // end
                                 />
-                                </>
+                            
                             )})}
                         </Card>
 
