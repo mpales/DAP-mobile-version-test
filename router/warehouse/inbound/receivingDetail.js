@@ -213,6 +213,40 @@ class Acknowledge extends React.Component {
         }
       }
   }
+  getBackgroundStatusColor = (statuscode)=>{
+    let status = '#ABABAB';
+    switch (statuscode) {
+      case 3:
+        status = '#ABABAB';
+        labelstatus = 'Waiting';
+        break;
+        case 4:
+          status = '#F8B511';
+          labelstatus = 'Received';
+          break;
+          case 5:
+            status = '#F1811C';
+            labelstatus = 'Processing';
+            break;
+            case 6:
+              status = '#17B055';
+              labelstatus = 'Processed'
+              break;
+              case 7:
+                status = '#E03B3B';
+                labelstatus = 'Cancelled'
+                break;
+                case 8:
+                  status = '#17B055';
+                  labelstatus = 'Putaway'
+                  break;
+                  case 9:
+                    status = '#17B055';
+                    labelstatus = 'Completed'
+                    break;
+    }
+    return status;
+  };
   uploadSubmittedPhoto = async () => {
     const {photoProofPostpone} = this.props;
     let FormData = await this.getPhotoReceivingGoods();
@@ -249,7 +283,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.client}
+                value={data.client}
                 disabled={true}
                 leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
             />
@@ -263,7 +297,7 @@ class Acknowledge extends React.Component {
               inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
               inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
               labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.reference_id }
+                value={data.reference_id }
                 disabled={true}
                 leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
             />
@@ -281,7 +315,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder="FCL"
+                value="FCL"
                 disabled={true}
                 leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
             />
@@ -295,7 +329,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.container_no }
+                value={data.container_no }
                 disabled={true}
                 leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
             />
@@ -309,7 +343,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.container_size}
+                value={data.container_size}
                 disabled={true}
                 leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
             />
@@ -326,7 +360,7 @@ class Acknowledge extends React.Component {
                  inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                  inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                  labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                 placeholder="LCL"
+                 value="LCL"
                  disabled={true}
                  leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
              />
@@ -340,7 +374,7 @@ class Acknowledge extends React.Component {
                  inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                  inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                  labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                 placeholder={data.pallet_type === 1 ? 'Loose' : 'Palletized' }
+                 value={data.pallet_type === 1 ? 'Loose' : 'Palletized' }
                  disabled={true}
                  leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
              />
@@ -354,7 +388,7 @@ class Acknowledge extends React.Component {
                  inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                  inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                  labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                 placeholder={String(data.no_of_pallet)}
+                 value={String(data.no_of_pallet)}
                  disabled={true}
                  leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
              />
@@ -363,19 +397,22 @@ class Acknowledge extends React.Component {
          )}     
            </>
          )}
-      
+   
          <View style={{flexDirection:'row', flexShrink:1, paddingVertical:5}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>            
          <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Status</Text>
              </View>
              <Input 
-               containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
-                inputContainerStyle={{borderWidth:0,borderBottomWidth:0,maxHeight:30}} 
-                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,backgroundColor:'#F8B511',borderRadius:5,fontWeight:'600',lineHeight: 21,textTransform: 'uppercase', color:'#fff', textAlign:'center'}]}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+               containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30, flexDirection:'row'}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0,flexShrink:1, flexDirection:'column',}}
+                style={{flexShrink:1,paddingHorizontal:20,paddingVertical:0,height:23, minHeight:23,maxHeight:23,}} 
+                inputStyle={[{...Mixins.subtitle3,backgroundColor:this.getBackgroundStatusColor(data.status),borderRadius:5,fontWeight:'600',lineHeight: 21,textTransform: 'uppercase', color:'#fff', textAlign:'center'}]}
+                disabledInputStyle={{opacity: 1}}
+                labelStyle={[Mixins.containedInputDefaultLabel,{...Mixins.subtitle3,marginBottom: 5, color:'#6C6B6B'}]}
                 value={data.status === 3 ? 'Waiting' : data.status === 4 ? "Received" : data.status === 5 ? "Processing" : data.status === 6 ? "Processed" : "Reported" }
-                disabled={false}
-                leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
+                disabled={true}
+                label=" : "
+         
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -388,7 +425,7 @@ class Acknowledge extends React.Component {
               inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                placeholder={data.status === 3 ? moment(data.eta).format("DD-MM-YYYY") : moment(data.created_on).format("DD-MM-YYYY")}
+                value={data.status === 3 ? moment(data.eta).format("DD-MM-YYYY") : moment(data.created_on).format("DD-MM-YYYY")}
                 disabled={true}
                 leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
             />
