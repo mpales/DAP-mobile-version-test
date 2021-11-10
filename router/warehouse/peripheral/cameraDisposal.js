@@ -14,21 +14,23 @@ import { connect } from 'react-redux';
 import GalleryAttachment from '../../../assets/icon/iconmonstr-picture-10.svg';
 import FlashIcon from '../../../assets/icon/Flash.svg';
 import FlashActiveIcon from '../../../assets/icon/FlashActive.svg';
-
+import Video from 'react-native-video'
 import CheckMark from '../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
 import XMark from '../../../assets/icon/iconmonstr-x-mark-5 1mobile.svg';
 import {CaptureButton} from './views/CaptureButton';
+import RNFetchBlob from 'rn-fetch-blob';
 class CameraSingle extends React.Component {
     camera = React.createRef(null);
     constructor(props) {
         super(props);
         this.state = {
-            pictureData: null,
+            mediaData: null,
             isShowImagePreview: false,
             isFlashActive: false,
             pictureGallery: null,
             rootIDType : '',
             rootIDnumber: null,
+           
         }
   
         this.handleShowImagePreview.bind(this);
@@ -84,9 +86,15 @@ class CameraSingle extends React.Component {
         });
     }
 
-    launchGallery = (data) => {
+    launchGallery = async (data) => {
         if(!data.didCancel) {
-            this.setState({pictureData: data.uri});
+            if(data.type === undefined){
+                let stats = await RNFetchBlob.fs.stat(data.uri);
+                this.setState({mediaData: 'file://'+stats.path });
+            } else {
+                this.setState({mediaData: data.uri});
+            }
+            
         }
     }
 
@@ -94,21 +102,21 @@ class CameraSingle extends React.Component {
         if (this.camera.current !== null) {
             const options = { quality: 0.5, base64: true };
             const data = await this.camera.current.takePictureAsync(options);
-            this.setState({pictureData: data.uri});
+            this.setState({mediaData: data.uri});
         }
     };
 
 
     handlePhotoConfirmation = confirm => {
-         const {pictureData, rootIDType} = this.state;
+         const {mediaData, rootIDType} = this.state;
          if(confirm) {
              if(rootIDType === 'ItemDisposalDetail'){
-                 this.props.addMediaProofPostpone( pictureData);
+                 this.props.addMediaProofPostpone( mediaData);
              }
         } else {
 
      }
-        this.setState({pictureData: null});
+        this.setState({mediaData: null});
     }
     handleShowImagePreview = () => {
         if(this.state.pictureGallery.length > 0) {
@@ -132,9 +140,26 @@ class CameraSingle extends React.Component {
         const {photoProofPostpone} = this.props;
         return (
             <>
-            {(this.state.pictureData !== null ) ? (<View style={styles.container}>
+            {(this.state.mediaData !== null ) ? (<View style={styles.container}>
                 <View style={styles.preview}>
-                    <Image style={styles.confirmPictureSize} source={{uri: this.state.pictureData}}  />
+                    {this.state.mediaData.toString().endsWith('mp4') === true ? (
+                        <Video
+                        source={{uri:this.state.mediaData}}
+                        style={styles.confirmPictureSize}
+                        paused={false}
+                        resizeMode="cover"
+                        posterResizeMode="cover"
+                        allowsExternalPlayback={false}
+                        automaticallyWaitsToMinimizeStalling={false}
+                        disableFocus={true}
+                        repeat={true}
+                        useTextureView={false}
+                        controls={false}
+                        playWhenInactive={false}
+                        ignoreSilentSwitch="ignore"
+                      />
+                    ) : (<Image style={styles.confirmPictureSize} source={{uri: this.state.mediaData}}  />)}
+                    
                 </View>
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity onPress={() => {this.handlePhotoConfirmation(false)}} style={styles.gallery}>
@@ -195,7 +220,7 @@ class CameraSingle extends React.Component {
                             console.log('pressed Button', bool);
                         }}
                         />
-                    <TouchableOpacity onPress={() => launchImageLibrary({mediaType: 'photo'}, this.launchGallery)} style={styles.gallery}>
+                    <TouchableOpacity onPress={() => launchImageLibrary({mediaType: 'mixed'}, this.launchGallery)} style={styles.gallery}>
                         <GalleryAttachment height="39" width="30" fill="#fff" />
                     </TouchableOpacity>
                 </View>
