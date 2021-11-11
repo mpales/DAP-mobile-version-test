@@ -118,6 +118,13 @@ export const productGradeToString = (value) => {
       break;
     case 8:
       gradeString = 'RESERVE';
+      break;
+    case 9:
+      gradeString = 'SIT';
+      break;
+    case 10:
+      gradeString = 'REWORK';
+      break;
     default:
       gradeString = '';
       break;
