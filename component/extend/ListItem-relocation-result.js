@@ -6,6 +6,8 @@ import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg
 import Mixins from '../../mixins';
 // component
 import {TextList} from './Text-list';
+// helper
+import {productGradeToString} from '../helper/string';
 
 const ListItemRelocationResult = ({item, navigate}) => {
   return (
@@ -20,16 +22,19 @@ const ListItemRelocationResult = ({item, navigate}) => {
         style={{marginBottom: 10}}>
         <ListItem.Content
           style={[styles.sectionContainer, {flexDirection: 'column'}]}>
-          <Text style={styles.contentTitle}>Warehosue {item.warehouse}</Text>
-          <TextList title="Job ID" value={item.jobId} />
-          <TextList title="Job Date" value={item.jobDate} />
-          <TextList title="Client" value={item.client} />
-          <TextList title="Warehouse" value={item.warehouse} />
+          <TextList title="Warehouse" value={item.warehouseName} />
+          <TextList title="Location" value={item.locationId} />
           <TextList title="Item Code" value={item.itemCode} />
-          <TextList title="Description" value={item.description} />
+          <TextList
+            title="Description"
+            value={!!item.description ? item.description : '-'}
+          />
           <TextList title="Quantity" value={item.quantity} />
-          <TextList title="From Location" value={item.fromLocation} />
-          <TextList title="To Location" value={item.toLocation} />
+          <TextList title="UOM" value={item.uom} />
+          <TextList
+            title="Grade"
+            value={productGradeToString(item.productGrade)}
+          />
         </ListItem.Content>
         <ListItem.Chevron
           size={16}

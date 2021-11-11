@@ -12,6 +12,7 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 import moment from 'moment';
+import {getData} from '../../../../component/helper/network';
 // component
 import RelocationResult from '../../../../component/extend/ListItem-relocation-result';
 // style
@@ -26,44 +27,95 @@ class RelocationRequest extends React.Component {
       client: '',
       itemCode: '',
       clientId: null,
-      itemCodeId: null,
       clientList: null,
-      itemCodeList: null,
       searchResult: null,
+      filteredClientList: null,
+      searchSubmitted: false,
     };
     this.submitSearch.bind(this);
   }
 
+  componentDidMount() {
+    this.props.navigation.addListener('focus', () => {
+      this.getClientList();
+    });
+  }
+
+  getClientList = async () => {
+    const result = await getData('/clients');
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        clientList: result,
+      });
+    }
+  };
+
+  getClientProductList = async () => {
+    const {clientId, itemCode} = this.state;
+    const result = await getData(
+      `/stocks/product-storage/client/${clientId}/item-code/${
+        !!itemCode ? itemCode : 0
+      }`,
+    );
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        searchResult: result,
+      });
+    }
+    this.setState({searchSubmitted: true});
+  };
+
   submitSearch = () => {
     const {client, itemCode} = this.state;
-    if (client === '' || itemCode === '') {
+    if (client === '') {
       return;
     }
-    this.setState({
-      searchResult: SEARCHRESULT,
-    });
+    this.getClientProductList();
   };
 
   handleInput = (value, type) => {
     let obj = {};
-    if (type === 'client') {
-      obj = {client: value.name, clientId: value.id, clientList: null};
-    } else if (type === 'itemCode') {
-      obj = {itemCode: value.name, itemCodeId: value.id, itemCodeList: null};
-    } else if (type === 'clientList') {
+    if (type === 'clientList') {
       if (value === '') {
-        obj = {client: value, clientList: null, clientId: null, product: ''};
+        obj = {
+          client: value,
+          filteredClientList: null,
+          clientId: null,
+          itemCode: '',
+          searchSubmitted: false,
+        };
       } else {
-        obj = {client: value, clientList: CLIENTLIST};
+        obj = {
+          client: value,
+          filteredClientList: this.filterClientList(value),
+          searchSubmitted: false,
+        };
       }
     } else if (type === 'itemCodeList') {
-      if (value === '') {
-        obj = {itemCode: value, itemCodeList: null, itemCodeId: null};
-      } else {
-        obj = {itemCode: value, itemCodeList: PRODUCTLIST};
-      }
+      obj = {
+        itemCode: value,
+        searchSubmitted: false,
+      };
     }
     this.setState(obj);
+  };
+
+  handleSelect = (value, type) => {
+    if (type === 'client') {
+      obj = {client: value.name, clientId: value.id, filteredClientList: null};
+    }
+    this.setState(obj);
+  };
+
+  filterClientList = (value) => {
+    const {clientList} = this.state;
+    if (clientList !== null) {
+      return clientList.filter((client, index) => {
+        if (client.name !== null && index < 5)
+          return client.name.toLowerCase().includes(value.toLowerCase());
+      });
+    }
+    return null;
   };
 
   resetInput = () => {
@@ -71,9 +123,8 @@ class RelocationRequest extends React.Component {
       client: '',
       itemCode: '',
       clientId: null,
-      itemCodeId: null,
-      clientList: null,
-      itemCodeList: null,
+      filteredClientList: null,
+      searchSubmitted: false,
     });
   };
 
@@ -96,8 +147,10 @@ class RelocationRequest extends React.Component {
             paddingHorizontal: 10,
           },
         ]}
-        onPress={() => this.handleInput(item, type)}>
-        <Text style={styles.inputText}>{item.name}</Text>
+        onPress={() => this.handleSelect(item, type)}>
+        <Text style={styles.inputText}>
+          {type === 'client' ? item.name : item.item_code}
+        </Text>
       </TouchableOpacity>
     );
   };
@@ -115,10 +168,11 @@ class RelocationRequest extends React.Component {
       searchResult,
       client,
       clientId,
-      clientList,
+      filteredClientList,
       itemCode,
-      itemCodeList,
+      searchSubmitted,
     } = this.state;
+    console.log(searchResult);
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -138,8 +192,22 @@ class RelocationRequest extends React.Component {
                 onChangeText={(text) => this.handleInput(text, 'clientList')}
               />
               <View style={styles.dropdownContainer}>
-                {clientList !== null &&
-                  clientList.map((client) => this.renderItem(client, 'client'))}
+                {client !== '' &&
+                  clientId === null &&
+                  filteredClientList !== null &&
+                  filteredClientList.length === 0 && (
+                    <View
+                      style={[
+                        styles.inputContainer,
+                        {justifyContent: 'center', paddingHorizontal: 10},
+                      ]}>
+                      <Text style={styles.inputText}>No Result</Text>
+                    </View>
+                  )}
+                {filteredClientList !== null &&
+                  filteredClientList.map((client) =>
+                    this.renderItem(client, 'client'),
+                  )}
               </View>
             </View>
             <View style={styles.inputWrapper}>
@@ -152,11 +220,9 @@ class RelocationRequest extends React.Component {
                 inputStyle={styles.inputText}
                 renderErrorMessage={false}
                 onChangeText={(text) => this.handleInput(text, 'itemCodeList')}
+                disabled={clientId === null ? true : false}
+                disabledInputStyle={{backgroundColor: '#EFEFEF'}}
               />
-              <View style={styles.dropdownContainer}>
-                {itemCodeList !== null &&
-                  itemCodeList.map((item) => this.renderItem(item, 'itemCode'))}
-              </View>
             </View>
             <Button
               title="Search"
@@ -165,7 +231,7 @@ class RelocationRequest extends React.Component {
                 styles.button,
                 {marginHorizontal: 0, marginTop: 20},
               ]}
-              disabled={client === '' || itemCode === ''}
+              disabled={clientId === null}
               disabledStyle={{backgroundColor: '#ABABAB'}}
               disabledTitleStyle={{color: '#FFF'}}
               onPress={this.submitSearch}
@@ -180,7 +246,7 @@ class RelocationRequest extends React.Component {
               onPress={this.navigateToRequestRelocationBarcode}
             />
           </View>
-          {searchResult !== null && (
+          {searchSubmitted && (
             <View style={styles.resultContainer}>
               <View
                 style={{
@@ -196,19 +262,27 @@ class RelocationRequest extends React.Component {
                     {`${client} ${itemCode}`}
                   </Text>
                 </View>
-                <Text
-                  style={[
-                    styles.text,
-                    styles.textBlue,
-                  ]}>{`${searchResult.length} Result`}</Text>
+                <Text style={[styles.text, styles.textBlue]}>{`${
+                  searchResult === null ? 0 : searchResult.length
+                } Result`}</Text>
               </View>
-              {searchResult.map((item, index) => (
-                <RelocationResult
-                  key={index}
-                  item={item}
-                  navigate={this.navigateToRequestRelocationForm}
-                />
-              ))}
+              {searchResult !== null &&
+                searchResult.map((item, index) => (
+                  <RelocationResult
+                    key={index}
+                    item={item}
+                    navigate={this.navigateToRequestRelocationForm}
+                  />
+                ))}
+              {searchResult === null && (
+                <View
+                  style={{
+                    alignItems: 'center',
+                    marginTop: '40%',
+                  }}>
+                  <Text style={styles.title}>No Result</Text>
+                </View>
+              )}
             </View>
           )}
         </ScrollView>
@@ -216,91 +290,6 @@ class RelocationRequest extends React.Component {
     );
   }
 }
-
-const CLIENTLIST = [
-  {
-    name: 'Roberto',
-    id: '1',
-  },
-  {
-    name: 'Roberto Cheng',
-    id: '2',
-  },
-  {
-    name: 'Roberto Van',
-    id: '3',
-  },
-  {
-    name: 'Roberto Vien',
-    id: '4',
-  },
-];
-
-const PRODUCTLIST = [
-  {
-    name: '0911234567',
-    id: '0911234567',
-  },
-  {
-    name: '092223346',
-    id: '092223346',
-  },
-  {
-    name: '0912234566',
-    id: '0912234566',
-  },
-  {
-    name: '0912334567',
-    id: '0912334567',
-  },
-];
-
-const SEARCHRESULT = [
-  {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-  },
-  {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-  },
-  {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-  },
-  {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-  },
-];
 
 const styles = StyleSheet.create({
   body: {
