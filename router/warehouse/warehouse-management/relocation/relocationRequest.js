@@ -12,6 +12,7 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 import moment from 'moment';
+import {getData} from '../../../../component/helper/network';
 // component
 import RelocationResult from '../../../../component/extend/ListItem-relocation-result';
 // style
@@ -26,13 +27,27 @@ class RelocationRequest extends React.Component {
       client: '',
       itemCode: '',
       clientId: null,
-      itemCodeId: null,
       clientList: null,
-      itemCodeList: null,
       searchResult: null,
+      filteredClientList: null,
     };
     this.submitSearch.bind(this);
   }
+
+  componentDidMount() {
+    this.props.navigation.addListener('focus', () => {
+      this.getClientList();
+    });
+  }
+
+  getClientList = async () => {
+    const result = await getData('/clients');
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        clientList: result,
+      });
+    }
+  };
 
   submitSearch = () => {
     const {client, itemCode} = this.state;
@@ -46,24 +61,41 @@ class RelocationRequest extends React.Component {
 
   handleInput = (value, type) => {
     let obj = {};
-    if (type === 'client') {
-      obj = {client: value.name, clientId: value.id, clientList: null};
-    } else if (type === 'itemCode') {
-      obj = {itemCode: value.name, itemCodeId: value.id, itemCodeList: null};
-    } else if (type === 'clientList') {
+    if (type === 'clientList') {
       if (value === '') {
-        obj = {client: value, clientList: null, clientId: null, product: ''};
+        obj = {
+          client: value,
+          filteredClientList: null,
+          clientId: null,
+          itemCode: '',
+        };
       } else {
-        obj = {client: value, clientList: CLIENTLIST};
+        obj = {client: value, filteredClientList: this.filterClientList(value)};
       }
     } else if (type === 'itemCodeList') {
-      if (value === '') {
-        obj = {itemCode: value, itemCodeList: null, itemCodeId: null};
-      } else {
-        obj = {itemCode: value, itemCodeList: PRODUCTLIST};
-      }
+      obj = {
+        itemCode: value,
+      };
     }
     this.setState(obj);
+  };
+
+  handleSelect = (value, type) => {
+    if (type === 'client') {
+      obj = {client: value.name, clientId: value.id, filteredClientList: null};
+    }
+    this.setState(obj);
+  };
+
+  filterClientList = (value) => {
+    const {clientList} = this.state;
+    if (clientList !== null) {
+      return clientList.filter((client, index) => {
+        if (client.name !== null && index < 5)
+          return client.name.toLowerCase().includes(value.toLowerCase());
+      });
+    }
+    return null;
   };
 
   resetInput = () => {
@@ -71,9 +103,7 @@ class RelocationRequest extends React.Component {
       client: '',
       itemCode: '',
       clientId: null,
-      itemCodeId: null,
-      clientList: null,
-      itemCodeList: null,
+      filteredClientList: null,
     });
   };
 
@@ -96,8 +126,10 @@ class RelocationRequest extends React.Component {
             paddingHorizontal: 10,
           },
         ]}
-        onPress={() => this.handleInput(item, type)}>
-        <Text style={styles.inputText}>{item.name}</Text>
+        onPress={() => this.handleSelect(item, type)}>
+        <Text style={styles.inputText}>
+          {type === 'client' ? item.name : item.item_code}
+        </Text>
       </TouchableOpacity>
     );
   };
@@ -115,9 +147,8 @@ class RelocationRequest extends React.Component {
       searchResult,
       client,
       clientId,
-      clientList,
+      filteredClientList,
       itemCode,
-      itemCodeList,
     } = this.state;
     return (
       <SafeAreaProvider>
@@ -138,8 +169,22 @@ class RelocationRequest extends React.Component {
                 onChangeText={(text) => this.handleInput(text, 'clientList')}
               />
               <View style={styles.dropdownContainer}>
-                {clientList !== null &&
-                  clientList.map((client) => this.renderItem(client, 'client'))}
+                {client !== '' &&
+                  clientId === null &&
+                  filteredClientList !== null &&
+                  filteredClientList.length === 0 && (
+                    <View
+                      style={[
+                        styles.inputContainer,
+                        {justifyContent: 'center', paddingHorizontal: 10},
+                      ]}>
+                      <Text style={styles.inputText}>No Result</Text>
+                    </View>
+                  )}
+                {filteredClientList !== null &&
+                  filteredClientList.map((client) =>
+                    this.renderItem(client, 'client'),
+                  )}
               </View>
             </View>
             <View style={styles.inputWrapper}>
@@ -152,11 +197,9 @@ class RelocationRequest extends React.Component {
                 inputStyle={styles.inputText}
                 renderErrorMessage={false}
                 onChangeText={(text) => this.handleInput(text, 'itemCodeList')}
+                disabled={clientId === null ? true : false}
+                disabledInputStyle={{backgroundColor: '#EFEFEF'}}
               />
-              <View style={styles.dropdownContainer}>
-                {itemCodeList !== null &&
-                  itemCodeList.map((item) => this.renderItem(item, 'itemCode'))}
-              </View>
             </View>
             <Button
               title="Search"
@@ -216,44 +259,6 @@ class RelocationRequest extends React.Component {
     );
   }
 }
-
-const CLIENTLIST = [
-  {
-    name: 'Roberto',
-    id: '1',
-  },
-  {
-    name: 'Roberto Cheng',
-    id: '2',
-  },
-  {
-    name: 'Roberto Van',
-    id: '3',
-  },
-  {
-    name: 'Roberto Vien',
-    id: '4',
-  },
-];
-
-const PRODUCTLIST = [
-  {
-    name: '0911234567',
-    id: '0911234567',
-  },
-  {
-    name: '092223346',
-    id: '092223346',
-  },
-  {
-    name: '0912234566',
-    id: '0912234566',
-  },
-  {
-    name: '0912334567',
-    id: '0912334567',
-  },
-];
 
 const SEARCHRESULT = [
   {
