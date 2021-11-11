@@ -358,12 +358,14 @@ const _CaptureButton: React.FC<Props> = ({
         <TouchableOpacity 
         style={[{flexShrink:1, alignItems:'center', paddingHorizontal:15, marginRight:20}, currentTypeMedia === 'photo' ? {borderBottomWidth:1, borderBottomColor:'white'} : null ]}
         onPress={()=>{
-          if(currentTypeMedia === 'photo'){
-            // _ctxCallbacksetMediaType(setMediaType, 'auto');
-            setMediaType('auto')
-          } else {
-            setMediaType('photo');
-            // _ctxCallbacksetMediaType(setMediaType, 'photo');
+          if(isPressingButton.value === false){
+            if(currentTypeMedia === 'photo'){
+              // _ctxCallbacksetMediaType(setMediaType, 'auto');
+              setMediaType('auto')
+            } else {
+              setMediaType('photo');
+              // _ctxCallbacksetMediaType(setMediaType, 'photo');
+            }
           }
         }}
         >
@@ -376,12 +378,14 @@ const _CaptureButton: React.FC<Props> = ({
       <TouchableOpacity 
      style={[{flexShrink:1, alignItems:'center',paddingHorizontal:15}, currentTypeMedia === 'video' ? {borderBottomWidth:1, borderBottomColor:'white'} : null ]}
       onPress={()=>{
-        if(currentTypeMedia === 'video'){
-          // _ctxCallbacksetMediaType(setMediaType, 'auto');
-          setMediaType('auto');
-        } else {
-          setMediaType('video');
-          // _ctxCallbacksetMediaType(setMediaType, 'video');
+        if(isPressingButton.value === false){
+          if(currentTypeMedia === 'video'){
+            // _ctxCallbacksetMediaType(setMediaType, 'auto');
+            setMediaType('auto');
+          } else {
+            setMediaType('video');
+            // _ctxCallbacksetMediaType(setMediaType, 'video');
+          }
         }
       }}
       >
