@@ -106,7 +106,7 @@ class CameraSingle extends React.Component {
         const {photoProofPostpone} = this.props;
         return (
             <>
-            {(this.state.pictureData !== null ) ? (<View style={styles.container}>
+            {(this.state.pictureData !== null ) ? (<View style={[styles.container,{zIndex:10,elevation:10}]}>
                 <View style={styles.preview}>
                     <Image style={styles.confirmPictureSize} source={{uri: this.state.pictureData}}  />
                 </View>

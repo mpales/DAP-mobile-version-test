@@ -129,8 +129,10 @@ class ConnoteDetails extends React.Component {
 
             <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
                         <Avatar onPress={()=>{
-                                    this.props.setBottomBar(false);
-                                    this.props.navigation.navigate('DisposalCamera')              
+                              if(this.props.disposalProofID === null || this.props.disposalProofID === this.state.dataCode){
+                                this.props.setBottomBar(false);
+                                this.props.navigation.navigate('DisposalCamera')   
+                               }           
                                 }}
                                         size={79}
                                         ImageComponent={() => (
@@ -154,9 +156,9 @@ class ConnoteDetails extends React.Component {
                                         },
                                         }}
                                         overlayContainerStyle={{
-                                        backgroundColor: this.props.disposalPostpone !== null 
-                                            ? '#17B055'
-                                            : '#F07120',
+                                          backgroundColor: this.props.disposalProofID !== null && this.props.disposalProofID !== this.state.dataCode ? 'grey' : this.props.disposalPostpone !== null 
+                                          ? '#17B055'
+                                          : '#F07120',
                                         flex: 2,
                                         borderRadius: 5,
                                         }}/>
@@ -361,6 +363,7 @@ const mapStateToProps = (state) => {
     VASList: state.originReducer.VASList,
     keyStack: state.originReducer.filters.keyStack,
     disposalPostpone: state.originReducer.disposalPostpone,
+    disposalProofID : state.originReducer.disposalProofID,
   };
 };
 

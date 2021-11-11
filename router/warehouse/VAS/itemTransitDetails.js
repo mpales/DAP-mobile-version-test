@@ -6,8 +6,10 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ScrollView,
+  Dimensions
 } from 'react-native';
-import {Card, Divider, Button} from 'react-native-elements';
+import {Card, Divider, Button, Avatar} from 'react-native-elements';
 import {connect} from 'react-redux';
 import mixins from '../../../mixins';
 // component
@@ -15,7 +17,7 @@ import DetailList from '../../../component/extend/Card-detail';
 // icon
 import ChevronRight from '../../../assets/icon/iconmonstr-arrow-66mobile-2.svg';
 import ChevronDown from '../../../assets/icon/iconmonstr-arrow-66mobile-1.svg';
-
+import IconBarcodeMobile from '../../../assets/icon/iconmonstr-barcode-3 2mobile.svg';
 class ConnoteDetails extends React.Component {
   constructor(props) {
     super(props);
@@ -91,7 +93,26 @@ class ConnoteDetails extends React.Component {
     return (
       <>
         <StatusBar barStyle="dark-content" />
-        <View style={styles.container}>
+        <View style={styles.buttonSticky}>
+              <Avatar
+                size={75}
+                ImageComponent={() => (
+                  <IconBarcodeMobile height="40" width="37" fill="#fff" />
+                )}
+                imageProps={{
+                  containerStyle: {
+                    ...mixins.buttonAvatarDefaultIconStyle,
+                  },
+                }}
+                overlayContainerStyle={styles.barcodeButton}
+                onPress={() => {
+               
+                }}
+                activeOpacity={0.7}
+                containerStyle={{position:'absolute',  left: (Dimensions.get('screen').width / 2) - 40, bottom:(Dimensions.get('screen').height * 0.025) -10}}
+              />
+            </View>
+        <ScrollView style={styles.container}>
           <View style={styles.body}>
             <Card containerStyle={styles.cardContainer} style={{}}>
               <View style={{...styles.detail,paddingHorizontal:20, marginBottom:10}}>
@@ -167,7 +188,7 @@ class ConnoteDetails extends React.Component {
               </View>
             </View>
           </View>
-        </View>
+        </ScrollView>
       </>
     );
   }
@@ -299,6 +320,30 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     padding: 5,
     marginLeft: 5,
+  },
+  buttonSticky: {
+    position: 'absolute',
+    bottom:0,
+    left:0,
+    right:0,
+    elevation: 10,
+    zIndex: 10,
+    height:Dimensions.get('screen').height * 0.06,
+    backgroundColor:'white',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 7,
+    },
+    shadowOpacity: 0.41,
+    shadowRadius: 9.11,
+    
+    elevation: 14,
+  },
+  barcodeButton: {
+    ...mixins.buttonAvatarDefaultOverlayStyle,
+    backgroundColor: '#F07120',
+    borderRadius: 100,
   },
 });
 
