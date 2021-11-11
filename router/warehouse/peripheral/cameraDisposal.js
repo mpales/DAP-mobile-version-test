@@ -30,7 +30,7 @@ class CameraSingle extends React.Component {
             pictureGallery: null,
             rootIDType : '',
             rootIDnumber: null,
-           
+            currentTypeMedia : 'auto',
         }
   
         this.handleShowImagePreview.bind(this);
@@ -65,7 +65,6 @@ class CameraSingle extends React.Component {
       }
     componentDidUpdate(prevProps, prevState) {
        if(this.state.rootIDType === 'ItemDisposalDetail' && Array.isArray(this.props.disposalPostpone) && ((prevProps.disposalPostpone === null && this.props.disposalPostpone !== prevProps.disposalPostpone) || this.props.disposalPostpone.length !== prevProps.disposalPostpone.length)){
-            console.log('test updated postpone media');
             this.props.addMediaDisposalID(this.state.rootIDnumber)
             this.setState({pictureGallery : this.props.disposalPostpone});
             if(this.state.isShowImagePreview && this.state.pictureGallery !== null) {
@@ -218,6 +217,11 @@ class CameraSingle extends React.Component {
                         setIsPressingButton={(bool)=>{
                             console.log('pressed Button', bool);
                         }}
+                        captureContext={{
+                            currentTypeMedia : this.state.currentTypeMedia,
+                            setMediaType : (captureType) => this.setState({currentTypeMedia : captureType})
+                            }
+                        }
                         />
                     <TouchableOpacity onPress={() => launchImageLibrary({mediaType: 'mixed'}, this.launchGallery)} style={styles.gallery}>
                         <GalleryAttachment height="39" width="30" fill="#fff" />
