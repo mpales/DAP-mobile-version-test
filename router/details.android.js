@@ -25,6 +25,7 @@ class Details extends React.Component {
     this.requestLocationPermission.bind(this);
     this.requestBackgroundLocationPermission.bind(this);
     this.requestCameraPermission.bind(this);
+    this.requestAudioPermission.bind(this);
     this.requestReadStoragePermission.bind(this);
     this.requestWriteStoragePermission.bind(this);
     this.setWrapperofStack.bind(this);
@@ -66,7 +67,8 @@ class Details extends React.Component {
     if (val) {
       if (
         this.props.userRole.type === 'Warehouse' &&
-        (!this.props.cameraPermission ||
+        (!this.props.cameraPermission || 
+          !this.props.audioPermission ||
           !this.props.readStoragePermission ||
           !this.props.writeStoragePermission)
       ) {
@@ -277,6 +279,67 @@ class Details extends React.Component {
       });
     }
   };
+  requestAudioPermission = async () => {
+    let {audioPermission} = this.props;
+    if (audioPermission) {
+      check(PERMISSIONS.ANDROID.RECORD_AUDIO)
+        .then((result) => {
+          switch (result) {
+            case RESULTS.UNAVAILABLE:
+              this.setState({cancel: true});
+              break;
+            case RESULTS.DENIED:
+              this.setState({cancel: true});
+              this.props.setAudioPermission(false);
+              break;
+            case RESULTS.LIMITED:
+              break;
+            case RESULTS.GRANTED:
+              break;
+            case RESULTS.BLOCKED:
+              if (!this.state.visible) {
+                this.props.setAudioPermission(false);
+                this.setState({
+                  overlayString:
+                    'In-App Camera requires Record Audio Permission to be granted, Tap `YES` to open App Setings',
+                  visible: true,
+                });
+              }
+              break;
+          }
+        })
+        .catch((error) => {
+          // …
+        });
+    } else {
+      request(PERMISSIONS.ANDROID.RECORD_AUDIO).then((result) => {
+        switch (result) {
+          case RESULTS.UNAVAILABLE:
+            this.setState({cancel: true});
+            break;
+          case RESULTS.DENIED:
+            this.setState({cancel: true});
+            break;
+          case RESULTS.LIMITED:
+            this.props.setAudioPermission(true);
+            break;
+          case RESULTS.GRANTED:
+            this.props.setAudioPermission(true);
+            break;
+          case RESULTS.BLOCKED:
+            if (!this.state.visible) {
+              this.props.setAudioPermission(false);
+              this.setState({
+                overlayString:
+                'In-App Camera requires Record Audio Permission to be granted, Tap `YES` to open App Setings',
+                visible: true,
+              });
+            }
+            break;
+        }
+      });
+    }
+  };
   requestReadStoragePermission = async () => {
     let {readStoragePermission} = this.props;
 
@@ -423,6 +486,7 @@ class Details extends React.Component {
         this.props.navigation.navigate('Home');
       } else {
         this.requestCameraPermission();
+        this.requestAudioPermission();
         this.requestReadStoragePermission();
         this.requestWriteStoragePermission();
       }
@@ -455,6 +519,8 @@ class Details extends React.Component {
         this.props.navigation.navigate('Home');
       } else if (!this.props.cameraPermission) {
         this.requestCameraPermission();
+      } else if (!this.props.audioPermission) {
+        this.requestAudioPermission();
       } else if (!this.props.readStoragePermission) {
         this.requestReadStoragePermission();
       } else if (!this.props.writeStoragePermission) {
@@ -814,6 +880,7 @@ function mapStateToProps(state) {
     value: state.originReducer.todos.name,
     userRole: state.originReducer.userRole,
     cameraPermission: state.originReducer.filters.cameraPermission,
+    audioPermission: state.originReducer.filters.audioPermission,
     locationPermission: state.originReducer.filters.locationPermission,
     backgroundlocationPermission:
       state.originReducer.filters.backgroundlocationPermission,
@@ -834,6 +901,8 @@ const mapDispatchToProps = (dispatch) => {
     setBottomBar: (toggle) => dispatch({type: 'BottomBar', payload: toggle}),
     setCameraPermission: (bool) =>
       dispatch({type: 'cameraPermission', payload: bool}),
+    setAudioPermission: (bool) =>
+      dispatch({type: 'audioPermission', payload: bool}),
     setLocationPermission: (bool) =>
       dispatch({type: 'locationPermission', payload: bool}),
     setbackgroundLocationPermission: (bool) =>

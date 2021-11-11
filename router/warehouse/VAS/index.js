@@ -11,9 +11,12 @@ import ReportManifest from './reportManifest';
 import itemReportDetail from './itemReportDetails';
 import Mixins from '../../../mixins';
 import SingleCamera from '../peripheral/cameraMulti';
+import DisposalCamera from '../peripheral/cameraDisposal';
 import EnlargeImage from '../peripheral/enlargeImage';
+import EnlargeMedia from '../peripheral/enlargeMedia';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import ItemTransitDetail from './itemTransitDetails';
+import ItemDisposalDetail from './itemDisposalDetails';
 import IVASDetail from '../detail/index-VAS';
 const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
@@ -76,6 +79,9 @@ class HomeNavigator extends React.Component {
       const {state} = event.data;
       const {index,routes} = state;
       if(routes[index].name === 'ItemVASDetail' ){
+        let updatedStatus = await this.updateASN();
+        this.props.setVASList(updatedStatus);
+      } else  if(routes[index].name === 'ItemDisposalDetail' ){
         let updatedStatus = await this.updateASN();
         this.props.setVASList(updatedStatus);
       }
@@ -198,6 +204,36 @@ class HomeNavigator extends React.Component {
           })}
         />
          <Stack.Screen
+          name="ItemDisposalDetail"
+          component={ItemDisposalDetail}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTintColor: '#fff',
+            headerTitle: this.state.type.toUpperCase() + ' Details',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar('false')
+                  this.props.navigation.navigate('List');
+                }
+              }
+              />);
+            },
+          })}
+        />
+         <Stack.Screen
           name="ItemReportDetail"
           component={itemReportDetail}
           options={() => ({
@@ -285,6 +321,50 @@ class HomeNavigator extends React.Component {
           })}
         />
      
+     <Stack.Screen
+          name="DisposalCamera"
+          component={DisposalCamera}
+          options={({navigation}) => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerLeft: (props) => {
+              const {routes, index} = navigation.dangerouslyGetState();
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  navigation.navigate(routes[index-1].name,{ submitPhoto: false });
+                }
+              }
+              />);
+            },
+            headerRight: () => {
+              const {routes, index} = navigation.dangerouslyGetState();
+              return (
+              <Button
+                type="clear"
+                title="Submit"
+                buttonStyle={{paddingHorizontal: 20, margin: 0}}
+                iconContainerStyle={{padding: 0, margin: 0}}
+                titleStyle={{padding: 0, margin: 0, color: '#fff'}}
+                onPress={() =>
+                  navigation.navigate(routes[index-1].name,{ submitPhoto: true })}
+              />
+            )},
+            headerTitle:'',
+            headerTransparent: true,
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+          })}
+        />
           <Stack.Screen
           name="SingleCamera"
           component={SingleCamera}
@@ -351,7 +431,28 @@ class HomeNavigator extends React.Component {
         
           })}
         />
-       
+       <Stack.Screen
+          name="EnlargeMedia"
+          component={EnlargeMedia}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTitle:'',
+            headerTransparent: true,
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+          })}
+        />
       </Stack.Navigator>
     );
   }

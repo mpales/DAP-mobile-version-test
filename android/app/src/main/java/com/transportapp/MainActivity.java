@@ -3,6 +3,10 @@ package com.transportapp;
 import android.os.Bundle; // here
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
+
+// react-native gesture handler < 2.0.0
+import com.facebook.react.ReactRootView;
+import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView;
 //react-native-foreground
 import android.content.Intent;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
@@ -32,6 +36,16 @@ public class MainActivity extends ReactActivity {
   @Override
   protected String getMainComponentName() {
     return "transportApp";
+  }
+  //rn gesture handler < 2.0.0
+  @Override
+  protected ReactActivityDelegate createReactActivityDelegate() {
+    return new ReactActivityDelegate(this, getMainComponentName()) {
+      @Override
+      protected ReactRootView createRootView() {
+       return new RNGestureHandlerEnabledRootView(MainActivity.this);
+      }
+    };
   }
  //foreground service function
      @Override

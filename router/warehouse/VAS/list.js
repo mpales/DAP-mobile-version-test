@@ -289,13 +289,23 @@ class List extends React.Component {
                                     item={data} 
                                     ToManifest={()=>{
                                         this.props.setBottomBar(false);
-                                        this.props.navigation.navigate( {
-                                            name: 'ItemVASDetail',
-                                            params: {
-                                              bayScanned : false,
-                                              dataCode : data.number,
-                                            },
-                                          });
+                                        if(this.state.type === 'DISPOSAL'){
+                                            this.props.navigation.navigate( {
+                                                name: 'ItemDisposalDetail',
+                                                params: {
+                                                  bayScanned : false,
+                                                  dataCode : data.number,
+                                                },
+                                              });
+                                        } else {
+                                            this.props.navigation.navigate( {
+                                                name: 'ItemVASDetail',
+                                                params: {
+                                                  bayScanned : false,
+                                                  dataCode : data.number,
+                                                },
+                                              });
+                                        }
                                     }}
                                
                                 />

@@ -6,9 +6,11 @@ const initialState = {
   todos: STRUCT,
   userRole: USER,
   photoProofPostpone: null,
+  disposalPostpone: null,
   photoReportPostpone: null,
   photoReportID: null,
   photoProofID: null,
+  disposalProofID: null,
   photoProofList: [],
   stockTakeReportPhotoList: [],
   route: ROUTE,
@@ -48,6 +50,7 @@ const initialState = {
     keyStack: '',
     locationPermission: false,
     cameraPermission: false,
+    audioPermission: false,
     readStoragePermission: false,
     backgroundlocationPermission: false,
     writeStoragePermission: false,
@@ -184,6 +187,14 @@ export default function appReducer(state = initialState, action) {
           cameraPermission: action.payload,
         },
       };
+      case 'audioPermission':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            audioPermission: action.payload,
+          },
+        };
     case 'locationPermission':
       return {
         ...state,
@@ -277,6 +288,24 @@ export default function appReducer(state = initialState, action) {
           photoProofPostpone: [action.payload],
         };
       }
+      case 'disposalPostpone':
+        if (action.payload === null) {
+          return {
+            ...state,
+            disposalPostpone: initialState.disposalPostpone,
+            disposalProofID: initialState.disposalProofID,
+          };
+        } else if (Array.isArray(state.disposalPostpone)) {
+          return {
+            ...state,
+            disposalPostpone: [...state.disposalPostpone, action.payload],
+          };
+        } else {
+          return {
+            ...state,
+            disposalPostpone: [action.payload],
+          };
+        }
     case 'PhotoReportPostpone':
       if (action.payload === null) {
         return {
@@ -331,6 +360,11 @@ export default function appReducer(state = initialState, action) {
         ...state,
         photoProofPostpone: action.payload,
       };
+      case 'DisposalMediaUpdate':
+        return {
+          ...state,
+          disposalPostpone: action.payload,
+        };
     case 'POSMUpdate':
       return {
         ...state,
@@ -351,6 +385,11 @@ export default function appReducer(state = initialState, action) {
       return {
         ...state,
         photoProofID: action.payload,
+      };
+      case 'addDisposalProofID':
+      return {
+        ...state,
+        disposalProofID: action.payload,
       };
     case 'addPhotoReportID':
       return {
