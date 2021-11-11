@@ -30,7 +30,7 @@ class CameraSingle extends React.Component {
             pictureGallery: null,
             rootIDType : '',
             rootIDnumber: null,
-           
+            currentTypeMedia : 'auto',
         }
   
         this.handleShowImagePreview.bind(this);
@@ -45,8 +45,8 @@ class CameraSingle extends React.Component {
      if(pictureGallery === null){
          const {routes, index} = navigation.dangerouslyGetState();
         if(routes[index-1] !== undefined && routes[index-1].name === "ItemDisposalDetail"){
-            if(disposalPostpone !== null ) addMediaDisposalID(routes[index-1].params.number)
-            return {...state,pictureGallery: disposalPostpone,rootIDType: routes[index-1].name, rootIDnumber:routes[index-1].params.number }
+            if(disposalPostpone !== null ) addMediaDisposalID(routes[index-1].params.dataCode)
+            return {...state,pictureGallery: disposalPostpone,rootIDType: routes[index-1].name, rootIDnumber:routes[index-1].params.dataCode }
         } 
      } else {
          
@@ -65,7 +65,6 @@ class CameraSingle extends React.Component {
       }
     componentDidUpdate(prevProps, prevState) {
        if(this.state.rootIDType === 'ItemDisposalDetail' && Array.isArray(this.props.disposalPostpone) && ((prevProps.disposalPostpone === null && this.props.disposalPostpone !== prevProps.disposalPostpone) || this.props.disposalPostpone.length !== prevProps.disposalPostpone.length)){
-            console.log('test updated postpone media');
             this.props.addMediaDisposalID(this.state.rootIDnumber)
             this.setState({pictureGallery : this.props.disposalPostpone});
             if(this.state.isShowImagePreview && this.state.pictureGallery !== null) {
@@ -126,7 +125,6 @@ class CameraSingle extends React.Component {
         }
     }
 
-
     render() {
         const renderItem = ({ item, index }) => (
             <TouchableOpacity
@@ -140,7 +138,7 @@ class CameraSingle extends React.Component {
         const {photoProofPostpone} = this.props;
         return (
             <>
-            {(this.state.mediaData !== null ) ? (<View style={styles.container}>
+            {(this.state.mediaData !== null ) ? (<View style={[styles.container,{zIndex:10,elevation:10}]}>
                 <View style={styles.preview}>
                     {this.state.mediaData.toString().endsWith('mp4') === true ? (
                         <Video
@@ -211,7 +209,7 @@ class CameraSingle extends React.Component {
                         style={styles.capture}
                         camera={this.camera}
                         onMediaCaptured={(data,type)=>{
-                            this.props.addMediaProofPostpone(data.uri);
+                            this.setState({mediaData: data.uri });
                             console.log('type media', type);
                             console.log('media data', data);
                         }}
@@ -219,6 +217,11 @@ class CameraSingle extends React.Component {
                         setIsPressingButton={(bool)=>{
                             console.log('pressed Button', bool);
                         }}
+                        captureContext={{
+                            currentTypeMedia : this.state.currentTypeMedia,
+                            setMediaType : (captureType) => this.setState({currentTypeMedia : captureType})
+                            }
+                        }
                         />
                     <TouchableOpacity onPress={() => launchImageLibrary({mediaType: 'mixed'}, this.launchGallery)} style={styles.gallery}>
                         <GalleryAttachment height="39" width="30" fill="#fff" />
@@ -320,7 +323,9 @@ const mapDispatchToProps = (dispatch) => {
     return {
         addMediaDisposalID: (id) => dispatch({type:'addDisposalProofID', payload: id}),
         addMediaProofPostpone: (uri) => dispatch({type: 'disposalPostpone', payload: uri}),
-      
+        setBottomBar: (toggle) => {
+            return dispatch({type: 'BottomBar', payload: toggle});
+          },
     };
 };
   

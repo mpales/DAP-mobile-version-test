@@ -130,11 +130,58 @@ class WarehouseNavigator extends React.Component {
       }
       if (
         this.props.indexBottomBar === 0 &&
-        this.props.keyStack === 'WarehouseIn'
+        this.props.keyStack === 'IVASDetail'
       ) {
         this.props.setBottomBar(true);
       }
-     
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'List'
+      ) {
+        this.props.setBottomBar(true);
+      }
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'ItemVASDetail'
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'ItemDisposalDetail'
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'ItemReportDetail'
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'Barcode'
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'ReportManifest'
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'DisposalCamera'
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'SingleCamera'
+      ) {
+        this.props.setBottomBar(false);
+      }
     });
     return () => interactionPromise.cancel();
   };

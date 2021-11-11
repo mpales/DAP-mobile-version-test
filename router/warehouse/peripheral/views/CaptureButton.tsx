@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useMemo, useRef } from 'react';
 import { StyleSheet, View, ViewProps , Dimensions, Platform, Text, TouchableOpacity} from 'react-native';
 import {
   PanGestureHandler,
@@ -36,12 +36,20 @@ const PAN_GESTURE_HANDLER_ACTIVE_Y = [-2, 2];
 
 const START_RECORDING_DELAY = 200;
 const BORDER_WIDTH = CAPTURE_BUTTON_SIZE * 0.1;
-
+interface Context {
+  currentTypeMedia : "photo" | "video" | "auto";
+  setMediaType : Dispatch<SetStateAction<"auto" | "photo" | "video">>;
+}
+const CaptureContext = React.createContext<Context>({
+  currentTypeMedia: "auto",
+  setMediaType: () => {}
+});
 interface Props extends ViewProps {
   camera: React.RefObject<RNCamera>;
   onMediaCaptured: (media: TakePictureResponse | RecordResponse, type: 'photo' | 'video') => void;
   enabled: boolean;
   setIsPressingButton: (isPressingButton: boolean) => void;
+  captureContext : Context
 }
 
 const _CaptureButton: React.FC<Props> = ({
@@ -50,12 +58,14 @@ const _CaptureButton: React.FC<Props> = ({
   enabled,
   setIsPressingButton,
   style,
+  captureContext,
   ...props
 }): React.ReactElement => {
   const cameraZoom = useSharedValue(0);
   const minZoom = 0;
   const maxZoom = 1;
   const [currentTypeMedia, setMediaType] = React.useState<'photo' | 'video' | 'auto'>('auto');
+  const _ctxvalue = { currentTypeMedia:currentTypeMedia , setMediaType: setMediaType };
   const pressDownDate = useRef<Date | undefined>(undefined);
   const isRecording = useRef(false);
   const recordingProgress = useSharedValue(0);
@@ -128,7 +138,8 @@ const _CaptureButton: React.FC<Props> = ({
       // there already is an ongoing (or already resolved) takePhoto() call (remember that we called takePhoto() when the user pressed down), and
       // if yes, use that. If no, we just try calling takePhoto() again
       console.debug(`state: ${Object.keys(State)[event.state]}`);
-      if(currentTypeMedia === 'video'){
+
+      if( (captureContext !== undefined && captureContext.currentTypeMedia === 'video') || ( captureContext === undefined && currentTypeMedia === 'video')){
         switch (event.state) {
           case State.BEGAN: {
             if(isPressingButton.value === false){
@@ -178,7 +189,7 @@ const _CaptureButton: React.FC<Props> = ({
           default:
             break;
         }
-      } else if (currentTypeMedia === 'photo'){
+      } else if ( (captureContext !== undefined && captureContext.currentTypeMedia === 'photo') || ( captureContext === undefined && currentTypeMedia === 'photo')){
         switch (event.state) {
           case State.BEGAN: {
             // enter "recording mode"
@@ -337,34 +348,51 @@ const _CaptureButton: React.FC<Props> = ({
   }, [enabled, isPressingButton]);
 
   return (
+    <CaptureContext.Provider value={captureContext !== undefined ? captureContext : _ctxvalue}>
     <View style={[{flexDirection:'column',},style]}>
       <View style={{flexDirection:'row', flexShrink:1,
       marginBottom:20
         }}>
-      <TouchableOpacity 
-      style={[{flexShrink:1, alignItems:'center', paddingHorizontal:15, marginRight:20}, currentTypeMedia === 'photo' ? {borderBottomWidth:1, borderBottomColor:'white'} : null ]}
-      onPress={()=>{
-        if(currentTypeMedia === 'photo'){
-          setMediaType('auto');
-        } else {
-          setMediaType('photo')
-        }
-      }}
-      >
-        <Text style={{...Mixins.subtitle3,color:'#fff'}}>Photo</Text>
-        </TouchableOpacity>
+           <CaptureContext.Consumer>
+            {({setMediaType, currentTypeMedia}) => (
+        <TouchableOpacity 
+        style={[{flexShrink:1, alignItems:'center', paddingHorizontal:15, marginRight:20}, currentTypeMedia === 'photo' ? {borderBottomWidth:1, borderBottomColor:'white'} : null ]}
+        onPress={()=>{
+          if(isPressingButton.value === false){
+            if(currentTypeMedia === 'photo'){
+              // _ctxCallbacksetMediaType(setMediaType, 'auto');
+              setMediaType('auto')
+            } else {
+              setMediaType('photo');
+              // _ctxCallbacksetMediaType(setMediaType, 'photo');
+            }
+          }
+        }}
+        >
+          <Text style={{...Mixins.subtitle3,color:'#fff'}}>Photo</Text>
+          </TouchableOpacity>
+          )}
+        </CaptureContext.Consumer>
+        <CaptureContext.Consumer>
+            {({setMediaType, currentTypeMedia}) => (
       <TouchableOpacity 
      style={[{flexShrink:1, alignItems:'center',paddingHorizontal:15}, currentTypeMedia === 'video' ? {borderBottomWidth:1, borderBottomColor:'white'} : null ]}
       onPress={()=>{
-        if(currentTypeMedia === 'video'){
-          setMediaType('auto');
-        } else {
-          setMediaType('video')
+        if(isPressingButton.value === false){
+          if(currentTypeMedia === 'video'){
+            // _ctxCallbacksetMediaType(setMediaType, 'auto');
+            setMediaType('auto');
+          } else {
+            setMediaType('video');
+            // _ctxCallbacksetMediaType(setMediaType, 'video');
+          }
         }
       }}
       >
         <Text style={{...Mixins.subtitle3, color:'#fff'}}>Video</Text>
         </TouchableOpacity>
+           )}
+           </CaptureContext.Consumer>
       </View>
     <TapGestureHandler
       enabled={enabled}
@@ -389,6 +417,7 @@ const _CaptureButton: React.FC<Props> = ({
       </Reanimated.View>
     </TapGestureHandler>
     </View>
+    </CaptureContext.Provider>
     );
 };
 
