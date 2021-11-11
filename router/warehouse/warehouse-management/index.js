@@ -5,17 +5,19 @@ import {
   Header,
 } from '@react-navigation/stack';
 import {Avatar} from 'react-native-elements';
-import {View} from 'react-native';
+import {ScrollView, View} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
 // module navigator
 import StockTakeNavigator from './stock-take';
+import StockTakeSupervisorNavigator from './stock-take-supervisor';
 import RelocationNavigator from './relocation';
 import SearchInventoryNavigator from './search-inventory';
 import ClientInventoryNavigator from './client-inventory';
 // icon
 import WarehouseRelocationIcon from '../../../assets/icon/warehouse-mobile.svg';
 import StockTakeIcon from '../../../assets/icon/iconmonstr-shipping-box-2mobile.svg';
+import StockTakeSupervisorIcon from '../../../assets/icon/iconmonstr-delivery-10 1mobile.svg';
 import CheckInventoryIcon from '../../../assets/icon/iconmonstr-delivery-19mobile.svg';
 import ClientInventoryIcon from '../../../assets/icon/iconmonstr-cube-18mobile.svg';
 import IconArrow66Mobile from '../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
@@ -42,7 +44,9 @@ class WarehouseManagement extends React.Component {
 
   managementMenu = () => {
     return (
-      <View style={styles.menuContainer}>
+      <ScrollView
+        style={styles.menuContainer}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.logoContainer}>
           <LogoSmall width="135" height="70" style={{alignSelf: 'center'}} />
         </View>
@@ -80,6 +84,41 @@ class WarehouseManagement extends React.Component {
             <Avatar
               size={140}
               ImageComponent={() => (
+                <StockTakeSupervisorIcon
+                  height="70"
+                  width="70"
+                  fill="#6C6B6B"
+                />
+              )}
+              imageProps={{
+                containerStyle: {
+                  ...Mixins.buttonFloatedAvatarDefaultIconStyle,
+                },
+              }}
+              title="STOCK TAKE SUPERVISOR"
+              overlayContainerStyle={
+                Mixins.buttonFloatedAvatarDefaultOverlayStyle
+              }
+              onPress={() => {
+                this.props.navigation.navigate('StockTakeSupervisorNavigator');
+              }}
+              activeOpacity={0.7}
+              containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
+              placeholderStyle={
+                Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
+              }
+              titleStyle={[
+                Mixins.buttonFloatedAvatarDefaultTitleStyle,
+                styles.buttonTitle,
+              ]}
+            />
+          </View>
+        </View>
+        <View style={{flexDirection: 'row', flexShrink: 1}}>
+          <View style={styles.sectionContainer}>
+            <Avatar
+              size={140}
+              ImageComponent={() => (
                 <WarehouseRelocationIcon
                   height="70"
                   width="70"
@@ -109,8 +148,6 @@ class WarehouseManagement extends React.Component {
               ]}
             />
           </View>
-        </View>
-        <View style={{flexDirection: 'row', flexShrink: 1}}>
           <View style={styles.sectionContainer}>
             <Avatar
               size={140}
@@ -140,6 +177,8 @@ class WarehouseManagement extends React.Component {
               ]}
             />
           </View>
+        </View>
+        <View style={{flexDirection: 'row', flexShrink: 1}}>
           <View style={styles.sectionContainer}>
             <Avatar
               size={140}
@@ -170,7 +209,7 @@ class WarehouseManagement extends React.Component {
             />
           </View>
         </View>
-      </View>
+      </ScrollView>
     );
   };
 
@@ -200,6 +239,11 @@ class WarehouseManagement extends React.Component {
         <Stack.Screen
           component={StockTakeNavigator}
           name="StockTakeNavigator"
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          component={StockTakeSupervisorNavigator}
+          name="StockTakeSupervisorNavigator"
           options={{headerShown: false}}
         />
         <Stack.Screen
@@ -242,7 +286,7 @@ const styles = {
     paddingHorizontal: 5,
   },
   sectionContainer: {
-    flex: 1,
+    flex: 0.5,
     marginHorizontal: 5,
     marginVertical: 10,
     alignItems: 'center',
