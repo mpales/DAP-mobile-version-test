@@ -30,6 +30,7 @@ class RelocationRequest extends React.Component {
       clientList: null,
       searchResult: null,
       filteredClientList: null,
+      searchSubmitted: false,
     };
     this.submitSearch.bind(this);
   }
@@ -49,14 +50,27 @@ class RelocationRequest extends React.Component {
     }
   };
 
+  getClientProductList = async () => {
+    const {clientId, itemCode} = this.state;
+    const result = await getData(
+      `/stocks/product-storage/client/${clientId}/item-code/${
+        !!itemCode ? itemCode : 0
+      }`,
+    );
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        searchResult: result,
+      });
+    }
+    this.setState({searchSubmitted: true});
+  };
+
   submitSearch = () => {
     const {client, itemCode} = this.state;
-    if (client === '' || itemCode === '') {
+    if (client === '') {
       return;
     }
-    this.setState({
-      searchResult: SEARCHRESULT,
-    });
+    this.getClientProductList();
   };
 
   handleInput = (value, type) => {
@@ -68,13 +82,19 @@ class RelocationRequest extends React.Component {
           filteredClientList: null,
           clientId: null,
           itemCode: '',
+          searchSubmitted: false,
         };
       } else {
-        obj = {client: value, filteredClientList: this.filterClientList(value)};
+        obj = {
+          client: value,
+          filteredClientList: this.filterClientList(value),
+          searchSubmitted: false,
+        };
       }
     } else if (type === 'itemCodeList') {
       obj = {
         itemCode: value,
+        searchSubmitted: false,
       };
     }
     this.setState(obj);
@@ -104,6 +124,7 @@ class RelocationRequest extends React.Component {
       itemCode: '',
       clientId: null,
       filteredClientList: null,
+      searchSubmitted: false,
     });
   };
 
@@ -149,7 +170,9 @@ class RelocationRequest extends React.Component {
       clientId,
       filteredClientList,
       itemCode,
+      searchSubmitted,
     } = this.state;
+    console.log(searchResult);
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -208,7 +231,7 @@ class RelocationRequest extends React.Component {
                 styles.button,
                 {marginHorizontal: 0, marginTop: 20},
               ]}
-              disabled={client === '' || itemCode === ''}
+              disabled={clientId === null}
               disabledStyle={{backgroundColor: '#ABABAB'}}
               disabledTitleStyle={{color: '#FFF'}}
               onPress={this.submitSearch}
@@ -223,7 +246,7 @@ class RelocationRequest extends React.Component {
               onPress={this.navigateToRequestRelocationBarcode}
             />
           </View>
-          {searchResult !== null && (
+          {searchSubmitted && (
             <View style={styles.resultContainer}>
               <View
                 style={{
@@ -239,19 +262,27 @@ class RelocationRequest extends React.Component {
                     {`${client} ${itemCode}`}
                   </Text>
                 </View>
-                <Text
-                  style={[
-                    styles.text,
-                    styles.textBlue,
-                  ]}>{`${searchResult.length} Result`}</Text>
+                <Text style={[styles.text, styles.textBlue]}>{`${
+                  searchResult === null ? 0 : searchResult.length
+                } Result`}</Text>
               </View>
-              {searchResult.map((item, index) => (
-                <RelocationResult
-                  key={index}
-                  item={item}
-                  navigate={this.navigateToRequestRelocationForm}
-                />
-              ))}
+              {searchResult !== null &&
+                searchResult.map((item, index) => (
+                  <RelocationResult
+                    key={index}
+                    item={item}
+                    navigate={this.navigateToRequestRelocationForm}
+                  />
+                ))}
+              {searchResult === null && (
+                <View
+                  style={{
+                    alignItems: 'center',
+                    marginTop: '40%',
+                  }}>
+                  <Text style={styles.title}>No Result</Text>
+                </View>
+              )}
             </View>
           )}
         </ScrollView>
@@ -259,53 +290,6 @@ class RelocationRequest extends React.Component {
     );
   }
 }
-
-const SEARCHRESULT = [
-  {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-  },
-  {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-  },
-  {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-  },
-  {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-  },
-];
 
 const styles = StyleSheet.create({
   body: {
