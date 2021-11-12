@@ -37,11 +37,12 @@ class ReportManifest extends React.Component {
         this.handleSubmit.bind(this);
     }
     static getDerivedStateFromProps(props,state){
-        const {inboundList,navigation, manifestList} = props;
+        const {inboundList,navigation, manifestList, loadFromGallery} = props;
         const {dataCode} = state;
         if(dataCode === '0'){
             const {routes, index} = navigation.dangerouslyGetState();
             if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
+                loadFromGallery({gtype: 'report',gID : routes[index].params.dataCode });
                 // for prototype only should be params ID from backend
                 let manifest = manifestList.find((element)=>element.pId === routes[index].params.dataCode);
               return {...state, dataCode: routes[index].params.dataCode, _manifest:manifest};
@@ -459,6 +460,9 @@ const mapDispatchToProps = (dispatch) => {
             return dispatch({type:'ReportedASN', payload: data});
         },
         addPhotoReportPostpone: (uri) => dispatch({type: 'PhotoReportPostpone', payload: uri}),
+        loadFromGallery: (action) => {
+            return dispatch({type:'loadFromGallery', payload: action});
+          },
     };
 };
 

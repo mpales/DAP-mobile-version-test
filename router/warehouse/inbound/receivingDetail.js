@@ -34,10 +34,11 @@ class Acknowledge extends React.Component {
     this.detailSubmited.bind(this);
   }
   static getDerivedStateFromProps(props,state){
-    const {inboundList, navigation} = props;
+    const {inboundList, navigation, loadFromGallery} = props;
     const {receivingNumber} = state;
     const {routes, index} = navigation.dangerouslyGetState();
     if(receivingNumber === null &&  routes[index].params !== undefined &&  routes[index].params.number !== undefined ){
+        loadFromGallery({gtype: 'proof',gID : routes[index].params.number });
         return {...state, receivingNumber: routes[index].params.number};
     }
    
@@ -279,13 +280,14 @@ class Acknowledge extends React.Component {
                  <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Client</Text>
              </View>
              <Input 
-                containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
-                inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
-                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+                containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, flexDirection:'column-reverse',}} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B', marginVertical:0, paddingVertical:0}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,}]}
                 value={data.client}
+                multiline={true}
                 disabled={true}
-                leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
+                label=" : "
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
@@ -293,13 +295,14 @@ class Acknowledge extends React.Component {
               <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Ref #</Text>
              </View>
              <Input 
-              containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
-              inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
-              inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
-              labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                value={data.reference_id }
+                containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, flexDirection:'column-reverse',}} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B', marginVertical:0, paddingVertical:0}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,}]}
+                value={data.reference_id}
+                multiline={true}
                 disabled={true}
-                leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
+                label=" : "
             />
          </View>
          {data.status === 3 && (
@@ -310,42 +313,47 @@ class Acknowledge extends React.Component {
              <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
              <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Shipment Type</Text>
              </View>
-             <Input 
-                containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
-                inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
-                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+            <Input 
+                containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, flexDirection:'column-reverse',}} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B', marginVertical:0, paddingVertical:0}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,}]}
                 value="FCL"
+                multiline={true}
                 disabled={true}
-                leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
+                label=" : "
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
              <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
              <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Container  #</Text>
              </View>
-             <Input 
-                containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
-                inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
-                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+        
+                        <Input 
+                containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, flexDirection:'column-reverse',}} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B', marginVertical:0, paddingVertical:0}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,}]}
                 value={data.container_no }
+                multiline={true}
                 disabled={true}
-                leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
+                label=" : "
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
              <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
              <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Container Size</Text>
              </View>
-             <Input 
-                 containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
-                inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
-                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+            
+            <Input 
+                containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, flexDirection:'column-reverse',}} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B', marginVertical:0, paddingVertical:0}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,}]}
                 value={data.container_size}
+                multiline={true}
                 disabled={true}
-                leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
+                label=" : "
             />
          </View>
          </>
@@ -355,43 +363,49 @@ class Acknowledge extends React.Component {
               <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
               <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Shipment Type</Text>
               </View>
-              <Input 
-                 containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
-                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
-                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
-                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                 value="LCL"
-                 disabled={true}
-                 leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
-             />
+               
+            <Input 
+                containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, flexDirection:'column-reverse',}} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B', marginVertical:0, paddingVertical:0}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,}]}
+                value="LCL"
+                multiline={true}
+                disabled={true}
+                label=" : "
+            />
           </View>
           <View style={{flexDirection:'row', flexShrink:1}}>
               <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
               <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Pallet Type</Text>
               </View>
-              <Input 
-                containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
-                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
-                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
-                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                 value={data.pallet_type === 1 ? 'Loose' : 'Palletized' }
-                 disabled={true}
-                 leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
-             />
+                    
+            <Input 
+                containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, flexDirection:'column-reverse',}} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B', marginVertical:0, paddingVertical:0}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,}]}
+                value={data.pallet_type === 1 ? 'Loose' : 'Palletized' }
+                multiline={true}
+                disabled={true}
+                label=" : "
+            />
           </View>
           <View style={{flexDirection:'row', flexShrink:1}}>
               <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
               <Text style={{...Mixins.subtitle3,lineHeight:21,}}># of Pallet</Text>
               </View>
+            
               <Input 
-                 containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
-                 inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
-                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
-                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                 value={String(data.no_of_pallet)}
-                 disabled={true}
-                 leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
-             />
+                containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, flexDirection:'column-reverse',}} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B', marginVertical:0, paddingVertical:0}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,}]}
+                value={String(data.no_of_pallet)}
+                multiline={true}
+                disabled={true}
+                label=" : "
+            />
           </View>
           </>
          )}     
@@ -408,26 +422,30 @@ class Acknowledge extends React.Component {
                 style={{flexShrink:1,paddingHorizontal:20,paddingVertical:0,height:23, minHeight:23,maxHeight:23,}} 
                 inputStyle={[{...Mixins.subtitle3,backgroundColor:this.getBackgroundStatusColor(data.status),borderRadius:5,fontWeight:'600',lineHeight: 21,textTransform: 'uppercase', color:'#fff', textAlign:'center'}]}
                 disabledInputStyle={{opacity: 1}}
-                labelStyle={[Mixins.containedInputDefaultLabel,{...Mixins.subtitle3,marginBottom: 5, color:'#6C6B6B'}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,}]}
                 value={data.status === 3 ? 'Waiting' : data.status === 4 ? "Received" : data.status === 5 ? "Processing" : data.status === 6 ? "Processed" : "Reported" }
                 disabled={true}
                 label=" : "
          
             />
+            
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
          <Text style={{...Mixins.subtitle3,lineHeight:21,}}>{data.status === 3 ? "ETA Date" : "Received Date"}</Text>
          
            </View>
-             <Input 
-              containerStyle={{flex: 1,paddingVertical:0,maxHeight: 30}}
-              inputContainerStyle={[styles.textInput, {borderWidth:0,borderBottomWidth:0}]} 
-                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B'}]}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
+       
+              
+              <Input 
+                containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, flexDirection:'column-reverse',}} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B', marginVertical:0, paddingVertical:0}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,}]}
                 value={data.status === 3 ? moment(data.eta).format("DD-MM-YYYY") : moment(data.created_on).format("DD-MM-YYYY")}
+                multiline={true}
                 disabled={true}
-                leftIcon={()=> (<Text style={{...Mixins.subtitle3,lineHeight:21,}}> :</Text>)}
+                label=" : "
             />
          </View>
         <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
@@ -716,6 +734,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setReportedManifest: (data) => {
       return dispatch({type:'ReportedManifest', payload: data});
+    },
+    loadFromGallery: (action) => {
+      return dispatch({type:'loadFromGallery', payload: action});
     },
     //end
   };
