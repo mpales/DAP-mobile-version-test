@@ -14,7 +14,7 @@ const ListItemRelocationResult = ({item, navigate}) => {
     <ThemeProvider theme={theme}>
       <ListItem
         Component={TouchableScale}
-        onPress={navigate}
+        onPress={() => navigate(item)}
         friction={90} //
         tension={100} // These props are passed to the parent component (here TouchableScale)
         activeScale={0.95}

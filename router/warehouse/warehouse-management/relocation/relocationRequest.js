@@ -128,8 +128,11 @@ class RelocationRequest extends React.Component {
     });
   };
 
-  navigateToRequestRelocationForm = () => {
-    this.props.navigation.navigate('RequestRelocationForm');
+  navigateToRequestRelocationForm = (data) => {
+    const {client} = this.state;
+    this.props.navigation.navigate('RequestRelocationForm', {
+      productStorage: {...data, clientName: client},
+    });
   };
 
   navigateToRequestRelocationBarcode = () => {
@@ -172,7 +175,6 @@ class RelocationRequest extends React.Component {
       itemCode,
       searchSubmitted,
     } = this.state;
-    console.log(searchResult);
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
