@@ -32,7 +32,9 @@ import moment from 'moment';
 import IconSearchMobile from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import {getData, postData} from '../../../../component/helper/network';
 import Banner from '../../../../component/banner/banner';
-import EmptyIlustrate from '../../../../assets/icon/Groupempty.svg';
+
+import BlankList from '../../../../assets/icon/Group 5122blanklist.svg';
+import EmptyIlustrate from '../../../../assets/icon/manifest-empty mobile.svg';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component{
@@ -303,9 +305,12 @@ class Warehouse extends React.Component{
                   {this.state.receivingNumber === null ? (    <ActivityIndicator 
                     size={50} 
                     color="#121C78"
-                />) : (
-                  <EmptyIlustrate height="132" width="213"/>
-                )}
+                />) :  this.props.manifestType === 2 ? (
+                  <BlankList height="185" width="213"/>
+                  ) : (<>
+                  <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+                  <Text style={{  ...Mixins.subtitle3,}}>Empty Product</Text>
+                  </>)}
                   </View>)
                 : _manifest.map((u, i) => (
                   <InboundSupervisorDetail 
@@ -674,6 +679,7 @@ function mapStateToProps(state) {
     currentASN : state.originReducer.filters.currentASN,
     ReportedManifest : state.originReducer.filters.ReportedManifest,
     keyStack: state.originReducer.filters.keyStack,
+    manifestType : state.originReducer.filters.currentManifestType,
     // end
   };
 }

@@ -34,6 +34,7 @@ import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.
 import {getData, postData} from '../../../component/helper/network';
 import Banner from '../../../component/banner/banner';
 import BlankList from '../../../assets/icon/Group 5122blanklist.svg';
+import EmptyIlustrate from '../../../assets/icon/manifest-empty mobile.svg';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component{
@@ -443,9 +444,12 @@ class Warehouse extends React.Component{
                   {this.state.receivingNumber === null ? (    <ActivityIndicator 
                     size={50} 
                     color="#121C78"
-                />) : (
+                />) : this.props.manifestType === 2 ? (
                 <BlankList height="185" width="213"/>
-                )}
+                ) : (<>
+                <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+                <Text style={{  ...Mixins.subtitle3,}}>Empty Product</Text>
+                </>)}
                   </View>)
                 : _manifest.map((u, i) => (
                   <InboundDetail 
@@ -855,6 +859,7 @@ function mapStateToProps(state) {
     ReportedManifest : state.originReducer.filters.ReportedManifest,
     keyStack: state.originReducer.filters.keyStack,
     manifestError: state.originReducer.filters.manifestError,
+    manifestType : state.originReducer.filters.currentManifestType,
     // end
   };
 }

@@ -28,7 +28,7 @@ import moment from 'moment';
 import {getData} from '../../../component/helper/network';
 import Loading from '../../../component/loading/loading';
 import { element } from 'prop-types';
-import EmptyIlustrate from '../../../assets/icon/Groupempty.svg';
+import EmptyIlustrate from '../../../assets/icon/list-empty mobile.svg';
 const window = Dimensions.get('window');
 
 class List extends React.Component {
@@ -237,10 +237,10 @@ class List extends React.Component {
                     />
                      </ScrollView>
                             {
-                            this.props.inboundList.length === 0 ? 
+                            this.state.list.length === 0 ? 
                             (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
                               <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
-                              <Text style={{  ...Mixins.subtitle3,}}>Scroll down to Refresh</Text>
+                              <Text style={{  ...Mixins.subtitle3,}}>Empty Job</Text>
                               </View>)
                             :
                             this.state.list.map((data, i, arr) => {
@@ -252,6 +252,8 @@ class List extends React.Component {
                                     ToManifest={()=>{
                                         this.props.setBottomBar(false);
                                        if(data.status === 3 || data.status === 4){
+                                           
+                                        this.props.setManifestType(data.type);
                                             this.props.navigation.navigate(   {
                                                 name: 'ReceivingDetail',
                                                 params: {

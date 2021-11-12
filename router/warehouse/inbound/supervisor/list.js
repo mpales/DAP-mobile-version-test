@@ -7,7 +7,8 @@ import {
     Text,
     TouchableOpacity,
     View, 
-    RefreshControl
+    RefreshControl,
+    ActivityIndicator
 } from 'react-native';
 import {
     Card,
@@ -27,7 +28,7 @@ import IconSearchMobile from '../../../../assets/icon/iconmonstr-search-thinmobi
 import moment from 'moment';
 import {getData} from '../../../../component/helper/network';
 import { element } from 'prop-types';
-import EmptyIlustrate from '../../../../assets/icon/Groupempty.svg';
+import EmptyIlustrate from '../../../../assets/icon/list-empty mobile.svg';
 const window = Dimensions.get('window');
 
 class List extends React.Component {
@@ -224,10 +225,13 @@ class List extends React.Component {
                   
                             </View>
                             {
-                            this.props.inboundList.length === 0 ? 
+                            this.state.list.length === 0 ? 
                             (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
-                              <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
-                              <Text style={{  ...Mixins.subtitle3,}}>Scroll down to Refresh</Text>
+                              {this.props.inboundList.length !== 0 ?(<ActivityIndicator 
+                    size={50} 
+                    color="#121C78"
+                />) : (<><EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+                              <Text style={{  ...Mixins.subtitle3,}}>Empty Job</Text></>)}
                               </View>)
                             :
                             this.state.list.map((data, i, arr) => {
