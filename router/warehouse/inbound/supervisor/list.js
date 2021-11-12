@@ -61,7 +61,7 @@ class List extends React.Component {
 
         const result = await getData('inboundsMobile');
         if(Array.isArray(result)){
-            return result
+            return result.filter((o)=> o !== null);
         } else {
             return [];
         }
