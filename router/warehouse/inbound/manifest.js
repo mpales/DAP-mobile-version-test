@@ -56,6 +56,7 @@ class Warehouse extends React.Component{
       notifbanner : '',
       renderRefresh: false,
       remark: '',
+      remarkHeight : 500,
     };
     this.goToIVAS.bind(this);
     this.toggleOverlay.bind(this);
@@ -319,8 +320,13 @@ class Warehouse extends React.Component{
             withPointer={false} 
             backgroundColor="#FFFFFF"
             skipAndroidStatusBar ={true}  
-            popover={<Text style={[Mixins.body3,{color:'black'}]}>{this.state.remark}</Text>} 
+            popover={<View onLayout={(e)=>{ 
+              if(this.state.remarkHeight > e.nativeEvent.layout.height && (this.state.remarkHeight - e.nativeEvent.layout.height) > 30){
+                this.setState({remarkHeight: e.nativeEvent.layout.height});
+              }
+            }}><Text style={[Mixins.body3,{color:'black'}]}>{this.state.remark}</Text></View>} 
             width={300} 
+            height={this.state.remarkHeight}
             containerStyle={{
               left: (Dimensions.get('screen').width / 8),
               top: (Dimensions.get('screen').height / 4),
