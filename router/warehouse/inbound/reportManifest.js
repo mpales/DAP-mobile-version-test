@@ -15,6 +15,7 @@ import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.s
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import ArrowDown from '../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 import {postBlob} from '../../../component/helper/network';
+import UploadTooltip from '../../../component/include/upload-tooltip';
 import RNFetchBlob from 'rn-fetch-blob';
 class ReportManifest extends React.Component {
     constructor(props) {
@@ -29,6 +30,7 @@ class ReportManifest extends React.Component {
             _manifest : null,
             errors: '',
             progressLinearVal : 0,
+            overlayProgress: false,
             qtyreported : "0",
             submitPhoto:false,
         };
@@ -137,7 +139,7 @@ class ReportManifest extends React.Component {
         {name : 'qty', data : qtyreported},] 
         : [   { name : 'report', data: intOption},
         {name :'description', data : this.state.otherReason},];
-
+        this.setState({overlayProgress: true});
         postBlob('/inboundsMobile/'+currentASN+'/'+_manifest.pId+'/reports', [
             // element with property `filename` will be transformed into `file` in form data
             ...metafield,
@@ -149,6 +151,7 @@ class ReportManifest extends React.Component {
                 this.props.setReportedASN(currentASN);
                 this.props.addPhotoReportPostpone(null);
                 this.props.setReportedManifest(dataCode);
+                this.setState({overlayProgress: false});
                 const {routes,index} = this.props.navigation.dangerouslyGetState();
                 if(routes[index-1].name === 'SupervisorMode'){
                     this.props.navigation.navigate('SupervisorMode');
@@ -162,12 +165,12 @@ class ReportManifest extends React.Component {
                     result.errors.forEach(element => {
                         errors += element.msg + ' ';
                     });
-                    this.setState({errors:errors});
+                    this.setState({errors:errors,overlayProgress: false});
                 } else {
-                    this.setState({errors: result.error});
+                    this.setState({errors: result,error,overlayProgress: false});
                 }
               } else {
-                this.setState({errors: result});
+                this.setState({errors: result,overlayProgress: false});
               }
             }
           });
@@ -325,7 +328,19 @@ class ReportManifest extends React.Component {
                                         borderRadius: 5,
                                         }}/>
                                         <View style={{marginVertical: 5}}>
-                                        <LinearProgress value={this.state.progressLinearVal} color="primary" style={{width:80}} variant="determinate"/>
+                                        <UploadTooltip 
+                                        overlayLinearProgress={{
+                                          value:this.state.progressLinearVal, 
+                                          color:"#F1811C",
+                                          variant:"determinate", 
+                                          style:{height:13, backgroundColor:'white', borderRadius:10}
+                                        }} 
+                                        value={this.state.progressLinearVal} 
+                                        color="primary" 
+                                        style={{width:80}} 
+                                        variant="determinate"
+                                        enabled={this.state.overlayProgress}
+                                        />
                                         </View>
                                         <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Photo Proof</Text>
                                         {this.state.errors !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.errors}</Text>)}
