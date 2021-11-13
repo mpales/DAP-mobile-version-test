@@ -89,7 +89,7 @@ class Warehouse extends React.Component{
       });
       this.props.setManifestList(updatedstatus)
     }
-    let filtered = prevState.renderRefresh !== this.state.renderRefresh || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.updated !== this.state.updated ? this.state.filtered : null;
+    let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === true) ? this.state.filtered : null;
    
     if(filtered === 0) {
       this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});

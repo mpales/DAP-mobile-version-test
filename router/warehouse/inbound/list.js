@@ -104,7 +104,7 @@ class List extends React.Component {
             const resultedList =  await this.updateASN();
             this.props.setInboundLIst(resultedList);
         }
-        let filtered = (prevState.renderGoBack !== this.state.renderGoBack || prevState.renderRefresh !== this.state.renderRefresh || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search) && this.props.inboundList.length > 0 ? this.state.filtered : null;
+        let filtered = ((prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search) && this.props.inboundList.length > 0 ? this.state.filtered : null;
         if(filtered === 0) {
             let AllASN = await this.updateStatus();
             this.setState({list:AllASN.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});

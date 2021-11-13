@@ -41,6 +41,7 @@ class List extends React.Component {
             list: [],
             renderGoBack : false,
             renderRefresh: false,
+            renderFiltered: true,
         };
 
     this.updateASN.bind(this);
@@ -48,19 +49,22 @@ class List extends React.Component {
     this.setType.bind(this);
     this.updateSearch.bind(this);
     }
+    static getDerivedStateFromProps(props,state){
+
+        return {...state};
+      }
     updateSearch = (search) => {
         this.setState({search});
       };
     setFiltered = (num)=>{
-        this.setState({filtered:num});
+        this.setState({filtered:num, renderFiltered : true});
     }
     setType = (num)=>{
         this.setState({type:num});
     }
     updateASN = async ()=>{
-        this.setState({renderGoBack: false, renderRefresh: false});
-
         const result = await getData('inboundsMobile');
+        this.setState({renderGoBack: false, renderRefresh: false, renderFiltered:false});
         if(Array.isArray(result)){
             return result.filter((o)=> o !== null);
         } else {
@@ -80,7 +84,7 @@ class List extends React.Component {
              ...elementStatus,  
            };
         }
-        this.setState({renderGoBack: false, renderRefresh: false});
+        this.setState({renderGoBack: false, renderRefresh: false, renderFiltered: false});
        return updatedStatus;
     }
     shouldComponentUpdate(nextProps, nextState) {
@@ -99,7 +103,7 @@ class List extends React.Component {
             const resultedList =  await this.updateASN();
             this.props.setinboundList(resultedList);
         }
-        let filtered =  (prevState.renderRefresh !== this.state.renderRefresh || prevState.renderGoBack !== this.state.renderGoBack || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type) && inboundList.length > 0 ? this.state.filtered : null;
+        let filtered =  ((prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type) && inboundList.length > 0 ? this.state.filtered : null;
         if(filtered === 0) {
             let AllASN = await this.updateStatus();
             this.setState({list:AllASN.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
@@ -227,7 +231,7 @@ class List extends React.Component {
                             {
                             this.state.list.length === 0 ? 
                             (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
-                              {this.props.inboundList.length !== 0 ?(<ActivityIndicator 
+                              {this.state.renderFiltered === true ?(<ActivityIndicator 
                     size={50} 
                     color="#121C78"
                 />) : (<><EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>

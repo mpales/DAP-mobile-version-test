@@ -7,7 +7,7 @@ import {
     View,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { CheckBox, Input, Avatar, Button, LinearProgress} from 'react-native-elements';
+import { CheckBox, Input, Avatar, Button, LinearProgress, Badge} from 'react-native-elements';
 import { connect } from 'react-redux';
 //icon
 import Mixins from '../../../mixins';
@@ -130,12 +130,17 @@ class ReportManifest extends React.Component {
                 break;
             default:
                 break;
-        } 
+        }
+        let metafield = reasonOption !== 'other' ?
+        [   { name : 'report', data: intOption},
+        {name :'description', data : this.state.otherReason},
+        {name : 'qty', data : qtyreported},] 
+        : [   { name : 'report', data: intOption},
+        {name :'description', data : this.state.otherReason},];
+
         postBlob('/inboundsMobile/'+currentASN+'/'+_manifest.pId+'/reports', [
             // element with property `filename` will be transformed into `file` in form data
-            { name : 'report', data: intOption},
-            {name :'description', data : this.state.otherReason},
-            {name : 'qty', data : qtyreported},
+            ...metafield,
             // custom content type
             ...FormData,
           ], this.listenToProgressUpload).then(result=>{
@@ -225,12 +230,14 @@ class ReportManifest extends React.Component {
                     />
                 </View>
                 <View style={styles.contentContainer}>
-                <View style={{marginBottom:5}}>
-                    <Text style={styles.title}>Quantity Item:</Text>
+                {this.state.reasonOption !== 'other' && (<View style={{marginBottom:5, flexDirection:'row', }}>
+                    <View style={{flexDirection:'column', marginRight: 15,paddingVertical:20}}>
+                        <Text style={styles.title}>Affected Quantity</Text>
+                    </View>
                     <Input
-                    containerStyle={{paddingHorizontal:0,marginHorizontal:0}}
+                    containerStyle={{paddingHorizontal:0,marginHorizontal:0, flexShrink:1, paddingTop:15}}
                         inputContainerStyle={{borderBottomWidth:0}}
-                            style={{...styles.textInput,margin:0}}
+                            style={{...styles.textInput,margin:0, fontSize:18, fontWeight:'700'}}
                             keyboardType='number-pad'
                             inputStyle={{margin:0}}
                             onChangeText={(val)=>{
@@ -241,29 +248,36 @@ class ReportManifest extends React.Component {
                             value={this.state.qtyreported}
                             rightIcon={()=>{
                                 return (
-                                    <View style={{flexDirection:'column', backgroundColor:'transparent',position:'absolute',right:0,bottom:0,justifyContent:'center', flex:1, minWidth:30}}>
-                                        <ArrowDown width="20" height="15" fill="black" style={{flexShrink:1,marginBottom:5,transform:[
-                                        { rotate: "180deg" },
-                                        ]}}
-                                        onPress={()=>{
-                                            const {qtyreported} = this.state;
-                                            let qty = parseInt(qtyreported)
-                                            this.setState({qtyreported:  qtyreported === '' || qty === NaN ? '0' : ''+ (qty+1) });
-                                        }}
-                                        />
-                                        <ArrowDown width="20" height="15"  fill="black" style={{flexShrink:1}}
-                                        
-                                        onPress={()=>{
-                                            const {qtyreported} = this.state;
-                                            let qty = parseInt(qtyreported)
-                                            this.setState({qtyreported:  qtyreported === '' || qty === NaN ? '0' : ''+ (qty-1) });
-                                        }}
-                                        />
+                                    <View style={{flexDirection:'column', backgroundColor:'transparent', flex:1, minWidth:30, marginLeft:15}}>
+                                        <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}}  
+                          containerStyle={{flexShrink:1, marginVertical: 5}}
+                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
+                          onPress={()=>{
+                            const {qtyreported} = this.state;
+                            let qty = parseInt(qtyreported)
+                            this.setState({qtyreported: (qtyreported === '' || qty === NaN) || (qty < 0) ? '0' : ''+ (qty+1) });
+                        }}
+                          />
+                                    </View>
+                                );
+                            }}
+                            leftIcon={()=>{
+                                return (
+                                    <View style={{flexDirection:'column', backgroundColor:'transparent', flex:1, minWidth:30, marginRight:15}}>
+                                        <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}}  
+                          containerStyle={{flexShrink:1, marginVertical: 5}}
+                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
+                          onPress={()=>{
+                            const {qtyreported} = this.state;
+                            let qty = parseInt(qtyreported)
+                            this.setState({qtyreported:  (qtyreported === '' || qty === NaN) || (qty <= 0) ? '0' : ''+ (qty-1) });
+                        }}
+                         />
                                     </View>
                                 );
                             }}
                         />
-                    </View>
+                    </View>)}
                     <View style={{marginBottom:5}}>
                     <Text style={styles.title}>Remarks :</Text>
                     <TextInput
