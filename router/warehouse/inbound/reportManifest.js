@@ -92,9 +92,10 @@ class ReportManifest extends React.Component {
         });
     }
     listenToProgressUpload = (written, total) => {
+        const {overlayProgress} = this.state;
         console.log(written);
         console.log(total);
-        this.setState({progressLinearVal:(1/total)*written});
+        this.setState({progressLinearVal:(1/total)*written, overlayProgress: overlayProgress === false ? true : overlayProgress});
       }
       getPhotoReceivingGoods = async () => {
         const {photoReportPostpone} = this.props;
@@ -139,7 +140,6 @@ class ReportManifest extends React.Component {
         {name : 'qty', data : qtyreported},] 
         : [   { name : 'report', data: intOption},
         {name :'description', data : this.state.otherReason},];
-        this.setState({overlayProgress: true});
         postBlob('/inboundsMobile/'+currentASN+'/'+_manifest.pId+'/reports', [
             // element with property `filename` will be transformed into `file` in form data
             ...metafield,
@@ -151,7 +151,6 @@ class ReportManifest extends React.Component {
                 this.props.setReportedASN(currentASN);
                 this.props.addPhotoReportPostpone(null);
                 this.props.setReportedManifest(dataCode);
-                this.setState({overlayProgress: false});
                 const {routes,index} = this.props.navigation.dangerouslyGetState();
                 if(routes[index-1].name === 'SupervisorMode'){
                     this.props.navigation.navigate('SupervisorMode');
