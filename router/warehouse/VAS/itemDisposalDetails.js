@@ -35,6 +35,7 @@ class ConnoteDetails extends React.Component {
     if(dataCode === '0'){
       const {routes, index} = navigation.dangerouslyGetState();
       if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
+        loadFromGallery({gtype: 'disposal',gID : routes[index].params.dataCode });
         if( VASList.some((element)=> element.number === routes[index].params.dataCode)){
           let manifest = VASList.find((element)=>element.number === routes[index].params.dataCode);
           return {...state, dataCode: routes[index].params.dataCode, _itemDetail:manifest};    
@@ -376,6 +377,9 @@ const mapDispatchToProps = (dispatch) => {
     return dispatch({type: 'BottomBar', payload: toggle});
   },
   addMediaProofPostpone: (uri) => dispatch({type: 'disposalPostpone', payload: uri}),
+  loadFromGallery: (action) => {
+    return dispatch({type:'loadFromGallery', payload: action});
+  },
   };
 };
 

@@ -15,6 +15,7 @@ const initialState = {
   stockTakeReportPhotoList: [],
   route: ROUTE,
   inboundList: [],
+  gallery: {},
   VASList : [],
   inboundSPVList: [],
   putawayList: [],
@@ -270,10 +271,34 @@ export default function appReducer(state = initialState, action) {
         ...state,
         stockTakeReportPhotoList: action.payload,
       };
+    case 'loadFromGallery':
+    if(action.payload.gtype === 'report'){
+      return {
+        ...state,
+        photoReportPostpone : Array.isArray(state.gallery[action.payload.gID]) ===  true ? state.gallery[action.payload.gID] : initialState.photoReportPostpone, 
+        photoReportID : Array.isArray(state.gallery[action.payload.gID]) ===  true ? action.payload.gID : initialState.photoReportID, 
+      };
+    } else if (action.payload.gtype ==='proof'){
+      return {
+        ...state,
+        photoProofPostpone : Array.isArray(state.gallery[action.payload.gID]) ===  true ? state.gallery[action.payload.gID] : initialState.photoProofPostpone, 
+        photoProofID : Array.isArray(state.gallery[action.payload.gID]) ===  true ? action.payload.gID : initialState.photoProofID,
+      };
+    } else if (action.payload.gtype === 'disposal'){
+      return {
+        ...state,
+        disposalPostpone : Array.isArray(state.gallery[action.payload.gID]) ===  true ? state.gallery[action.payload.gID] : initialState.disposalPostpone, 
+        disposalProofID : Array.isArray(state.gallery[action.payload.gID]) ===  true ? action.payload.gID : initialState.disposalProofID,
+      };
+    }
     case 'PhotoProofPostpone':
       if (action.payload === null) {
         return {
           ...state,
+          gallery: state.photoProofID !== null ? {
+            ...state.gallery,
+            [state.photoProofID] : initialState.photoProofPostpone,
+          } : state.gallery,
           photoProofPostpone: initialState.photoProofPostpone,
           photoProofID: initialState.photoProofID,
         };
@@ -281,17 +306,29 @@ export default function appReducer(state = initialState, action) {
         return {
           ...state,
           photoProofPostpone: [...state.photoProofPostpone, action.payload],
+          gallery: state.photoProofID !== null ? {
+            ...state.gallery,
+            [state.photoProofID] : [...state.photoProofPostpone, action.payload],
+          } : state.gallery,
         };
       } else {
         return {
           ...state,
           photoProofPostpone: [action.payload],
+          gallery: state.photoProofID !== null ? {
+            ...state.gallery,
+            [state.photoProofID] :[action.payload],
+          } : state.gallery,
         };
       }
       case 'disposalPostpone':
         if (action.payload === null) {
           return {
             ...state,
+            gallery: state.disposalProofID !== null ? {
+              ...state.gallery,
+              [state.disposalProofID] : initialState.disposalPostpone,
+            } : state.gallery,
             disposalPostpone: initialState.disposalPostpone,
             disposalProofID: initialState.disposalProofID,
           };
@@ -299,17 +336,29 @@ export default function appReducer(state = initialState, action) {
           return {
             ...state,
             disposalPostpone: [...state.disposalPostpone, action.payload],
+            gallery: state.disposalProofID !== null ? {
+              ...state.gallery,
+              [state.disposalProofID] : [...state.disposalPostpone, action.payload],
+            } : state.gallery,
           };
         } else {
           return {
             ...state,
             disposalPostpone: [action.payload],
+            gallery: state.disposalProofID !== null ? {
+              ...state.gallery,
+              [state.disposalProofID] :[action.payload],
+            } : state.gallery,
           };
         }
     case 'PhotoReportPostpone':
       if (action.payload === null) {
         return {
           ...state,
+          gallery: state.photoReportID !== null ? {
+            ...state.gallery,
+            [state.photoReportID] : initialState.photoReportPostpone,
+          } : state.gallery,
           photoReportPostpone: initialState.photoReportPostpone,
           photoReportID: initialState.photoReportID,
         };
@@ -317,11 +366,19 @@ export default function appReducer(state = initialState, action) {
         return {
           ...state,
           photoReportPostpone: [...state.photoReportPostpone, action.payload],
+          gallery: state.photoReportID !== null ? {
+            ...state.gallery,
+            [state.photoReportID] : [...state.photoReportPostpone, action.payload],
+          } : state.gallery,
         };
       } else {
         return {
           ...state,
           photoReportPostpone: [action.payload],
+          gallery: state.photoReportID !== null ? {
+            ...state.gallery,
+            [state.photoReportID] :[action.payload],
+          } : state.gallery,
         };
       }
     case 'POSMPostpone':
@@ -354,16 +411,31 @@ export default function appReducer(state = initialState, action) {
       return {
         ...state,
         photoReportPostpone: action.payload,
+        gallery: state.photoReportID !== null ? {
+          ...state.gallery,
+          [state.photoReportID] : action.payload,
+        } : state.gallery,
+        
       };
     case 'PhotoProofUpdate':
       return {
         ...state,
         photoProofPostpone: action.payload,
+        gallery: state.photoProofID !== null ? {
+          ...state.gallery,
+          [state.photoProofID] : action.payload,
+        } : state.gallery,
+        
       };
       case 'DisposalMediaUpdate':
         return {
           ...state,
           disposalPostpone: action.payload,
+          gallery: state.disposalProofID !== null ? {
+            ...state.gallery,
+            [state.disposalProofID] : action.payload,
+          } : state.gallery,
+          
         };
     case 'POSMUpdate':
       return {

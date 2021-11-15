@@ -105,8 +105,10 @@ class CameraSingle extends React.Component {
         const {pictureData, rootIDType} = this.state;
         if(confirm) {
             if(rootIDType === 'ReceivingDetail'){
+                this.props.addPhotoProofID(this.state.rootIDnumber)
                 this.props.addPhotoProofPostpone( pictureData);
             } else if(rootIDType === 'ReportManifest') {
+                this.props.addPhotoReportID(this.state.rootIDnumber)
                 this.props.addPhotoReportPostpone( pictureData);
             }
         } else {

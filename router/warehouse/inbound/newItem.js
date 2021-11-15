@@ -1,6 +1,6 @@
 import React from 'react';
 import {Text, Button,Image, Input, Divider} from 'react-native-elements';
-import {View, Keyboard} from 'react-native';
+import {View, Keyboard, ScrollView} from 'react-native';
 import {connect} from 'react-redux';
 import moment from 'moment';
 import Mixins from '../../../mixins';
@@ -189,7 +189,7 @@ class Acknowledge extends React.Component {
   render(){
     const {barcode, sku,description, uom, length,width,height,volweight,weight,pcscarton} = this.state;
     return (
-        <View style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
+        <ScrollView style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
           {this.state.errors !== '' && (<Banner
             title={this.state.errors}
             backgroundColor="#F1811C"
@@ -197,48 +197,61 @@ class Acknowledge extends React.Component {
           />)}
         {this.state.keyboardState === 'hide' && (
         <> 
-        <View style={{flexDirection:'row', flexShrink:1}}>
-         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+         <View style={{flexDirection:'row', flexShrink:1, marginBottom:10}}>
+         <View style={{flexShrink:1, backgroundColor: 'transparent', paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 110, alignItems: 'flex-start',marginRight: 20}}>
              <Text>Item Code</Text>
              </View>
              <Input 
-                            containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
-                inputContainerStyle={[Mixins.containedInputDisabledContainer,styles.textInput]} 
-                inputStyle={Mixins.containedInputDisabledStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
-                disabled={true}
+                containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',paddingHorizontal:0, marginHorizontal:0}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, alignItems:'flex-start',justifyContent:'flex-start',alignContent:'flex-start', flexDirection:'column-reverse', borderWidth: 0,
+                borderColor: 'transparent',
+                borderRadius: 5, backgroundColor:"#D5D5D5", flex:1, marginHorizontal:0, paddingHorizontal:0}} 
+                inputStyle={{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#424141',borderWidth: 0, backgroundColor:'transparent', alignSelf:'flex-start', textAlign:'left', paddingHorizontal:10, paddingVertical:5, marginHorizontal:0, marginVertical:0}}
+                disabledInputStyle={{opacity: 1}}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,}]}
                 value={sku}
+                multiline={true}
+                disabled={true}
             />
          </View>
-         <View style={{flexDirection:'row', flexShrink:1}}>
-         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+         <View style={{flexDirection:'row', flexShrink:1, marginBottom:10}}>
+         <View style={{flexShrink:1, backgroundColor: 'transparent', paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 110, alignItems: 'flex-start',marginRight: 20}}>
                <Text>Description</Text>
              </View>
              <Input 
-              containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
-              inputContainerStyle={[Mixins.containedInputDisabledContainer,styles.textInput]} 
-                inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
-                disabled={true}
+                containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',paddingHorizontal:0, marginHorizontal:0}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, alignItems:'flex-start',justifyContent:'flex-start',alignContent:'flex-start', flexDirection:'column-reverse', borderWidth: 0,
+                borderColor: 'transparent',
+                borderRadius: 5, backgroundColor:"#D5D5D5", flex:1, marginHorizontal:0, paddingHorizontal:0}} 
+                inputStyle={{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#424141',borderWidth: 0, backgroundColor:'transparent', alignSelf:'flex-start', textAlign:'left', paddingHorizontal:10, paddingVertical:5, marginHorizontal:0, marginVertical:0}}
+                disabledInputStyle={{opacity: 1}}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,}]}
                 value={description}
+                multiline={true}
+                disabled={true}
             />
+          
          </View>
-         <View style={{flexDirection:'row', flexShrink:1}}>
-         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+         <View style={{flexDirection:'row', flexShrink:1, marginBottom:10}}>
+         <View style={{flexShrink:1, backgroundColor: 'transparent', paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 110, alignItems: 'flex-start',marginRight: 20}}>
               <Text>Barcode</Text>
              </View>
              <View style={{flexDirection:'column',flex:1}}>
              <Input 
-               containerStyle={{flexShrink: 1,marginVertical:5,maxHeight:30}}
-               inputContainerStyle={[Mixins.containedInputDisabledContainer,styles.textInput]} 
-                inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
-                onChangeText={(text)=>{this.setState({barcode:text})}}
+                containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',paddingHorizontal:0, marginHorizontal:0}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, alignItems:'flex-start',justifyContent:'flex-start',alignContent:'flex-start', flexDirection:'column-reverse', borderWidth: 0,
+                borderColor: 'transparent',
+                borderRadius: 5, backgroundColor:"#D5D5D5", flex:1, marginHorizontal:0, paddingHorizontal:0}} 
+                inputStyle={{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#424141',borderWidth: 0, backgroundColor:'transparent', alignSelf:'flex-start', textAlign:'left', paddingHorizontal:10, paddingVertical:5, marginHorizontal:0, marginVertical:0}}
+                disabledInputStyle={{opacity: 1}}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,}]}
                 value={barcode}
+                multiline={true}
                 disabled={true}
             />
+            
               <Button
-              containerStyle={{flexShrink:1, marginTop: 5,marginBottom:15,paddingHorizontal:10, maxHeight:30}}
+              containerStyle={{flex:1, marginTop: 5,marginBottom:15,paddingHorizontal:0, maxHeight:30, marginRight:10}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0, paddingVertical:0}]}
               titleStyle={[styles.buttonText,{lineHeight:27}]}
               onPress={this.registerBarcode}
@@ -246,18 +259,24 @@ class Acknowledge extends React.Component {
             />
             </View>
          </View>
-         <View style={{flexDirection:'row', flexShrink:1}}>
-         <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 100, alignItems: 'flex-start',marginRight: 20}}>
+         <View style={{flexDirection:'row', flexShrink:1, marginBottom:10}}>
+         <View style={{flexShrink:1, backgroundColor: 'transparent', paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 110, alignItems: 'flex-start',marginRight: 20}}>
              <Text>UOM</Text>
              </View>
              <Input 
-               containerStyle={{flex: 1,paddingVertical:0}}
-               inputContainerStyle={[Mixins.containedInputDisabledContainer,styles.textInput]} 
-                inputStyle={Mixins.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                disabled={true}
+                containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',paddingHorizontal:0, marginHorizontal:0}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, alignItems:'flex-start',justifyContent:'flex-start',alignContent:'flex-start', flexDirection:'column-reverse', borderWidth: 0,
+                borderColor: 'transparent',
+                borderRadius: 5, backgroundColor:"#D5D5D5", flex:1, marginHorizontal:0, paddingHorizontal:0}} 
+                inputStyle={{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#424141',borderWidth: 0, backgroundColor:'transparent', alignSelf:'flex-start', textAlign:'left', paddingHorizontal:10, paddingVertical:5, marginHorizontal:0, marginVertical:0}}
+                disabledInputStyle={{opacity: 1}}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,}]}
                 value={uom}
+                multiline={true}
+                disabled={true}
             />
+            
+          
          </View>
         <Divider />
         </>
@@ -355,7 +374,7 @@ class Acknowledge extends React.Component {
               disabled={this.state.length !== '' && this.state.weight !== '' & this.state.pcscarton !== '' && this.state.volweight !== '' && this.state.width !== '' && this.state.height !== '' ? false : true}
               title="Update Attribute"
             />)}
-        </View>
+        </ScrollView>
     );
   }
 }

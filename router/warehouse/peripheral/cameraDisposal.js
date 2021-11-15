@@ -110,6 +110,7 @@ class CameraSingle extends React.Component {
          const {mediaData, rootIDType} = this.state;
          if(confirm) {
              if(rootIDType === 'ItemDisposalDetail'){
+                this.props.addMediaDisposalID(this.state.rootIDnumber)
                  this.props.addMediaProofPostpone( mediaData);
              }
         } else {
