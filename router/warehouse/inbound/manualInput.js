@@ -22,6 +22,7 @@ class ManualInput extends React.Component {
 
     static getDerivedStateFromProps(props,state){
         const {routes, index} = props.navigation.dangerouslyGetState();
+        const {manifestList} = props;
         if(state.scanItem === null){
           if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined && manifestList.some((o) => o.pId === routes[index].params.dataCode) === true) {   
             return {...state, scanItem : routes[index].params.dataCode};

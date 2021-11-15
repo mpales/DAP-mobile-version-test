@@ -7,7 +7,7 @@ import {
     View,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { CheckBox, Input, Avatar, Button, LinearProgress} from 'react-native-elements';
+import { CheckBox, Input, Avatar, Button, LinearProgress, Badge} from 'react-native-elements';
 import { connect } from 'react-redux';
 //icon
 import Mixins from '../../../mixins';
@@ -15,6 +15,7 @@ import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.s
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import ArrowDown from '../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 import {postBlob} from '../../../component/helper/network';
+import UploadTooltip from '../../../component/include/upload-tooltip';
 import RNFetchBlob from 'rn-fetch-blob';
 class ReportManifest extends React.Component {
     constructor(props) {
@@ -29,6 +30,7 @@ class ReportManifest extends React.Component {
             _manifest : null,
             errors: '',
             progressLinearVal : 0,
+            overlayProgress: false,
             qtyreported : "0",
             submitPhoto:false,
         };
@@ -37,11 +39,12 @@ class ReportManifest extends React.Component {
         this.handleSubmit.bind(this);
     }
     static getDerivedStateFromProps(props,state){
-        const {inboundList,navigation, manifestList} = props;
+        const {inboundList,navigation, manifestList, loadFromGallery} = props;
         const {dataCode} = state;
         if(dataCode === '0'){
             const {routes, index} = navigation.dangerouslyGetState();
             if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
+                loadFromGallery({gtype: 'report',gID : routes[index].params.dataCode });
                 // for prototype only should be params ID from backend
                 let manifest = manifestList.find((element)=>element.pId === routes[index].params.dataCode);
               return {...state, dataCode: routes[index].params.dataCode, _manifest:manifest};
@@ -89,9 +92,10 @@ class ReportManifest extends React.Component {
         });
     }
     listenToProgressUpload = (written, total) => {
+        const {overlayProgress} = this.state;
         console.log(written);
         console.log(total);
-        this.setState({progressLinearVal:(1/total)*written});
+        this.setState({progressLinearVal:(1/total)*written, overlayProgress: overlayProgress === false ? true : overlayProgress});
       }
       getPhotoReceivingGoods = async () => {
         const {photoReportPostpone} = this.props;
@@ -129,12 +133,16 @@ class ReportManifest extends React.Component {
                 break;
             default:
                 break;
-        } 
+        }
+        let metafield = reasonOption !== 'other' ?
+        [   { name : 'report', data: intOption},
+        {name :'description', data : this.state.otherReason},
+        {name : 'qty', data : qtyreported},] 
+        : [   { name : 'report', data: intOption},
+        {name :'description', data : this.state.otherReason},];
         postBlob('/inboundsMobile/'+currentASN+'/'+_manifest.pId+'/reports', [
             // element with property `filename` will be transformed into `file` in form data
-            { name : 'report', data: intOption},
-            {name :'description', data : this.state.otherReason},
-            {name : 'qty', data : qtyreported},
+            ...metafield,
             // custom content type
             ...FormData,
           ], this.listenToProgressUpload).then(result=>{
@@ -156,12 +164,12 @@ class ReportManifest extends React.Component {
                     result.errors.forEach(element => {
                         errors += element.msg + ' ';
                     });
-                    this.setState({errors:errors});
+                    this.setState({errors:errors,overlayProgress: false});
                 } else {
-                    this.setState({errors: result.error});
+                    this.setState({errors: result,error,overlayProgress: false});
                 }
               } else {
-                this.setState({errors: result});
+                this.setState({errors: result,overlayProgress: false});
               }
             }
           });
@@ -224,12 +232,14 @@ class ReportManifest extends React.Component {
                     />
                 </View>
                 <View style={styles.contentContainer}>
-                <View style={{marginBottom:5}}>
-                    <Text style={styles.title}>Quantity Item:</Text>
+                {this.state.reasonOption !== 'other' && (<View style={{marginBottom:5, flexDirection:'row', }}>
+                    <View style={{flexDirection:'column', marginRight: 15,paddingVertical:20}}>
+                        <Text style={styles.title}>Affected Quantity</Text>
+                    </View>
                     <Input
-                    containerStyle={{paddingHorizontal:0,marginHorizontal:0}}
+                    containerStyle={{paddingHorizontal:0,marginHorizontal:0, flexShrink:1, paddingTop:15}}
                         inputContainerStyle={{borderBottomWidth:0}}
-                            style={{...styles.textInput,margin:0}}
+                            style={{...styles.textInput,margin:0, fontSize:18, fontWeight:'700'}}
                             keyboardType='number-pad'
                             inputStyle={{margin:0}}
                             onChangeText={(val)=>{
@@ -240,29 +250,36 @@ class ReportManifest extends React.Component {
                             value={this.state.qtyreported}
                             rightIcon={()=>{
                                 return (
-                                    <View style={{flexDirection:'column', backgroundColor:'transparent',position:'absolute',right:0,bottom:0,justifyContent:'center', flex:1, minWidth:30}}>
-                                        <ArrowDown width="20" height="15" fill="black" style={{flexShrink:1,marginBottom:5,transform:[
-                                        { rotate: "180deg" },
-                                        ]}}
-                                        onPress={()=>{
-                                            const {qtyreported} = this.state;
-                                            let qty = parseInt(qtyreported)
-                                            this.setState({qtyreported:  qtyreported === '' || qty === NaN ? '0' : ''+ (qty+1) });
-                                        }}
-                                        />
-                                        <ArrowDown width="20" height="15"  fill="black" style={{flexShrink:1}}
-                                        
-                                        onPress={()=>{
-                                            const {qtyreported} = this.state;
-                                            let qty = parseInt(qtyreported)
-                                            this.setState({qtyreported:  qtyreported === '' || qty === NaN ? '0' : ''+ (qty-1) });
-                                        }}
-                                        />
+                                    <View style={{flexDirection:'column', backgroundColor:'transparent', flex:1, minWidth:30, marginLeft:15}}>
+                                        <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}}  
+                          containerStyle={{flexShrink:1, marginVertical: 5}}
+                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
+                          onPress={()=>{
+                            const {qtyreported} = this.state;
+                            let qty = parseInt(qtyreported)
+                            this.setState({qtyreported: (qtyreported === '' || qty === NaN) || (qty < 0) ? '0' : ''+ (qty+1) });
+                        }}
+                          />
+                                    </View>
+                                );
+                            }}
+                            leftIcon={()=>{
+                                return (
+                                    <View style={{flexDirection:'column', backgroundColor:'transparent', flex:1, minWidth:30, marginRight:15}}>
+                                        <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}}  
+                          containerStyle={{flexShrink:1, marginVertical: 5}}
+                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
+                          onPress={()=>{
+                            const {qtyreported} = this.state;
+                            let qty = parseInt(qtyreported)
+                            this.setState({qtyreported:  (qtyreported === '' || qty === NaN) || (qty <= 0) ? '0' : ''+ (qty-1) });
+                        }}
+                         />
                                     </View>
                                 );
                             }}
                         />
-                    </View>
+                    </View>)}
                     <View style={{marginBottom:5}}>
                     <Text style={styles.title}>Remarks :</Text>
                     <TextInput
@@ -310,7 +327,19 @@ class ReportManifest extends React.Component {
                                         borderRadius: 5,
                                         }}/>
                                         <View style={{marginVertical: 5}}>
-                                        <LinearProgress value={this.state.progressLinearVal} color="primary" style={{width:80}} variant="determinate"/>
+                                        <UploadTooltip 
+                                        overlayLinearProgress={{
+                                          value:this.state.progressLinearVal, 
+                                          color:"#F1811C",
+                                          variant:"determinate", 
+                                          style:{height:13, backgroundColor:'white', borderRadius:10}
+                                        }} 
+                                        value={this.state.progressLinearVal} 
+                                        color="primary" 
+                                        style={{width:80}} 
+                                        variant="determinate"
+                                        enabled={this.state.overlayProgress}
+                                        />
                                         </View>
                                         <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Photo Proof</Text>
                                         {this.state.errors !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.errors}</Text>)}
@@ -459,6 +488,9 @@ const mapDispatchToProps = (dispatch) => {
             return dispatch({type:'ReportedASN', payload: data});
         },
         addPhotoReportPostpone: (uri) => dispatch({type: 'PhotoReportPostpone', payload: uri}),
+        loadFromGallery: (action) => {
+            return dispatch({type:'loadFromGallery', payload: action});
+          },
     };
 };
 

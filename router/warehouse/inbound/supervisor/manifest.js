@@ -32,7 +32,9 @@ import moment from 'moment';
 import IconSearchMobile from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import {getData, postData} from '../../../../component/helper/network';
 import Banner from '../../../../component/banner/banner';
-import EmptyIlustrate from '../../../../assets/icon/Groupempty.svg';
+
+import BlankList from '../../../../assets/icon/Group 5122blanklist.svg';
+import EmptyIlustrate from '../../../../assets/icon/manifest-empty mobile.svg';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component{
@@ -52,6 +54,7 @@ class Warehouse extends React.Component{
       notifbanner : '',
       renderRefresh:false,
       remark : '',
+      remarkHeight: 500,
     };
 
     this.setFiltered.bind(this);
@@ -86,7 +89,7 @@ class Warehouse extends React.Component{
       });
       this.props.setManifestList(updatedstatus)
     }
-    let filtered = prevState.renderRefresh !== this.state.renderRefresh || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.updated !== this.state.updated ? this.state.filtered : null;
+    let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.updated !== this.state.updated ? this.state.filtered : null;
    
     if(filtered === 0) {
       this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
@@ -202,8 +205,13 @@ class Warehouse extends React.Component{
             withPointer={false} 
             backgroundColor="#FFFFFF"
             skipAndroidStatusBar ={true}  
-            popover={<Text style={[Mixins.body3,{color:'black'}]}>{this.state.remark}</Text>} 
+            popover={<View onLayout={(e)=>{ 
+              if(this.state.remarkHeight > e.nativeEvent.layout.height && (this.state.remarkHeight - e.nativeEvent.layout.height) > 30){
+                this.setState({remarkHeight: e.nativeEvent.layout.height});
+              }
+            }}><Text style={[Mixins.body3,{color:'black'}]}>{this.state.remark}</Text></View>} 
             width={300} 
+            height={this.state.remarkHeight}
             containerStyle={{
               left: (Dimensions.get('screen').width / 8),
               top: (Dimensions.get('screen').height / 4),
@@ -297,9 +305,12 @@ class Warehouse extends React.Component{
                   {this.state.receivingNumber === null ? (    <ActivityIndicator 
                     size={50} 
                     color="#121C78"
-                />) : (
-                  <EmptyIlustrate height="132" width="213"/>
-                )}
+                />) :  this.props.manifestType === 2 ? (
+                  <BlankList height="185" width="213"/>
+                  ) : (<>
+                  <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+                  <Text style={{  ...Mixins.subtitle3,}}>Empty Product</Text>
+                  </>)}
                   </View>)
                 : _manifest.map((u, i) => (
                   <InboundSupervisorDetail 
@@ -668,6 +679,7 @@ function mapStateToProps(state) {
     currentASN : state.originReducer.filters.currentASN,
     ReportedManifest : state.originReducer.filters.ReportedManifest,
     keyStack: state.originReducer.filters.keyStack,
+    manifestType : state.originReducer.filters.currentManifestType,
     // end
   };
 }
