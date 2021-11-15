@@ -3,9 +3,11 @@ import {ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
+// helper
+import {getData} from '../../../../component/helper/network';
 import moment from 'moment';
 // component
-import RelocationResult from '../../../../component/extend/ListItem-relocation-result';
+import RelocationBarcodeResult from '../../../../component/extend/ListItem-relocation-barcode-result';
 //style
 import Mixins from '../../../../mixins';
 
@@ -13,72 +15,85 @@ class BarcodeCamera extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      scanResult: SCANRESULT,
+      warehouseDetails: null,
+      scanResult: null,
       barcodeResult: this.props.route.params?.barcodeResult ?? null,
       isLoaded: false,
+      errorMessage: '',
     };
   }
 
-  navigateToRequestRelocationForm = () => {
-    this.props.navigation.navigate('RequestRelocationForm');
+  componentDidMount() {
+    this.getClientProductStorageList();
+  }
+
+  getClientProductStorageList = async () => {
+    const {barcodeResult} = this.state;
+    const result = await getData(
+      `/stocks-mobile/product-storage/location-id/${barcodeResult}`,
+    );
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        scanResult: result,
+      });
+    }
+    this.setState({
+      isLoaded: true,
+    });
+  };
+
+  navigateToRequestRelocationForm = (data) => {
+    const {barcodeResult, warehouseDetails} = this.state;
+    this.props.navigation.navigate('RequestRelocationForm', {
+      productStorage: {
+        ...data,
+        locationId: barcodeResult,
+      },
+    });
   };
 
   render() {
-    const {scanResult} = this.state;
+    const {barcodeResult, isLoaded, scanResult, warehouseDetails} = this.state;
 
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
-        {/* need to add this.state.isLoaded for conditional rendering */}
-        {scanResult !== null && (
-          <ScrollView style={styles.body}>
+        <ScrollView style={styles.body}>
+          {isLoaded && (
+            <View style={styles.titleContainer}>
+              <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap'}}>
+                <Text style={[styles.title, {marginRight: 20}]}>Results</Text>
+                <Text
+                  style={[styles.title, styles.textBlue, {flexWrap: 'wrap'}]}>
+                  {barcodeResult}
+                  {/* {`${warehouseDetails.warehouse} ${barcodeResult}`} */}
+                </Text>
+              </View>
+              <Text style={[styles.text, styles.textBlue]}>{`${
+                scanResult === null ? 0 : scanResult.length
+              } Result`}</Text>
+            </View>
+          )}
+          {scanResult === null ? (
+            <View style={styles.noResultContainer}>
+              <Text style={styles.title}>No result found</Text>
+            </View>
+          ) : (
             <View style={styles.resultContainer}>
-              <Text style={styles.title}>Result</Text>
               {scanResult.map((item, index) => (
-                <RelocationResult
+                <RelocationBarcodeResult
                   key={index}
                   item={item}
                   navigate={this.navigateToRequestRelocationForm}
                 />
               ))}
             </View>
-          </ScrollView>
-        )}
-        {/* need to add !this.state.isLoaded for conditional rendering */}
-        {scanResult === null && (
-          <View style={styles.noResultContainer}>
-            <Text style={styles.title}>No result found</Text>
-          </View>
-        )}
+          )}
+        </ScrollView>
       </SafeAreaProvider>
     );
   }
 }
-
-const SCANRESULT = [
-  {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-  },
-  {
-    jobId: 'GCPL STOCK TAKE 20 02 20',
-    jobDate: moment().subtract(1, 'days').unix(),
-    client: 'BG5G',
-    warehouse: 'KEPPEL',
-    itemCode: '342035002',
-    description: 'ERGOBLOM V2 BLUE DESK',
-    quantity: 30,
-    fromLocation: 'JP2 C05-002',
-    toLocation: 'JP1-0004',
-  },
-];
 
 const styles = StyleSheet.create({
   body: {
@@ -96,10 +111,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  titleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginHorizontal: 20,
+    marginTop: 20,
+  },
   title: {
     ...Mixins.subtitle3,
     fontSize: 18,
     lineHeight: 25,
+  },
+  text: {
+    ...Mixins.subtitle3,
+    fontSize: 14,
+    lineHeight: 21,
+  },
+  textBlue: {
+    color: '#2A3386',
   },
 });
 

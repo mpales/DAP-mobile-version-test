@@ -22,19 +22,12 @@ const ListItemRelocationResult = ({item, navigate}) => {
         style={{marginBottom: 10}}>
         <ListItem.Content
           style={[styles.sectionContainer, {flexDirection: 'column'}]}>
-          <TextList title="Warehouse" value={item.warehouseName} />
-          <TextList title="Location" value={item.locationId} />
-          <TextList title="Item Code" value={item.itemCode} />
-          <TextList
-            title="Description"
-            value={!!item.description ? item.description : '-'}
-          />
+          <TextList title="Client" value={item.client.name} />
+          <TextList title="Item Code" value={item.product.item_code} />
+          <TextList title="Description" value={item.product.description} />
           <TextList title="Quantity" value={item.quantity} />
-          <TextList title="UOM" value={item.uom} />
-          <TextList
-            title="Grade"
-            value={productGradeToString(item.productGrade)}
-          />
+          <TextList title="UOM" value={item.uom.packaging} />
+          <TextList title="Grade" value={productGradeToString(item.grade)} />
         </ListItem.Content>
         <ListItem.Chevron
           size={16}
