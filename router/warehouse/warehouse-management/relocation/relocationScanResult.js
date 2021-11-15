@@ -34,7 +34,8 @@ class BarcodeCamera extends React.Component {
     );
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
-        scanResult: result,
+        scanResult: result.productStorage,
+        warehouseDetails: result.warehouse,
       });
     }
     this.setState({
@@ -60,34 +61,35 @@ class BarcodeCamera extends React.Component {
         <StatusBar barStyle="dark-content" />
         <ScrollView style={styles.body}>
           {isLoaded && (
-            <View style={styles.titleContainer}>
-              <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap'}}>
-                <Text style={[styles.title, {marginRight: 20}]}>Results</Text>
-                <Text
-                  style={[styles.title, styles.textBlue, {flexWrap: 'wrap'}]}>
-                  {barcodeResult}
-                  {/* {`${warehouseDetails.warehouse} ${barcodeResult}`} */}
-                </Text>
+            <>
+              <View style={styles.titleContainer}>
+                <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap'}}>
+                  <Text style={[styles.title, {marginRight: 20}]}>Results</Text>
+                  <Text
+                    style={[styles.title, styles.textBlue, {flexWrap: 'wrap'}]}>
+                    {`${barcodeResult}`}
+                  </Text>
+                </View>
+                <Text style={[styles.text, styles.textBlue]}>{`${
+                  scanResult === null ? 0 : scanResult.length
+                } Result`}</Text>
               </View>
-              <Text style={[styles.text, styles.textBlue]}>{`${
-                scanResult === null ? 0 : scanResult.length
-              } Result`}</Text>
-            </View>
-          )}
-          {scanResult === null ? (
-            <View style={styles.noResultContainer}>
-              <Text style={styles.title}>No result found</Text>
-            </View>
-          ) : (
-            <View style={styles.resultContainer}>
-              {scanResult.map((item, index) => (
-                <RelocationBarcodeResult
-                  key={index}
-                  item={item}
-                  navigate={this.navigateToRequestRelocationForm}
-                />
-              ))}
-            </View>
+              {scanResult === null ? (
+                <View style={styles.noResultContainer}>
+                  <Text style={styles.title}>No result found</Text>
+                </View>
+              ) : (
+                <View style={styles.resultContainer}>
+                  {scanResult.map((item, index) => (
+                    <RelocationBarcodeResult
+                      key={index}
+                      item={item}
+                      navigate={this.navigateToRequestRelocationForm}
+                    />
+                  ))}
+                </View>
+              )}
+            </>
           )}
         </ScrollView>
       </SafeAreaProvider>

@@ -45,6 +45,7 @@ class RelocationRequest extends React.Component {
       sliderValue: 0,
       showOverlay: false,
       errorMessage: '',
+      isSubmitting: false,
     };
     this.handleShowOverlay.bind(this);
   }
@@ -103,13 +104,15 @@ class RelocationRequest extends React.Component {
       selectedReasonCode,
       selectedGrade,
       quantityToTransfer,
+      isSubmitting,
     } = this.state;
     if (
       selectedWarehouse === null ||
       selectedLocation === null ||
       selectedReasonCode === null ||
       selectedGrade === null ||
-      quantityToTransfer === 0
+      quantityToTransfer === 0 ||
+      isSubmitting
     ) {
       return true;
     }
@@ -171,6 +174,9 @@ class RelocationRequest extends React.Component {
   };
 
   confirmRelocate = async () => {
+    this.setState({
+      isSubmitting: true,
+    });
     const {
       relocateFrom,
       selectedLocation,
@@ -186,7 +192,7 @@ class RelocationRequest extends React.Component {
         : relocateFrom.product.item_code,
       productId: !!relocateFrom.productId
         ? relocateFrom.productId
-        : relocateFrom.product.id,
+        : relocateFrom.product._id,
       productStorageIdFrom: relocateFrom.id,
       warehouseStorageContainerIdTo: selectedLocation,
       productGradeTo: selectedGrade,
@@ -208,7 +214,9 @@ class RelocationRequest extends React.Component {
         errorMessage: result,
       });
     }
-    console.log(result);
+    this.setState({
+      isSubmitting: true,
+    });
   };
 
   closeBanner = () => {
