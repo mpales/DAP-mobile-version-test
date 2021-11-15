@@ -36,9 +36,13 @@ class RelocationRequest extends React.Component {
   }
 
   componentDidMount() {
-    this.props.navigation.addListener('focus', () => {
+    this._unsubscribe = this.props.navigation.addListener('focus', () => {
       this.getClientList();
     });
+  }
+
+  componentWillUnmount() {
+    this._unsubscribe();
   }
 
   getClientList = async () => {

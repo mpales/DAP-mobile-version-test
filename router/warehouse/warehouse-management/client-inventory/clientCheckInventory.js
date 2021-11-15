@@ -34,9 +34,13 @@ class ClientCheckInventory extends React.Component {
 
   componentDidMount() {
     this.getClientList();
-    this.props.navigation.addListener('focus', () => {
+    this._unsubscribe = this.props.navigation.addListener('focus', () => {
       this.props.setBottomBar(true);
     });
+  }
+
+  componentWillUnmount() {
+    this._unsubscribe();
   }
 
   componentDidUpdate(prevProps, prevState) {

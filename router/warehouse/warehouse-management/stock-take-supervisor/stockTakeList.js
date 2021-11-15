@@ -35,11 +35,15 @@ class StockTakeList extends React.Component {
   }
 
   componentDidMount() {
-    this.props.navigation.addListener('focus', () => {
+    this._unsubscribe = this.props.navigation.addListener('focus', () => {
       this.props.setStockTakeId(null);
       this.getStockTakeList();
       this.props.setBottomBar(true);
     });
+  }
+
+  componentWillUnmount() {
+    this._unsubscribe();
   }
 
   componentDidUpdate(prevProps, prevState) {
