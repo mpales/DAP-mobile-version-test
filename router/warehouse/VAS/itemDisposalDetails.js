@@ -30,7 +30,7 @@ class ConnoteDetails extends React.Component {
     };
   }
   static getDerivedStateFromProps(props,state){
-    const {navigation, VASList} = props;
+    const {navigation, VASList, loadFromGallery} = props;
     const {dataCode, _itemDetail} = state;
     if(dataCode === '0'){
       const {routes, index} = navigation.dangerouslyGetState();
