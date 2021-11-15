@@ -14,9 +14,13 @@ class SearchInventoryBarcode extends React.Component {
   }
 
   componentDidMount() {
-    this.props.navigation.addListener('focus', () => {
+    this._unsubscribe = this.props.navigation.addListener('focus', () => {
       this.props.setBarcodeScanner(true);
     });
+  }
+
+  componentWillUnmount() {
+    this._unsubscribe();
   }
 
   renderBarcode = (barcode) => {

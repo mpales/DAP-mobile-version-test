@@ -14,10 +14,13 @@ class BarcodeCamera extends React.Component {
   }
 
   componentDidMount() {
-    this.props.navigation.addListener('focus', () => {
-      console.log('focused called');
+    this._unsubscribe = this.props.navigation.addListener('focus', () => {
       this.props.setBarcodeScanner(true);
     });
+  }
+
+  componentWillUnmount() {
+    this._unsubscribe();
   }
 
   renderBarcode = (barcode) => {

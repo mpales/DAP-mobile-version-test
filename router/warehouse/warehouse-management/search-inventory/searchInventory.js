@@ -26,9 +26,13 @@ class SearchInventory extends React.Component {
 
   componentDidMount() {
     this.getWarehouseList();
-    this.props.navigation.addListener('focus', () => {
+    this._unsubscribe = this.props.navigation.addListener('focus', () => {
       this.props.setBottomBar(true);
     });
+  }
+
+  componentWillUnmount() {
+    this._unsubscribe();
   }
 
   submitSearch = () => {
