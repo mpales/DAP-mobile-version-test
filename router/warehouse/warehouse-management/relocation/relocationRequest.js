@@ -129,9 +129,9 @@ class RelocationRequest extends React.Component {
   };
 
   navigateToRequestRelocationForm = (data) => {
-    const {client} = this.state;
+    const {client, clientId} = this.state;
     this.props.navigation.navigate('RequestRelocationForm', {
-      productStorage: {...data, clientName: client},
+      productStorage: {...data, client: {id: clientId, name: client}},
     });
   };
 

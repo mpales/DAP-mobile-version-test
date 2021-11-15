@@ -15,6 +15,10 @@ import {Picker} from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
 // component
 import {TextList, CustomTextList} from '../../../../component/extend/Text-list';
+import Banner from '../../../../component/banner/banner';
+// helper
+import {productGradeToString} from '../../../../component/helper/string';
+import {getData, postData} from '../../../../component/helper/network';
 // style
 import Mixins from '../../../../mixins';
 // icon
@@ -26,22 +30,41 @@ class RelocationRequest extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      relocateFrom: RELOCATEFROM,
-      warehouseList: WAREHOUSELIST,
-      locationList: LOCATIONIDDUMMY,
+      relocateFrom: this.props.route.params?.productStorage ?? null,
+      warehouseList: null,
+      locationList: [],
       reasonCodeList: REASONCODELIST,
       gradeList: GRADELIST,
       newLocation: NEWLOCATION,
       remarks: '',
       quantityToTransfer: 0,
-      selectedWarehouse: '',
-      selectedLocationId: '',
-      selectedReasonCode: '',
-      selectedGrade: '',
+      selectedWarehouse: null,
+      selectedLocation: null,
+      selectedReasonCode: null,
+      selectedGrade: null,
       sliderValue: 0,
       showOverlay: false,
+      errorMessage: '',
+      isSubmitting: false,
     };
     this.handleShowOverlay.bind(this);
+  }
+
+  componentDidMount() {
+    this.getWarehouseList();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.selectedWarehouse !== this.state.selectedWarehouse) {
+      if (this.state.selectedWarehouse === null) {
+        this.setState({
+          locationList: [],
+          selectedLocation: null,
+        });
+      } else {
+        this.getLocationList();
+      }
+    }
   }
 
   handleShowOverlay = (value) => {
@@ -55,7 +78,7 @@ class RelocationRequest extends React.Component {
     if (type === 'warehouse') {
       obj = {selectedWarehouse: value};
     } else if (type === 'locationId') {
-      obj = {selectedLocationId: value};
+      obj = {selectedLocation: value};
     } else if (type === 'reasonCode') {
       obj = {selectedReasonCode: value};
     } else if (type === 'grade') {
@@ -77,23 +100,42 @@ class RelocationRequest extends React.Component {
   buttonDisabled = () => {
     const {
       selectedWarehouse,
-      selectedLocationId,
+      selectedLocation,
       selectedReasonCode,
       selectedGrade,
-      remarks,
       quantityToTransfer,
+      isSubmitting,
     } = this.state;
     if (
-      selectedWarehouse === '' ||
-      selectedLocationId === '' ||
-      selectedReasonCode === '' ||
-      selectedGrade === '' ||
-      remarks === '' ||
-      quantityToTransfer === ''
+      selectedWarehouse === null ||
+      selectedLocation === null ||
+      selectedReasonCode === null ||
+      selectedGrade === null ||
+      quantityToTransfer === 0 ||
+      isSubmitting
     ) {
       return true;
     }
     return false;
+  };
+
+  getWarehouseList = async () => {
+    const result = await getData('/warehouses/names');
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        warehouseList: result,
+      });
+    }
+  };
+
+  getLocationList = async () => {
+    const {selectedWarehouse} = this.state;
+    const result = await getData(`/warehouses/${selectedWarehouse}/containers`);
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        locationList: result,
+      });
+    }
   };
 
   calculateQuantity = (value) => {
@@ -113,8 +155,9 @@ class RelocationRequest extends React.Component {
       percentage = ((relocateFrom.quantity * parseInt(value)) / 100) * 10;
     }
     this.setState({
-      quantityToTransfer: value,
-      sliderValue: percentage,
+      quantityToTransfer:
+        value === '' ? value : isNaN(parseInt(value)) ? 0 : value,
+      sliderValue: isNaN(percentage) ? 0 : percentage,
     });
   };
 
@@ -130,8 +173,61 @@ class RelocationRequest extends React.Component {
     });
   };
 
+  confirmRelocate = async () => {
+    this.setState({
+      isSubmitting: true,
+    });
+    const {
+      relocateFrom,
+      selectedLocation,
+      selectedReasonCode,
+      selectedGrade,
+      quantityToTransfer,
+      remarks,
+    } = this.state;
+    const data = {
+      clientId: relocateFrom.client.id,
+      itemCode: !!relocateFrom.itemCode
+        ? relocateFrom.itemCode
+        : relocateFrom.product.item_code,
+      productId: !!relocateFrom.productId
+        ? relocateFrom.productId
+        : relocateFrom.product._id,
+      productStorageIdFrom: relocateFrom.id,
+      warehouseStorageContainerIdTo: selectedLocation,
+      productGradeTo: selectedGrade,
+      quantityTo: quantityToTransfer,
+      reasonCode: selectedReasonCode,
+      remark: remarks,
+    };
+    const result = await postData('/stocks-mobile/stock-relocations', data);
+    if (
+      typeof result === 'object' &&
+      result.message ===
+        'Stock Relocation created and relocated successfully' &&
+      result.error === undefined &&
+      result.errors === undefined
+    ) {
+      this.handleShowOverlay(true);
+    } else if (typeof result === 'string') {
+      this.setState({
+        errorMessage: result,
+      });
+    }
+    this.setState({
+      isSubmitting: true,
+    });
+  };
+
+  closeBanner = () => {
+    this.setState({
+      errorMessage: '',
+    });
+  };
+
   render() {
     const {
+      errorMessage,
       relocateFrom,
       warehouseList,
       locationList,
@@ -139,7 +235,7 @@ class RelocationRequest extends React.Component {
       gradeList,
       newLocation,
       selectedWarehouse,
-      selectedLocationId,
+      selectedLocation,
       selectedReasonCode,
       selectedGrade,
       remarks,
@@ -148,21 +244,53 @@ class RelocationRequest extends React.Component {
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
+        {errorMessage !== '' && (
+          <Banner
+            title={errorMessage}
+            backgroundColor="#F07120"
+            closeBanner={this.closeBanner}
+          />
+        )}
         <ScrollView style={styles.body}>
           <Text style={styles.title}>Relocate From</Text>
           <Card containerStyle={styles.cardContainer}>
-            <Text style={styles.cardTitle}>
-              Warehouse {relocateFrom.warehouse}
-            </Text>
-            <TextList title="Job ID" value={relocateFrom.jobId} />
-            <TextList title="Client" value={relocateFrom.client} />
-            <TextList title="Location" value={relocateFrom.location} />
-            <TextList title="Item Code" value={relocateFrom.itemCode} />
-            <TextList title="Description" value={relocateFrom.description} />
+            <TextList title="Warehouse" value={relocateFrom.warehouseName} />
+            <TextList title="Location" value={relocateFrom.locationId} />
+            <TextList title="Client" value={relocateFrom.client.name} />
+            <TextList
+              title="Item Code"
+              value={
+                !!relocateFrom.itemCode
+                  ? relocateFrom.itemCode
+                  : relocateFrom.product.item_code
+              }
+            />
+            <TextList
+              title="Description"
+              value={
+                relocateFrom.description
+                // !!relocateFrom.description
+                //   ? relocateFrom.description
+                //   : relocateFrom.product.description
+              }
+            />
             <TextList title="Quantity" value={relocateFrom.quantity} />
-            <TextList title="Warehouse" value={relocateFrom.warehouse} />
-            <TextList title="From Location" value={relocateFrom.fromLocation} />
-            <TextList title="To Location" value={relocateFrom.toLocation} />
+            <TextList
+              title="UOM"
+              value={
+                typeof relocateFrom.uom === 'object'
+                  ? relocateFrom.uom.packaging
+                  : relocateFrom.uom
+              }
+            />
+            <TextList
+              title="Grade"
+              value={productGradeToString(
+                !!relocateFrom.productGrade
+                  ? relocateFrom.productGrade
+                  : relocateFrom.grade,
+              )}
+            />
           </Card>
           <View style={styles.relocateToContainer}>
             <Text style={[styles.title, {marginHorizontal: 0}]}>
@@ -179,19 +307,19 @@ class RelocationRequest extends React.Component {
             <Text style={styles.inputFormtitle}>Warehouse</Text>
             <View style={styles.pickerContainer}>
               <Picker
-                mode="dialog"
+                mode="dropdown"
                 selectedValue={selectedWarehouse}
                 onValueChange={(value) =>
                   this.handlePicker(value, 'warehouse')
                 }>
-                <Picker.Item
-                  label="Select Warehouse"
-                  value=""
-                  color="#ABABAB"
-                />
-                {warehouseList.length > 0 &&
+                <Picker.Item label="Select Warehouse" value={null} />
+                {warehouseList !== null &&
                   warehouseList.map((item) => (
-                    <Picker.Item label={item.name} value={item.name} />
+                    <Picker.Item
+                      label={item.name}
+                      value={item.id}
+                      key={item.id}
+                    />
                   ))}
               </Picker>
             </View>
@@ -200,19 +328,20 @@ class RelocationRequest extends React.Component {
             <Text style={styles.inputFormtitle}>Location ID</Text>
             <View style={styles.pickerContainer}>
               <Picker
-                mode="dialog"
-                selectedValue={selectedLocationId}
+                mode="dropdown"
+                selectedValue={selectedLocation}
                 onValueChange={(value) =>
                   this.handlePicker(value, 'locationId')
-                }>
-                <Picker.Item
-                  label="Select Location ID"
-                  value=""
-                  color="#ABABAB"
-                />
+                }
+                enabled={!!selectedWarehouse}>
+                <Picker.Item label="Select Location ID" value={null} />
                 {locationList.length > 0 &&
                   locationList.map((item) => (
-                    <Picker.Item label={item.id} value={item.id} />
+                    <Picker.Item
+                      label={item.locationId}
+                      value={item.id}
+                      key={item.id}
+                    />
                   ))}
               </Picker>
             </View>
@@ -221,19 +350,19 @@ class RelocationRequest extends React.Component {
             <Text style={styles.inputFormtitle}>Reason Code</Text>
             <View style={styles.pickerContainer}>
               <Picker
-                mode="dialog"
+                mode="dropdown"
                 selectedValue={selectedReasonCode}
                 onValueChange={(value) =>
                   this.handlePicker(value, 'reasonCode')
                 }>
-                <Picker.Item
-                  label="Select Reason Code"
-                  value=""
-                  color="#ABABAB"
-                />
-                {reasonCodeList.length > 0 &&
+                <Picker.Item label="Select Reason Code" value={null} />
+                {reasonCodeList !== null &&
                   reasonCodeList.map((item) => (
-                    <Picker.Item label={item.code} value={item.code} />
+                    <Picker.Item
+                      label={item.code}
+                      value={item.id}
+                      key={item.code}
+                    />
                   ))}
               </Picker>
             </View>
@@ -299,132 +428,141 @@ class RelocationRequest extends React.Component {
             <Text style={styles.inputFormtitle}>Destination Grade</Text>
             <View style={styles.pickerContainer}>
               <Picker
-                mode="dialog"
+                mode="dropdown"
                 selectedValue={selectedGrade}
                 onValueChange={(value) => this.handlePicker(value, 'grade')}>
-                <Picker.Item label="Select Grade" value="" color="#ABABAB" />
-                {gradeList.length > 0 &&
+                <Picker.Item
+                  label="Select Grade"
+                  value={null}
+                  color="#ABABAB"
+                />
+                {gradeList !== null &&
                   gradeList.map((item) => (
-                    <Picker.Item label={item.name} value={item.name} />
+                    <Picker.Item
+                      label={item.grade}
+                      value={item.id}
+                      key={item.id}
+                    />
                   ))}
               </Picker>
             </View>
           </View>
           <Button
-            title="Start Relocate"
+            title="Confirm Relocate"
             titleStyle={styles.buttonText}
             buttonStyle={styles.button}
             disabledTitleStyle={{color: '#FFF'}}
             disabledStyle={{backgroundColor: 'gray'}}
             disabled={this.buttonDisabled()}
-            onPress={() => this.handleShowOverlay(true)}
+            onPress={this.confirmRelocate}
           />
         </ScrollView>
-        <Overlay
-          overlayStyle={{borderRadius: 10, padding: 0}}
-          isVisible={this.state.showOverlay}>
-          <View
-            style={{
-              flexShrink: 1,
-              width: window.width * 0.9,
-            }}>
+        {this.state.showOverlay && (
+          <Overlay overlayStyle={{borderRadius: 10, padding: 0}}>
             <View
               style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderBottomWidth: 1,
-                borderBottomColor: '#ABABAB',
-                paddingVertical: 15,
+                flexShrink: 1,
+                width: window.width * 0.9,
               }}>
-              <CheckmarkIcon height="24" width="24" fill="#17B055" />
-              <Text
+              <View
                 style={{
-                  ...Mixins.subtitle3,
-                  fontSize: 18,
-                  lineHeight: 25,
-                  marginLeft: 10,
-                  color: '#17B055',
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderBottomWidth: 1,
+                  borderBottomColor: '#ABABAB',
+                  paddingVertical: 15,
                 }}>
-                Relocation Successful
-              </Text>
+                <CheckmarkIcon height="24" width="24" fill="#17B055" />
+                <Text
+                  style={{
+                    ...Mixins.subtitle3,
+                    fontSize: 18,
+                    lineHeight: 25,
+                    marginLeft: 10,
+                    color: '#17B055',
+                  }}>
+                  Relocation Successful
+                </Text>
+              </View>
+              <View style={{padding: 20}}>
+                <Text style={styles.cardTitle}>New Location</Text>
+                <TextList
+                  title="Location"
+                  value={
+                    locationList.find((el) => el.id === selectedLocation)
+                      .locationId
+                  }
+                />
+                <TextList
+                  title="Item Code"
+                  value={
+                    !!relocateFrom.itemCode
+                      ? relocateFrom.itemCode
+                      : relocateFrom.product.item_code
+                  }
+                />
+                <TextList
+                  title="Description"
+                  value={relocateFrom.description}
+                />
+                <CustomTextList title="Quantity" value={quantityToTransfer} />
+                <TextList
+                  title="UOM"
+                  value={
+                    typeof relocateFrom.uom === 'object'
+                      ? relocateFrom.uom.packaging
+                      : relocateFrom.uom
+                  }
+                />
+                <CustomTextList
+                  title="Grade"
+                  value={productGradeToString(selectedGrade)}
+                />
+                <Button
+                  title="Back To List"
+                  titleStyle={styles.buttonText}
+                  buttonStyle={[
+                    styles.button,
+                    {marginHorizontal: 0, marginTop: 20},
+                  ]}
+                  onPress={this.navigateToRelocationJobList}
+                />
+              </View>
             </View>
-            <View style={{padding: 20}}>
-              <Text style={styles.cardTitle}>New Location</Text>
-              <TextList title="Location" value={newLocation.location} />
-              <TextList title="Item Code" value={newLocation.itemCode} />
-              <TextList title="Description" value={newLocation.description} />
-              <CustomTextList title="Quantity" value={newLocation.quantity} />
-              <TextList title="UOM" value={newLocation.UOM} />
-              <CustomTextList title="Grade" value={newLocation.grade} />
-              <Button
-                title="Back To List"
-                titleStyle={styles.buttonText}
-                buttonStyle={[
-                  styles.button,
-                  {marginHorizontal: 0, marginTop: 20},
-                ]}
-                onPress={this.navigateToRelocationJobList}
-              />
-            </View>
-          </View>
-        </Overlay>
+          </Overlay>
+        )}
       </SafeAreaProvider>
     );
   }
 }
 
-const RELOCATEFROM = {
-  warehouse: 'KEPPEL',
-  jobId: '09123',
-  client: 'BG5G',
-  location: 'JP2 C05-002',
-  itemCode: '256000912',
-  description: 'ERGOBLOM V2 BLUE DESK',
-  requestBy: 'BS5G',
-  quantity: 30,
-  fromLocation: 'JP2 C05-002',
-  toLocation: 'JP-0004',
-};
-
-const WAREHOUSELIST = [
-  {name: 'KEPPEL'},
-  {name: 'KEPPEL 2'},
-  {name: 'KEPPEL 3'},
-  {name: 'KEPPEL 4'},
-];
-
-const LOCATIONIDDUMMY = [
-  {id: '123123'},
-  {id: '234234'},
-  {id: '345434'},
-  {id: '4556456'},
-];
-
 const REASONCODELIST = [
-  {code: 'BATCHADJ', description: 'Batch No Adjustment'},
-  {code: 'CANCEL', description: 'CANCEL'},
-  {code: 'DAMAGED', description: 'Damaged'},
-  {code: 'EXPADJ', description: 'Expiry Date Adjustment'},
-  {code: 'EXTRA', description: 'EXTRA PACK'},
-  {code: 'LOTADJ', description: 'Lot No Adjustment'},
-  {code: 'OC', description: 'Order Cancelled'},
-  {code: 'PC', description: 'PACKING COMPLETE'},
-  {code: 'QA INSPECT', description: 'Quality Assurance Inpection'},
-  {code: 'RELOCATION', description: 'Relocation'},
-  {code: 'STK COUNT', description: 'Stock Count Adjustment'},
-  {code: 'WE', description: 'Wrong Entry'},
+  {id: 1, code: 'BATCHADJ'},
+  {id: 2, code: 'CANCEL'},
+  {id: 3, code: 'DAMAGED'},
+  {id: 4, code: 'EXPADJ'},
+  {id: 5, code: 'EXTRA'},
+  {id: 6, code: 'LOTADJ'},
+  {id: 7, code: 'OC'},
+  {id: 8, code: 'PC'},
+  {id: 9, code: 'QA INSPECT'},
+  {id: 10, code: 'RELOCATION'},
+  {id: 11, code: 'STK COUNT'},
+  {id: 12, code: 'WE'},
 ];
 
 const GRADELIST = [
-  {name: 'Pick'},
-  {name: 'Buffer'},
-  {name: 'Damage'},
-  {name: 'Defective'},
-  {name: 'Short Expiry'},
-  {name: 'Expired'},
-  {name: 'No Stock'},
-  {name: 'Reserve'},
+  {id: 1, grade: 'PICK'},
+  {id: 2, grade: 'BUFFER'},
+  {id: 3, grade: 'DAMAGE'},
+  {id: 4, grade: 'DEFECTIVE'},
+  {id: 5, grade: 'SHORT EXPIRY'},
+  {id: 6, grade: 'EXPIRED'},
+  {id: 7, grade: 'NO STOCK'},
+  {id: 8, grade: 'RESERVE'},
+  {id: 9, grade: 'SIT'},
+  {id: 10, grade: 'REWORK'},
 ];
 
 const NEWLOCATION = {
