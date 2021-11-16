@@ -141,6 +141,9 @@ class StockTakeCountDetails extends React.Component {
     const {stockTakeDetails} = this.state;
     this.props.navigation.navigate('ReportStockTakeCount', {
       productId: stockTakeDetails.id,
+      isBlankCount:
+        stockTakeDetails?.quantity === undefined ||
+        parseInt(stockTakeDetails.quantity) === 0,
     });
   };
 
@@ -160,13 +163,8 @@ class StockTakeCountDetails extends React.Component {
   };
 
   render() {
-    const {
-      stockTakeDetails,
-      isShowModal,
-      inputQuantity,
-      isShowBanner,
-      error,
-    } = this.state;
+    const {stockTakeDetails, isShowModal, inputQuantity, isShowBanner, error} =
+      this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
@@ -262,6 +260,13 @@ class StockTakeCountDetails extends React.Component {
                     titleStyle={styles.reportButtonText}
                     onPress={this.navigateToReportStockTakeCount}
                   />
+                  <Button
+                    type="clear"
+                    title="Reassign"
+                    containerStyle={styles.reportButton}
+                    titleStyle={styles.reassignButtonText}
+                    onPress={() => {}}
+                  />
                 </>
               )}
           </>
@@ -349,7 +354,7 @@ const styles = StyleSheet.create({
   button: {
     ...Mixins.bgButtonPrimary,
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   buttonText: {
     ...Mixins.subtitle3,
@@ -359,7 +364,7 @@ const styles = StyleSheet.create({
   },
   reportButton: {
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: '#6C6B6B',
   },
@@ -368,6 +373,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 25,
     color: '#E03B3B',
+  },
+  reassignButtonText: {
+    ...Mixins.subtitle3,
+    fontSize: 18,
+    lineHeight: 25,
+    color: '#121C78',
   },
   backButtonText: {
     ...Mixins.subtitle3,
