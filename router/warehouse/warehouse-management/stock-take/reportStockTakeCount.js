@@ -31,7 +31,7 @@ class StockTakeReport extends React.Component {
       reasonOption: '',
       otherReason: '',
       remarks: '',
-      quantity: '',
+      quantity: 0,
       isShowBanner: false,
       errorMessage: '',
     };
@@ -43,7 +43,6 @@ class StockTakeReport extends React.Component {
       isShowBanner: false,
       reasonOption: selectedValue,
       otherReason: '',
-      quantity: '',
     });
   };
 
@@ -73,13 +72,8 @@ class StockTakeReport extends React.Component {
       isShowBanner: false,
       errorMessage: '',
     });
-    const {
-      reasonOption,
-      otherReason,
-      remarks,
-      quantity,
-      productId,
-    } = this.state;
+    const {reasonOption, otherReason, remarks, quantity, productId} =
+      this.state;
     if (parseInt(reasonOption) === 3 && otherReason === '') {
       this.setState({
         isShowBanner: true,
@@ -182,6 +176,32 @@ class StockTakeReport extends React.Component {
     return formData;
   };
 
+  handleInput = (text) => {
+    this.setState({
+      quantity: isNaN(text)
+        ? 0
+        : /\s/g.test(text)
+        ? ''
+        : text === ''
+        ? text
+        : parseInt(text),
+    });
+  };
+
+  handlePlus = () => {
+    this.setState({
+      quantity: this.state.quantity + 1,
+    });
+  };
+
+  handleMinus = () => {
+    if (this.state.quantity > 0) {
+      this.setState({
+        quantity: this.state.quantity - 1,
+      });
+    }
+  };
+
   closeBanner = () => {
     this.setState({
       isShowBanner: false,
@@ -225,7 +245,7 @@ class StockTakeReport extends React.Component {
               checked={reasonOption === 0}
               onPress={() => this.handleReportOptions(0)}
             />
-            <CheckBox
+            {/* <CheckBox
               title="Item Missing"
               checkedIcon="dot-circle-o"
               uncheckedIcon="circle-o"
@@ -236,31 +256,34 @@ class StockTakeReport extends React.Component {
               containerStyle={styles.checkbox}
               checked={reasonOption === 1}
               onPress={() => this.handleReportOptions(1)}
-            />
-            <CheckBox
-              title="Excess Item"
-              checkedIcon="dot-circle-o"
-              uncheckedIcon="circle-o"
-              checkedColor="#2A3386"
-              uncheckedColor="#6C6B6B"
-              textStyle={Mixins.subtitle3}
-              size={25}
-              containerStyle={styles.checkbox}
-              checked={reasonOption === 4}
-              onPress={() => this.handleReportOptions(4)}
-            />
-            <CheckBox
-              title="Expired Item"
-              checkedIcon="dot-circle-o"
-              uncheckedIcon="circle-o"
-              checkedColor="#2A3386"
-              uncheckedColor="#6C6B6B"
-              textStyle={Mixins.subtitle3}
-              size={25}
-              containerStyle={styles.checkbox}
-              checked={reasonOption === 2}
-              onPress={() => this.handleReportOptions(2)}
-            />
+            /> */}
+            {this.props.route.params?.isBlankCount ? (
+              <CheckBox
+                title="Expired Item"
+                checkedIcon="dot-circle-o"
+                uncheckedIcon="circle-o"
+                checkedColor="#2A3386"
+                uncheckedColor="#6C6B6B"
+                textStyle={Mixins.subtitle3}
+                size={25}
+                containerStyle={styles.checkbox}
+                checked={reasonOption === 2}
+                onPress={() => this.handleReportOptions(2)}
+              />
+            ) : (
+              <CheckBox
+                title="Excess Item"
+                checkedIcon="dot-circle-o"
+                uncheckedIcon="circle-o"
+                checkedColor="#2A3386"
+                uncheckedColor="#6C6B6B"
+                textStyle={Mixins.subtitle3}
+                size={25}
+                containerStyle={styles.checkbox}
+                checked={reasonOption === 4}
+                onPress={() => this.handleReportOptions(4)}
+              />
+            )}
             <CheckBox
               title="Other"
               checkedIcon="dot-circle-o"
@@ -283,21 +306,37 @@ class StockTakeReport extends React.Component {
                 value={otherReason}
               />
             ) : (
-              <>
-                <Text style={[styles.title, {marginTop: 20}]}>
-                  Quantity Item
+              <View style={styles.quantityContainer}>
+                <Text style={[styles.title, {marginVertical: 20}]}>
+                  Affected Quantity
                 </Text>
-                <TextInput
-                  style={styles.textInput}
-                  onChangeText={(text) => this.setState({quantity: text})}
-                  textAlignVertical="top"
-                  keyboardType="number-pad"
-                  value={quantity}
-                />
-              </>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}>
+                  <Button
+                    title="-"
+                    buttonStyle={styles.roundButton}
+                    onPress={this.handleMinus}
+                  />
+                  <TextInput
+                    value={quantity.toString()}
+                    textAlign="center"
+                    style={styles.inputStyle}
+                    keyboardType="number-pad"
+                    onChangeText={(text) => this.handleInput(text)}
+                  />
+                  <Button
+                    title="+"
+                    buttonStyle={styles.roundButton}
+                    onPress={this.handlePlus}
+                  />
+                </View>
+              </View>
             )}
           </View>
-          <View style={styles.contentContainer}>
+          <View style={[styles.contentContainer, {paddingTop: 10}]}>
             <Text style={styles.title}>Remarks</Text>
             <TextInput
               style={styles.textInput}
@@ -425,6 +464,27 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 2,
     right: 2,
+  },
+  quantityContainer: {
+    flex: 1,
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  inputStyle: {
+    width: 70,
+    height: 40,
+    marginHorizontal: 10,
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: '#ABABAB',
+  },
+  roundButton: {
+    ...Mixins.bgButtonPrimary,
+    width: 40,
+    height: 40,
+    borderRadius: 40,
   },
 });
 
