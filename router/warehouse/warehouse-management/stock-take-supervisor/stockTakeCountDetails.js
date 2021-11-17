@@ -117,6 +117,8 @@ class StockTakeCountDetails extends React.Component {
   };
 
   confirmStockTake = async () => {
+    this.props.navigation.navigate('StockTakeCountList');
+    return;
     const {inputQuantity, stockTakeDetails} = this.state;
     const {stockTakeId} = this.props;
     const data = {
@@ -181,13 +183,8 @@ class StockTakeCountDetails extends React.Component {
   };
 
   render() {
-    const {
-      stockTakeDetails,
-      isShowModal,
-      inputQuantity,
-      isShowBanner,
-      error,
-    } = this.state;
+    const {stockTakeDetails, isShowModal, inputQuantity, isShowBanner, error} =
+      this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
@@ -275,6 +272,63 @@ class StockTakeCountDetails extends React.Component {
               disabledStyle={{backgroundColor: '#ABABAB'}}
               disabledTitleStyle={{color: '#FFF'}}
             />
+            <Button
+              title="Re-Enter Quantity"
+              titleStyle={styles.buttonText}
+              buttonStyle={styles.reenterButton}
+              onPress={this.handleShowModal}
+            />
+          </>
+        )}
+        {isShowModal && (
+          <>
+            <View style={styles.overlay} />
+            <View style={styles.modal}>
+              <Text style={[Mixins.h4, {marginBottom: 10}]}>
+                Re-Enter Quantity
+              </Text>
+              <View style={styles.counterContainer}>
+                <Text style={Mixins.h4}>Qty</Text>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Button
+                    title="-"
+                    buttonStyle={styles.roundButton}
+                    onPress={this.handleMinus}
+                  />
+                  <TextInput
+                    value={inputQuantity.toString()}
+                    textAlign="center"
+                    style={styles.inputStyle}
+                    keyboardType="number-pad"
+                    onChangeText={(text) => this.handleInput(text)}
+                  />
+                  <Button
+                    title="+"
+                    buttonStyle={styles.roundButton}
+                    onPress={this.handlePlus}
+                  />
+                </View>
+              </View>
+              <Button
+                title="Confirm"
+                titleStyle={styles.buttonText}
+                buttonStyle={[styles.button, {marginHorizontal: 0}]}
+                onPress={this.confirmStockTake}
+                disabled={inputQuantity < 1}
+                disabledStyle={{backgroundColor: '#ABABAB'}}
+                disabledTitleStyle={{color: '#FFF'}}
+              />
+              <Button
+                type="clear"
+                title="Back"
+                titleStyle={styles.backButtonText}
+                buttonStyle={[
+                  styles.reportButton,
+                  {marginHorizontal: 0, marginBottom: 0},
+                ]}
+                onPress={this.handleShowModal}
+              />
+            </View>
           </>
         )}
       </SafeAreaProvider>
@@ -310,6 +364,11 @@ const styles = StyleSheet.create({
   },
   button: {
     ...Mixins.bgButtonPrimary,
+    marginHorizontal: 20,
+    marginBottom: 20,
+  },
+  reenterButton: {
+    backgroundColor: '#121C78',
     marginHorizontal: 20,
     marginBottom: 20,
   },
