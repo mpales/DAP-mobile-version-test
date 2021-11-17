@@ -246,41 +246,48 @@ class StockTakeCountDetails extends React.Component {
                 navigate={this.navigateToStockTakeReportDetails}
               />
             </Card>
-            {stockTakeDetails.status !== 'Completed' &&
-              stockTakeDetails.status !== 'Reported' && (
-                <>
-                  {stockTakeDetails?.quantity === undefined ||
-                  parseInt(stockTakeDetails.quantity) === 0 ? (
+            {stockTakeDetails.status !== 'Completed' && (
+              <>
+                {stockTakeDetails.status !== 'Reported' && (
+                  <>
+                    {stockTakeDetails?.quantity === undefined ||
+                    parseInt(stockTakeDetails.quantity) === 0 ? (
+                      <Button
+                        title="Enter Quantity"
+                        titleStyle={styles.buttonText}
+                        buttonStyle={styles.button}
+                        onPress={this.handleShowModal}
+                      />
+                    ) : (
+                      <Button
+                        title="Confirm Quantity"
+                        titleStyle={styles.buttonText}
+                        buttonStyle={styles.button}
+                        onPress={this.confirmStockTake}
+                      />
+                    )}
+                  </>
+                )}
+                <Button
+                  type="clear"
+                  title="Report"
+                  containerStyle={styles.reportButton}
+                  titleStyle={styles.reportButtonText}
+                  onPress={this.navigateToReportStockTakeCount}
+                />
+                {stockTakeDetails.status !== 'Reported' && (
+                  <>
                     <Button
-                      title="Enter Quantity"
-                      titleStyle={styles.buttonText}
-                      buttonStyle={styles.button}
-                      onPress={this.handleShowModal}
+                      type="clear"
+                      title="Reassign"
+                      containerStyle={styles.reportButton}
+                      titleStyle={styles.reassignButtonText}
+                      onPress={this.navigateToReassignStockTakeCount}
                     />
-                  ) : (
-                    <Button
-                      title="Confirm Quantity"
-                      titleStyle={styles.buttonText}
-                      buttonStyle={styles.button}
-                      onPress={this.confirmStockTake}
-                    />
-                  )}
-                  <Button
-                    type="clear"
-                    title="Report"
-                    containerStyle={styles.reportButton}
-                    titleStyle={styles.reportButtonText}
-                    onPress={this.navigateToReportStockTakeCount}
-                  />
-                  <Button
-                    type="clear"
-                    title="Reassign"
-                    containerStyle={styles.reportButton}
-                    titleStyle={styles.reassignButtonText}
-                    onPress={this.navigateToReassignStockTakeCount}
-                  />
-                </>
-              )}
+                  </>
+                )}
+              </>
+            )}
           </>
         )}
         {isShowModal && (
