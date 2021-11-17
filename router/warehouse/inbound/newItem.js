@@ -334,8 +334,8 @@ class Acknowledge extends React.Component {
                 inputStyle={Mixins.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                 onChangeText={(text)=>{this.setState({volweight:text})}}
-                value={volweight}
-                disabled={volweight === '' ? true : false}
+                value={String(parseFloat(volweight).toFixed(2))}
+                disabled={true}
             />
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>

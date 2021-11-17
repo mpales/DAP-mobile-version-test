@@ -140,13 +140,13 @@ const Manifest = ({item, index, ToManifest}) => {
         >
           <ListItem.Content style={styles.sectionContainer}>
                     <Text style={{...Mixins.small1,lineHeight: 18,color: '#ABABAB', fontWeight: '400'}}>
-                    25-07-2021
+                    {moment(item.date).format("DD-MM-YYYY")}
                     </Text>
                     <Text style={{...Mixins.body1,lineHeight: 21,color: '#424141', fontWeight: '600'}}>
-                        {item.code}
+                        {item.pallet}
                     </Text>
                     <Text style={{...Mixins.body1,lineHeight: 21,color: '#424141', fontWeight: '600'}}>
-                       {item.location}
+                       {item.warehouse}
                     </Text>
                     
     
@@ -166,7 +166,7 @@ const Manifest = ({item, index, ToManifest}) => {
                     />)}
                     onPress={ToManifest}
                 />
-            <Badge value={item.category} status="warning" textStyle={{...Mixins.small3,fontWeight: '700',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end'}} badgeStyle={{backgroundColor: '#121C78'}} />
+           <Badge value={item.type === 1 ? 'ASN' : item.type === 2 ? 'GRN' : item.type === 3 ? 'OTHERS' : 'TRANSIT'} status="warning" textStyle={{...Mixins.small3,fontWeight: '700',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-start'}} badgeStyle={{backgroundColor: item.type === 1 ? '#121C78' : item.type === 2 ? '#F07120' : item.type === 3 ? 'white' : '#17B055', borderColor:'#ABABAB', borderWidth:item.type === 1 ? 0 : item.type === 2 ? 0 : item.type === 3 ? 1 : 0, borderRadius:5}} />
         </View>
       </ListItem>
     </ThemeProvider>
