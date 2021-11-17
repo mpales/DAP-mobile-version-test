@@ -2,13 +2,21 @@ import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Mixins from '../../mixins';
 
-export const TextList = ({title, value}) => (
+export const TextList = ({title, value, color}) => (
   <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
     <View style={{width: 100}}>
       <Text style={styles.titleText}>{title}</Text>
     </View>
-    <Text style={styles.separatorText}>:</Text>
-    <Text style={styles.valueText}>{value}</Text>
+    {!!color ? (
+      <Text style={[styles.valueText, {color: color, marginLeft: 10}]}>
+        {value}
+      </Text>
+    ) : (
+      <>
+        <Text style={styles.separatorText}>:</Text>
+        <Text style={styles.valueText}>{value}</Text>
+      </>
+    )}
   </View>
 );
 
