@@ -39,6 +39,7 @@ class StockTakeCountDetails extends React.Component {
       isShowModal: false,
       error: '',
       isShowBanner: false,
+      isSubmitted: false,
     };
     this.handleShowModal.bind(this);
     this.confirmStockTake.bind(this);
@@ -65,8 +66,12 @@ class StockTakeCountDetails extends React.Component {
   }
 
   componentWillUnmount() {
-    const {stockTakeDetails} = this.state;
-    if (stockTakeDetails !== null && stockTakeDetails.status === 'Waiting') {
+    const {stockTakeDetails, isSubmitted} = this.state;
+    if (
+      stockTakeDetails !== null &&
+      stockTakeDetails.status === 'Waiting' &&
+      !isSubmitted
+    ) {
       this.lockUnlockProduct(2);
     }
   }
@@ -124,6 +129,9 @@ class StockTakeCountDetails extends React.Component {
       data,
     );
     if (result?.message === 'Stock Count successfully confirmed') {
+      this.setState({
+        isSubmitted: true,
+      });
       this.props.navigation.navigate('StockTakeCountList');
     } else {
       if (result.errors !== undefined && typeof result.errors === 'object') {
