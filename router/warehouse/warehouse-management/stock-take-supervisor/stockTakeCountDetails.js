@@ -285,30 +285,34 @@ class StockTakeCountDetails extends React.Component {
                 navigate={this.navigateToStockTakeReportDetails}
               />
             </Card>
-            <CheckBox
-              title="I Acknowledge Item Report"
-              textStyle={[styles.text, {textAlign: 'left'}]}
-              containerStyle={styles.checkboxContainer}
-              checked={this.state.isChecked}
-              onPress={this.toggleCheckBox}
-              checkedIcon={this.checkedIcon()}
-              uncheckedIcon={this.uncheckedIcon()}
-            />
-            <Button
-              title="Confirm"
-              titleStyle={styles.buttonText}
-              buttonStyle={styles.button}
-              onPress={this.confirmStockTake}
-              disabled={!this.state.isChecked}
-              disabledStyle={{backgroundColor: '#ABABAB'}}
-              disabledTitleStyle={{color: '#FFF'}}
-            />
-            <Button
-              title="Re-Enter Quantity"
-              titleStyle={styles.buttonText}
-              buttonStyle={styles.reenterButton}
-              onPress={this.handleShowModal}
-            />
+            {stockTakeDetails.status !== 'Completed' && (
+              <>
+                <CheckBox
+                  title="I Acknowledge Item Report"
+                  textStyle={[styles.text, {textAlign: 'left'}]}
+                  containerStyle={styles.checkboxContainer}
+                  checked={this.state.isChecked}
+                  onPress={this.toggleCheckBox}
+                  checkedIcon={this.checkedIcon()}
+                  uncheckedIcon={this.uncheckedIcon()}
+                />
+                <Button
+                  title="Confirm"
+                  titleStyle={styles.buttonText}
+                  buttonStyle={styles.button}
+                  onPress={this.confirmStockTake}
+                  disabled={!this.state.isChecked}
+                  disabledStyle={{backgroundColor: '#ABABAB'}}
+                  disabledTitleStyle={{color: '#FFF'}}
+                />
+                <Button
+                  title="Re-Enter Quantity"
+                  titleStyle={styles.buttonText}
+                  buttonStyle={styles.reenterButton}
+                  onPress={this.handleShowModal}
+                />
+              </>
+            )}
           </ScrollView>
         )}
         {isShowModal && (

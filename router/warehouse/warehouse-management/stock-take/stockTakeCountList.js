@@ -187,6 +187,7 @@ class StockTakeCountList extends React.Component {
       isRefreshing,
       isShowModal,
     } = this.state;
+    console.log(jobData);
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
@@ -324,16 +325,18 @@ class StockTakeCountList extends React.Component {
               style={{marginBottom: 70}}
               ListEmptyComponent={this.renderEmpty}
             />
-            <View style={styles.bottomButtonContainer}>
-              <Button
-                title="Complete Stock Take"
-                titleStyle={styles.buttonText}
-                buttonStyle={styles.button}
-                onPress={() => this.handleShowModal(true)}
-                disabledStyle={{backgroundColor: '#ABABAB'}}
-                disabledTitleStyle={{color: '#FFF'}}
-              />
-            </View>
+            {jobData.status !== 'Completed' && (
+              <View style={styles.bottomButtonContainer}>
+                <Button
+                  title="Complete Stock Take"
+                  titleStyle={styles.buttonText}
+                  buttonStyle={styles.button}
+                  onPress={() => this.handleShowModal(true)}
+                  disabledStyle={{backgroundColor: '#ABABAB'}}
+                  disabledTitleStyle={{color: '#FFF'}}
+                />
+              </View>
+            )}
             {isShowModal && (
               <Overlay
                 fullScreen={false}

@@ -323,16 +323,18 @@ class StockTakeCountList extends React.Component {
               style={{marginBottom: 70}}
               ListEmptyComponent={this.renderEmpty}
             />
-            <View style={styles.bottomButtonContainer}>
-              <Button
-                title="Complete Recount"
-                titleStyle={styles.buttonText}
-                buttonStyle={styles.button}
-                onPress={() => this.handleShowModal(true)}
-                disabledStyle={{backgroundColor: '#ABABAB'}}
-                disabledTitleStyle={{color: '#FFF'}}
-              />
-            </View>
+            {jobData.status !== 'Completed' && (
+              <View style={styles.bottomButtonContainer}>
+                <Button
+                  title="Complete Recount"
+                  titleStyle={styles.buttonText}
+                  buttonStyle={styles.button}
+                  onPress={() => this.handleShowModal(true)}
+                  disabledStyle={{backgroundColor: '#ABABAB'}}
+                  disabledTitleStyle={{color: '#FFF'}}
+                />
+              </View>
+            )}
             {isShowModal && (
               <Overlay
                 fullScreen={false}
