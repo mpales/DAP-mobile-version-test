@@ -23,8 +23,10 @@ import CheckmarkIcon from '../../../assets/icon/iconmonstr-check-mark-8mobile.sv
 import XMarkIcon from '../../../assets/icon/iconmonstr-x-mark-7mobile.svg';
 import Mixins from '../../../mixins';
 import moment from 'moment';
+import {postData} from '../../../component/helper/network';
 import {connect} from 'react-redux';
 import MultipleSKUList from '../../../component/extend/ListItem-inbound-multiple-sku';
+import Banner from '../../../component/banner/banner';
 const screen = Dimensions.get('screen');
 const grade = ["Pick", "Buffer", "Damage", "Defective", "Short Expiry", "Expired", "No Stock", "Reserve"];
 const pallet = ["PLDAP 0091", "PLDAP 0092", "PLDAP 0093", "PLDAP 0094"];
@@ -37,9 +39,13 @@ class Example extends React.Component {
       qty: 0,
       scanItem: '0',
       dataItem: null,
+      elementProduct : null,
       locationItem: null,
+      suggestionLocation : null,
       confirmScanned:false,
       detectBarcodeToState: true,
+      dynamicheight : 200,
+      errors: '',
     };
     this.handleResetAnimation.bind(this);
     this.handleZoomInAnimation.bind(this);
@@ -57,27 +63,21 @@ class Example extends React.Component {
     if(scanItem === '0'){
       if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined) {
         setBarcodeScanner(true);
-        let item = putawayList.find((element)=>element.code === routes[index].params.inputCode);  
-        return {...state, scanItem: routes[index].params.inputCode, locationItem: item.location, detectBarcodeToState: true};
+        let item = putawayList.find((element)=>element.id === routes[index].params.inputCode);  
+        let products = null;
+        if(routes[index].params.productIndex !== undefined){
+          products = item.products[routes[index].params.productIndex]
+        }
+        return {...state, scanItem: routes[index].params.inputCode, suggestionLocation :item.suggestedLocation,  locationItem: item.warehouse, detectBarcodeToState: true, elementProduct : routes[index].params.productIndex !== undefined ? products : null};
       } 
       return {...state, detectBarcodeToState: true};
     } 
     return {...state, detectBarcodeToState: detectBarcode};
   }
-  shouldComponentUpdate(nextProps, nextState) {
-    if(nextState.dataCode !== '0' && nextState.scanItem !== null && nextProps.detectBarcode === false && nextState.dataItem === null){
-      if(nextState.dataCode === nextState.scanItem) {
-        return true;
-      } else if (nextState.dataCode !== nextState.scanItem){
-        nextProps.setBarcodeScanner(true);
-        return false;
-      }
-    }
-     return true;
-   }
-  componentDidUpdate(prevProps, prevState) {
+ 
+  async componentDidUpdate(prevProps, prevState) {
     const {putawayList,detectBarcode, currentASN, navigation, setBarcodeScanner} = this.props;
-    const {dataCode,scanItem, dataItem} = this.state;
+    const {dataCode,scanItem,suggestionLocation, dataItem} = this.state;
     if(prevProps.detectBarcode !== detectBarcode){
       if(detectBarcode) {
         this.handleResetAnimation();
@@ -85,13 +85,11 @@ class Example extends React.Component {
         this.handleZoomInAnimation();
       }
     }
- 
-    if (dataCode === scanItem && dataCode !== 0 && dataItem === null && putawayList.some((element) => element.code === dataCode)) {
-        let foundIndex = putawayList.filter((element) => element.code === dataCode);
-        let indexItem = putawayList.findIndex((element)=>element.code === dataCode);
-        let item = putawayList.find((element)=>element.code === dataCode);  
-        this.props.setBarcodeScanner(false);
-        this.setState({dataItem: item, qty : item.scanned, ItemGrade: item.grade, indexItem: indexItem});
+    if(dataCode !== '0' && scanItem !== null && detectBarcode === false && dataItem === null){
+    
+      let item = putawayList.find((element)=>element.id === scanItem);  
+      this.props.setBarcodeScanner(false);
+      this.setState({dataItem: item});
     }
   }
 
@@ -174,37 +172,38 @@ class Example extends React.Component {
                <View
                       style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>
-                        {dataItem.code}
+                        <Text style={[styles.labelPackage,{fontSize:18,fontWeight:'700', lineHeight:28}]}>
+                        {dataItem.pallet}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>
-                        {dataItem.location}
+                        <Text style={styles.labelPackage}>Warehouse</Text>
+                        <Text style={styles.infoPackage}>
+                        {dataItem.warehouse}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Location</Text>
                         <Text style={styles.infoPackage}>
-                          AB-2-5
+                        {this.state.dataCode}
                         </Text>
                       </View>
               
                     </View>
                 
               </View>
-            ) : (
+            ) : confirmScanned === true ?  (
               <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
                <View
                       style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                      <View style={styles.dividerContent}>
-                        <Text style={styles.infoPackage}>
-                        {dataItem.code}
+                       <Text style={[styles.infoPackage,{fontSize:18,fontWeight:'700', lineHeight:28}]}>
+                        {dataItem.pallet}
                         </Text>
                       </View>
                 </View>
               </View>
-            )}
+            ) : null}
             <View style={styles.buttonSheetContainer}>
               {(dataItem !== null && confirmScanned === false) &&  (
                     <Button
@@ -212,7 +211,7 @@ class Example extends React.Component {
                       buttonStyle={styles.navigationButton}
                       titleStyle={styles.deliveryText}
                       onPress={this.onSubmit}
-                      title="Confirm"
+                      title="Confirm Check In"
                     />
               )}
               <View style={styles.buttonSheet}>
@@ -222,21 +221,24 @@ class Example extends React.Component {
                  containerStyle={{flex: 1, marginTop: 10, marginRight: 5}}
                  buttonStyle={styles.cancelButton}
                  titleStyle={styles.reportText}
-                 onPress={() => {
-                   this.props.setBottomBar(true);
-                   this.props.navigation.navigate({
-                     name: 'ReportManifest',
-                     params: {
-                         dataCode: scanItem,
-                     }
-                   })}}
+                //  onPress={() => {
+                //    this.props.setBottomBar(true);
+                //    this.props.navigation.navigate({
+                //      name: 'ReportManifest',
+                //      params: {
+                //          dataCode: scanItem,
+                //      }
+                //    })}}
                  title="Report Item"
                />
                <Button
                  containerStyle={{flex: 1, marginTop: 10, marginLeft: 5}}
                  buttonStyle={styles.cancelButton}
                  titleStyle={styles.backText}
-                 onPress={()=>this.props.navigation.goBack()}
+                 onPress={()=>{
+                   this.props.setBarcodeScanner(true);
+                  this.setState({confirmScanned : false,dataCode: '0', dataItem : null, errors: '' });
+                 }}
                  title="Cancel"
                />
                </>
@@ -260,16 +262,55 @@ class Example extends React.Component {
   renderInner = () => (
     <View style={styles.sheetContainer}>
       <View style={styles.sectionSheetDetail}>
-        <View style={styles.sheetPackages}>
-            <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
-                <View style={styles.dividerContent}>
-                  <Text style={styles.labelNotFound}>{this.state.locationItem}</Text>
+        <View style={styles.sheetPackages}
+        onLayout={(e)=> this.setState({dynamicheight:e.nativeEvent.layout.height+180})}
+        >
+               { this.state.elementProduct === null ? ( 
+              <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
+               <View style={styles.dividerContent}>
+               <Text style={styles.labelNotFound}>Warehouse</Text>
+                  <Text style={styles.infoNotFound}>{this.state.locationItem}</Text>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Location</Text>
-                  <Text style={styles.infoNotFound}>AB-2-5</Text>
+                  <Text style={styles.infoNotFound}>{this.state.suggestionLocation}</Text>
                 </View>
-            </View>
+                </View>) : (
+                  <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Item Code</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{this.state.elementProduct.itemCode}</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Description</Text>
+                <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{this.state.elementProduct.description}</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Stock Grade</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{this.state.elementProduct.grade}</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>UOM</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{this.state.elementProduct.uom}</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Qty</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{this.state.elementProduct.qty}</Text>
+                  </View>
+                </View>
+                </View>
+
+                )}
+
             
         </View>
         <View style={[styles.buttonSheet,{marginVertical:40}]}>
@@ -277,14 +318,14 @@ class Example extends React.Component {
           containerStyle={{flex:1, marginTop: 10,marginRight: 5,}}
           buttonStyle={styles.cancelButton}
                       titleStyle={styles.reportText}
-          onPress={() => {
-            this.props.setBottomBar(true);
-            this.props.navigation.navigate({
-              name: 'ReportManifest',
-              params: {
-                  dataCode: this.state.scanItem,
-              }
-            })}}
+          // onPress={() => {
+          //   this.props.setBottomBar(true);
+          //   this.props.navigation.navigate({
+          //     name: 'ReportManifest',
+          //     params: {
+          //         dataCode: this.state.scanItem,
+          //     }
+          //   })}}
           title="Report Item"
         />
         </View>
@@ -305,11 +346,21 @@ class Example extends React.Component {
   };
   onGoToList = ()=>{
     this.props.setBarcodeScanner(true);
-    this.props.navigation.navigate('Manifest');
+    this.props.navigation.navigate('PalletDetails');
   }
-  onSubmit = () => {
+  closeErrorBanner = ()=>{
+    this.setState({errors:''});
+  }
+  onSubmit = async () => {
     const {dataCode,qty, scanItem, ItemGrade} = this.state;
-    this.setState({confirmScanned : true});
+    const resultSubmit = await postData("inboundsMobile/putaways/"+ scanItem, {location:this.state.dataCode});
+    console.log(resultSubmit);
+    if(typeof resultSubmit === 'object' && resultSubmit.error !== undefined){
+      this.props.setBarcodeScanner(true);
+      this.setState({confirmScanned : false,dataCode: '0', dataItem : null, errors: resultSubmit.error });
+    } else {
+      this.setState({confirmScanned : true});
+    }
   }
 
   render() {
@@ -317,6 +368,11 @@ class Example extends React.Component {
     const {detectBarcode} = this.props;
     return (
       <View style={styles.container}>
+           {this.state.errors !== '' && (<Banner
+            title={this.state.errors}
+            backgroundColor="#F1811C"
+            closeBanner={this.closeErrorBanner}
+          />)}
         {detectBarcodeToState === false ? (
           <this.renderModal/>
         ) : (          <Modalize 
@@ -324,14 +380,14 @@ class Example extends React.Component {
           handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
           handlePosition={'inside'}
           disableScrollIfPossible={true}
-          modalHeight={200}
-          alwaysOpen={200}
+          modalHeight={this.state.dynamicheight}
+          alwaysOpen={this.state.dynamicheight}
           HeaderComponent={<this.renderHeader />}
         >
           <this.renderInner />
         </Modalize>)}
         <TouchableWithoutFeedback onPress={() => {}}>
-          <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} />
+          <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} useManualMenu={false} barcodeContext={"Scan barcode Here"}/>
         </TouchableWithoutFeedback>
       </View>
     );
@@ -449,7 +505,7 @@ const styles = StyleSheet.create({
   },
    
   labelNotFound: {
-    minWidth: 110,
+    minWidth: 140,
     ...Mixins.h6,
     color: '#2D2C2C',
     fontWeight: '500',
@@ -517,19 +573,17 @@ const styles = StyleSheet.create({
     lineHeight: 40,
   },
   modalContainerAll: {
-    flexGrow: 1,
+    flexShrink: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
     minHeight: (screen.height * 40) / 100,
-    maxHeight: (screen.height * 40) / 100,
     borderRadius: 10,
   },
   modalContainerSmall: {
-    flexGrow: 1,
+    flexShrink: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
     minHeight: (screen.height * 40) / 100,
-    maxHeight: (screen.height * 40) / 100,
     borderRadius: 10,
   },
   modalHeader: {

@@ -6,7 +6,8 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View, 
+    RefreshControl
 } from 'react-native';
 import {
     Card,
@@ -35,7 +36,9 @@ class List extends React.Component {
         this.state = {
             search: '',
             filtered : 0,
+            list : [],
             renderGoBack : false,
+            renderRefresh : false,
         };
 
     this.updateASN.bind(this);
@@ -50,9 +53,9 @@ class List extends React.Component {
     }
     updateASN = async ()=>{
         this.setState({renderGoBack: false});
-        const result = ASN;
+        const result = await getData('inboundsMobile/putaways');;
         if(Array.isArray(result)){
-            return result.filter((element)=> element.inbound_asn !== null );
+            return result.filter((element)=> element !== null );
         } else {
             return [];
         }
@@ -68,38 +71,43 @@ class List extends React.Component {
         return true;
     }
     async componentDidUpdate(prevProps, prevState, snapshot) {
-        let filtered = prevState.renderGoBack !== this.state.renderGoBack || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
+        if(prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true){
+            const resultedList =  await this.updateASN();
+            this.props.setPutawayList(resultedList);
+        }
+        const {putawayList} = this.props;
+        let filtered = (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) ||( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) ||prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
         if(filtered === 0) {
-            let AllASN = await this.updateASN();
-            this.props.setPutawayList(AllASN.filter((element)=> element.code.indexOf(this.state.search) > -1));
+            this.setState({list:putawayList.filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         } else if(filtered === 1){
-            let PendingASN = await this.updateASN();
-            this.props.setPutawayList(PendingASN.filter((element)=> element.category === 'ASN').filter((element)=> element.code.indexOf(this.state.search) > -1));
+            this.setState({list:putawayList.filter((element)=> element.type === 1).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         } else if(filtered === 2){
-            let ProgressASN = await this.updateASN();
-            this.props.setPutawayList(ProgressASN.filter((element)=> element.category === 'GRN').filter((element)=> element.code.indexOf(this.state.search)> -1));
+            this.setState({list:putawayList.filter((element)=> element.type === 2).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }else if(filtered === 3){
-            let CompleteASN = await this.updateASN();
-            this.props.setPutawayList(CompleteASN.filter((element)=> element.category === 'OTHERS').filter((element)=> element.code.indexOf(this.state.search) > -1));
+            this.setState({list:putawayList.filter((element)=> element.type === 3).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
+        }else if(filtered === 4){
+            this.setState({list:putawayList.filter((element)=> element.type === 4).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }
         
     }
     async componentDidMount() {
-
+        const resultedList =  await this.updateASN();
+        this.props.setPutawayList(resultedList);
         const {filtered} = this.state;
         if(filtered === 0) {
-            let AllASN = await this.updateASN();
-            this.props.setPutawayList(AllASN.filter((element)=> element.code.indexOf(this.state.search) > -1));
+            this.setState({list:resultedList.filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         } else if(filtered === 1){
-            let PendingASN = await this.updateASN();
-            this.props.setPutawayList(PendingASN.filter((element)=> element.category === 'ASN').filter((element)=> element.code.indexOf(this.state.search) > -1));
+            this.setState({list:resultedList.filter((element)=> element.type === 1).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         } else if(filtered === 2){
-            let ProgressASN = await this.updateASN();
-            this.props.setPutawayList(ProgressASN.filter((element)=> element.category === 'GRN').filter((element)=> element.code.indexOf(this.state.search)> -1));
+            this.setState({list:resultedList.filter((element)=> element.type === 2).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }else if(filtered === 3){
-            let CompleteASN = await this.updateASN();
-            this.props.setPutawayList(CompleteASN.filter((element)=> element.category === 'OTHERS').filter((element)=> element.code.indexOf(this.state.search) > -1));
+            this.setState({list:resultedList.filter((element)=> element.type === 3).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
+        }else if(filtered === 4){
+            this.setState({list:resultedList.filter((element)=> element.type === 4).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }
+    }
+    _onRefresh = () => {
+        this.setState({renderRefresh: true});
     }
     render() {
         return(
@@ -107,6 +115,12 @@ class List extends React.Component {
                 <StatusBar barStyle="dark-content" />
                 <ScrollView 
                     style={styles.body} 
+                    refreshControl={<RefreshControl
+                        colors={["#9Bd35A", "#689F38"]}
+                        refreshing={this.state.renderRefresh}
+                        onRefresh={this._onRefresh.bind(this)}
+                    />
+                }
                     showsVerticalScrollIndicator={false}
                 >
                         <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141', paddingHorizontal: 20, marginTop: 15}}>Search</Text>
@@ -166,15 +180,22 @@ class List extends React.Component {
                     badgeStyle={this.state.filtered === 3 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
+                     <Badge
+                    value="TRANSIT"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(4)}
+                    badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
+                    textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+                    />
                             </View>
                             {
-                            this.props.putawayList.length === 0 ? 
+                            this.state.list.length === 0 ? 
                             (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
                               <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
                               <Text style={{  ...Mixins.subtitle3,}}>Scroll down to Refresh</Text>
                               </View>)
                             :
-                            this.props.putawayList.map((data, i, arr) => {
+                            this.state.list.map((data, i, arr) => {
                                 return (
                                     <Putaway 
                                     key={i} 
@@ -185,7 +206,7 @@ class List extends React.Component {
                                         this.props.navigation.navigate(   {
                                             name: 'PalletDetails',
                                             params: {
-                                              dataCode: data.code,
+                                              dataCode: data.id,
                                             },
                                           });
                                     }}

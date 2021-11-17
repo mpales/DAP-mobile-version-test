@@ -45,6 +45,7 @@ class Example extends React.Component {
       productDescription : null,
       detectBarcodeToState: true,
       error : '',
+      dynamicheight : 200,
     };
     this.handleResetAnimation.bind(this);
     this.handleZoomInAnimation.bind(this);
@@ -207,9 +208,11 @@ class Example extends React.Component {
                       </View>
                       <View style={styles.dividerContent}>
                       <Text style={styles.labelPackage}>Description</Text>
-                        <Text style={styles.infoPackage}>
-                          {dataItem.description}
+                       <View style={{flexDirection:'row', flexShrink:1}}> 
+                       <Text style={styles.infoPackage}>
+                       {dataItem.description}
                         </Text>
+                        </View>
                       </View>
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Barcode</Text>
@@ -261,7 +264,12 @@ class Example extends React.Component {
               </View>
               <View style={styles.dividerContent}>
                 <Text style={styles.labelNotFound}>Description</Text>
-                <Text style={styles.infoNotFound}>{this.state.productDescription}</Text>
+                <View 
+                onLayout={(e)=>{
+                  this.setState({dynamicheight:e.nativeEvent.layout.height+180})
+                }}
+                style={{flexDirection:'row', flexShrink:1}}><Text style={styles.infoNotFound}>{this.state.productDescription}</Text>
+                </View>
               </View>
           </View>
           
@@ -339,15 +347,15 @@ class Example extends React.Component {
           ref={this.modalizeRef}
           handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
           handlePosition={'inside'}
-          disableScrollIfPossible={true}
-          modalHeight={200}
-          alwaysOpen={200}
+          disableScrollIfPossible={false}
+          modalHeight={this.state.dynamicheight}
+          alwaysOpen={this.state.dynamicheight}
           HeaderComponent={<this.renderHeader />}
         >
           <this.renderInner />
         </Modalize>)}
         <TouchableWithoutFeedback onPress={() => {}}>
-          <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} />
+          <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation}  useManualMenu={false} barcodeContext={"Scan Item Barcode Here"} />
         </TouchableWithoutFeedback>
       </View>
     );
@@ -533,11 +541,10 @@ const styles = StyleSheet.create({
     lineHeight: 40,
   },
   modalContainerAll: {
-    flexGrow: 1,
+    flexShrink: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
     minHeight: (screen.height * 40) / 100,
-    maxHeight: (screen.height * 40) / 100,
     borderRadius: 10,
   },
   modalContainerSmall: {

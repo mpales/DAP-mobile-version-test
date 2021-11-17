@@ -384,13 +384,18 @@ class CameraScreen extends React.Component {
           }}>
             
           <View style={styles.rectangleContainer}>
-            <View style={styles.rectangle}>
-              <View style={styles.rectangleColor} />
-              <View style={styles.topLeft} />
-              <View style={styles.topRight} />
-              <View style={styles.bottomLeft} />
-              <View style={styles.bottomRight} />
-            </View>
+              <View style={[styles.rectangle,{flexGrow:1, flexDirection:'column'}]}>
+              <View style={{flexShrink:1,justifyContent:'center', alignItems:'center',position:'relative'}}>
+                <View style={{position:'absolute', bottom:20, }}>
+                  <Text style={{...Mixins.h6, color:'white', textAlign:'center'}}>{this.props.barcodeContext !== undefined ? this.props.barcodeContext : null}</Text>
+                  </View>
+                </View>
+                <View style={styles.rectangleColor} />
+                <View style={styles.topLeft} />
+                <View style={styles.topRight} />
+                <View style={styles.bottomLeft} />
+                <View style={styles.bottomRight} />
+              </View>
           </View>
         </View>
       { this.props.useManualMenu === true && (<View

@@ -9,12 +9,14 @@ import {
 } from 'react-native';
 import {Card, Badge, Avatar} from 'react-native-elements';
 import {connect} from 'react-redux';
+import moment from 'moment'
 import Mixins from '../../../../mixins';
 // component
 import DetailList from '../../../../component/extend/Card-detail';
 // icon
 import IconBarcodeMobile from '../../../../assets/icon/iconmonstr-barcode-3 2mobile.svg';
-
+import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
+import EmptyIlustrate from '../../../../assets/icon/manifest-empty mobile.svg';
 class ConnoteDetails extends React.Component {
   constructor(props) {
     super(props);
@@ -30,8 +32,8 @@ class ConnoteDetails extends React.Component {
     if(dataCode === '0'){
       const {routes, index} = navigation.dangerouslyGetState();
       if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-        if( putawayList.some((element)=> element.code === routes[index].params.dataCode)){
-          let manifest = putawayList.find((element)=>element.code === routes[index].params.dataCode);
+        if( putawayList.some((element)=> element.id === routes[index].params.dataCode)){
+          let manifest = putawayList.find((element)=>element.id === routes[index].params.dataCode);
           return {...state, dataCode: routes[index].params.dataCode, _itemDetail:manifest};    
         }
         return {...state, dataCode: routes[index].params.dataCode};
@@ -51,7 +53,7 @@ class ConnoteDetails extends React.Component {
   renderHeader = () => {
     const {_itemDetail} = this.state;
     return (
-      <View style={{backgroundColor:'white'}}>
+      <View style={{backgroundColor:'white', paddingHorizontal:10}}>
       
            <View style={styles.header}>
             <Text style={styles.headerTitle}>Product</Text>
@@ -61,70 +63,102 @@ class ConnoteDetails extends React.Component {
     );
   };
 
-  renderInner = (item) => {
-    return (
-            <Card containerStyle={styles.cardContainer} style={styles.card}>
-              <View style={styles.header}>
-                <Text style={styles.packageCounterText}>DSP -Dead Sea Premire</Text>
-              </View>
-              <View style={styles.detail}>
-                <DetailList title="Item Code" value="HTM 1234567" />
-                <DetailList title="Description" value="Sugar Yum 18gr" />
-                <DetailList title="Stock Grade" value="Pick" />
-                <DetailList title="UOM" value="Pcs" />
-                <DetailList
-                  title="Qty"
-                  value="12"
-                />
+  renderInner = (item,index) => {
+    return (<TouchableOpacity
+        disabled={this.state._itemDetail.type === 2 ? false : true}
+      onPress={()=>{
+      this.props.setBarcodeScanner(true);
+      this.props.navigation.navigate({
+        name: 'PalletScanner',
+        params: {
+          inputCode: this.state._itemDetail.id,
+          productIndex : index,
+        },
+      });
+    }}>
+            <Card containerStyle={[styles.cardContainer,{marginHorizontal:10}]} style={styles.card}>
+              <View style={{flexDirection:'row', flexGrow:1}}>
+                  <View style={{flexDirection:'column', flex:1}}>
+                    <View style={styles.header}>
+                      <Text style={styles.packageCounterText}>{item.client}</Text>
+                    </View>
+                    <View style={styles.detail}>
+                      <DetailList title="Item Code" value={item.itemCode} />
+                      <DetailList title="Description" value={item.description} />
+                      <DetailList title="Stock Grade" value={item.grade} />
+                      <DetailList title="UOM" value={item.uom} />
+                      <DetailList
+                        title="Qty"
+                        value={item.qty}
+                      />
 
+                  </View>
+                  </View>
+                  { this.state._itemDetail.type === 2 && (
+                  <View style={{flexDirection:'column', justifyContent:'center', alignItems:'center', flexShrink:1}}>
+                   <IconArrow66Mobile height="26" width="26" fill="#2D2C2C"/>
+                  </View>
+                  )}
               </View>
             </Card>
+            </TouchableOpacity>
+
     );
   };
-
+  renderEmptyView = () => {
+    return (
+    <View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
+      <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+      <Text style={{  ...Mixins.subtitle3,}}>Empty Product</Text>
+      </View>
+    );
+  }
   render() {
     const {_itemDetail} = this.state;
     return (
       <>
         <StatusBar barStyle="dark-content" />
         <View style={styles.container}>
-        <View style={styles.header}>
+        <View style={[styles.header,{paddingHorizontal:10}]}>
             <Text style={styles.headerTitle}>Pallet Details</Text>
          
           </View>
           <View style={[styles.headerBody, {flexShrink: 1}]}>
-            <Card containerStyle={styles.cardContainer} style={styles.card}>
+            <Card containerStyle={[styles.cardContainer,{marginHorizontal:10}]} style={styles.card}>
               <View style={styles.header}>
                 <View style={{flexDirection:'column', flexShrink: 1}}>
                 <Text style={{...Mixins.small1,lineHeight: 18,color: '#ABABAB', fontWeight: '400'}}>
-                    25-07-2021
+                {moment(_itemDetail.date).format("DD-MM-YYYY")}
                   </Text>
                   <Text style={{...Mixins.body1,lineHeight: 21,color: '#424141', fontWeight: '600'}}>
-                  {_itemDetail.code}
+                  {_itemDetail.pallet}
                   </Text>
                   <Text style={{...Mixins.body1,lineHeight: 21,color: '#424141', fontWeight: '600'}}>
-                  {_itemDetail.location}
+                  {_itemDetail.warehouse}
                   </Text>
                   <Text style={{...Mixins.body1,lineHeight: 21,color: '#424141', fontWeight: '600'}}>
-                  Suggested Location : AB-2-5 
+                  Suggested Location : {_itemDetail.suggestedLocation}
                   </Text>
                 </View>
-                <Badge value={_itemDetail.category} status="warning" textStyle={{...Mixins.small3,fontWeight: '700',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-start'}} badgeStyle={{backgroundColor: '#121C78'}} />
+                <Badge value={_itemDetail.type === 1 ? 'ASN' : _itemDetail.type === 2 ? 'GRN' : _itemDetail.type === 3 ? 'OTHERS' : 'TRANSIT'} status="warning" textStyle={{...Mixins.small3,fontWeight: '700',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-start'}} badgeStyle={{backgroundColor: _itemDetail.type === 1 ? '#121C78' : _itemDetail.type === 2 ? '#F07120' : _itemDetail.type === 3 ? 'white' : '#17B055', borderColor:'#ABABAB', borderWidth:_itemDetail.type === 1 ? 0 : _itemDetail.type === 2 ? 0 : _itemDetail.type === 3 ? 1 : 0, borderRadius:5}} />
               </View>
             </Card>
           </View>
           <View style={styles.body}>
             
             <FlatList
-              data={[1,2,3]}
+              data={_itemDetail.products}
               keyExtractor = {(item, index) => index.toString()}
               stickyHeaderIndices={[0]}
               ListHeaderComponent={this.renderHeader}
-              renderItem={({item}) => this.renderInner(item)}
+              renderItem={({item, index}) => this.renderInner(item, index)}
+              ListEmptyComponent={this.renderEmptyView}
             />
           </View>
         </View>
-          <View style={styles.buttonSticky}>
+        {this.state._itemDetail.type !== 2 && (
+        <> 
+        <View style={styles.buttonSticky}>
               <Avatar
                 size={75}
                 ImageComponent={() => (
@@ -141,7 +175,7 @@ class ConnoteDetails extends React.Component {
                   this.props.navigation.navigate({
                     name: 'PalletScanner',
                     params: {
-                      inputCode: this.state._itemDetail.code,
+                      inputCode: this.state._itemDetail.id,
                     },
                   });
                 }}
@@ -152,6 +186,8 @@ class ConnoteDetails extends React.Component {
             <View style={styles.bottomTabContainer}>
              
             </View>
+            </>
+            )}
       </>
     );
   }

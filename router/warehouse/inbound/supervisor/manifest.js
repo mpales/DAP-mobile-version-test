@@ -207,7 +207,7 @@ class Warehouse extends React.Component{
             skipAndroidStatusBar ={true}  
             popover={<View onLayout={(e)=>{ 
               if(this.state.remarkHeight > e.nativeEvent.layout.height && (this.state.remarkHeight - e.nativeEvent.layout.height) > 30){
-                this.setState({remarkHeight: e.nativeEvent.layout.height});
+                this.setState({remarkHeight: e.nativeEvent.layout.height + 30});
               }
             }}><Text style={[Mixins.body3,{color:'black'}]}>{this.state.remark}</Text></View>} 
             width={300} 
