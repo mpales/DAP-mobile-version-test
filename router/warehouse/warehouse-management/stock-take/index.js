@@ -11,6 +11,7 @@ import StockTakeJobList from './stockTakeList';
 import StockTakeCountList from './stockTakeCountList';
 import StockTakeCountDetails from './stockTakeCountDetails';
 import ReportStockTakeCount from './reportStockTakeCount';
+import ReassignStockTakeCount from './reassingStockTakeCount';
 import StockTakeReportDetails from './stockTakeReportDetails';
 import StockTakeReportCamera from '../peripheral/reportCamera';
 import EnlargeImage from '../peripheral/enlargeImage';
@@ -107,6 +108,14 @@ class StockTakeNavigator extends React.Component {
           name="StockTakeCountDetails"
           options={{
             headerTitle: 'Stock Take',
+            headerBackTitle: 'Back',
+          }}
+        />
+        <Stack.Screen
+          component={ReassignStockTakeCount}
+          name="ReassignStockTakeCount"
+          options={{
+            headerTitle: 'Reassign',
             headerBackTitle: 'Back',
           }}
         />

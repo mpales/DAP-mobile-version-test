@@ -156,6 +156,10 @@ class StockTakeCountDetails extends React.Component {
     });
   };
 
+  navigateToReassignStockTakeCount = () => {
+    this.props.navigation.navigate('ReassignStockTakeCount');
+  };
+
   closeBanner = () => {
     this.setState({
       isShowBanner: false,
@@ -265,7 +269,7 @@ class StockTakeCountDetails extends React.Component {
                     title="Reassign"
                     containerStyle={styles.reportButton}
                     titleStyle={styles.reassignButtonText}
-                    onPress={() => {}}
+                    onPress={this.navigateToReassignStockTakeCount}
                   />
                 </>
               )}
