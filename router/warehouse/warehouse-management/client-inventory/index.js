@@ -72,7 +72,7 @@ class ClientInventoryNavigator extends React.Component {
           component={ClientCheckInventory}
           name="CheckInventory"
           options={{
-            headerTitle: 'Search Inventory',
+            headerTitle: 'Client Inventory',
           }}
         />
         <Stack.Screen
