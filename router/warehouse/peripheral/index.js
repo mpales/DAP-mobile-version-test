@@ -960,7 +960,7 @@ class Example extends React.Component {
           <this.renderInner />
         </Modalize>)} */}
         <TouchableWithoutFeedback onPress={() => {}}>
-          <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} useManualMenu={true}/>
+          <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} useManualMenu={true} barcodeContext={"Scan Item Barcode Here"}/>
         </TouchableWithoutFeedback>
       </View>
     );
@@ -1147,51 +1147,45 @@ const styles = StyleSheet.create({
     lineHeight: 40,
   },
   modalContainerEnterAttr: {
-    flexGrow: 1,
+    flexShrink: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
     minHeight: (screen.height * 80) / 100,
-    maxHeight: (screen.height * 80) / 100,
     borderRadius: 10,
   },
   modalContainerAllTransit: {
-    flexGrow: 1,
+    flexShrink: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
     minHeight: (screen.height * 55) / 100,
-    maxHeight: (screen.height * 55) / 100,
     borderRadius: 10,
   },
   modalContainerSmallConfirmTransit: {
-    flexGrow: 1,
+    flexShrink: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
     minHeight: (screen.height * 45) / 100,
-    maxHeight: (screen.height * 45) / 100,
     borderRadius: 10,
   },
   modalContainerAll: {
-    flexGrow: 1,
+    flexShrink: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
     minHeight: (screen.height * 65) / 100,
-    maxHeight: (screen.height * 65) / 100,
     borderRadius: 10,
   },
   modalContainerSmallConfirm: {
-    flexGrow: 1,
+    flexShrink: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
     minHeight: (screen.height * 55) / 100,
-    maxHeight: (screen.height * 55) / 100,
     borderRadius: 10,
   },
   modalContainerSmall: {
-    flexGrow: 1,
+    flexShrink: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
     minHeight: (screen.height * 36) / 100,
-    maxHeight: (screen.height * 36) / 100,
     marginBottom: (screen.height * 8) / 100,
     borderRadius: 10,
   },
