@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Dimensions,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -38,10 +39,12 @@ class StockTakeCountDetails extends React.Component {
     this.state = {
       stockTakeDetails: this.props.route.params?.stockTakeDetails ?? null,
       inputQuantity: 0,
+      reEnteredQuantity: null,
       isShowModal: false,
       isChecked: false,
       error: '',
       isShowBanner: false,
+      isSubmitted: false,
     };
     this.handleShowModal.bind(this);
     this.confirmStockTake.bind(this);
@@ -68,8 +71,12 @@ class StockTakeCountDetails extends React.Component {
   }
 
   componentWillUnmount() {
-    const {stockTakeDetails} = this.state;
-    if (stockTakeDetails !== null && stockTakeDetails.status === 'Waiting') {
+    const {stockTakeDetails, isSubmitted} = this.state;
+    if (
+      stockTakeDetails !== null &&
+      stockTakeDetails.status === 'Waiting' &&
+      !isSubmitted
+    ) {
       this.lockUnlockProduct(2);
     }
   }
@@ -129,6 +136,9 @@ class StockTakeCountDetails extends React.Component {
       data,
     );
     if (result?.message === 'Stock Count successfully confirmed') {
+      this.setState({
+        isSubmitted: true,
+      });
       this.props.navigation.navigate('StockTakeCountList');
     } else {
       if (result.errors !== undefined && typeof result.errors === 'object') {
@@ -140,6 +150,14 @@ class StockTakeCountDetails extends React.Component {
         });
       }
     }
+  };
+
+  confirmReEnterQuantity = () => {
+    const {inputQuantity} = this.state;
+    this.setState({
+      reEnteredQuantity: inputQuantity,
+    });
+    this.handleShowModal();
   };
 
   navigateToReportStockTakeCount = () => {
@@ -183,8 +201,14 @@ class StockTakeCountDetails extends React.Component {
   };
 
   render() {
-    const {stockTakeDetails, isShowModal, inputQuantity, isShowBanner, error} =
-      this.state;
+    const {
+      stockTakeDetails,
+      isShowModal,
+      inputQuantity,
+      isShowBanner,
+      error,
+      reEnteredQuantity,
+    } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
@@ -192,7 +216,7 @@ class StockTakeCountDetails extends React.Component {
           <Banner title={error} closeBanner={this.closeBanner} />
         )}
         {stockTakeDetails !== null && (
-          <>
+          <ScrollView showsVerticalScrollIndicator={false}>
             <Card containerStyle={styles.cardContainer}>
               <TextList
                 title="Warehouse"
@@ -213,6 +237,13 @@ class StockTakeCountDetails extends React.Component {
               <TextList
                 title="Quantity"
                 value={stockTakeDetails.quantity ?? '-'}
+              />
+              <TextList
+                title=""
+                value={`( Re-enter Quantity : ${
+                  !!reEnteredQuantity ? reEnteredQuantity : '-'
+                } )`}
+                color="#F07120"
               />
               <TextList
                 title="UOM"
@@ -278,7 +309,7 @@ class StockTakeCountDetails extends React.Component {
               buttonStyle={styles.reenterButton}
               onPress={this.handleShowModal}
             />
-          </>
+          </ScrollView>
         )}
         {isShowModal && (
           <>
@@ -313,7 +344,7 @@ class StockTakeCountDetails extends React.Component {
                 title="Confirm"
                 titleStyle={styles.buttonText}
                 buttonStyle={[styles.button, {marginHorizontal: 0}]}
-                onPress={this.confirmStockTake}
+                onPress={this.confirmReEnterQuantity}
                 disabled={inputQuantity < 1}
                 disabledStyle={{backgroundColor: '#ABABAB'}}
                 disabledTitleStyle={{color: '#FFF'}}

@@ -90,6 +90,9 @@ export const stockTakeJobStatusColor = (status) => {
     case 'In Progress':
       color = '#F07120';
       break;
+    case 'Recount':
+      color = '#F8B511';
+      break;
     case 'Pending Review':
       color = '#F8B511';
       break;

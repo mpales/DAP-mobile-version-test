@@ -1,14 +1,15 @@
 import React from 'react';
 import {
+  Dimensions,
   FlatList,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
-  RefreshControl,
 } from 'react-native';
-import {Badge, Button, SearchBar} from 'react-native-elements';
+import {Badge, Button, Overlay, SearchBar} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
@@ -21,6 +22,8 @@ import Format from '../../../../component/helper/format';
 //style
 import Mixins from '../../../../mixins';
 
+const screen = Dimensions.get('window');
+
 class StockTakeCountList extends React.Component {
   constructor(props) {
     super(props);
@@ -32,6 +35,7 @@ class StockTakeCountList extends React.Component {
       isRefreshing: false,
       search: '',
       filterStatus: 'All',
+      isShowModal: false,
     };
     this.handleFilterStatus.bind(this);
     this.updateSearch.bind(this);
@@ -105,6 +109,19 @@ class StockTakeCountList extends React.Component {
     this.setState({filterStatus: value});
   };
 
+  handleShowModal = (value) => {
+    this.setState({
+      isShowModal: value ?? false,
+    });
+  };
+
+  handleModalAction = (action) => {
+    if (action) {
+      this.completeStockTake();
+    }
+    this.handleShowModal();
+  };
+
   filteredStockTakeCountList = () => {
     const {search, filterStatus, stockTakeCountList} = this.state;
     let filteredStockTakeCountList = [];
@@ -135,6 +152,10 @@ class StockTakeCountList extends React.Component {
     this.setState({filteredStockTakeCountList: filteredStockTakeCountList});
   };
 
+  completeStockTake = () => {
+    this.props.navigation.navigate('StockTakeJobList');
+  };
+
   navigateToStockTakeCountDetails = (data) => {
     this.props.navigation.navigate('StockTakeCountDetails', {
       stockTakeDetails: data,
@@ -163,6 +184,7 @@ class StockTakeCountList extends React.Component {
       filterStatus,
       isLoading,
       isRefreshing,
+      isShowModal,
     } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
@@ -301,6 +323,45 @@ class StockTakeCountList extends React.Component {
               style={{marginBottom: 70}}
               ListEmptyComponent={this.renderEmpty}
             />
+            <View style={styles.bottomButtonContainer}>
+              <Button
+                title="Complete Recount"
+                titleStyle={styles.buttonText}
+                buttonStyle={styles.button}
+                onPress={() => this.handleShowModal(true)}
+                disabledStyle={{backgroundColor: '#ABABAB'}}
+                disabledTitleStyle={{color: '#FFF'}}
+              />
+            </View>
+            {isShowModal && (
+              <Overlay
+                fullScreen={false}
+                overlayStyle={styles.containerStyleOverlay}
+                isVisible={isShowModal}>
+                <Text style={styles.confirmText}>
+                  Are you sure sure you want to Complete Recount?
+                </Text>
+                <View style={styles.cancelButtonContainer}>
+                  <TouchableOpacity
+                    style={[
+                      styles.cancelButton,
+                      {borderWidth: 1, borderColor: '#ABABAB'},
+                    ]}
+                    onPress={() => this.handleModalAction(false)}>
+                    <Text style={[styles.cancelText, {color: '#ABABAB'}]}>
+                      No
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.cancelButton, {backgroundColor: '#F07120'}]}
+                    onPress={() => this.handleModalAction(true)}>
+                    <Text style={[styles.cancelText, {color: '#FFF'}]}>
+                      Yes
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </Overlay>
+            )}
           </>
         )}
       </SafeAreaProvider>
@@ -400,6 +461,42 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 25,
     color: '#FFF',
+  },
+  containerStyleOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    left: 0,
+    height: screen.height * 0.3,
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+  },
+  confirmText: {
+    ...Mixins.subtitle3,
+    fontSize: 20,
+    textAlign: 'center',
+    marginHorizontal: 20,
+  },
+  cancelText: {
+    ...Mixins.subtitle3,
+    fontSize: 18,
+    lineHeight: 25,
+  },
+  cancelButtonContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
+  cancelButton: {
+    width: '40%',
+    height: 40,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
   },
 });
 

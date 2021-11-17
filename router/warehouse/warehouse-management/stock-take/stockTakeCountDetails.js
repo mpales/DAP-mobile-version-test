@@ -39,6 +39,7 @@ class StockTakeCountDetails extends React.Component {
       isShowModal: false,
       error: '',
       isShowBanner: false,
+      isSubmitted: false,
     };
     this.handleShowModal.bind(this);
     this.confirmStockTake.bind(this);
@@ -65,8 +66,12 @@ class StockTakeCountDetails extends React.Component {
   }
 
   componentWillUnmount() {
-    const {stockTakeDetails} = this.state;
-    if (stockTakeDetails !== null && stockTakeDetails.status === 'Waiting') {
+    const {stockTakeDetails, isSubmitted} = this.state;
+    if (
+      stockTakeDetails !== null &&
+      stockTakeDetails.status === 'Waiting' &&
+      !isSubmitted
+    ) {
       this.lockUnlockProduct(2);
     }
   }
@@ -124,6 +129,9 @@ class StockTakeCountDetails extends React.Component {
       data,
     );
     if (result?.message === 'Stock Count successfully confirmed') {
+      this.setState({
+        isSubmitted: true,
+      });
       this.props.navigation.navigate('StockTakeCountList');
     } else {
       if (result.errors !== undefined && typeof result.errors === 'object') {
@@ -141,6 +149,9 @@ class StockTakeCountDetails extends React.Component {
     const {stockTakeDetails} = this.state;
     this.props.navigation.navigate('ReportStockTakeCount', {
       productId: stockTakeDetails.id,
+      isBlankCount:
+        stockTakeDetails?.quantity === undefined ||
+        parseInt(stockTakeDetails.quantity) === 0,
     });
   };
 
@@ -153,6 +164,10 @@ class StockTakeCountDetails extends React.Component {
     });
   };
 
+  navigateToReassignStockTakeCount = () => {
+    this.props.navigation.navigate('ReassignStockTakeCount');
+  };
+
   closeBanner = () => {
     this.setState({
       isShowBanner: false,
@@ -160,13 +175,8 @@ class StockTakeCountDetails extends React.Component {
   };
 
   render() {
-    const {
-      stockTakeDetails,
-      isShowModal,
-      inputQuantity,
-      isShowBanner,
-      error,
-    } = this.state;
+    const {stockTakeDetails, isShowModal, inputQuantity, isShowBanner, error} =
+      this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
@@ -262,6 +272,13 @@ class StockTakeCountDetails extends React.Component {
                     titleStyle={styles.reportButtonText}
                     onPress={this.navigateToReportStockTakeCount}
                   />
+                  <Button
+                    type="clear"
+                    title="Reassign"
+                    containerStyle={styles.reportButton}
+                    titleStyle={styles.reassignButtonText}
+                    onPress={this.navigateToReassignStockTakeCount}
+                  />
                 </>
               )}
           </>
@@ -349,7 +366,7 @@ const styles = StyleSheet.create({
   button: {
     ...Mixins.bgButtonPrimary,
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   buttonText: {
     ...Mixins.subtitle3,
@@ -359,7 +376,7 @@ const styles = StyleSheet.create({
   },
   reportButton: {
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: '#6C6B6B',
   },
@@ -368,6 +385,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 25,
     color: '#E03B3B',
+  },
+  reassignButtonText: {
+    ...Mixins.subtitle3,
+    fontSize: 18,
+    lineHeight: 25,
+    color: '#121C78',
   },
   backButtonText: {
     ...Mixins.subtitle3,
