@@ -94,7 +94,13 @@ class ClientCheckInventory extends React.Component {
           product: '',
         };
       } else {
-        obj = {client: value, filteredClientList: this.filterClientList(value)};
+        obj = {
+          client: value,
+          filteredClientList: this.filterClientList(value),
+          clientId: null,
+          product: '',
+          productList: null,
+        };
       }
     } else if (type === 'productList') {
       if (value === '') {
@@ -125,8 +131,8 @@ class ClientCheckInventory extends React.Component {
   filterClientList = (value) => {
     const {clientList} = this.state;
     if (clientList !== null) {
-      return clientList.filter((client, index) => {
-        if (client.name !== null && index < 5)
+      return clientList.filter((client) => {
+        if (client.name !== null)
           return client.name.toLowerCase().includes(value.toLowerCase());
       });
     }
@@ -137,7 +143,7 @@ class ClientCheckInventory extends React.Component {
     const {productList} = this.state;
     if (productList !== null) {
       return productList.filter((product, index) => {
-        if (product.description !== null && index < 5) {
+        if (product.description !== null) {
           return (
             product.description.toLowerCase().includes(value.toLowerCase()) ||
             product.item_code.toLowerCase().includes(value.toLowerCase())
@@ -206,11 +212,14 @@ class ClientCheckInventory extends React.Component {
     const {
       client,
       clientId,
+      clientList,
       product,
       productId,
+      productList,
       filteredClientList,
       filteredProductList,
     } = this.state;
+    console.log(this.state.clientList);
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -231,8 +240,9 @@ class ClientCheckInventory extends React.Component {
               <View style={styles.dropdownContainer}>
                 {client !== '' &&
                   clientId === null &&
-                  filteredClientList !== null &&
-                  filteredClientList.length === 0 && (
+                  ((filteredClientList !== null &&
+                    filteredClientList.length === 0) ||
+                    clientList === null) && (
                     <View
                       style={[
                         styles.inputContainer,
@@ -242,9 +252,9 @@ class ClientCheckInventory extends React.Component {
                     </View>
                   )}
                 {filteredClientList !== null &&
-                  filteredClientList.map((client) =>
-                    this.renderItem(client, 'client'),
-                  )}
+                  filteredClientList
+                    .slice(0, 5)
+                    .map((client) => this.renderItem(client, 'client'))}
               </View>
             </View>
             <View style={styles.inputWrapper}>
@@ -263,8 +273,9 @@ class ClientCheckInventory extends React.Component {
               <View style={styles.dropdownContainer}>
                 {product !== '' &&
                   productId === null &&
-                  filteredProductList !== null &&
-                  filteredProductList.length === 0 && (
+                  ((filteredProductList !== null &&
+                    filteredProductList.length === 0) ||
+                    productList === null) && (
                     <View
                       style={[
                         styles.inputContainer,
@@ -274,9 +285,9 @@ class ClientCheckInventory extends React.Component {
                     </View>
                   )}
                 {filteredProductList !== null &&
-                  filteredProductList.map((product) =>
-                    this.renderItem(product, 'product'),
-                  )}
+                  filteredProductList
+                    .slice(0, 5)
+                    .map((product) => this.renderItem(product, 'product'))}
               </View>
             </View>
             <Button
