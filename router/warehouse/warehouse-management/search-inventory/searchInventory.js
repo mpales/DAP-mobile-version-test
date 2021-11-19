@@ -1,5 +1,12 @@
 import React from 'react';
-import {ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {Button, Input} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -90,7 +97,7 @@ class SearchInventory extends React.Component {
         <StatusBar barStyle="dark-content" />
         <ScrollView style={styles.body}>
           <View style={styles.searchContainer}>
-            <View style={styles.inputWrapper}>
+            <View style={[styles.inputWrapper, {zIndex: 2}]}>
               <Text style={styles.inputTitle}>Warehouse</Text>
               <View style={styles.pickerContainer}>
                 <Picker
@@ -99,6 +106,11 @@ class SearchInventory extends React.Component {
                   onValueChange={(value) =>
                     this.handleInput(value, 'warehouse')
                   }
+                  itemStyle={{
+                    height: 50,
+                    borderRadius: 5,
+                    marginHorizontal: -10,
+                  }}
                   style={{height: 50}}>
                   <Picker.Item
                     label="Select Warehouse"
@@ -119,7 +131,7 @@ class SearchInventory extends React.Component {
                 </Picker>
               </View>
             </View>
-            <View style={styles.inputWrapper}>
+            <View style={[styles.inputWrapper, {zIndex: 1}]}>
               <Text style={styles.inputTitle}>Search Location ID</Text>
               <Input
                 placeholder="Search Location ID"
