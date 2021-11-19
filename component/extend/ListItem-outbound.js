@@ -103,22 +103,28 @@ const theme = {
 };
 const Manifest = ({item, index, isActive, ToManifest}) => {
   let status = 'grey';
+  let textstatus = 'waiting';
   switch (item.status) {
-    case 'complete':
+    case 3:
       status = 'green';
+      textstatus = 'Complete'
       break;
-      case 'progress':
+      case 2:
         status = 'orange';
+        textstatus = 'In Progress'
         break;
-        case 'pending':
+        case 1:
           status = 'grey';
+          textstatus = 'Waiting'
           break;
-          case 'reported':
+          case 4:
             status = 'red';
+            textstatus = 'Reported'
             break;
     default:
       break;
   }
+  let warehouses = item.warehouses !== undefined ? item.warehouses.join() : null;
   return (
     <ThemeProvider theme={theme}>
       <ListItem
@@ -132,18 +138,19 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         </View>
         <ListItem.Content style={styles.sectionContainer}>
           <Text style={{...Mixins.body3, fontWeight: '400',lineHeight: 18, color:'#ABABAB'}}>
-            {moment.unix(item.timestamp).format('DD MMMM YYYY')}
+            {moment(item.delivery_date).format('DD MMMM YYYY')}
           </Text>
         <ListItem.Title style={{...Mixins.body3,lineHeight: 18,color: '#ABABAB', fontWeight: '600'}}>
-        {item.code}
+        {item.pick_task_no}
         </ListItem.Title>
         <ListItem.Subtitle style={{...Mixins.body1, lineHeight: 21, color: '#424141', fontWeight: '600'}}>
-        {item.warehouse_code}
+        {"Warehouse "+warehouses}
         </ListItem.Subtitle>
-        <Text style={styles.descText}>{item.company}</Text>
+        <Text style={styles.descText}>{item.client_id}</Text>
+        <Text style={styles.descText}>{"Type : "+(item.type === 1 ? 'Single':'Multiple')}</Text>
         </ListItem.Content>
         <View style={styles.labelContainer}>
-        <Badge value={item.status} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />
+        <Badge value={textstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />
         <View style={{alignSelf:'flex-end',flexDirection: 'column'}}>
            
         <ListItem.Chevron
@@ -161,7 +168,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             onPress={ToManifest}
           />
           </View>
-        <Text style={[styles.labelText,{marginHorizontal: 20}]}>packages: 20</Text>
+        <Text style={[styles.labelText,{marginHorizontal: 20}]}>packages: -</Text>
         </View>
         
       </ListItem>

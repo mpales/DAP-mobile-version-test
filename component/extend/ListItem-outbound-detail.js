@@ -21,6 +21,7 @@ import Mixins from '../../mixins';
 const styles = {
   sectionContainer: {
     flexGrow: 1,
+    flexDirection:'column',
     marginHorizontal: 14,
     paddingVertical: 10,
   },
@@ -109,23 +110,11 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
     (state) => state.originReducer.filters.currentList,
   );
   let status = 'grey';
-  let textstatus = 'pending';
-  if(item.scanned < item.total_qty && item.scanned >= 0) {
-    if(item.scanned === 0) {
-      status = 'grey';
-      textstatus = 'Pending';
-    } else {
-      status = 'orange'
-      textstatus = 'Progress'
-    }
-  } else if(item.scanned === -1){
-    status = 'red';
-    textstatus = 'Reported'
-  } else {
-    textstatus = 'Completed'
-    status = 'green';
-  }
-
+  let textstatus = 'waiting';
+ 
+  let populated_location = Array.from({length:item.detail.length}).map((num,index)=>{
+    return item.detail[index].warehouse_storage_container_id;
+  });
   return (
     <ThemeProvider theme={theme}>
       <ListItem
@@ -136,7 +125,7 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
         activeScale={0.95}
         pad={0}
         onPress={()=>{
-          currentList(item.barcode)
+          currentList(index)
         }}
         >
         <View style={[styles.leftList,{backgroundColor:status}]}>
@@ -144,88 +133,96 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
         <ListItem.Content style={styles.sectionContainer}>
         <View style={[styles.detailContainer,{flexDirection:'row', flexGrow: 1}]}>          
           <View style={{flexDirection: 'column', flex: 1,}}>
-          <View style={{flexDirection: 'row',flex:1}}>
-          <View style={{width:60}}>
-          <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
-          Location
-          </Text>
-          </View>
-          <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-   
-          <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-          {item.location_bay}
-          </Text>
-  
-          </View>
+          
+            <View style={{flexDirection: 'row',flex:1}}>
+              <View style={{width:100, flexDirection:'row'}}>
+              <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
+              Location
+              </Text>
+              <View style={{flex:1, alignItems:'flex-end'}}>
+              <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
+              </View>
+              </View>
 
-          <View style={{flexDirection: 'row',flex:1}}>
-            <View style={{width:60}}>
+              <View style={{flexDirection:'row', flexShrink:1}}>
+              <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
+              {populated_location[0]}
+              </Text>
+              </View>
+            </View>
+
        
-          </View>
-          <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}></Text>
-       
-          {item.location_rack.map((element,index)=>{
-            return (
-              <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>{element}</Text>  );
-          })}
-        
-          </View>
 
           <View style={{flexDirection: 'row',flex:1}}>
-            <View style={{width:60}}>
-            <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
-          SKU
-          </Text>
-          </View>
-          <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-        
-          <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-          {item.sku}
-          </Text>
- 
-          </View>
+              <View style={{width:100, flexDirection:'row'}}>
+              <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
+              Pallet
+              </Text>
+              <View style={{flex:1, alignItems:'flex-end'}}>
+              <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
+              </View>
+              </View>
+
+              <View style={{flexDirection:'row', flexShrink:1}}>
+              <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
+              -
+              </Text>
+              </View>
+            </View>
 
 
-          <View style={{flexDirection: 'row',flex:1}}>
-            <View style={{width:60}}>
-            <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
-            Barcode
-            </Text>
-          </View>
-          <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-     
-          <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-          {item.barcode}
-          </Text>
+            <View style={{flexDirection: 'row',flex:1}}>
+              <View style={{width:100, flexDirection:'row'}}>
+              <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
+              Item Code
+              </Text>
+              <View style={{flex:1, alignItems:'flex-end'}}>
+              <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
+              </View>
+              </View>
 
-          </View>
-
-          <View style={{flexDirection: 'row',flex:1}}>
-            <View style={{width:60}}>
-            <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
-           Description
-           </Text>
-          </View>
-          <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-          <View style={{width:200}}>
-          <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-          {item.description}
-          </Text>
-          </View>
-          </View>
+              <View style={{flexDirection:'row', flexShrink:1}}>
+              <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
+              {item.product.item_code}
+              </Text>
+              </View>
+            </View>
 
 
-          <View style={{flexDirection: 'row',flex:1}}>
-            <View style={{width:60}}>
-            <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
-        Category
-        </Text>
-          </View>
-          <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-          <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-          {item.category}
-          </Text>
-          </View>
+            <View style={{flexDirection: 'row',flex:1}}>
+              <View style={{width:100, flexDirection:'row'}}>
+              <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
+             Description
+              </Text>
+              <View style={{flex:1, alignItems:'flex-end'}}>
+              <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
+              </View>
+              </View>
+
+              <View style={{flexDirection:'row', flexShrink:1}}>
+              <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
+              {item.product.description}
+              </Text>
+              </View>
+            </View>
+    
+            <View style={{flexDirection: 'row',flex:1}}>
+              <View style={{width:100, flexDirection:'row'}}>
+              <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
+              Category
+              </Text>
+              <View style={{flex:1, alignItems:'flex-end'}}>
+              <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
+              </View>
+              </View>
+
+              <View style={{flexDirection:'row', flexShrink:1}}>
+              <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
+            -
+              </Text>
+              </View>
+            </View>
+    
           </View>
           <View style={styles.rightList}>
           <Badge value={textstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end'}} badgeStyle={{backgroundColor: status}} />
@@ -241,42 +238,40 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
                     <IconArrow66Mobile height="16" width="26" fill="#2D2C2C"/>
                   }
                 />)}
-              onPress={ToManifest}
+              onPress={()=>{
+                navigation.navigate({
+                  name: 'ItemDetail',
+                  params: {
+                      dataCode: item.product._id,
+                  }
+                })
+              }}
             />
           </View>
           </View>
-          {isCurrentManifest === item.barcode  && (
-          <View style={[styles.groupbutton,{flexShrink: 1, flexDirection: 'row'}]}>
+          {isCurrentManifest === index  && (
+          <View style={{width:'100%',marginVertical:10, flexDirection: 'column',}}>
             <Button
-              containerStyle={{flexShrink:1, paddingVertical: 4, paddingHorizontal: 0}}
+              containerStyle={{flex:1, paddingVertical: 4, paddingHorizontal: 0, marginHorizontal: 0}}
+              buttonStyle={[styles.navigationButton]}
+              titleStyle={[styles.deliveryText,{paddingHorizontal: 10}]}
+              onPress={ToManifest}
+              title="Scan Barcode"
+            />
+            <Button
+              containerStyle={{flex:1, paddingVertical: 4, paddingHorizontal: 0}}
               buttonStyle={[styles.navigationButton, {backgroundColor: '#fff', borderWidth: 1, borderColor: '#D5D5D5'}]}
               titleStyle={[styles.deliveryText,{color:'#E03B3B',paddingHorizontal: 10}]}
               onPress={()=>{
                 navigation.navigate({
                   name: 'ReportManifest',
                   params: {
-                      dataCode: item.barcode,
-                      bayCode : item.location_bay,
+                      dataCode: item.product._id,
                   }
                 })
               }}
-              disabled={item.scanned !== -1 ? false : true}
+              disabled={false}
               title="Report Item"
-            />
-            <Button
-              containerStyle={{flexShrink:1, paddingVertical: 4, paddingHorizontal: 0, marginHorizontal: 10}}
-              buttonStyle={[styles.navigationButton]}
-              titleStyle={[styles.deliveryText,{paddingHorizontal: 10}]}
-              onPress={()=>{
-                navigation.navigate({
-                  name: 'ItemDetail',
-                  params: {
-                      dataCode: item.barcode,
-                      bayCode : item.location_bay,
-                  }
-                })
-              }}
-              title="See Detail"
             />
             </View>)}
         </ListItem.Content>

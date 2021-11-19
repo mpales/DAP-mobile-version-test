@@ -6,7 +6,8 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
+    RefreshControl
 } from 'react-native';
 import {
     Card,
@@ -27,6 +28,7 @@ import Mixins,{themeStoreContext} from '../../../mixins';
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import {observer} from 'mobx-react';
 
+import {getData} from '../../../component/helper/network';
 
 const window = Dimensions.get('window');
 
@@ -37,8 +39,11 @@ class List extends React.Component {
         super(props);
         this.state = {
             search: '',
+            dropdown : '',
             filtered : 0,
+            list : [],
             renderGoBack : false,
+            renderRefresh : false,
         };
     this.updateTask.bind(this);
     this.setFiltered.bind(this);
@@ -50,55 +55,62 @@ class List extends React.Component {
     setFiltered = (num)=>{
         this.setState({filtered:num});
     }
-    updateTask = ()=>{
-        const {activeTask,completeTask, ReportedTask} = this.props;
+    updateTask = async ()=>{
+       // const {activeTask,completeTask, ReportedTask} = this.props;
+        const result = await getData('outboundMobile/pickTask');
         this.setState({renderGoBack: false});
-        return Array.from({length: outboundTaskDummy.length}).map((num, index) => {
-            return {
-                ...outboundTaskDummy[index],
-                status: completeTask.includes(outboundTaskDummy[index].code) ? 'completed' : ReportedTask.includes(outboundTaskDummy[index].code) ? 'reported' : activeTask.includes(outboundTaskDummy[index].code) ? 'progress': 'pending',
-            };
-          });
+        if(Array.isArray(result)){
+            return result.filter((o)=> o !== null);
+        } else {
+            return [];
+        }
     }
 
   
-    componentDidUpdate(prevProps, prevState, snapshot) {
+    async componentDidUpdate(prevProps, prevState, snapshot) {
+        const {outboundTask} = this.props;
         if(this.props.keyStack !== prevProps.keyStack){
             if(this.props.keyStack === 'Task'){
                 this.setState({renderGoBack : true});
             }
         }
-        let filtered = prevState.renderGoBack !== this.state.renderGoBack || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
+        if(prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true){
+            const resultedList =  await this.updateTask();
+            this.props.setOutboundTask(resultedList);
+        }
+        let filtered = (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.dropdown !== this.state.dropdown ? this.state.filtered : null;
         if(filtered === 0) {
-            this.props.setOutboundTask(this.updateTask().filter((element)=> element.code.indexOf(this.state.search) > -1));
+            this.setState({list:outboundTask.filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown))))});
         } else if(filtered === 1){
-            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'reported').filter((element)=> element.code.indexOf(this.state.search) > -1));
+           this.setState({list:outboundTask.filter((element)=> element.status === 4).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         } else if(filtered === 2){
-            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'pending').filter((element)=> element.code.indexOf(this.state.search)> -1));
+            this.setState({list:outboundTask.filter((element)=> element.status === 1).filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }else if(filtered === 3){
-            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'progress').filter((element)=> element.code.indexOf(this.state.search) > -1));
+            this.setState({list:outboundTask.filter((element)=> element.status === 2).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }else if(filtered === 4){
-            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'completed').filter((element)=> element.code.indexOf(this.state.search) > -1));
+            this.setState({list:outboundTask.filter((element)=> element.status === 3).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }
         
     }
-    componentDidMount() {
-
+    async componentDidMount() {
+        const resultedList =  await this.updateTask();
+        this.props.setOutboundTask(resultedList);
         const {filtered} = this.state;
         if(filtered === 0) {
-            this.props.setOutboundTask(
-                this.updateTask().filter((element)=> element.code.indexOf(this.state.search) > -1));
+           this.setState({list:resultedList.filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown))))});
         } else if(filtered === 1){
-            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'reported').filter((element)=> element.code.indexOf(this.state.search) > -1));
+           this.setState({list:resultedList.filter((element)=> element.status === 4).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         } else if(filtered === 2){
-            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'pending').filter((element)=> element.code.indexOf(this.state.search) > -1));
+            this.setState({list:resultedList.filter((element)=> element.status === 1).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }else if(filtered === 3){
-            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'progress').filter((element)=> element.code.indexOf(this.state.search) > -1));
+            this.setState({list:resultedList.filter((element)=> element.status === 2).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }else if(filtered === 4){
-            this.props.setOutboundTask(this.updateTask().filter((element)=> element.status === 'completed').filter((element)=> element.code.indexOf(this.state.search) > -1));
+            this.setState({list:resultedList.filter((element)=> element.status === 3).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
         }
     }
-
+    _onRefresh = () => {
+        this.setState({renderRefresh: true});
+    }
     render() {
         return(
             <SafeAreaProvider>
@@ -106,6 +118,12 @@ class List extends React.Component {
                 <ScrollView 
                     style={{...styles.body, backgroundColor: this.context._Scheme5}} 
                     showsVerticalScrollIndicator={false}
+                    refreshControl={<RefreshControl
+                        colors={["#9Bd35A", "#689F38"]}
+                        refreshing={this.state.renderRefresh}
+                        onRefresh={this._onRefresh.bind(this)}
+                    />
+                }
                 >
                        <View style={[styles.headingCard, {paddingVertical: 10}]}>
                                 <Input 
@@ -115,10 +133,22 @@ class List extends React.Component {
                                     labelStyle={[{...Mixins.containedInputDefaultLabel,color: this.context._Scheme7},{marginBottom: 5}]}
                                     label="Warehouse"
                                     InputComponent={()=> {
+                                        const {outboundTask} = this.props;
+                                        let arrayWarehouses = Array.from({length: outboundTask.length}).map((num,index)=>{
+                                            if(outboundTask[index].warehouses !== undefined){
+                                            return outboundTask[index].warehouses.join();
+                                            }
+                                            return [];
+                                        });
+                                        let stringWarehouses = arrayWarehouses.join();
+                                        let Warehouses = [ ...new Set(String('All,'+stringWarehouses).split(',')) ];
                                         return (   <View style={[styles.picker, {flex:1}]}>
-                                            <Picker>
-                                                        <Picker.Item style={{fontSize: 20}} key={1} label="test" value="aja" />
-                                                        <Picker.Item style={{fontSize: 20}} key={2} label="test" value="aja" />
+                                            <Picker  selectedValue={this.state.dropdown} onValueChange={(itemValue, itemIndex) =>
+                                               this.setState({dropdown:itemValue})
+                                            }>
+                                                {Warehouses.map((num,index)=>{
+                                                   return( <Picker.Item style={{fontSize: 20}} key={index} label={num} value={num === 'All' ? '' :num} />);
+                                                })}
                                                     </Picker>
                                             </View>)
                                     }}
@@ -145,6 +175,13 @@ class List extends React.Component {
                     badgeStyle={this.state.filtered === 0 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
                     textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
                     />
+                    <Badge
+                    value="Waiting"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(2)}
+                    badgeStyle={this.state.filtered === 2 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
+                    textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6}}
+                    />
                           <Badge
                     value="Reported"
                     containerStyle={styles.badgeSort}
@@ -153,14 +190,7 @@ class List extends React.Component {
                     textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
                     />
                           <Badge
-                    value="Pending"
-                    containerStyle={styles.badgeSort}
-                    onPress={()=> this.setFiltered(2)}
-                    badgeStyle={this.state.filtered === 2 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
-                    textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6}}
-                    />
-                          <Badge
-                    value="Progress"
+                    value="In Progress"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(3)}
                     badgeStyle={this.state.filtered === 3 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
@@ -174,19 +204,19 @@ class List extends React.Component {
                     textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6}}
                     />
                             </ScrollView>
-                            {this.props.outboundTask.map((data, i) => (
+                            {this.state.list.map((data, i) => (
                                 <Outbound 
                                     key={i} 
                                     index={i} 
                                     item={data} 
                                     ToManifest={()=>{
                                         this.props.setBottomBar(true);
-                                        this.props.setCurrentTask(data.code);
-                                        this.props.setActiveTask(data.code);
+                                        // this.props.setCurrentTask(data.id);
+                                        // this.props.setActiveTask(data.id);
                                         this.props.navigation.navigate(   {
                                             name: 'List',
                                             params: {
-                                              number: data.code,
+                                              number: data.id,
                                             },
                                           });
                                     }}

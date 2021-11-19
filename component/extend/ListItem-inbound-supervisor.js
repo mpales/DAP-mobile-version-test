@@ -176,12 +176,13 @@ const Manifest = ({item, index, ToManifest}) => {
           <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
           <ListItem.Content style={styles.sectionContainer}>
+          <Badge value={category} status="warning" textStyle={{...Mixins.small3,fontWeight: '700',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-start', marginBottom:10}} badgeStyle={{backgroundColor: categorycolor}} />
                     <Text style={{...Mixins.small1,lineHeight: 18,color: '#ABABAB', fontWeight: '400'}}>
                     {moment(item.eta).format("DD-MM-YYYY")}
                     </Text>
                     <Text style={{...Mixins.body1,lineHeight: 21,color: '#424141', fontWeight: '600'}}>
                     {item.reference_id}
-                    </Text>
+                      </Text>
                     <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '400'}}>
                     {item.client}
                     </Text>
@@ -190,12 +191,12 @@ const Manifest = ({item, index, ToManifest}) => {
                     </Text>
     
         </ListItem.Content>
-        <View style={{flexDirection: 'column', paddingHorizontal: 10}}>
-        <Badge value={labelstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />
+        <View style={{flexDirection: 'column', paddingHorizontal: 0,flexShrink:1,height:'100%'}}>
+        <Badge value={labelstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7, flexShrink:1, marginTop:10}} badgeStyle={{backgroundColor: status}} />
             <ListItem.Chevron
                   size={16}
                   color="#2D2C2C"
-                  containerStyle={{alignSelf: 'flex-end', flexShrink:1, paddingHorizontal:0}}
+                  containerStyle={{alignSelf: 'flex-end', flex:1, paddingHorizontal:0, alignContent:'center', justifyContent:'center'}}
                   Component={(props)=>(
                     <Button
                       {...props}
@@ -206,7 +207,6 @@ const Manifest = ({item, index, ToManifest}) => {
                     />)}
                     onPress={ToManifest}
                 />
-            <Badge value={category} status="warning" textStyle={{...Mixins.small3,fontWeight: '700',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end'}} badgeStyle={{backgroundColor: categorycolor}} />
         </View>
       </ListItem>
     </ThemeProvider>

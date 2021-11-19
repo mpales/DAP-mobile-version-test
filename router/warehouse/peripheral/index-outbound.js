@@ -30,6 +30,7 @@ class Example extends React.Component {
     this.state = {
       dataCode: '0',
       qty: 0,
+      indexData : null,
       dataItem: null,
       bayCode : null,
       itemCode : null,
@@ -49,18 +50,24 @@ class Example extends React.Component {
       if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined) {
         //from input code
         setBarcodeScanner(true);
-        let item = outboundList.find((element)=>element.barcode === routes[index].params.inputCode && element.location_bay === routes[index].params.bayCode);
-        return {...state, bayCode: routes[index].params.bayCode, dataItem: item, qty: item.scanned};
+        let indexProduct = routes[index].params.inputCode; 
+        let item = outboundList.find((element,index)=> index === indexProduct);
+
+        return {...state, bayCode: item.detail[0].warehouse_storage_container_id, dataItem: item, indexData: routes[index].params.inputCode};
       } else if (routes[index].params !== undefined && routes[index].params.manualCode !== undefined) {
         //from manual code
         setBarcodeScanner(false);
-        let item = outboundList.find((element)=>element.barcode === routes[index].params.manualCode && element.location_bay === routes[index].params.bayCode);
-        return {...state, dataCode: routes[index].params.bayCode,bayCode: routes[index].params.bayCode, dataItem: item, itemCode : routes[index].params.manualCode, qty: item.scanned};
+        let manualCode = routes[index].params.manualCode;
+        let indexCode = routes[index].params.indexData;
+        let item = outboundList.find((element, index)=>element.product.item_code === manualCode && index === indexCode);
+        return {...state, dataCode: item.detail[0].warehouse_storage_container_id,bayCode: item.detail[0].warehouse_storage_container_id, dataItem: item, itemCode : routes[index].params.manualCode,indexData: routes[index].params.indexData};
       }
     } else if(bayCode !== null && scanItem !== null && itemCode === null && routes[index].params !== undefined && routes[index].params.manualCode !== undefined && scanItem === routes[index].params.manualCode) {
       setBarcodeScanner(false);
-      let item = outboundList.find((element)=>element.barcode === routes[index].params.manualCode && element.location_bay === routes[index].params.bayCode);
-      return {...state, dataCode: routes[index].params.bayCode,bayCode: routes[index].params.bayCode, dataItem: item, itemCode : routes[index].params.manualCode, qty: item.scanned};
+      let manualCode = routes[index].params.manualCode;
+      let indexCode = routes[index].params.indexData;
+      let item = outboundList.find((element, index)=>element.product.item_code === manualCode && index === indexCode);
+      return {...state, dataCode: item.detail[0].warehouse_storage_container_id,bayCode: item.detail[0].warehouse_storage_container_id, dataItem: item, itemCode : routes[index].params.manualCode,indexData: routes[index].params.indexData };
 
     }
     return {...state};
@@ -69,8 +76,8 @@ class Example extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     if(nextState.dataCode !== '0' && nextState.bayCode !== null && nextState.scanItem === null && nextProps.detectBarcode === false){
       if(nextState.dataCode === nextState.bayCode) {
-        const {routes, index} = nextProps.navigation.dangerouslyGetState();
-        this.setState({dataCode: '0', scanItem:  routes[index].params.inputCode});
+        let item = nextProps.outboundList.find((element,index)=>index === nextState.indexData);
+        this.setState({dataCode: '0', scanItem:  item.product.item_code});
         return true;
       } else if (nextState.dataCode !== nextState.bayCode){
         nextProps.setBarcodeScanner(true);
@@ -117,6 +124,100 @@ class Example extends React.Component {
 
   renderModal = () => {
     const {dataItem, dataCode, qty, itemCode} = this.state;
+    
+  let gradeArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+    if(dataItem.detail[index].grade === undefined)
+    return [];
+  return dataItem.detail[index].grade;
+});
+  // let grade = '';
+  //   switch (gradeArr[0]) {
+  //     case 1:
+  //       grade = 'Pick'
+  //       break;
+  //       case 2:
+  //         grade = 'Buffer'
+  //         break;
+  //         case 3:
+  //           grade = 'Damage'
+  //           break;
+  //           case 4:
+  //             grade = 'Defective'
+  //             break;
+  //             case 5:
+  //               grade = 'Short Expiry'
+  //               break;
+  //               case 6:
+  //                 grade = 'Expired'
+  //                 break;
+  //                 case 7:
+  //                   grade = 'No Stock'
+  //                   break;
+  //                   case 8:
+  //                     grade = 'Reserve'
+  //                     break;
+  //                     case 9:
+  //                       grade = 'SIT'
+  //                       break;
+  //                       case 10:
+  //                         grade = 'Rework'
+  //                         break;
+  //     default:
+  //       break;
+  //   }
+
+  let uomArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+      if(dataItem.detail[index].uom === undefined)
+      return [];
+    return dataItem.detail[index].uom;
+  });
+  let uomFiltered = uomArr;
+
+
+  let packagingArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+      if(dataItem.detail[index].attributes.packaging === undefined)
+      return [];
+    return dataItem.detail[index].attributes.packaging;
+  });
+  let packagingFiltered = packagingArr;
+
+  let qtyPickArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+      if(dataItem.detail[index].attributes.qtyToPick === undefined)
+      return [];
+    return dataItem.detail[index].attributes.qtyToPick;
+  });
+  let qtyPickArrFiltered = qtyPickArr;
+  
+  let wholeArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+    if(dataItem.detail[index].attributes.wholeqty === undefined)
+    return [];
+    return dataItem.detail[index].attributes.wholeqty;
+  });
+  let wholeFiltered = wholeArr;
+
+  
+  let categoryArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+    if(dataItem.detail[index].attributes.category === undefined)
+    return [];
+    return dataItem.detail[index].attributes.category;
+  });
+  let categoryFiltered = categoryArr;
+  
+  let banchArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+    if(dataItem.detail[index].batch_no === undefined)
+    return [];
+    return dataItem.detail[index].batch_no;
+  });
+  let banchFiltered =banchArr;
+
+  let expArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+      if(dataItem.detail[index].attributes.expiry_date === undefined)
+      return [];
+    return dataItem.detail[index].attributes.expiry_date;
+  });
+  let expFiltered = expArr;
+
+  
     return (
       <View style={styles.modalOverlay}>
         <Animated.View
@@ -179,105 +280,150 @@ class Example extends React.Component {
               <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
                <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                <View style={styles.dividerContent}>
-                  <Text style={styles.labelNotFound}>SKU</Text>
-                  <Text style={styles.infoNotFound}>{dataItem.sku}</Text>
+                  <Text style={styles.labelNotFound}>Pallet</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{dataItem.detail[0].warehouse_storage_container_id}</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Item Code</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{dataItem.product.item_code}</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Description</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{dataItem.product.description}</Text>
+                  </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Barcode</Text>
-                  <Text style={styles.infoNotFound}>{dataItem.barcode}</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{dataCode}</Text>
+                  </View>
                 </View>
                 <View style={styles.dividerContent}>
-                  <Text style={styles.labelNotFound}>Descript</Text>
-                  <Text style={styles.infoNotFound}>{dataItem.description}</Text>
-                </View>
-                <View style={[styles.groupDivider, {flexDirection: 'row'}]}>
-                  <View style={[styles.sectionDividier, {flex:1}]}>
-                    <View style={styles.dividerContent}>
-                      <Text style={styles.labelNotFound}>Stock Grade</Text>
-                      <Text style={styles.infoNotFound}>{dataItem.grade}</Text>
-                    </View>
-                    <View style={styles.dividerContent}>
-                      <Text style={styles.labelNotFound}>UOM</Text>
-                      <Text style={styles.infoNotFound}>{dataItem.UOM}</Text>
-                    </View>
-                    <View style={styles.dividerContent}>
-                      <Text style={styles.labelNotFound}>Packaging</Text>
-                      <Text style={styles.infoNotFound}>{dataItem.packaging}</Text>
-                    </View>
-                    <View style={styles.dividerContent}>
-                      <Text style={styles.labelNotFound}>Category</Text>
-                      <Text style={styles.infoNotFound}>{dataItem.category}</Text>
-                    </View>
+                  <Text style={styles.labelNotFound}>Stock Grade </Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{gradeArr[0]}</Text>
                   </View>
-                  <View style={styles.sectionDividier, {flex: 1}}>
-                    <View style={styles.dividerContent}>
-                      <Text style={styles.labelNotFound}>Banch Number</Text>
-                      <Text style={styles.infoNotFound}>A1</Text>
-                    </View>
-                    <View style={styles.dividerContent}>
-                      <Text style={styles.labelNotFound}>EXP Date</Text>
-                      <Text style={styles.infoNotFound}></Text>
-                    </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>UOM</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{uomFiltered[0]}</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Packaging </Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{packagingFiltered[0]}</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Qty to pick</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{qtyPickArrFiltered[0]}</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Whole Qty</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{wholeFiltered[0]}</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Category</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{categoryFiltered[0]}</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Banch Number :</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{banchFiltered[0]}</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>EXP Date</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{moment(expFiltered[0]).format('YYYY-MM-DD HH:mm:ss')}</Text>
                   </View>
                 </View>
                      
                     </View>
-                    {dataItem.scanned < dataItem.total_qty && (
-                        <View style={[styles.sectionDividier,{flexDirection:'row',marginTop:15}]}>
+                    <View style={[styles.sectionDividier,{flexDirection:'row',marginTop:15}]}>
                           <View style={[styles.dividerContent,{marginRight: 35}]}>
                             <Text style={styles.qtyTitle}>Qty</Text>
                           </View>
                           <View style={styles.dividerInput}>
-                          <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
-                         this.setState({qty:  qty < dataItem.total_qty ? qty+1: qty});
+                          <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
+                           const {qty,dataItem} = this.state;
+                            this.setState({qty: qty !== '' && qty > 0 ? qty-1 : qty === '' ? 0 : qty});
                           }}  
                           containerStyle={{flexShrink:1, marginVertical: 5}}
                           badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
                           />
                           <Input 
                             containerStyle={{flex: 1,paddingVertical:0}}
+                            keyboardType="number-pad"
                             inputContainerStyle={styles.textInput} 
                             inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.h4,fontWeight: '600',lineHeight: 27,color:'#424141'}]}
                             labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                            placeholder={''+qty}
-                            disabled={true}
+                            value={String(this.state.qty)}
+                            onChangeText={(val)=>{
+                              this.setState({qty:  val});
+                            }}
                             />
-                           <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
-                           this.setState({qty: dataItem.total_qty >= qty && qty > 0 ? qty-1 : qty});
+                          <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
+                            const {qty,dataItem} = this.state;
+                            this.setState({qty:  qty !== '' ? qty+1: qty === '' ?  1 : qty});
                           }}  
                           containerStyle={{flexShrink:1, marginVertical: 5}}
                           badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
                           />
                           </View>
                         </View>
-                      )}
               </View>
             ) : (
               <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
                <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Location</Text>
-                  <Text style={styles.infoNotFound}>{dataItem.location_bay}</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                    <Text style={styles.infoNotFound}>{this.state.bayCode}</Text>
+                  </View>
                 </View>
                 <View style={styles.dividerContent}>
-                  <Text style={styles.labelNotFound}></Text>
-                  <Text style={styles.infoNotFound}>{dataItem.location_rack.join(', ')}</Text>
+                  <Text style={styles.labelNotFound}>Item Code</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{dataItem.product.item_code}</Text>
+                  </View>
                 </View>
                 <View style={styles.dividerContent}>
-                  <Text style={styles.labelNotFound}>SKU</Text>
-                  <Text style={styles.infoNotFound}>{dataItem.sku}</Text>
+                  <Text style={styles.labelNotFound}>Pallet</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>-</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Description</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{dataItem.product.description}</Text>
+                  </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Barcode</Text>
-                  <Text style={styles.infoNotFound}>{dataItem.barcode}</Text>
-                </View>
-                <View style={styles.dividerContent}>
-                  <Text style={styles.labelNotFound}>Descript</Text>
-                  <Text style={styles.infoNotFound}>{dataItem.description}</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{dataCode}</Text>
+                  </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Category</Text>
-                  <Text style={styles.infoNotFound}>{dataItem.category}</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>-</Text>
+                  </View>
                 </View>
                 </View>
               </View>
@@ -334,51 +480,167 @@ class Example extends React.Component {
     );
   };
 
-  renderInner = () => (
+  renderInner = () => {
+    const {dataItem} = this.state;
+    let gradeArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+      if(dataItem.detail[index].grade === undefined)
+      return [];
+    return dataItem.detail[index].grade;
+  });
+  // let grade = '';
+  //   switch (gradeArr[0]) {
+  //     case 1:
+  //       grade = 'Pick'
+  //       break;
+  //       case 2:
+  //         grade = 'Buffer'
+  //         break;
+  //         case 3:
+  //           grade = 'Damage'
+  //           break;
+  //           case 4:
+  //             grade = 'Defective'
+  //             break;
+  //             case 5:
+  //               grade = 'Short Expiry'
+  //               break;
+  //               case 6:
+  //                 grade = 'Expired'
+  //                 break;
+  //                 case 7:
+  //                   grade = 'No Stock'
+  //                   break;
+  //                   case 8:
+  //                     grade = 'Reserve'
+  //                     break;
+  //                     case 9:
+  //                       grade = 'SIT'
+  //                       break;
+  //                       case 10:
+  //                         grade = 'Rework'
+  //                         break;
+  //     default:
+  //       break;
+  //   }
+
+  let uomArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+      if(dataItem.detail[index].uom === undefined)
+      return [];
+    return dataItem.detail[index].uom;
+  });
+  let uomFiltered = uomArr;
+  let packagingArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+      if(dataItem.detail[index].attributes.packaging === undefined)
+      return [];
+    return dataItem.detail[index].attributes.packaging;
+  });
+  let packagingFiltered = packagingArr;
+
+  let qtyPickArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+      if(dataItem.detail[index].attributes.qtyToPick === undefined)
+      return [];
+    return dataItem.detail[index].attributes.qtyToPick;
+  });
+  let qtyPickArrFiltered = qtyPickArr;
+  
+  let wholeArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+    if(dataItem.detail[index].attributes.wholeqty === undefined)
+    return [];
+    return dataItem.detail[index].attributes.wholeqty;
+  });
+  let wholeFiltered = wholeArr;
+
+  
+  let categoryArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+    if(dataItem.detail[index].attributes.category === undefined)
+    return [];
+    return dataItem.detail[index].attributes.category;
+  });
+  let categoryFiltered = categoryArr;
+  
+  let banchArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+    if(dataItem.detail[index].batch_no === undefined)
+    return [];
+    return dataItem.detail[index].batch_no;
+  });
+  let banchFiltered = banchArr;
+  let expArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
+      if(dataItem.detail[index].attributes.expiry_date === undefined)
+      return [];
+    return dataItem.detail[index].attributes.expiry_date;
+  });
+  let expFiltered =expArr;
+
+
+    return (
     <View style={styles.sheetContainer}>
       <View style={styles.sectionSheetDetail}>
         <View style={styles.sheetPackages}>
             <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                 {this.state.scanItem !== null ? (<>
                 <View style={styles.dividerContent}>
-                  <Text style={styles.labelNotFound}>SKU</Text>
-                  <Text style={styles.infoNotFound}>{this.state.dataItem.sku}</Text>
+                  <Text style={styles.labelNotFound}>Pallet</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>-</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Item Code</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{dataItem.product.item_code}</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Description</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{dataItem.product.description}</Text>
+                  </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Barcode</Text>
-                  <Text style={styles.infoNotFound}>{this.state.dataItem.barcode}</Text>
-                </View>
-                <View style={styles.dividerContent}>
-                  <Text style={styles.labelNotFound}>Descript</Text>
-                  <Text style={styles.infoNotFound}>{this.state.dataItem.description}</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{this.state.dataCode}</Text>
+                  </View>
                 </View>
                 <View style={[styles.groupDivider, {flexDirection: 'row'}]}>
                   <View style={[styles.sectionDividier, {flex:1}]}>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>Stock Grade</Text>
-                      <Text style={styles.infoNotFound}>{this.state.dataItem.grade}</Text>
+                      <View style={{flexDirection:'row', flexShrink:1}}>
+                      <Text style={styles.infoNotFound}>{gradeArr[0]}</Text>
+                      </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>UOM</Text>
-                      <Text style={styles.infoNotFound}>{this.state.dataItem.UOM}</Text>
+                      <View style={{flexDirection:'row', flexShrink:1}}>
+                      <Text style={styles.infoNotFound}>{uomFiltered[0]}</Text>
+                      </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>Packaging</Text>
-                      <Text style={styles.infoNotFound}>{this.state.dataItem.packaging}</Text>
+                      <View style={{flexDirection:'row', flexShrink:1}}>
+                      <Text style={styles.infoNotFound}>{packagingFiltered[0]}</Text>
+                      </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>Category</Text>
-                      <Text style={styles.infoNotFound}>{this.state.dataItem.category}</Text>
+                      <View style={{flexDirection:'row', flexShrink:1}}>
+                      <Text style={styles.infoNotFound}>{categoryFiltered[0]}</Text>
+                      </View>
                     </View>
                   </View>
                   <View style={styles.sectionDividier, {flex: 1}}>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>Banch Number</Text>
-                      <Text style={styles.infoNotFound}>A1</Text>
+                      <View style={{flexDirection:'row', flexShrink:1}}>
+                      <Text style={styles.infoNotFound}>{banchFiltered[0]}</Text>
+                      </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>EXP Date</Text>
-                      <Text style={styles.infoNotFound}></Text>
+                      <View style={{flexDirection:'row', flexShrink:1}}>
+                      <Text style={styles.infoNotFound}>{moment(expFiltered[0]).format('YY/MM/DD')}</Text>
+                      </View>
                     </View>
                   </View>
                 </View>
@@ -386,28 +648,41 @@ class Example extends React.Component {
                 </>): this.state.dataItem !== null ? (
                 <><View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Location</Text>
-                  <Text style={styles.infoNotFound}>{this.state.dataItem.location_bay}</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{this.state.bayCode}</Text>
+                  </View>
                 </View>
                 <View style={styles.dividerContent}>
-                  <Text style={styles.labelNotFound}></Text>
-                  <Text style={styles.infoNotFound}>{this.state.dataItem.location_rack.join(', ')}</Text>
+                  <Text style={styles.labelNotFound}>Item Code</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{dataItem.product.item_code}</Text>
+                  </View>
                 </View>
                 <View style={styles.dividerContent}>
-                  <Text style={styles.labelNotFound}>SKU</Text>
-                  <Text style={styles.infoNotFound}>{this.state.dataItem.sku}</Text>
+                  <Text style={styles.labelNotFound}>Pallet</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>-</Text>
+                  </View>
+                </View>
+                <View style={styles.dividerContent}>
+                  <Text style={styles.labelNotFound}>Description</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{dataItem.product.description}</Text>
+                  </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Barcode</Text>
-                  <Text style={styles.infoNotFound}>{this.state.dataItem.barcode}</Text>
-                </View>
-                <View style={styles.dividerContent}>
-                  <Text style={styles.labelNotFound}>Descript</Text>
-                  <Text style={styles.infoNotFound}>{this.state.dataItem.description}</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{this.state.dataCode}</Text>
+                  </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Category</Text>
-                  <Text style={styles.infoNotFound}>{this.state.dataItem.category}</Text>
-                </View></>) : null}
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.infoNotFound}>{categoryFiltered[0]}</Text>
+                  </View>
+                </View>
+                </>) : null}
             </View>
             
         </View>
@@ -437,8 +712,8 @@ class Example extends React.Component {
             this.props.navigation.navigate({
               name: 'ManualInput',
               params: {
-                  dataCode: this.state.dataItem.barcode,
-                  bayCode: this.state.dataItem.location_bay
+                  dataCode: this.state.scanItem,
+                  indexData : this.state.indexData,
               }
             })}}
           title="Input Manual"
@@ -461,6 +736,7 @@ class Example extends React.Component {
       </View>
     </View>
   );
+}
 
   renderHeader = () => (
     <View style={styles.header}>
@@ -503,7 +779,7 @@ class Example extends React.Component {
           ref={this.modalizeRef}
           handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
           handlePosition={'inside'}
-          disableScrollIfPossible={true}
+          disableScrollIfPossible={false}
           modalHeight={this.state.scanItem !== null ? 320 : 280}
           alwaysOpen={this.state.scanItem !== null ? 320 : 280}
           HeaderComponent={<this.renderHeader />}
@@ -511,7 +787,7 @@ class Example extends React.Component {
           <this.renderInner />
         </Modalize>)}
         <TouchableWithoutFeedback onPress={() => {}}>
-          <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} />
+        <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} useManualMenu={false} barcodeContext={this.state.scanItem === null ? "Scan bay barcode Here" : "Scan Item Barcode Here"}/>
         </TouchableWithoutFeedback>
       </View>
     );
@@ -695,19 +971,17 @@ const styles = StyleSheet.create({
     lineHeight: 40,
   },
   modalContainerAll: {
-    flexGrow: 1,
+    flexShrink: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
     minHeight: (screen.height * 65) / 100,
-    maxHeight: (screen.height * 65) / 100,
     borderRadius: 10,
   },
   modalContainerSmall: {
-    flexGrow: 1,
+    flexShrink: 1,
     backgroundColor: 'white',
     width: (screen.width * 90) / 100,
     minHeight: (screen.height * 50) / 100,
-    maxHeight: (screen.height * 50) / 100,
     borderRadius: 10,
   },
   modalHeader: {

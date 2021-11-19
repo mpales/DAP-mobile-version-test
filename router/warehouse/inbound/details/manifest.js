@@ -95,13 +95,13 @@ class Warehouse extends React.Component{
     if(filtered === 0) {
       this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
       } else if(filtered === 1){
-        this.setState({_manifest: manifestList.filter((element)=> element.status === 1).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=> element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
       } else if(filtered === 2){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 1).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false});
       }else if(filtered === 3){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
       }else if(filtered === 4){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false});
       } 
    
    
@@ -271,14 +271,14 @@ class Warehouse extends React.Component{
                     textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
-                    value="Progress"
+                    value="Processing"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(3)}
                     badgeStyle={this.state.filtered === 3 ? styles.badgeActive : styles.badgeInactive }
                     textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
-                    value="Completed"
+                    value="Processed"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(4)}
                     badgeStyle={this.state.filtered === 4 ? styles.badgeActive : styles.badgeInactive }
