@@ -2,6 +2,7 @@ import React from 'react';
 import {
   FlatList,
   Image,
+  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     display: 'flex',
     flexDirection: 'column',
-    top: 60,
+    top: Platform.OS === 'ios' ? 100 : 60,
     right: 20,
     zIndex: 2,
   },

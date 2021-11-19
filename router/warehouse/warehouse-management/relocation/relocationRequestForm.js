@@ -309,9 +309,12 @@ class RelocationRequest extends React.Component {
               <Picker
                 mode="dropdown"
                 selectedValue={selectedWarehouse}
-                onValueChange={(value) =>
-                  this.handlePicker(value, 'warehouse')
-                }>
+                onValueChange={(value) => this.handlePicker(value, 'warehouse')}
+                itemStyle={{
+                  height: 50,
+                  borderRadius: 5,
+                  marginHorizontal: -10,
+                }}>
                 <Picker.Item label="Select Warehouse" value={null} />
                 {warehouseList !== null &&
                   warehouseList.map((item) => (
@@ -333,6 +336,11 @@ class RelocationRequest extends React.Component {
                 onValueChange={(value) =>
                   this.handlePicker(value, 'locationId')
                 }
+                itemStyle={{
+                  height: 50,
+                  borderRadius: 5,
+                  marginHorizontal: -10,
+                }}
                 enabled={!!selectedWarehouse}>
                 <Picker.Item label="Select Location ID" value={null} />
                 {locationList.length > 0 &&
@@ -354,7 +362,12 @@ class RelocationRequest extends React.Component {
                 selectedValue={selectedReasonCode}
                 onValueChange={(value) =>
                   this.handlePicker(value, 'reasonCode')
-                }>
+                }
+                itemStyle={{
+                  height: 50,
+                  borderRadius: 5,
+                  marginHorizontal: -10,
+                }}>
                 <Picker.Item label="Select Reason Code" value={null} />
                 {reasonCodeList !== null &&
                   reasonCodeList.map((item) => (
@@ -417,9 +430,9 @@ class RelocationRequest extends React.Component {
                   marginHorizontal: 10,
                 }}>
                 <Text>0%</Text>
-                <Text style={{marginLeft: '6%'}}>25%</Text>
-                <Text style={{marginLeft: '7%'}}>50%</Text>
-                <Text style={{marginLeft: '6%'}}>75%</Text>
+                <Text style={{marginLeft: '5%'}}>25%</Text>
+                <Text style={{marginLeft: '4%'}}>50%</Text>
+                <Text style={{marginLeft: '4%'}}>75%</Text>
                 <Text>100%</Text>
               </View>
             </View>
@@ -430,7 +443,12 @@ class RelocationRequest extends React.Component {
               <Picker
                 mode="dropdown"
                 selectedValue={selectedGrade}
-                onValueChange={(value) => this.handlePicker(value, 'grade')}>
+                onValueChange={(value) => this.handlePicker(value, 'grade')}
+                itemStyle={{
+                  height: 50,
+                  borderRadius: 5,
+                  marginHorizontal: -10,
+                }}>
                 <Picker.Item
                   label="Select Grade"
                   value={null}

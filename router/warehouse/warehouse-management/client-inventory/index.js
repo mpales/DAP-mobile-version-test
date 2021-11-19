@@ -60,6 +60,7 @@ class ClientInventoryNavigator extends React.Component {
           headerTintColor: '#FFF',
           headerLeftContainerStyle:
             Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
+          headerBackTitle: 'Back',
           header: (props) => {
             let state = props.navigation.dangerouslyGetState();
             let key = state.routes[state.index].name;

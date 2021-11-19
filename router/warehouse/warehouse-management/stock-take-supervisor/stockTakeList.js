@@ -286,12 +286,12 @@ const styles = StyleSheet.create({
   },
   searchTitle: {
     ...Mixins.subtitle3,
-    lineHeight: 20,
+    lineHeight: 21,
     color: '#424141',
   },
   searchInputText: {
     ...Mixins.subtitle3,
-    lineHeight: 14,
+    lineHeight: 21,
   },
   searchContainer: {
     backgroundColor: 'transparent',

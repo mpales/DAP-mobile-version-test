@@ -87,6 +87,11 @@ class SearchInventoryList extends React.Component {
               mode="dropdown"
               selectedValue={selectedSortBy}
               onValueChange={(value) => this.sortList(value)}
+              itemStyle={{
+                height: 50,
+                borderRadius: 5,
+                marginHorizontal: -10,
+              }}
               style={{maxWidth: 180}}>
               <Picker.Item
                 label="Location"

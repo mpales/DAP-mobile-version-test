@@ -114,8 +114,8 @@ class RelocationRequest extends React.Component {
   filterClientList = (value) => {
     const {clientList} = this.state;
     if (clientList !== null) {
-      return clientList.filter((client, index) => {
-        if (client.name !== null && index < 5)
+      return clientList.filter((client) => {
+        if (client.name !== null)
           return client.name.toLowerCase().includes(value.toLowerCase());
       });
     }
@@ -185,7 +185,7 @@ class RelocationRequest extends React.Component {
         <ScrollView style={styles.body}>
           <View style={styles.searchContainer}>
             <Text style={styles.title}>Request Relocation</Text>
-            <View style={styles.inputWrapper}>
+            <View style={[styles.inputWrapper, {zIndex: 2}]}>
               <Text style={styles.inputTitle}>Client</Text>
               <Input
                 placeholder="Select Client"
@@ -211,12 +211,12 @@ class RelocationRequest extends React.Component {
                     </View>
                   )}
                 {filteredClientList !== null &&
-                  filteredClientList.map((client) =>
-                    this.renderItem(client, 'client'),
-                  )}
+                  filteredClientList
+                    .slice(0, 5)
+                    .map((client) => this.renderItem(client, 'client'))}
               </View>
             </View>
-            <View style={styles.inputWrapper}>
+            <View style={[styles.inputWrapper, {zIndex: 1}]}>
               <Text style={styles.inputTitle}>Item Code</Text>
               <Input
                 placeholder="Enter Item Code"
@@ -346,6 +346,7 @@ const styles = StyleSheet.create({
   inputText: {
     ...Mixins.subtitle3,
     lineHeight: 21,
+    paddingHorizontal: 10,
   },
   button: {
     ...Mixins.bgButtonPrimary,

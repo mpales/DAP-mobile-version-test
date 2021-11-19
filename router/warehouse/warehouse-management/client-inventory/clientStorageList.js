@@ -127,6 +127,11 @@ class ClientStorageList extends React.Component {
                 mode="dialog"
                 selectedValue={selectedSortBy}
                 onValueChange={(value) => this.sortList(value)}
+                itemStyle={{
+                  height: 50,
+                  borderRadius: 5,
+                  marginHorizontal: -10,
+                }}
                 style={{maxWidth: 150}}>
                 <Picker.Item
                   label="Location"
