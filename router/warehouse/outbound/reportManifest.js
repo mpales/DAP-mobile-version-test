@@ -7,7 +7,7 @@ import {
     View,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { CheckBox, Input, Avatar, Button, LinearProgress} from 'react-native-elements';
+import { CheckBox, Input, Avatar, Button, LinearProgress, Badge} from 'react-native-elements';
 import { connect } from 'react-redux';
 //icon
 import Mixins from '../../../mixins';
@@ -28,6 +28,7 @@ class ReportManifest extends React.Component {
             _manifest : null,
             errors: '',
             progressLinearVal : 0,
+            qtyreported : "0",
             submitPhoto:false,
         };
         this.handleSubmit.bind(this);
@@ -38,7 +39,7 @@ class ReportManifest extends React.Component {
         if(dataCode === '0'){
             const {routes, index} = navigation.dangerouslyGetState();
             if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-              return {...state, dataCode: routes[index].params.dataCode, bayCode: routes[index].params.bayCode};
+              return {...state, dataCode: routes[index].params.dataCode,};
             }
         }
         return {...state};
@@ -75,12 +76,12 @@ class ReportManifest extends React.Component {
     handleSubmit = () => {
         const {currentTask, outboundList} = this.props;
         const {dataCode, bayCode} = this.state;
-        let list = outboundList.find((element)=>element.location_bay === bayCode && element.barcode === dataCode)
-        this.props.setBottomBar(false);
-        this.props.setReportedTask(currentTask);
-        this.props.addPhotoReportPostpone(null);
-        this.props.setReportedList(list.id);
-        this.props.navigation.navigate('List');
+        // let list = outboundList.find((element)=>element.location_bay === bayCode && element.barcode === dataCode)
+        // this.props.setBottomBar(false);
+        // this.props.setReportedTask(currentTask);
+        // this.props.addPhotoReportPostpone(null);
+        // this.props.setReportedList(list.id);
+        // this.props.navigation.navigate('List');
     }
     onChangeReasonInput = (value) => {
         this.setState({
@@ -95,7 +96,7 @@ class ReportManifest extends React.Component {
             <View style={styles.contentContainer}>
                 <Text style={styles.title}>Report</Text>
                 <CheckBox
-                    title='Damage goods'
+                    title='Damage Item'
                     checkedIcon='dot-circle-o'
                     uncheckedIcon='circle-o'
                     checkedColor='#2A3386'
@@ -115,6 +116,18 @@ class ReportManifest extends React.Component {
                     containerStyle={styles.checkbox}
                     checked={this.state.reasonOption === 'missing-item'}
                     onPress={() => this.handleReasonOptions('missing-item')}
+                />
+                
+                <CheckBox
+                    title='Excess Item'
+                    checkedIcon='dot-circle-o'
+                    uncheckedIcon='circle-o'
+                    checkedColor='#2A3386'
+                    uncheckedColor='#6C6B6B'
+                    size={25}
+                    containerStyle={styles.checkbox}
+                    checked={this.state.reasonOption === 'exc-item'}
+                    onPress={() => this.handleReasonOptions('exc-item')}
                 />
                                     <CheckBox
                     title='Expired Date'
@@ -140,15 +153,66 @@ class ReportManifest extends React.Component {
                 />
             </View>
             <View style={styles.contentContainer}>
-                <Text style={[styles.title, {marginBottom: 5}]}>Description :</Text>
-                <TextInput
-                        style={styles.textInput}
-                        onChangeText={this.onChangeReasonInput}
-                        multiline={true}
-                        numberOfLines={3}
-                        textAlignVertical="top"
-                        value={this.state.otherReason}
-                    />
+            {this.state.reasonOption !== 'other' && (
+            <View style={{marginBottom:5, flexDirection:'row', }}>
+                    <View style={{flexDirection:'column', marginRight: 15,paddingVertical:20}}>
+                        <Text style={styles.title}>Affected Quantity</Text>
+                    </View>
+                    <Input
+                    containerStyle={{paddingHorizontal:0,marginHorizontal:0, flexShrink:1, paddingTop:15}}
+                        inputContainerStyle={{borderBottomWidth:0}}
+                            style={{...styles.textInput,margin:0, fontSize:18, fontWeight:'700'}}
+                            keyboardType='number-pad'
+                            inputStyle={{margin:0}}
+                            onChangeText={(val)=>{
+                                this.setState({qtyreported:  val});
+                            }}
+                            multiline={false}
+                            numberOfLines={1}
+                            value={this.state.qtyreported}
+                            rightIcon={()=>{
+                                return (
+                                    <View style={{flexDirection:'column', backgroundColor:'transparent', flex:1, minWidth:30, marginLeft:15}}>
+                                        <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}}  
+                          containerStyle={{flexShrink:1, marginVertical: 5}}
+                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
+                          onPress={()=>{
+                            const {qtyreported} = this.state;
+                            let qty = parseInt(qtyreported)
+                            this.setState({qtyreported: (qtyreported === '' || qty === NaN) || (qty < 0) ? '0' : ''+ (qty+1) });
+                        }}
+                          />
+                                    </View>
+                                );
+                            }}
+                            leftIcon={()=>{
+                                return (
+                                    <View style={{flexDirection:'column', backgroundColor:'transparent', flex:1, minWidth:30, marginRight:15}}>
+                                        <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}}  
+                          containerStyle={{flexShrink:1, marginVertical: 5}}
+                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
+                          onPress={()=>{
+                            const {qtyreported} = this.state;
+                            let qty = parseInt(qtyreported)
+                            this.setState({qtyreported:  (qtyreported === '' || qty === NaN) || (qty <= 0) ? '0' : ''+ (qty-1) });
+                        }}
+                         />
+                                    </View>
+                                );
+                            }}
+                        />
+                    </View>)}
+            <View style={{marginBottom:5}}>
+                    <Text style={styles.title}>Remarks :</Text>
+                    <TextInput
+                            style={styles.textInput}
+                            onChangeText={this.onChangeReasonInput}
+                            multiline={true}
+                            numberOfLines={3}
+                            textAlignVertical="top"
+                            value={this.state.otherReason}
+                        />
+                    </View>
 
                     <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
                     <Avatar onPress={()=>{
@@ -197,7 +261,8 @@ class ReportManifest extends React.Component {
           titleStyle={styles.deliveryText}
           onPress={this.handleSubmit}
           title="Submit"
-          disabled={this.props.photoReportPostpone === null || (this.props.photoReportID !== null && this.props.photoReportID !== this.state.dataCode) || this.state.reasonOption === '' ? true : false}
+          disabled={true}
+        //   disabled={this.props.photoReportPostpone === null || (this.props.photoReportID !== null && this.props.photoReportID !== this.state.dataCode) || this.state.reasonOption === '' ? true : false}
           />
             </View>
         </View>

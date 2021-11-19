@@ -226,7 +226,7 @@ class WarehouseNavigator extends React.Component {
         this.props.keyStack === 'ReportManifest' &&
         this.props.indexBottomBar === 0
       ) {
-        this.props.setBottomBar(true);
+        this.props.setBottomBar(false);
       }
       if (
         this.props.keyStack === 'ManualInput' &&

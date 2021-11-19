@@ -15,6 +15,7 @@ class ManualInput extends React.Component {
         this.state = {
             inputCode: '',
             dataCode: null,
+            indexData : null,
             bayCode : null,
             error: false,
         }
@@ -26,13 +27,12 @@ class ManualInput extends React.Component {
         if(dataCode === null){
             const {routes, index} = navigation.dangerouslyGetState();
             if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-              return {...state, dataCode: routes[index].params.dataCode, bayCode : routes[index].params.bayCode};
+              return {...state, dataCode: routes[index].params.dataCode, indexData: routes[index].params.indexData};
             }
         }
         return {...state};
       }
     handleConfirm = () => {
-        console.log('compare : ' + this.state.dataCode + this.state.inputCode);
         if(this.state.inputCode !== this.state.dataCode) {
             this.setState({inputCode: '', error: true});
         } else {
@@ -41,7 +41,7 @@ class ManualInput extends React.Component {
                 name: 'Barcode',
                 params: {
                     manualCode: this.state.inputCode,
-                    bayCode: this.state.bayCode
+                    indexData: this.state.indexData,
                 }
             });
         }

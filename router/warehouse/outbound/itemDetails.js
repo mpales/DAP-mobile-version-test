@@ -16,6 +16,7 @@ import DetailList from '../../../component/extend/Card-detail';
 import ChevronRight from '../../../assets/icon/iconmonstr-arrow-66mobile-2.svg';
 import ChevronDown from '../../../assets/icon/iconmonstr-arrow-66mobile-1.svg';
 import Loading from '../../../component/loading/loading';
+import moment from 'moment';
 class ConnoteDetails extends React.Component {
   constructor(props) {
     super(props);
@@ -33,7 +34,7 @@ class ConnoteDetails extends React.Component {
     if(dataCode === '0'){
       const {routes, index} = navigation.dangerouslyGetState();
       if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-        return {...state, dataCode: routes[index].params.dataCode, bayCode:routes[index].params.bayCode};
+        return {...state, dataCode: routes[index].params.dataCode};
       }
       return {...state};
     } 
@@ -45,8 +46,8 @@ class ConnoteDetails extends React.Component {
     const {navigation, outboundList} = this.props;
     const {dataCode, _itemDetail, bayCode} = this.state;
     
-    if(dataCode !=='0' && _itemDetail === null && outboundList.some((element)=> element.barcode === dataCode && element.location_bay === bayCode)){
-      let list = outboundList.find((element)=>element.barcode === dataCode);
+    if(dataCode !=='0' && _itemDetail === null && outboundList.some((element)=> element.product._id === dataCode)){
+      let list = outboundList.find((element)=>element.product._id === dataCode);
       this.setState({_itemDetail: list});
     }
   }
@@ -56,33 +57,80 @@ class ConnoteDetails extends React.Component {
 
   renderHeader = () => {
     const {_itemDetail} = this.state;
+    let totalQty = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+      return _itemDetail.detail[index].quantity;
+    });
+    console.log(totalQty);
+    let expArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+        if(_itemDetail.detail[index].attributes.expiry_date === undefined)
+        return [];
+      return _itemDetail.detail[index].attributes.expiry_date;
+    });
+    let expFiltered = expArr;
+
+    let colorArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+        if(_itemDetail.detail[index].attributes.color === undefined)
+        return [];
+      return _itemDetail.detail[index].attributes.color;
+    });
+    let colorFiltered =colorArr;
+    
+    let weightArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+      if(_itemDetail.detail[index].attributes.weight === undefined)
+      return [];
+      return _itemDetail.detail[index].attributes.weight;
+    });
+    let weightFiltered = weightArr;
+
+    
+    let volumeArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+      if(_itemDetail.detail[index].attributes.volume === undefined)
+      return [];
+      return _itemDetail.detail[index].attributes.volume;
+    });
+    let volumeFiltered = volumeArr;
+    
+       
+    let classArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+      if(_itemDetail.detail[index].attributes.class === undefined)
+      return [];
+      return _itemDetail.detail[index].attributes.class;
+    });
+    let classFiltered = classArr;
+
+    let banchArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+      if(_itemDetail.detail[index].batch_no === undefined)
+      return [];
+      return _itemDetail.detail[index].batch_no;
+    });
+    let banchFiltered = banchArr;
     return (
       <>
       <Card containerStyle={[styles.cardContainer,{paddingHorizontal:0,paddingVertical:10}]} style={styles.card}>
               <View style={[styles.header,{paddingHorizontal:20}]}>
                 <View>
                   <Text style={[styles.headerTitle, {flex: 0, fontSize: 20}]}>
-                    {_itemDetail.barcode}
+                    {_itemDetail.product.item_code}
                   </Text>
                 </View>
                 {/* <Text style={styles.packageCounterText}>{_itemDetail.scanned+'/'+_itemDetail.total_qty}</Text> */}
               </View>
               <View style={[styles.detail,{paddingVertical:10}]}>
                 <View style={[styles.detailSection,{paddingBottom:10}]}>
-                <DetailList title="Description" value={_itemDetail.description} />
-                <DetailList title="Barcode" value={_itemDetail.barcode} />
-                <DetailList title="UOM" value={_itemDetail.UOM} />
-                <DetailList title="Quantity" value={_itemDetail.total_qty} />
-                <DetailList title="Product Class" value="-" />
-                <DetailList title="CBM" value="-" />
-                <DetailList title="Weight" value="-" />
+                <DetailList title="Description" value={_itemDetail.product.description} />
+                <DetailList title="Barcode" value={_itemDetail.product.item_code} />
+                <DetailList title="UOM" value={_itemDetail.product.uom} />
+                <DetailList title="Quantity" value={totalQty.length > 0 ? String(totalQty.reduce((p,n)=>p+n)) : "0"}/>
+                <DetailList title="Product Class" value={classFiltered[0]} />
+                <DetailList title="CBM" value={volumeFiltered[0]} />
+                <DetailList title="Weight" value={weightFiltered[0]} />
                 </View>
                 <Divider/>
                 <View style={[styles.detailSection,{paddingVertical:10}]}>
                   <Text style={styles.reportSectionTitle}>Product Category : Fashion</Text>
-                  <DetailList title="Color" value="BLACK" />
-                  <DetailList title="EXP Date" value="-" />
-                  <DetailList title="Banch" value="-" />
+                  <DetailList title="Color" value={colorFiltered[0]} />
+                  <DetailList title="EXP Date" value={moment(expFiltered[0]).format('YYYY-MM-DD HH:mm:ss')} />
+                  <DetailList title="Banch" value={banchFiltered[0]} />
                 </View>
                 <View style={[styles.reportSection,{paddingHorizontal:20}]}>
                   <Text style={styles.reportSectionTitle}>Report:</Text>
