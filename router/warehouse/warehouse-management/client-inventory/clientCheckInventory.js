@@ -225,7 +225,7 @@ class ClientCheckInventory extends React.Component {
         <StatusBar barStyle="dark-content" />
         <View style={styles.body}>
           <View style={styles.searchContainer}>
-            <View style={styles.inputWrapper}>
+            <View style={[styles.inputWrapper, {zIndex: 2}]}>
               <Text style={styles.inputTitle}>Client</Text>
               <Input
                 placeholder="Select Client"
@@ -257,7 +257,7 @@ class ClientCheckInventory extends React.Component {
                     .map((client) => this.renderItem(client, 'client'))}
               </View>
             </View>
-            <View style={styles.inputWrapper}>
+            <View style={[styles.inputWrapper, {zIndex: 1}]}>
               <Text style={styles.inputTitle}>Search Product</Text>
               <Input
                 placeholder="Search Product"
@@ -355,6 +355,7 @@ const styles = StyleSheet.create({
   inputText: {
     ...Mixins.subtitle3,
     lineHeight: 21,
+    paddingHorizontal: 10,
   },
   button: {
     ...Mixins.bgButtonPrimary,
