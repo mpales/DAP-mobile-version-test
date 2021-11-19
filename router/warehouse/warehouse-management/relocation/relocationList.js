@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   },
   searchInputText: {
     ...Mixins.subtitle3,
-    lineHeight: 14,
+    lineHeight: 21,
   },
   searchContainer: {
     backgroundColor: 'transparent',
