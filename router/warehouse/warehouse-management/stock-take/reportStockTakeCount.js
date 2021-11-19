@@ -72,8 +72,13 @@ class StockTakeReport extends React.Component {
       isShowBanner: false,
       errorMessage: '',
     });
-    const {reasonOption, otherReason, remarks, quantity, productId} =
-      this.state;
+    const {
+      reasonOption,
+      otherReason,
+      remarks,
+      quantity,
+      productId,
+    } = this.state;
     if (parseInt(reasonOption) === 3 && otherReason === '') {
       this.setState({
         isShowBanner: true,
@@ -429,6 +434,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     ...Mixins.subtitle3,
+    lineHeight: 21,
     borderWidth: 1,
     borderColor: '#D5D5D5',
     borderRadius: 5,

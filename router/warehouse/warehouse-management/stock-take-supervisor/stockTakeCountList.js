@@ -379,13 +379,13 @@ const styles = StyleSheet.create({
   },
   text: {
     ...Mixins.small1,
-    lineHeight: 18,
+    lineHeight: 19,
     color: '#424141',
     fontWeight: '500',
   },
   searchInputText: {
     ...Mixins.subtitle3,
-    lineHeight: 14,
+    lineHeight: 21,
   },
   searchContainer: {
     backgroundColor: 'transparent',
