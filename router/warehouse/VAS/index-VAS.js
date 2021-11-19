@@ -114,7 +114,7 @@ class WarehouseNavigator extends React.Component {
       'hardwareBackPress',
       () => {
         this._refreshFromBackHandle();
-     
+
         return false;
       },
     );
@@ -134,10 +134,7 @@ class WarehouseNavigator extends React.Component {
       ) {
         this.props.setBottomBar(true);
       }
-      if (
-        this.props.indexBottomBar === 0 &&
-        this.props.keyStack === 'List'
-      ) {
+      if (this.props.indexBottomBar === 0 && this.props.keyStack === 'List') {
         this.props.setBottomBar(true);
       }
       if (
@@ -320,7 +317,7 @@ class WarehouseNavigator extends React.Component {
             options.tabBarAccessibilityLabel !== undefined
               ? options.tabBarAccessibilityLabel
               : typeof label === 'string' && Platform.OS === 'ios'
-              ? `${label}, tab, ${index + 1} of ${routes.length}`
+              ? `${label}, tab, ${index + 1} of ${route.length}`
               : undefined;
           return (
             <NavigationContext.Provider
@@ -376,9 +373,7 @@ class WarehouseNavigator extends React.Component {
               onPress={() => {
                 navigation.navigate('VAS', {screen: 'IVASDetail'});
               }}
-              icon={() => (
-                <IconVAS height="22" width="24" fill={color} />
-              )}
+              icon={() => <IconVAS height="22" width="24" fill={color} />}
             />
           ),
         }),

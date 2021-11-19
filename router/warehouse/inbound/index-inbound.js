@@ -666,7 +666,7 @@ class WarehouseNavigator extends React.Component {
             options.tabBarAccessibilityLabel !== undefined
               ? options.tabBarAccessibilityLabel
               : typeof label === 'string' && Platform.OS === 'ios'
-              ? `${label}, tab, ${index + 1} of ${routes.length}`
+              ? `${label}, tab, ${index + 1} of ${route.length}`
               : undefined;
           return (
             <NavigationContext.Provider
