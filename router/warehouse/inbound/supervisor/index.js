@@ -239,7 +239,23 @@ class SupervisorInbound extends React.Component {
           let key =  state.routes[state.index].name;
           let index = state.index;
           this.setWrapperofStack(index,key);
-        
+          if(key !== 'ListSupervisor' && props.scene.descriptor.options.headerTitle.indexOf('-') === -1){
+            let typeString = '';
+            switch (this.props.manifestType) {
+              case 1:
+                typeString = 'ASN';
+                break;
+                case 2:
+                  typeString = 'GRN';
+                  break;
+                  case 3:
+                    typeString = 'OTHERS';
+                    break;
+              default:
+                break;
+            }
+            props.scene.descriptor.options.headerTitle = typeString + ' - ' +props.scene.descriptor.options.headerTitle;
+          }
           return (
             <Header
             {...props}
@@ -266,6 +282,7 @@ function mapStateToProps(state) {
     indexBottomBar : state.originReducer.filters.indexBottomBar,
     indexStack : state.originReducer.filters.indexStack,
     keyStack : state.originReducer.filters.keyStack,
+    manifestType : state.originReducer.filters.currentManifestType,
   };
 }
 

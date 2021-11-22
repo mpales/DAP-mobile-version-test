@@ -172,7 +172,7 @@ class Warehouse extends React.Component{
           style={styles.body}>
             <View style={[styles.sectionContent,{marginTop: 20}]}>
             <View style={[styles.sectionContentTitle, {flexDirection: 'row'}]}>
-            <View style={[styles.titleHead,{flex :1, paddingRight:20}]}>
+            <View style={[styles.titleHead,{flex :1, paddingRight:20,  flexDirection:'column', justifyContent:'flex-end', alignContent:'flex-end'}]}>
             <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{this.state.inboundNumber}</Text>   
             <Tooltip 
             withPointer={false} 
@@ -208,7 +208,7 @@ class Warehouse extends React.Component{
             />
             </Tooltip>
             </View>
-            <View style={[styles.contentHead,{flex: 1}]}>
+            <View style={[styles.contentHead,{flex: 1,  alignSelf:'flex-end',  flexDirection:'column', justifyContent:'flex-end', alignContent:'flex-end'}]}>
             <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{this.state.companyname}</Text>
             <Button
               containerStyle={{width: '100%',justifyContent: 'center',marginTop:9}}

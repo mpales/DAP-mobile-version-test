@@ -26,7 +26,6 @@ import Mixins from '../../../../mixins';
 import IconSearchMobile from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import moment from 'moment';
 import {getData} from '../../../../component/helper/network';
-import { element } from 'prop-types';
 import EmptyIlustrate from '../../../../assets/icon/Groupempty.svg';
 const window = Dimensions.get('window');
 
@@ -78,15 +77,15 @@ class List extends React.Component {
         const {putawayList} = this.props;
         let filtered = (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) ||( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) ||prevState.filtered !== this.state.filtered || prevState.search !== this.state.search ? this.state.filtered : null;
         if(filtered === 0) {
-            this.setState({list:putawayList.filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
+            this.setState({list:putawayList.filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), renderGoBack: false, renderRefresh: false});
         } else if(filtered === 1){
-            this.setState({list:putawayList.filter((element)=> element.type === 1).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
+            this.setState({list:putawayList.filter((element)=> element.type === 1).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), renderGoBack: false, renderRefresh: false});
         } else if(filtered === 2){
-            this.setState({list:putawayList.filter((element)=> element.type === 2).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
+            this.setState({list:putawayList.filter((element)=> element.type === 2).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), renderGoBack: false, renderRefresh: false});
         }else if(filtered === 3){
-            this.setState({list:putawayList.filter((element)=> element.type === 3).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
+            this.setState({list:putawayList.filter((element)=> element.type === 3).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), renderGoBack: false, renderRefresh: false});
         }else if(filtered === 4){
-            this.setState({list:putawayList.filter((element)=> element.type === 4).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
+            this.setState({list:putawayList.filter((element)=> element.type === 4).filter((element)=> String(element.pallet).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), renderGoBack: false, renderRefresh: false});
         }
         
     }

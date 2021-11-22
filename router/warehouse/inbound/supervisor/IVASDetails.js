@@ -17,6 +17,7 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import {getData, postData} from '../../../../component/helper/network';
 import Loading from '../../../../component/loading/loading';
 import moment from 'moment';
+import Banner from '../../../../component/banner/banner';
 class ConnoteReportDetails extends React.Component {
   constructor(props) {
     super(props);
@@ -29,6 +30,9 @@ class ConnoteReportDetails extends React.Component {
       clientVAS : null,
       inboundData: null,
       shipmentID: null,
+      notifbanner: '',
+      errorbanner : '',
+      renderAcknowledged : false,
     };
     this.acknowledgedSPVConfirm.bind(this);
   }
@@ -57,6 +61,10 @@ class ConnoteReportDetails extends React.Component {
       const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+ shipmentID );
       this.setState({itemIVAS:result.inbound_shipment_va, acknowledged:result.inbound_shipment_va.acknowledged !== undefined ? result.inbound_shipment_va.acknowledged : false});
     }
+    if(prevState.renderAcknowledged !== this.state.renderAcknowledged && this.state.renderAcknowledged === true){
+      const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+ shipmentID );
+      this.setState({itemIVAS:result.inbound_shipment_va, acknowledged:result.inbound_shipment_va.acknowledged !== undefined ? result.inbound_shipment_va.acknowledged : false, renderAcknowledged : false});
+    }
   }
   async componentDidMount(){
     const {inboundID, shipmentID} = this.state;
@@ -83,11 +91,18 @@ class ConnoteReportDetails extends React.Component {
     const {inboundID, shipmentID} = this.state;
     let data = {acknowledge:this.state.acknowledged >>> 0}
     const result = await postData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+shipmentID,data);
-    console.log(result);
+    if(typeof result === 'object' && result.error !== undefined){
+      this.setState({errorbanner:result.error});
+    } else {
+      this.setState({notifbanner: result, renderAcknowledged: true});
+    }
   }
   uncheckedIcon = () => {
     return <View style={styles.unchecked} />;
   };
+  closeNotifBanner = ()=>{
+    this.setState({notifbanner:'', errorbanner: ''});
+  }
   render() {
     const {inboundData,itemIVAS} = this.state;
     if(inboundData === null || itemIVAS === null )
@@ -95,6 +110,15 @@ class ConnoteReportDetails extends React.Component {
     return (
       <>
         <StatusBar barStyle="dark-content" />
+        {this.state.notifbanner !== '' ? (<Banner
+            title={this.state.notifbanner}
+            backgroundColor="#17B055"
+            closeBanner={this.closeNotifBanner}
+          />) : this.state.errorbanner !== '' ? (<Banner
+            title={this.state.errorbanner}
+            backgroundColor="#F1811C"
+            closeBanner={this.closeNotifBanner}
+          />): null }
         <ScrollView style={styles.container}>
           <View style={[styles.header,{paddingHorizontal:10}]}>
             <Text style={styles.headerTitle}>Shipment VAS Details</Text>
@@ -102,10 +126,10 @@ class ConnoteReportDetails extends React.Component {
           <View style={[styles.body,{paddingHorizontal:10}]}>
             <Card containerStyle={styles.cardContainer} style={styles.card}>
              
-              <View style={styles.detail}>
+              <View style={[styles.detail]}>
                 <DetailList title="Client" value={this.state.clientVAS} />
                 <DetailList title="Recorded By" value={ itemIVAS.created_by !== undefined ? itemIVAS.created_by.firstName : null} />
-                <DetailList title="Date and Time" value={ itemIVAS.created_on  !== null ? moment(itemIVAS.created_on).format('DD/MM/YYY h:mm a') : null}/>
+                <DetailList title="Date and Time" value={ itemIVAS.created_on  !== null ? moment(itemIVAS.created_on).format('DD/MM/YYYY h:mm a') : null}/>
                
               <View style={{marginVertical:10}}> 
               <Text style={{...Mixins.body1,lineHeight:20,fontWeight:'700',color:'#2D2C2C'}}>
