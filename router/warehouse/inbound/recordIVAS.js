@@ -8,6 +8,7 @@ import Mixins from '../../../mixins';
 import {postData} from '../../../component/helper/network';
 import Loading from '../../../component/loading/loading';
 import Banner from '../../../component/banner/banner';
+
 class Acknowledge extends React.Component {
   constructor(props) {
     super(props);
@@ -102,9 +103,12 @@ class Acknowledge extends React.Component {
       shipmentPallet: shipmentpallet,
       nCartoon : shipment === 1 ? parseInt(this.state.stuffTruckCarton) : shipment === 2 ? parseInt(this.state.stuff20ContainerCarton) : shipment === 3 ? parseInt(this.state.stuff40ContainerCarton) : 0,
       nPallet  : shipment === 1 ? parseInt(this.state.stuffTruckPallet) : shipment === 2 ? parseInt(this.state.stuff20ContainerPallet) : shipment === 3 ? parseInt(this.state.stuff40ContainerPallet) : 0,
-      cartoonDimensionSKU : parseInt(this.state.takeCartonSKU),
       other: this.state.takeOthersInput
     };
+    let cartonSKU = parseInt(this.state.takeCartonSKU);
+    if(cartonSKU){
+      VAS.cartoonDimensionSKU = cartonSKU;
+    }
     const result = await postData('/inboundsMobile/'+this.state.receivingNumber+'/shipmentVAS', VAS);
     if(result === 'IVAS succesfully created'){
       this.props.navigation.goBack();

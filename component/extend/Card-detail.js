@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     marginLeft: 5,
     flexWrap: 'wrap',
+    flexBasis:1,
     maxWidth: '65%',
   },
 });

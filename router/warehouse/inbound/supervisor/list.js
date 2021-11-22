@@ -66,7 +66,7 @@ class List extends React.Component {
         const result = await getData('inboundsMobile');
         this.setState({renderGoBack: false, renderRefresh: false, renderFiltered:false});
         if(Array.isArray(result)){
-            return result.filter((o)=> o !== null);
+            return result.filter((o)=> o !== null).sort((a, b) => -(String(a.created_on).localeCompare(String(b.created_on))))
         } else {
             return [];
         }
