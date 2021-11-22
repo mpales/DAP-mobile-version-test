@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -36,9 +37,8 @@ class RelocationRequest extends React.Component {
   }
 
   componentDidMount() {
-    this._unsubscribe = this.props.navigation.addListener('focus', () => {
-      this.getClientList();
-    });
+    this.getClientList();
+    this._unsubscribe = this.props.navigation.addListener('focus', () => {});
   }
 
   componentWillUnmount() {
@@ -185,7 +185,12 @@ class RelocationRequest extends React.Component {
         <ScrollView style={styles.body}>
           <View style={styles.searchContainer}>
             <Text style={styles.title}>Request Relocation</Text>
-            <View style={[styles.inputWrapper, {zIndex: 2}]}>
+            <View
+              style={
+                Platform.OS === 'ios'
+                  ? [styles.inputWrapper, {zIndex: 2}]
+                  : styles.inputWrapper
+              }>
               <Text style={styles.inputTitle}>Client</Text>
               <Input
                 placeholder="Select Client"
@@ -216,7 +221,12 @@ class RelocationRequest extends React.Component {
                     .map((client) => this.renderItem(client, 'client'))}
               </View>
             </View>
-            <View style={[styles.inputWrapper, {zIndex: 1}]}>
+            <View
+              style={
+                Platform.OS === 'ios'
+                  ? [styles.inputWrapper, {zIndex: 1}]
+                  : styles.inputWrapper
+              }>
               <Text style={styles.inputTitle}>Item Code</Text>
               <Input
                 placeholder="Enter Item Code"
@@ -310,7 +320,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
     overflow: 'visible',
-    zIndex: 1,
   },
   resultContainer: {
     flexShrink: 1,
