@@ -105,9 +105,8 @@ class Acknowledge extends React.Component {
       nPallet  : shipment === 1 ? parseInt(this.state.stuffTruckPallet) : shipment === 2 ? parseInt(this.state.stuff20ContainerPallet) : shipment === 3 ? parseInt(this.state.stuff40ContainerPallet) : 0,
       other: this.state.takeOthersInput
     };
-    let cartonSKU = parseInt(this.state.takeCartonSKU);
-    if(cartonSKU){
-      VAS.cartoonDimensionSKU = cartonSKU;
+    if(this.state.takeCartoon){
+      VAS.cartoonDimensionSKU = parseInt(this.state.takeCartonSKU);
     }
     const result = await postData('/inboundsMobile/'+this.state.receivingNumber+'/shipmentVAS', VAS);
     if(result === 'IVAS succesfully created'){

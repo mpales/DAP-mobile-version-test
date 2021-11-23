@@ -73,21 +73,22 @@ class UpdatePhoto extends React.Component {
             const {routes,index} = this.props.navigation.dangerouslyGetState();
             return(
               <HeaderBackButton  {...props} onPress={()=>{
-                if(routes[index - 1].name === 'Barcode'){
-                  navigation.navigate('Inbound',{
-                    screen: 'Barcode',
-                    params: {
-                      upload : false,
-                    },
-                  });
-                } else if(routes[index - 1].name === 'ItemProcess'){
-                  navigation.navigate('Inbound',{
-                    screen: 'ItemProcess',
-                    params: {
-                      upload : false,
-                    },
-                  });
-                }
+          
+                  if(routes[index - 1].name === 'Barcode'){
+                    navigation.navigate('Inbound',{
+                      screen: 'Barcode',
+                      params: {
+                        upload : false,
+                      },
+                    });
+                  } else if(routes[index - 1].name === 'ItemProcess'){
+                    navigation.navigate('Inbound',{
+                      screen: 'ItemProcess',
+                      params: {
+                        upload : false,
+                      },
+                    });
+                  }
               }
             }
             />);
@@ -103,21 +104,24 @@ class UpdatePhoto extends React.Component {
               iconContainerStyle={{padding: 0, margin: 0}}
               titleStyle={{...Mixins.h6, fontWeight: '400', lineHeight: 22,padding: 0, margin: 0, color: '#fff'}}
               onPress={()=>{
-                if(routes[index - 1].name === 'Barcode'){
-                navigation.navigate('Inbound',{
-                  screen: 'Barcode',
-                  params: {
-                    upload : true,
-                  },
-                });
-              } else if(routes[index - 1].name === 'ItemProcess'){
-                navigation.navigate('Inbound',{
-                  screen: 'ItemProcess',
-                  params: {
-                    upload : true,
-                  },
-                });
-              }
+              if(this.props.POSMPostpone !== null)
+              {  
+                      if(routes[index - 1].name === 'Barcode'){
+                      navigation.navigate('Inbound',{
+                        screen: 'Barcode',
+                        params: {
+                          upload : true,
+                        },
+                      });
+                    } else if(routes[index - 1].name === 'ItemProcess'){
+                      navigation.navigate('Inbound',{
+                        screen: 'ItemProcess',
+                        params: {
+                          upload : true,
+                        },
+                      });
+                    }
+                }
               }}
             />
           );}
@@ -184,6 +188,7 @@ function mapStateToProps(state) {
     indexBottomBar : state.originReducer.filters.indexBottomBar,
     indexStack : state.originReducer.filters.indexStack,
     keyStack : state.originReducer.filters.keyStack,
+    POSMPostpone: state.originReducer.filters.POSMPostpone,
   };
 }
 
