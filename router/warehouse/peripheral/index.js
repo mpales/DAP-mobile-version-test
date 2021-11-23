@@ -104,7 +104,7 @@ class Example extends React.Component {
     return {...state};
   }
   shouldComponentUpdate(nextProps, nextState) {
-    if((this.state.ItemGrade !== nextState.ItemGrade || this.state.ItemPallet !== nextState.ItemPallet) && nextState.dataItem === this.state.dataItem){
+    if((this.state.ItemPallet !== nextState.ItemPallet) && nextState.dataItem === this.state.dataItem && nextState.PalletArray === this.state.PalletArray){
       return false;
     } else if(nextState.isPOSM === true && nextState.dataItem === null){
       return false;
@@ -490,7 +490,7 @@ class Example extends React.Component {
                         <>
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Grade</Text>
-                        <Text style={styles.infoPackage}>{ this.props.ManifestType === 1 ? ( dataItem.rework === 0 ? 'SIT -> Buffer' : 'Rework -> Buffer') : (dataItem.rework === 0 ? 'SIT-> Pick' : 'Rework -> Pick')}</Text>
+                        <Text style={styles.infoPackage}>{ this.props.ManifestType === 1 ? ( dataItem.rework === 0 ? 'SIT -> Buffer' : 'SIT-> Rework -> Buffer') : (dataItem.rework === 0 ? 'SIT-> Pick' : 'SIT-> Rework -> Pick')}</Text>
                     
                       </View>
                       <View style={styles.dividerContent}>

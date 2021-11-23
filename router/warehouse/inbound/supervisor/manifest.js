@@ -363,7 +363,7 @@ class Warehouse extends React.Component{
               buttonStyle={[styles.navigationButton, {paddingVertical: 10}]}
               titleStyle={styles.deliveryText}
               onPress={this.toggleOverlay}
-              title="Comfirm & Putaway"
+              title="Confirm & Putaway"
             />
           </View>
         </SafeAreaProvider>
