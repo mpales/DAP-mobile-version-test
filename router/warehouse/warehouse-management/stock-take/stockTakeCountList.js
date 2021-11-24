@@ -21,6 +21,8 @@ import {getData} from '../../../../component/helper/network';
 import Format from '../../../../component/helper/format';
 //style
 import Mixins from '../../../../mixins';
+// icon
+import SearchIcon from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
 
 const screen = Dimensions.get('window');
 
@@ -218,12 +220,12 @@ class StockTakeCountList extends React.Component {
           )}
         </View>
         <SearchBar
-          placeholder="Search"
+          placeholder="Search..."
           onChangeText={this.updateSearch}
           value={this.state.search}
           lightTheme={true}
           inputStyle={styles.searchInputText}
-          searchIcon=""
+          searchIcon={<SearchIcon height="20" width="20" fill="#2D2C2C" />}
           containerStyle={styles.searchContainer}
           inputContainerStyle={styles.searchInputContainer}
         />

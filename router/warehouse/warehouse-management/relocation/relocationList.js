@@ -18,7 +18,8 @@ import Loading from '../../../../component/loading/loading';
 import {getData} from '../../../../component/helper/network';
 //style
 import Mixins from '../../../../mixins';
-import moment from 'moment';
+// icon
+import SearchIcon from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
 
 class RelocationList extends React.Component {
   constructor(props) {
@@ -163,12 +164,11 @@ class RelocationList extends React.Component {
             <View
               style={{
                 flexDirection: 'row',
-                justifyContent: 'space-between',
+                justifyContent: 'flex-end',
                 alignItems: 'center',
                 marginTop: 15,
                 paddingHorizontal: 20,
               }}>
-              <Text style={styles.searchTitle}>Search</Text>
               <Button
                 buttonStyle={{
                   ...Mixins.bgButtonPrimary,
@@ -181,11 +181,12 @@ class RelocationList extends React.Component {
               />
             </View>
             <SearchBar
+              placeholder="Search..."
               onChangeText={this.updateSearch}
               value={this.state.search}
               lightTheme={true}
               inputStyle={styles.searchInputText}
-              searchIcon=""
+              searchIcon={<SearchIcon height="20" width="20" fill="#2D2C2C" />}
               containerStyle={styles.searchContainer}
               inputContainerStyle={styles.searchInputContainer}
             />
