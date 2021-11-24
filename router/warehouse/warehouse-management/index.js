@@ -14,12 +14,14 @@ import StockTakeSupervisorNavigator from './stock-take-supervisor';
 import RelocationNavigator from './relocation';
 import SearchInventoryNavigator from './search-inventory';
 import ClientInventoryNavigator from './client-inventory';
+import SelfRecollectionNavigator from './self-recollection';
 // icon
 import WarehouseRelocationIcon from '../../../assets/icon/warehouse-mobile.svg';
 import StockTakeIcon from '../../../assets/icon/iconmonstr-shipping-box-2mobile.svg';
 import StockTakeSupervisorIcon from '../../../assets/icon/iconmonstr-delivery-10 1mobile.svg';
 import CheckInventoryIcon from '../../../assets/icon/iconmonstr-delivery-19mobile.svg';
 import ClientInventoryIcon from '../../../assets/icon/iconmonstr-cube-18mobile.svg';
+import SelfRecollectionIcon from '../../../assets/icon/iconmonstr-shipping-box-11mobile.svg';
 import IconArrow66Mobile from '../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 import LogoSmall from '../../../assets/dap_logo_hires1-e1544435829468 5small.svg';
 
@@ -50,7 +52,7 @@ class WarehouseManagement extends React.Component {
         <View style={styles.logoContainer}>
           <LogoSmall width="135" height="70" style={{alignSelf: 'center'}} />
         </View>
-        <View style={{flexDirection: 'row', flexShrink: 1}}>
+        <View style={styles.menuButtonContainer}>
           <View style={styles.sectionContainer}>
             <Avatar
               size={140}
@@ -113,8 +115,6 @@ class WarehouseManagement extends React.Component {
               ]}
             />
           </View>
-        </View>
-        <View style={{flexDirection: 'row', flexShrink: 1}}>
           <View style={styles.sectionContainer}>
             <Avatar
               size={140}
@@ -177,8 +177,35 @@ class WarehouseManagement extends React.Component {
               ]}
             />
           </View>
-        </View>
-        <View style={{flexDirection: 'row', flexShrink: 1}}>
+          <View style={styles.sectionContainer}>
+            <Avatar
+              size={140}
+              ImageComponent={() => (
+                <SelfRecollectionIcon height="70" width="70" fill="#6C6B6B" />
+              )}
+              imageProps={{
+                containerStyle: {
+                  ...Mixins.buttonFloatedAvatarDefaultIconStyle,
+                },
+              }}
+              title="SELF RECOLLECTION"
+              overlayContainerStyle={
+                Mixins.buttonFloatedAvatarDefaultOverlayStyle
+              }
+              onPress={() =>
+                this.props.navigation.navigate('SelfRecollectionNavigator')
+              }
+              activeOpacity={0.7}
+              containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
+              placeholderStyle={
+                Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
+              }
+              titleStyle={[
+                Mixins.buttonFloatedAvatarDefaultTitleStyle,
+                styles.buttonTitle,
+              ]}
+            />
+          </View>
           <View style={styles.sectionContainer}>
             <Avatar
               size={140}
@@ -261,6 +288,11 @@ class WarehouseManagement extends React.Component {
           name="ClientInventoryNavigator"
           options={{headerShown: false}}
         />
+        <Stack.Screen
+          component={SelfRecollectionNavigator}
+          name="SelfRecollectionNavigator"
+          options={{headerShown: false}}
+        />
       </Stack.Navigator>
     );
   }
@@ -285,9 +317,14 @@ const styles = {
     fontWeight: '700',
     paddingHorizontal: 5,
   },
+  menuButtonContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+  },
   sectionContainer: {
-    flex: 0.5,
-    marginHorizontal: 5,
+    width: '50%',
     marginVertical: 10,
     alignItems: 'center',
   },
