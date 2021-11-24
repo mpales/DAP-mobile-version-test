@@ -16,7 +16,7 @@ const initialState = {
   route: ROUTE,
   inboundList: [],
   gallery: {},
-  VASList : [],
+  VASList: [],
   inboundSPVList: [],
   putawayList: [],
   outboundTask: [],
@@ -24,6 +24,9 @@ const initialState = {
   manifestList: [],
   deviceSignature: null,
   jwtToken: null,
+  recollectionPhotoList: [],
+  recollectionSignatureData: null,
+  recollectionSignatureBase64: '',
   // for prototype only
   currentPositionData: null,
   completedInboundList: [],
@@ -36,6 +39,7 @@ const initialState = {
     colors: [],
     isPhotoProofSubmitted: false,
     isStockTakeReportPhotoSubmitted: false,
+    isRecollectionPhotoSubmitted: false,
     isSignatureSubmitted: false,
     imageConfirmationData: null,
     bottomBar: true,
@@ -79,10 +83,10 @@ const initialState = {
     logged: false,
     activeVAS: [],
     completeVAS: [],
-    ReportedVAS : [],
+    ReportedVAS: [],
     ApplicationNavigational: null,
     stockTakeId: null,
-    manifestError : null,
+    manifestError: null,
   },
 };
 
@@ -188,14 +192,14 @@ export default function appReducer(state = initialState, action) {
           cameraPermission: action.payload,
         },
       };
-      case 'audioPermission':
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            audioPermission: action.payload,
-          },
-        };
+    case 'audioPermission':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          audioPermission: action.payload,
+        },
+      };
     case 'locationPermission':
       return {
         ...state,
@@ -272,33 +276,54 @@ export default function appReducer(state = initialState, action) {
         stockTakeReportPhotoList: action.payload,
       };
     case 'loadFromGallery':
-    if(action.payload.gtype === 'report'){
-      return {
-        ...state,
-        photoReportPostpone : Array.isArray(state.gallery[action.payload.gID]) ===  true ? state.gallery[action.payload.gID] : initialState.photoReportPostpone, 
-        photoReportID : Array.isArray(state.gallery[action.payload.gID]) ===  true ? action.payload.gID : initialState.photoReportID, 
-      };
-    } else if (action.payload.gtype ==='proof'){
-      return {
-        ...state,
-        photoProofPostpone : Array.isArray(state.gallery[action.payload.gID]) ===  true ? state.gallery[action.payload.gID] : initialState.photoProofPostpone, 
-        photoProofID : Array.isArray(state.gallery[action.payload.gID]) ===  true ? action.payload.gID : initialState.photoProofID,
-      };
-    } else if (action.payload.gtype === 'disposal'){
-      return {
-        ...state,
-        disposalPostpone : Array.isArray(state.gallery[action.payload.gID]) ===  true ? state.gallery[action.payload.gID] : initialState.disposalPostpone, 
-        disposalProofID : Array.isArray(state.gallery[action.payload.gID]) ===  true ? action.payload.gID : initialState.disposalProofID,
-      };
-    }
+      if (action.payload.gtype === 'report') {
+        return {
+          ...state,
+          photoReportPostpone:
+            Array.isArray(state.gallery[action.payload.gID]) === true
+              ? state.gallery[action.payload.gID]
+              : initialState.photoReportPostpone,
+          photoReportID:
+            Array.isArray(state.gallery[action.payload.gID]) === true
+              ? action.payload.gID
+              : initialState.photoReportID,
+        };
+      } else if (action.payload.gtype === 'proof') {
+        return {
+          ...state,
+          photoProofPostpone:
+            Array.isArray(state.gallery[action.payload.gID]) === true
+              ? state.gallery[action.payload.gID]
+              : initialState.photoProofPostpone,
+          photoProofID:
+            Array.isArray(state.gallery[action.payload.gID]) === true
+              ? action.payload.gID
+              : initialState.photoProofID,
+        };
+      } else if (action.payload.gtype === 'disposal') {
+        return {
+          ...state,
+          disposalPostpone:
+            Array.isArray(state.gallery[action.payload.gID]) === true
+              ? state.gallery[action.payload.gID]
+              : initialState.disposalPostpone,
+          disposalProofID:
+            Array.isArray(state.gallery[action.payload.gID]) === true
+              ? action.payload.gID
+              : initialState.disposalProofID,
+        };
+      }
     case 'PhotoProofPostpone':
       if (action.payload === null) {
         return {
           ...state,
-          gallery: state.photoProofID !== null ? {
-            ...state.gallery,
-            [state.photoProofID] : initialState.photoProofPostpone,
-          } : state.gallery,
+          gallery:
+            state.photoProofID !== null
+              ? {
+                  ...state.gallery,
+                  [state.photoProofID]: initialState.photoProofPostpone,
+                }
+              : state.gallery,
           photoProofPostpone: initialState.photoProofPostpone,
           photoProofID: initialState.photoProofID,
         };
@@ -306,59 +331,83 @@ export default function appReducer(state = initialState, action) {
         return {
           ...state,
           photoProofPostpone: [...state.photoProofPostpone, action.payload],
-          gallery: state.photoProofID !== null ? {
-            ...state.gallery,
-            [state.photoProofID] : [...state.photoProofPostpone, action.payload],
-          } : state.gallery,
+          gallery:
+            state.photoProofID !== null
+              ? {
+                  ...state.gallery,
+                  [state.photoProofID]: [
+                    ...state.photoProofPostpone,
+                    action.payload,
+                  ],
+                }
+              : state.gallery,
         };
       } else {
         return {
           ...state,
           photoProofPostpone: [action.payload],
-          gallery: state.photoProofID !== null ? {
-            ...state.gallery,
-            [state.photoProofID] :[action.payload],
-          } : state.gallery,
+          gallery:
+            state.photoProofID !== null
+              ? {
+                  ...state.gallery,
+                  [state.photoProofID]: [action.payload],
+                }
+              : state.gallery,
         };
       }
-      case 'disposalPostpone':
-        if (action.payload === null) {
-          return {
-            ...state,
-            gallery: state.disposalProofID !== null ? {
-              ...state.gallery,
-              [state.disposalProofID] : initialState.disposalPostpone,
-            } : state.gallery,
-            disposalPostpone: initialState.disposalPostpone,
-            disposalProofID: initialState.disposalProofID,
-          };
-        } else if (Array.isArray(state.disposalPostpone)) {
-          return {
-            ...state,
-            disposalPostpone: [...state.disposalPostpone, action.payload],
-            gallery: state.disposalProofID !== null ? {
-              ...state.gallery,
-              [state.disposalProofID] : [...state.disposalPostpone, action.payload],
-            } : state.gallery,
-          };
-        } else {
-          return {
-            ...state,
-            disposalPostpone: [action.payload],
-            gallery: state.disposalProofID !== null ? {
-              ...state.gallery,
-              [state.disposalProofID] :[action.payload],
-            } : state.gallery,
-          };
-        }
+    case 'disposalPostpone':
+      if (action.payload === null) {
+        return {
+          ...state,
+          gallery:
+            state.disposalProofID !== null
+              ? {
+                  ...state.gallery,
+                  [state.disposalProofID]: initialState.disposalPostpone,
+                }
+              : state.gallery,
+          disposalPostpone: initialState.disposalPostpone,
+          disposalProofID: initialState.disposalProofID,
+        };
+      } else if (Array.isArray(state.disposalPostpone)) {
+        return {
+          ...state,
+          disposalPostpone: [...state.disposalPostpone, action.payload],
+          gallery:
+            state.disposalProofID !== null
+              ? {
+                  ...state.gallery,
+                  [state.disposalProofID]: [
+                    ...state.disposalPostpone,
+                    action.payload,
+                  ],
+                }
+              : state.gallery,
+        };
+      } else {
+        return {
+          ...state,
+          disposalPostpone: [action.payload],
+          gallery:
+            state.disposalProofID !== null
+              ? {
+                  ...state.gallery,
+                  [state.disposalProofID]: [action.payload],
+                }
+              : state.gallery,
+        };
+      }
     case 'PhotoReportPostpone':
       if (action.payload === null) {
         return {
           ...state,
-          gallery: state.photoReportID !== null ? {
-            ...state.gallery,
-            [state.photoReportID] : initialState.photoReportPostpone,
-          } : state.gallery,
+          gallery:
+            state.photoReportID !== null
+              ? {
+                  ...state.gallery,
+                  [state.photoReportID]: initialState.photoReportPostpone,
+                }
+              : state.gallery,
           photoReportPostpone: initialState.photoReportPostpone,
           photoReportID: initialState.photoReportID,
         };
@@ -366,19 +415,28 @@ export default function appReducer(state = initialState, action) {
         return {
           ...state,
           photoReportPostpone: [...state.photoReportPostpone, action.payload],
-          gallery: state.photoReportID !== null ? {
-            ...state.gallery,
-            [state.photoReportID] : [...state.photoReportPostpone, action.payload],
-          } : state.gallery,
+          gallery:
+            state.photoReportID !== null
+              ? {
+                  ...state.gallery,
+                  [state.photoReportID]: [
+                    ...state.photoReportPostpone,
+                    action.payload,
+                  ],
+                }
+              : state.gallery,
         };
       } else {
         return {
           ...state,
           photoReportPostpone: [action.payload],
-          gallery: state.photoReportID !== null ? {
-            ...state.gallery,
-            [state.photoReportID] :[action.payload],
-          } : state.gallery,
+          gallery:
+            state.photoReportID !== null
+              ? {
+                  ...state.gallery,
+                  [state.photoReportID]: [action.payload],
+                }
+              : state.gallery,
         };
       }
     case 'POSMPostpone':
@@ -411,32 +469,38 @@ export default function appReducer(state = initialState, action) {
       return {
         ...state,
         photoReportPostpone: action.payload,
-        gallery: state.photoReportID !== null ? {
-          ...state.gallery,
-          [state.photoReportID] : action.payload,
-        } : state.gallery,
-        
+        gallery:
+          state.photoReportID !== null
+            ? {
+                ...state.gallery,
+                [state.photoReportID]: action.payload,
+              }
+            : state.gallery,
       };
     case 'PhotoProofUpdate':
       return {
         ...state,
         photoProofPostpone: action.payload,
-        gallery: state.photoProofID !== null ? {
-          ...state.gallery,
-          [state.photoProofID] : action.payload,
-        } : state.gallery,
-        
+        gallery:
+          state.photoProofID !== null
+            ? {
+                ...state.gallery,
+                [state.photoProofID]: action.payload,
+              }
+            : state.gallery,
       };
-      case 'DisposalMediaUpdate':
-        return {
-          ...state,
-          disposalPostpone: action.payload,
-          gallery: state.disposalProofID !== null ? {
-            ...state.gallery,
-            [state.disposalProofID] : action.payload,
-          } : state.gallery,
-          
-        };
+    case 'DisposalMediaUpdate':
+      return {
+        ...state,
+        disposalPostpone: action.payload,
+        gallery:
+          state.disposalProofID !== null
+            ? {
+                ...state.gallery,
+                [state.disposalProofID]: action.payload,
+              }
+            : state.gallery,
+      };
     case 'POSMUpdate':
       return {
         ...state,
@@ -445,20 +509,20 @@ export default function appReducer(state = initialState, action) {
           POSMPostpone: action.payload,
         },
       };
-      case 'ManifestError':
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            manifestError: action.payload,
-          },
-        };
+    case 'ManifestError':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          manifestError: action.payload,
+        },
+      };
     case 'addPhotoProofID':
       return {
         ...state,
         photoProofID: action.payload,
       };
-      case 'addDisposalProofID':
+    case 'addDisposalProofID':
       return {
         ...state,
         disposalProofID: action.payload,
@@ -523,14 +587,14 @@ export default function appReducer(state = initialState, action) {
           currentIVAS: initialState.filters.currentIVAS,
         },
       };
-      case 'setManifestType':
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            currentManifestType: action.payload,
-          },
-        };
+    case 'setManifestType':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          currentManifestType: action.payload,
+        },
+      };
     case 'setCurrentManifest':
       return {
         ...state,
@@ -821,11 +885,11 @@ export default function appReducer(state = initialState, action) {
         ...state,
         inboundList: action.payload,
       };
-      case 'VASList':
-        return {
-          ...state,
-          VASList: action.payload,
-        };
+    case 'VASList':
+      return {
+        ...state,
+        VASList: action.payload,
+      };
     case 'InboundSPVList':
       return {
         ...state,
@@ -916,30 +980,30 @@ export default function appReducer(state = initialState, action) {
           currentIVAS: [...state.filters.currentIVAS, action.payload],
         },
       };
-      case 'activeVAS':
-        return {
-          ...state,
-          filters: {
-            ...state.filters,
-            activeVAS: [...state.filters.activeVAS, action.payload],
-          },
-        };
-        case 'completeVAS':
-          return {
-            ...state,
-            filters: {
-              ...state.filters,
-              completeVAS: [...state.filters.completeVAS, action.payload],
-            },
-          };
-          case 'ReportedVAS':
-            return {
-              ...state,
-              filters: {
-                ...state.filters,
-                ReportedVAS: [...state.filters.ReportedVAS, action.payload],
-              },
-            };
+    case 'activeVAS':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          activeVAS: [...state.filters.activeVAS, action.payload],
+        },
+      };
+    case 'completeVAS':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          completeVAS: [...state.filters.completeVAS, action.payload],
+        },
+      };
+    case 'ReportedVAS':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          ReportedVAS: [...state.filters.ReportedVAS, action.payload],
+        },
+      };
     case 'fromBarcode':
       return {
         ...state,
@@ -1020,6 +1084,29 @@ export default function appReducer(state = initialState, action) {
       return {
         ...state,
         deviceSignature: action.payload,
+      };
+    case 'RecollectionPhotoList':
+      return {
+        ...state,
+        recollectionPhotoList: action.payload,
+      };
+    case 'RecollectionSignatureData':
+      return {
+        ...state,
+        recollectionSignatureData: action.payload,
+      };
+    case 'RecollectionSignatureBase64':
+      return {
+        ...state,
+        recollectionSignatureBase64: action.payload,
+      };
+    case 'RecollectionPhotoSubmitted':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          isRecollectionPhotoSubmitted: action.payload,
+        },
       };
     case 'StockTakeId':
       return {
