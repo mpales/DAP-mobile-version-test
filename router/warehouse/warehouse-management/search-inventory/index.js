@@ -5,6 +5,7 @@ import {
   HeaderBackButton,
 } from '@react-navigation/stack';
 import {connect} from 'react-redux';
+import {Platform} from 'react-native';
 import Mixins from '../../../../mixins';
 // screen
 import SearchInventory from './searchInventory';

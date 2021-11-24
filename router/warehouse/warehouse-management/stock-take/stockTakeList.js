@@ -18,6 +18,8 @@ import Loading from '../../../../component/loading/loading';
 import {getData} from '../../../../component/helper/network';
 //style
 import Mixins from '../../../../mixins';
+// icon
+import SearchIcon from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
 
 class StockTakeList extends React.Component {
   constructor(props) {
@@ -147,22 +149,13 @@ class StockTakeList extends React.Component {
           <Loading />
         ) : (
           <>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginTop: 15,
-                paddingHorizontal: 20,
-              }}>
-              <Text style={styles.searchTitle}>Search</Text>
-            </View>
             <SearchBar
+              placeholder="Search..."
               onChangeText={this.updateSearch}
               value={this.state.search}
               lightTheme={true}
               inputStyle={styles.searchInputText}
-              searchIcon=""
+              searchIcon={<SearchIcon height="20" width="20" fill="#2D2C2C" />}
               containerStyle={styles.searchContainer}
               inputContainerStyle={styles.searchInputContainer}
             />

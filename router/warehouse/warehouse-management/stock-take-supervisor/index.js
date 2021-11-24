@@ -4,7 +4,7 @@ import {
   Header,
   HeaderBackButton,
 } from '@react-navigation/stack';
-import {Button} from 'react-native-elements';
+import {Platform} from 'react-native';
 import {connect} from 'react-redux';
 // screen
 import StockTakeJobList from './stockTakeList';

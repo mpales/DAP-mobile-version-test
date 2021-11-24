@@ -1,9 +1,6 @@
 import React from 'react';
-import {
-  createStackNavigator,
-  Header,
-  HeaderBackButton,
-} from '@react-navigation/stack';
+import {createStackNavigator, Header} from '@react-navigation/stack';
+import {Platform} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../../mixins';
 // screen
