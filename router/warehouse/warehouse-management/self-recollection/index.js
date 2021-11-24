@@ -1,9 +1,13 @@
 import React from 'react';
 import {Platform} from 'react-native';
 import {createStackNavigator, Header} from '@react-navigation/stack';
+import {Button} from 'react-native-elements';
 import {connect} from 'react-redux';
 // component
 import SelfRecollectionList from './selfRecollectionList';
+import RecollectionForm from './recollectionForm';
+import RecollectionCamera from '../peripheral/recollectionCamera';
+import RecollectionEnlargeImage from '../peripheral/recollectionEnlargeImage';
 // style
 import Mixins from '../../../../mixins';
 // icon
@@ -17,9 +21,17 @@ class SelfRecollectionNavigator extends React.Component {
     this.state = {};
     this.setWrapperofStack.bind(this);
   }
+
   setWrapperofStack = (index, key) => {
     this.props.setCurrentStackKey(key);
     this.props.setCurrentStackIndex(index);
+  };
+
+  submitRecollectionPhotoList = () => {
+    if (this.props.recollectionPhotoList.length > 0) {
+      this.props.setRecollectionPhotoSubmitted(true);
+      this.props.navigation.navigate('RecollectionForm');
+    }
   };
 
   render() {
@@ -63,6 +75,47 @@ class SelfRecollectionNavigator extends React.Component {
           name="SelfRecollectionList"
           options={{
             headerTitle: 'Self Recollection',
+          }}
+        />
+        <Stack.Screen
+          component={RecollectionForm}
+          name="RecollectionForm"
+          options={{
+            headerTitle: 'Self Recollection',
+          }}
+        />
+        <Stack.Screen
+          component={RecollectionCamera}
+          name="RecollectionCamera"
+          options={{
+            headerTransparent: true,
+            headerTitle: '',
+            headerBackTitle: 'Back',
+            headerRight: () => {
+              return (
+                <Button
+                  type="clear"
+                  title={'Submit'}
+                  buttonStyle={{paddingHorizontal: 20, margin: 0}}
+                  iconContainerStyle={{padding: 0, margin: 0}}
+                  titleStyle={{
+                    ...Mixins.h6,
+                    padding: 0,
+                    margin: 0,
+                    color: '#fff',
+                  }}
+                  onPress={this.submitRecollectionPhotoList}
+                />
+              );
+            },
+          }}
+        />
+        <Stack.Screen
+          component={RecollectionEnlargeImage}
+          name="EnlargeImage"
+          options={{
+            headerTransparent: true,
+            headerTitle: '',
             headerBackTitle: 'Back',
           }}
         />
@@ -72,7 +125,9 @@ class SelfRecollectionNavigator extends React.Component {
 }
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    recollectionPhotoList: state.originReducer.recollectionPhotoList,
+  };
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -85,6 +140,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setCurrentStackIndex: (num) => {
       return dispatch({type: 'indexStack', payload: num});
+    },
+    setRecollectionPhotoSubmitted: (toggle) => {
+      return dispatch({type: 'RecollectionPhotoSubmitted', payload: toggle});
     },
   };
 };
