@@ -118,7 +118,10 @@ class SelfRecollectionList extends React.Component {
     );
   };
 
-  navigateToSelfRecollectionForm = () => {};
+  navigateToSelfRecollectionForm = () => {
+    this.props.navigation.navigate('RecollectionForm');
+    this.props.setBottomBar(false);
+  };
 
   render() {
     const {
