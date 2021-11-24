@@ -4,6 +4,7 @@ import {
   Header,
   HeaderBackButton,
 } from '@react-navigation/stack';
+import {Platform} from 'react-native';
 import {Button} from 'react-native-elements';
 import {connect} from 'react-redux';
 // screen
