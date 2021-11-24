@@ -31,11 +31,13 @@ const theme = {
 interface Props extends LinearProgressProps {
   progressLinearVal: number;
   enabled : boolean;
+  callbackTooltip : Function;
   overlayLinearProgress : LinearProgressProps
 }
 const UploadProgress: React.FC<Props> = ({
     enabled,
     overlayLinearProgress,
+    callbackTooltip,
     ...props
   }): React.ReactElement => {
     const [_stateTooltip, setTooltipContainer] = React.useState<boolean>(false);
@@ -50,6 +52,9 @@ const UploadProgress: React.FC<Props> = ({
         tooltipRef.current.toggleTooltip();
       }
     }, [_stateTooltip,enabled]);
+    React.useEffect(() => {
+      callbackTooltip();
+    }, [_stateTooltip]);
     const toggleHandler = React.useCallback(()=>{
       if(enabled === true){
         tooltipRef.current.toggleTooltip();

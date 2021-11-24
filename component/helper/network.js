@@ -6,6 +6,9 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {getUserAgent} from 'react-native-device-info';
 import RNFetchBlob from 'rn-fetch-blob';
 import {setRootParams} from './persist-login';
+// import {applyWorker} from '../../middleware/upload-worker.android';
+
+// export const uploadThread = applyWorker();
 /**
  * Created on Tue May 11 2021
  *
@@ -167,6 +170,58 @@ export const putBlob = (path, data, callbackUploadProgress, callbackProgress) =>
     resolve(result);
   });;
 };
+
+//background process blob using cancelation process in fetching to trigger background thread.
+export const putBackgroundBlob = async (path, data, callbackUploadProgress, callbackProgress, triggerCancel) => {
+ 
+  return await blobFetch(path,{method:'PUT'},data,callbackUploadProgress,callbackProgress, triggerCancel).then((res)=>{
+    if (res.respInfo.headers['Content-Type'].includes('text/plain')) {
+      return responseBlobHandler(res);
+    } else if (res.respInfo.headers['Content-Type'].includes('text/html')) {
+      return responseBlobHandler(res);
+    }
+    return res.json();
+  }, async (canceled)=>{
+    let token = null;
+    let signature = null;
+    let UA = null;
+    //replace quotes from storage string
+    await getToken('jwtToken').then((test) => {
+      token = test.replace(/^"(.+(?="$))"$/, '$1');
+    });
+   
+    await getDeviceSignature().then((test) => {
+      signature = test.replace(/^"(.+(?="$))"$/, '$1');
+    });
+    console.log(signature);
+  
+    await getUserAgent().then((userAgent) => {
+      UA = userAgent;
+      // iOS: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143"
+      // tvOS: not available
+      // Android: ?
+      // Windows: ?
+    });
+    let parsed = JSON.stringify(data).replaceAll(
+      'RNFetchBlob-file://',
+      'ReactNativeBlobUtil-file://',
+    );
+    // uploadThread.applyBackgroundFetch(
+    //   {
+    //     'Content-Type': 'multipart/form-data',
+    //     'User-Agent': UA,
+    //     fingerprint: signature,
+    //     authToken: token,
+    //     method:'PUT',
+    //     data:JSON.parse(parsed),
+    //     url: SERVER_DOMAIN + path,
+    //   }
+    // );
+    return canceled;
+  });
+    
+};
+
 
 export const getBlob = (path,data, callbackProgress) => {
   let result = (async () => {
