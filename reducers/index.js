@@ -32,6 +32,7 @@ const initialState = {
   completedInboundList: [],
   currentDeliveringAddress: null,
   deliveryDestinationData: DESTINATION,
+  persistUploadSubscriptions: [],
   // end
   filters: {
     POSMPostpone: null,
@@ -174,6 +175,7 @@ export default function appReducer(state = initialState, action) {
         ...state,
         userRole: initialState.userRole,
         jwtToken: initialState.jwtToken,
+        persistUploadSubscriptions: initialState.persistUploadSubscriptions,
       };
 
     case 'warehouseModule':

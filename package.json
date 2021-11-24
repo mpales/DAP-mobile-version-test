@@ -8,7 +8,8 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "check-types": "tsc -p tsconfig.json"
+    "check-types": "tsc -p tsconfig.json",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@babel/preset-react": "^7.12.13",
@@ -41,13 +42,16 @@
     "moment": "^2.29.1",
     "node-libs-react-native": "^1.2.1",
     "oolong": "^1.15.1",
+    "patch-package": "^6.4.7",
     "polyline-encoded": "^0.0.9",
+    "postinstall-postinstall": "^2.1.0",
     "promise.allsettled": "^1.0.4",
     "prop-types": "^15.7.2",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.1",
     "react-native-asset": "^2.0.1",
+    "react-native-blob-util": "^0.13.14",
     "react-native-camera": "^3.43.0",
     "react-native-carousel-view": "^0.5.1",
     "react-native-device-info": "^8.1.4",

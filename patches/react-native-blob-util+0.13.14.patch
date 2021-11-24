@@ -1,0 +1,136 @@
+diff --git a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.m b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.m
+index 9a8328c..415c530 100644
+--- a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.m
++++ b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.m
+@@ -12,9 +12,9 @@
+ #import "ReactNativeBlobUtilProgress.h"
+ 
+ 
+-__strong RCTBridge * bridgeRef;
+-dispatch_queue_t commonTaskQueue;
+-dispatch_queue_t fsQueue;
++__strong RCTBridge * utilbridgeRef;
++dispatch_queue_t utilcommonTaskQueue;
++dispatch_queue_t utilfsQueue;
+ 
+ ////////////////////////////////////////
+ //
+@@ -31,9 +31,9 @@ dispatch_queue_t fsQueue;
+ @synthesize bridge = _bridge;
+ 
+ - (dispatch_queue_t) methodQueue {
+-    if(commonTaskQueue == nil)
+-        commonTaskQueue = dispatch_queue_create("ReactNativeBlobUtil.queue", DISPATCH_QUEUE_SERIAL);
+-    return commonTaskQueue;
++    if(utilcommonTaskQueue == nil)
++        utilcommonTaskQueue = dispatch_queue_create("ReactNativeBlobUtil.queue", DISPATCH_QUEUE_SERIAL);
++    return utilcommonTaskQueue;
+ }
+ 
+ + (RCTBridge *)getRCTBridge
+@@ -51,16 +51,16 @@ RCT_EXPORT_MODULE();
+ - (id) init {
+     self = [super init];
+     self.filePathPrefix = FILE_PREFIX;
+-    if(commonTaskQueue == nil)
+-        commonTaskQueue = dispatch_queue_create("ReactNativeBlobUtil.queue", DISPATCH_QUEUE_SERIAL);
+-    if(fsQueue == nil)
+-        fsQueue = dispatch_queue_create("ReactNativeBlobUtil.fs.queue", DISPATCH_QUEUE_SERIAL);
++    if(utilcommonTaskQueue == nil)
++        utilcommonTaskQueue = dispatch_queue_create("ReactNativeBlobUtil.queue", DISPATCH_QUEUE_SERIAL);
++    if(utilfsQueue == nil)
++        utilfsQueue = dispatch_queue_create("ReactNativeBlobUtil.fs.queue", DISPATCH_QUEUE_SERIAL);
+     BOOL isDir;
+     // if temp folder not exists, create one
+     if(![[NSFileManager defaultManager] fileExistsAtPath: [ReactNativeBlobUtilFS getTempPath] isDirectory:&isDir]) {
+         [[NSFileManager defaultManager] createDirectoryAtPath:[ReactNativeBlobUtilFS getTempPath] withIntermediateDirectories:YES attributes:nil error:NULL];
+     }
+-    bridgeRef = _bridge;
++    utilbridgeRef = _bridge;
+     [ReactNativeBlobUtilNetwork emitExpiredTasks];
+     return self;
+ }
+@@ -530,7 +530,7 @@ RCT_EXPORT_METHOD(readStream:(NSString *)path withEncoding:(NSString *)encoding
+             bufferSize = 4096;
+     }
+ 
+-    dispatch_async(fsQueue, ^{
++    dispatch_async(utilfsQueue, ^{
+         [ReactNativeBlobUtilFS readStream:path encoding:encoding bufferSize:bufferSize tick:tick streamId:streamId bridgeRef:_bridge];
+     });
+ }
+diff --git a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtilFS.m b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtilFS.m
+index 6aff2d7..d16ce49 100644
+--- a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtilFS.m
++++ b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtilFS.m
+@@ -24,7 +24,7 @@
+ #endif
+ 
+ 
+-NSMutableDictionary *fileStreams = nil;
++NSMutableDictionary *utilfileStreams = nil;
+ 
+ ////////////////////////////////////////
+ //
+@@ -67,15 +67,15 @@ NSMutableDictionary *fileStreams = nil;
+ // static member getter
+ + (NSArray *) getFileStreams {
+ 
+-    if(fileStreams == nil)
+-        fileStreams = [[NSMutableDictionary alloc] init];
+-    return fileStreams;
++    if(utilfileStreams == nil)
++        utilfileStreams = [[NSMutableDictionary alloc] init];
++    return utilfileStreams;
+ }
+ 
+ +(void) setFileStream:(ReactNativeBlobUtilFS *) instance withId:(NSString *) uuid {
+-    if(fileStreams == nil)
+-        fileStreams = [[NSMutableDictionary alloc] init];
+-    [fileStreams setValue:instance forKey:uuid];
++    if(utilfileStreams == nil)
++        utilfileStreams = [[NSMutableDictionary alloc] init];
++    [utilfileStreams setValue:instance forKey:uuid];
+ }
+ 
+ +(NSString *) getPathOfAsset:(NSString *)assetURI
+diff --git a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtilNetwork.m b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtilNetwork.m
+index 7b5cdbe..ea8196b 100644
+--- a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtilNetwork.m
++++ b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtilNetwork.m
+@@ -32,12 +32,12 @@
+ //
+ ////////////////////////////////////////
+ 
+-NSMapTable * expirationTable;
++NSMapTable * utilexpirationTable;
+ 
+ __attribute__((constructor))
+ static void initialize_tables() {
+-    if (expirationTable == nil) {
+-        expirationTable = [[NSMapTable alloc] init];
++    if (utilexpirationTable == nil) {
++        utilexpirationTable = [[NSMapTable alloc] init];
+     }
+ }
+ 
+@@ -163,7 +163,7 @@ static void initialize_tables() {
+ + (void) emitExpiredTasks
+ {
+     @synchronized ([ReactNativeBlobUtilNetwork class]){
+-        NSEnumerator * emu =  [expirationTable keyEnumerator];
++        NSEnumerator * emu =  [utilexpirationTable keyEnumerator];
+         NSString * key;
+         
+         while ((key = [emu nextObject]))
+@@ -175,8 +175,8 @@ static void initialize_tables() {
+         }
+         
+         // clear expired task entries
+-        [expirationTable removeAllObjects];
+-        expirationTable = [[NSMapTable alloc] init];
++        [utilexpirationTable removeAllObjects];
++        utilexpirationTable = [[NSMapTable alloc] init];
+     }
+ }
+ 

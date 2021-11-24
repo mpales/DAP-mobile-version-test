@@ -13,7 +13,7 @@ import FilesystemStorage from 'redux-persist-filesystem-storage'
 import RNFetchBlob from 'rn-fetch-blob';
 import { createFilter, createBlacklistFilter } from 'redux-persist-transform-filter';
 import {checkLoginStatus,loggedIn,resetLog} from './component/helper/persist-login';
-
+// import {uploadThread} from './component/helper/network';
 import { Platform } from 'react-native';
 
 // These are all the config options, with their default values
@@ -124,11 +124,15 @@ const rootReducer = combineReducers({
   network : network,
 });
 
-  
   const persistedReducer = persistReducer(networkPersistConfig, rootReducer)
 
+// const enhancerWithWorker = compose(
+//   applyMiddleware(networkMiddleware, thunk),
+//   uploadThread.applyWatchUploadEnhancher(),
+// );
+
   export default function configureStore(callback) {
-    const store = createStore(persistedReducer, applyMiddleware(networkMiddleware,thunk));
+    const store = createStore(persistedReducer, applyMiddleware(networkMiddleware, thunk));
     const { connectionChange } = offlineActionCreators;
     // https://github.com/rt2zz/redux-persist#persiststorestore-config-callback
     const persistor = persistStore(store, null, () => {

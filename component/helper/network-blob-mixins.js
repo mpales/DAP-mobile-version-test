@@ -11,15 +11,22 @@ exports = module.exports = function(fetchInstance, rootUrl, defaults) {
   return assign(exports.fetch.bind(null, fetchInstance, rootUrl, defaults), fetchInstance)
 }
 
-exports.fetch = async function(fetchInstance, rootUrl, defaults, url, opts, data, UploadProgress, Progress) {
+exports.fetch = async function(fetchInstance, rootUrl, defaults, url, opts, data, UploadProgress, Progress, canceled) {
   if (rootUrl != null) url = rootUrl.resolve(url)
+  
   if (typeof defaults === "function") defaults = await defaults();
-      if(opts.method === 'POST' || opts.method === 'PUT')
-      return fetchInstance.fetch(opts.method,url, defaults ,data).uploadProgress({ interval : 100 },UploadProgress)
-    // listen to download progress event, every 10%
-    .progress({ count : 10 }, Progress);
-  return fetchInstance.fetch(opts.method,url, defaults).progress({ interval: 250},Progress)
-  // listen to download progress event, every 10%
+      if(opts.method === 'POST' || opts.method === 'PUT'){
+        let fetchinit = fetchInstance.fetch(opts.method,url, defaults ,data).uploadProgress({ interval : 100 },UploadProgress)
+        // listen to download progress event, every 10%
+        .progress({ count : 10 }, Progress);
+        canceled(fetchinit.cancel);
+        return fetchinit;
+      } else {
+       let fetchinit = fetchInstance.fetch(opts.method,url, defaults).progress({ interval: 250},Progress);
+        // listen to download progress event, every 10%
+        canceled(fetchinit.cancel);
+        return fetchinit;
+      }
 }
 
 function parseUrl(url) {
