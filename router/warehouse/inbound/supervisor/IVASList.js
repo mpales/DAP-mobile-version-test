@@ -77,7 +77,7 @@ class ConnoteReportDetails extends React.Component {
     this.props.navigation.navigate('IVASDetailsSPV',{number:this.state.inboundID, shipmentID: item.inbound_shipment_va.id, clientVAS : item.inbound.client});
   }
   renderListVAS = ({item,index, separators})=>{
-
+    
     return (
       <TouchableScale
       key={item.key}
@@ -95,7 +95,7 @@ class ConnoteReportDetails extends React.Component {
         <View style={styles.detail}>
           <DetailList title="Client" value={item.inbound.client} />
           <DetailList title="Recorded By" value={item.inbound_shipment_va.created_by  !== undefined ? item.inbound_shipment_va.created_by.firstName : null} />
-          <DetailList title="Date and Time" value={item.inbound_shipment_va.created_on  !== undefined && item.inbound_shipment_va.created_on  !== null ? moment(item.inbound_shipment_va.created_on).format('DD/MM/YYY h:mm a') : null}/>
+          <DetailList title="Date and Time" value={item.inbound_shipment_va.created_on  !== undefined && item.inbound_shipment_va.created_on  !== null ? moment(item.inbound_shipment_va.created_on).format('DD/MM/YYYY h:mm a') : null}/>
          
         <View style={{marginVertical:10, flexDirection:'row'}}> 
         <View style={{flex:1, alignContent:'flex-start'}}>        

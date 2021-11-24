@@ -52,6 +52,7 @@ class Warehouse extends React.Component{
       _manifest: [],
       updated: false,
       notifbanner : '',
+      notifsuccess: false,
       renderRefresh:false,
       remark : '',
       remarkHeight: 500,
@@ -153,9 +154,9 @@ class Warehouse extends React.Component{
       // for prototype only
       const result = await postData('/inboundsMobile/'+receivingNumber+'/confirm-putaway')
       if(typeof result !== 'object'){
-        this.setState({notifbanner:result});
+        this.setState({notifbanner:result, notifsuccess: true});
       } else {
-        if(result.error !== undefined) this.setState({notifbanner:result.error});
+        if(result.error !== undefined) this.setState({notifbanner:result.error, notifsuccess: false});
       }
       this.props.addCompleteASN(currentASN);
       this.props.completedInboundList.push(this.state.inboundCode);
@@ -165,7 +166,7 @@ class Warehouse extends React.Component{
     }
   }
   closeNotifBanner = ()=>{
-    this.setState({notifbanner:''});
+    this.setState({notifbanner:'', notifsuccess: false});
   }
   setFiltered = (num)=>{
     this.setState({filtered:num});
@@ -186,7 +187,7 @@ class Warehouse extends React.Component{
         <SafeAreaProvider>
         {this.state.notifbanner !== '' && (<Banner
             title={this.state.notifbanner}
-            backgroundColor="#F1811C"
+            backgroundColor={this.state.notifsuccess === true ? "#17B055" : "#F1811C"}
             closeBanner={this.closeNotifBanner}
           />)}
           <ScrollView 
@@ -199,8 +200,8 @@ class Warehouse extends React.Component{
           style={styles.body}>
             <View style={[styles.sectionContent,{marginTop: 20}]}>
             <View style={[styles.sectionContentTitle, {flexDirection: 'row'}]}>
-            <View style={[styles.titleHead,{flex :1, paddingRight:20}]}>
-            <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{this.state.inboundNumber}</Text>
+            <View style={[styles.titleHead,{flex :1, paddingRight:20, flexDirection:'column', justifyContent:'flex-end', alignContent:'flex-end'}]}>
+            <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141',}}>{this.state.inboundNumber}</Text>
             <Tooltip 
             withPointer={false} 
             backgroundColor="#FFFFFF"
@@ -223,9 +224,10 @@ class Warehouse extends React.Component{
             shadowOpacity: 0.25,
             shadowRadius: 3.84,
             
-            elevation: 5,}}>
+            elevation: 5,}}
+            >
             <Button
-              containerStyle={{width: '100%',justifyContent: 'center', marginTop:9}}
+              containerStyle={{width: '100%',justifyContent: 'center', marginTop:9,}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0, backgroundColor:'#121C78'}]}
               titleStyle={[styles.deliveryText,{lineHeight:36,fontWeight:'400'}]}
               title="Remarks"
@@ -235,7 +237,7 @@ class Warehouse extends React.Component{
             />
             </Tooltip>
             </View>
-            <View style={[styles.contentHead,{flex: 1}]}>
+            <View style={[styles.contentHead,{flex: 1,alignSelf:'flex-end',  flexDirection:'column', justifyContent:'flex-end', alignContent:'flex-end'}]}>
             <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{this.state.companyname}</Text>
             <Button
               containerStyle={{width: '100%',justifyContent: 'center',marginTop:9}}
@@ -361,7 +363,7 @@ class Warehouse extends React.Component{
               buttonStyle={[styles.navigationButton, {paddingVertical: 10}]}
               titleStyle={styles.deliveryText}
               onPress={this.toggleOverlay}
-              title="Comfirm & Putaway"
+              title="Confirm & Putaway"
             />
           </View>
         </SafeAreaProvider>

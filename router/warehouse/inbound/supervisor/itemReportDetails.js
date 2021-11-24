@@ -43,7 +43,7 @@ class ConnoteReportDetails extends React.Component {
       acknowledged:false,
       error: '',
       activeReportId: null,
-      isShowBanner: false,
+      isShowBannerSuccess: false,
     };
     this.toggleOverlay.bind(this);
     this.renderPhotoProof.bind(this);
@@ -117,7 +117,7 @@ class ConnoteReportDetails extends React.Component {
       resolution: 'test',
     };
     let result = await postData('/inboundsMobile/'+inboundID+'/'+receivingNumber+'/reports/'+activeReportId,data); 
-    if(result !== 'object'){
+    if(typeof result !== 'object'){
       this.setState({dataReports: Array.from({length:dataReports.length}).map((num,index)=>{
         if(activeReportId === dataReports[index].id){
           return {
@@ -129,16 +129,16 @@ class ConnoteReportDetails extends React.Component {
         }
       })
     })
-      this.setState({acknowledged:false});
+      this.setState({acknowledged:false, isShowBannerSuccess: true,error:result});
     } else {
       if(result.errors !== undefined){
         let dumpError = '';
         result.errors.forEach(element => {
           dumpError += element.msg + ' ';
         });
-        this.setState({error:dumpError});
+        this.setState({error:dumpError, isShowBannerSuccess: false});
       } else if(result.error !== undefined){
-        this.setState({error:result.error});
+        this.setState({error:result.error, isShowBannerSuccess: false});
       }
     }
   }
@@ -284,7 +284,8 @@ class ConnoteReportDetails extends React.Component {
   
   closeBanner = () => {
     this.setState({
-      isShowBanner: false,
+      isShowBannerSuccess: false,
+      error: '',
     });
   };
 
@@ -293,8 +294,8 @@ class ConnoteReportDetails extends React.Component {
       <>
         <StatusBar barStyle="dark-content" />
         <View style={styles.container}>
-        {this.state.isShowBanner && this.state.error !== '' && (
-          <Banner title={this.state.error} closeBanner={this.closeBanner} backgroundColor="#F1811C" />
+        {this.state.error !== '' && (
+          <Banner title={this.state.error} closeBanner={this.closeBanner} backgroundColor={ this.state.isShowBannerSuccess === true ? "#17B055" :"#F1811C"} />
         )}
           <Overlay isVisible={this.state.overlayImage} onBackdropPress={this.toggleOverlay}>
             <ImageLoading 

@@ -20,6 +20,7 @@ Avatar,
 LinearProgress
 } from 'react-native-elements'
 import SelectDropdown from 'react-native-select-dropdown';
+import IconArrow66Mobile from '../../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
 import { Modalize } from 'react-native-modalize';
 import BarCode from '../../../component/camera/filter-barcode';
 import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
@@ -103,7 +104,7 @@ class Example extends React.Component {
     return {...state};
   }
   shouldComponentUpdate(nextProps, nextState) {
-    if((this.state.ItemGrade !== nextState.ItemGrade || this.state.ItemPallet !== nextState.ItemPallet) && nextState.dataItem === this.state.dataItem){
+    if((this.state.ItemPallet !== nextState.ItemPallet) && nextState.dataItem === this.state.dataItem && nextState.PalletArray === this.state.PalletArray){
       return false;
     } else if(nextState.isPOSM === true && nextState.dataItem === null){
       return false;
@@ -428,12 +429,7 @@ class Example extends React.Component {
                           {dataItem.barcodes.length === 0 ? 'EMPTY' : dataItem.barcodes[dataItem.barcodes.length -1].code_number}
                         </Text>
                       </View>
-                      <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>UOM</Text>
-                        <Text style={styles.infoPackage}>
-                        {dataItem.uom}
-                        </Text>
-                      </View></>) : (
+                      </>) : (
                         <>
                         <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Container # </Text>
@@ -471,6 +467,12 @@ class Example extends React.Component {
                             onSelect={(selectedItem, index) => {
                               this.setState({ItemPallet:selectedItem.palete_id});
                             }}
+                            renderDropdownIcon={() => {
+                              return (
+                                <IconArrow66Mobile fill="#2D2C2C" height="26" width="26" style={{transform:[{rotate:'90deg'}]}}/>
+                              );
+                            }}
+                            dropdownIconPosition="right"
                             buttonTextAfterSelection={(selectedItem, index) => {
                               // text represented after item is selected
                               // if data array is an array of objects then return selectedItem.property to render after item is selected
@@ -485,11 +487,19 @@ class Example extends React.Component {
                         </View>)}
                       </View>
                       {dataItem.is_transit !== 1 && (
+                        <>
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Grade</Text>
-                        <Text style={styles.infoPackage}>{ this.props.ManifestType === 1 ? ( dataItem.rework === 0 ? 'SIT -> Buffer' : 'Rework -> Buffer') : (dataItem.rework === 0 ? 'SIT-> Pick' : 'Rework -> Pick')}</Text>
+                        <Text style={styles.infoPackage}>{ this.props.ManifestType === 1 ? ( dataItem.rework === 0 ? 'SIT -> Buffer' : 'SIT-> Rework -> Buffer') : (dataItem.rework === 0 ? 'SIT-> Pick' : 'SIT-> Rework -> Pick')}</Text>
                     
-                      </View>)}
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <Text style={styles.labelPackage}>UOM</Text>
+                        <Text style={styles.infoPackage}>
+                        {dataItem.uom}
+                        </Text>
+                      </View>
+                      </>)}
 
                       {this.state.isConfirm === true && (    
                       <View style={styles.dividerContent}>
