@@ -19,12 +19,12 @@ exports.fetch = async function(fetchInstance, rootUrl, defaults, url, opts, data
         let fetchinit = fetchInstance.fetch(opts.method,url, defaults ,data).uploadProgress({ interval : 100 },UploadProgress)
         // listen to download progress event, every 10%
         .progress({ count : 10 }, Progress);
-        canceled(fetchinit.cancel);
+        if(typeof canceled === 'function') canceled(fetchinit.cancel);
         return fetchinit;
       } else {
        let fetchinit = fetchInstance.fetch(opts.method,url, defaults).progress({ interval: 250},Progress);
         // listen to download progress event, every 10%
-        canceled(fetchinit.cancel);
+        if(typeof canceled === 'function') canceled(fetchinit.cancel);
         return fetchinit;
       }
 }
