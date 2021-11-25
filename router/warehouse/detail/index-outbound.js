@@ -29,7 +29,7 @@ class Acknowledge extends React.Component {
   render(){
     return (
         <View style={{flex: 1, flexDirection:'column', backgroundColor: this.context._Scheme2, paddingHorizontal: 22,}}>
-          <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginTop:100, marginBottom:20}}>
+          <View style={{alignItems:'flex-start', justifyContent: 'flex-start',flexDirection: 'column',marginTop:10, marginBottom:20}}>
           <LogoSmall width="135" height="70" style={{alignSelf:'center'}}/>
           </View>
           <View style={{flexDirection:'column',flexShrink:1, alignItems:'center',justifyContent:'center',marginBottom:30,marginTop:10}}>

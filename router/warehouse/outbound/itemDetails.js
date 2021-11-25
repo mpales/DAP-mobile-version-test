@@ -16,6 +16,7 @@ import DetailList from '../../../component/extend/Card-detail';
 import ChevronRight from '../../../assets/icon/iconmonstr-arrow-66mobile-2.svg';
 import ChevronDown from '../../../assets/icon/iconmonstr-arrow-66mobile-1.svg';
 import Loading from '../../../component/loading/loading';
+import {getData} from '../../../component/helper/network';
 import moment from 'moment';
 class ConnoteDetails extends React.Component {
   constructor(props) {
@@ -24,6 +25,7 @@ class ConnoteDetails extends React.Component {
       sortBy: 'Name',
       dataCode : '0',
       bayCode :'0',
+      totalReports: 0,
       _itemDetail: null,
     };
     this.renderHeader.bind(this);
@@ -42,17 +44,23 @@ class ConnoteDetails extends React.Component {
     return {...state};
   }
 
-  componentDidMount(){
+  async componentDidMount(){
     const {navigation, outboundList} = this.props;
     const {dataCode, _itemDetail, bayCode} = this.state;
     
-    if(dataCode !=='0' && _itemDetail === null && outboundList.some((element)=> element.product._id === dataCode)){
-      let list = outboundList.find((element)=>element.product._id === dataCode);
+    if(dataCode !=='0' && _itemDetail === null && outboundList.some((element)=> element.pick_task_product_id === dataCode)){
+      let list = outboundList.find((element)=>element.pick_task_product_id === dataCode);
       this.setState({_itemDetail: list});
+      const resultTotalReport = await getData('/outboundMobile/pickTask/'+this.props.currentTask+'/product/'+dataCode+'/reports');
+      console.log(resultTotalReport)
+      if(typeof resultTotalReport === 'object' && resultTotalReport.error === undefined){
+        this.setState({totalReports:resultTotalReport.length})
+      }
     }
   }
   navigateSeeReport = () => {
-    this.props.navigation.navigate('ItemReportDetail');
+    const {pick_task_product_id} = this.state._itemDetail;
+    this.props.navigation.navigate('ItemReportDetail',{number:pick_task_product_id});
   };
 
   renderHeader = () => {
@@ -104,6 +112,11 @@ class ConnoteDetails extends React.Component {
       return _itemDetail.detail[index].batch_no;
     });
     let banchFiltered = banchArr;
+    let categoryArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+      if(_itemDetail.detail[index].attributes.category === undefined)
+      return [];
+      return _itemDetail.detail[index].attributes.category;
+    });
     return (
       <>
       <Card containerStyle={[styles.cardContainer,{paddingHorizontal:0,paddingVertical:10}]} style={styles.card}>
@@ -121,25 +134,25 @@ class ConnoteDetails extends React.Component {
                 <DetailList title="Barcode" value={_itemDetail.product.item_code} />
                 <DetailList title="UOM" value={_itemDetail.product.uom} />
                 <DetailList title="Quantity" value={totalQty.length > 0 ? String(totalQty.reduce((p,n)=>p+n)) : "0"}/>
-                <DetailList title="Product Class" value={classFiltered[0]} />
-                <DetailList title="CBM" value={volumeFiltered[0]} />
-                <DetailList title="Weight" value={weightFiltered[0]} />
+                <DetailList title="Product Class" value={classFiltered[0].length > 0 ? classFiltered[0] : '-'  } />
+                <DetailList title="CBM" value={volumeFiltered[0].length > 0 ? volumeFiltered[0] : '-'} />
+                <DetailList title="Weight" value={weightFiltered[0].length > 0 ? weightFiltered[0] : '-'} />
                 </View>
                 <Divider/>
                 <View style={[styles.detailSection,{paddingVertical:10}]}>
-                  <Text style={styles.reportSectionTitle}>Product Category : Fashion</Text>
-                  <DetailList title="Color" value={colorFiltered[0]} />
+                  <Text style={styles.reportSectionTitle}>Product Category : {categoryArr[0].length > 0 ? categoryArr[0]:'-' }</Text>
+                  <DetailList title="Color" value={colorFiltered[0].length > 0 ? colorFiltered[0] : '-' } />
                   <DetailList title="EXP Date" value={moment(expFiltered[0]).format('YYYY-MM-DD HH:mm:ss')} />
-                  <DetailList title="Banch" value={banchFiltered[0]} />
+                  <DetailList title="Banch" value={banchFiltered[0].length > 0 ? banchFiltered[0] : '-'} />
                 </View>
                 <View style={[styles.reportSection,{paddingHorizontal:20}]}>
                   <Text style={styles.reportSectionTitle}>Report:</Text>
                   <TouchableOpacity
               style={styles.seeReportButton}
               onPress={this.navigateSeeReport}>
-                  <DetailList
+               <DetailList
                     title="Total Report"
-                    value="2 Report"
+                    value={this.state.totalReports+" Report"}
                     report={true}
                   />
                    </TouchableOpacity>
@@ -298,6 +311,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
   return {
     outboundList: state.originReducer.outboundList,
+    currentTask : state.originReducer.filters.currentTask,
   };
 };
 

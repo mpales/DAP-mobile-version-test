@@ -110,11 +110,36 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
     (state) => state.originReducer.filters.currentList,
   );
   let status = 'grey';
-  let textstatus = 'waiting';
- 
+  let textstatus = 'pending';
+  switch (item.status) {
+    case 1:
+      status = '#ABABAB';
+      textstatus = 'Waiting';
+      break;
+      case 2:
+      status = '#F1811C';
+      textstatus = 'In Progress';
+      break;
+      case 3:
+        status = '#17B055';
+      textstatus = 'Completed';
+      break;
+      case 4:
+      status = '#E03B3B';
+      textstatus = 'Reported';
+      break;
+    default:
+      break;
+  }
   let populated_location = Array.from({length:item.detail.length}).map((num,index)=>{
     return item.detail[index].warehouse_storage_container_id;
   });
+  let categoryArr = Array.from({length:item.detail.length}).map((num,index)=>{
+    if(item.detail[index].attributes.category === undefined)
+    return [];
+    return item.detail[index].attributes.category;
+  });
+
   return (
     <ThemeProvider theme={theme}>
       <ListItem
@@ -125,7 +150,7 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
         activeScale={0.95}
         pad={0}
         onPress={()=>{
-          currentList(index)
+          currentList(item.pick_task_product_id)
         }}
         >
         <View style={[styles.leftList,{backgroundColor:status}]}>
@@ -218,7 +243,7 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
 
               <View style={{flexDirection:'row', flexShrink:1}}>
               <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-            -
+              {categoryArr[0].length > 0 ? categoryArr[0] : '-'}
               </Text>
               </View>
             </View>
@@ -242,14 +267,14 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
                 navigation.navigate({
                   name: 'ItemDetail',
                   params: {
-                      dataCode: item.product._id,
+                      dataCode: item.pick_task_product_id,
                   }
                 })
               }}
             />
           </View>
           </View>
-          {isCurrentManifest === index  && (
+          {isCurrentManifest === item.pick_task_product_id  && (
           <View style={{width:'100%',marginVertical:10, flexDirection: 'column',}}>
             <Button
               containerStyle={{flex:1, paddingVertical: 4, paddingHorizontal: 0, marginHorizontal: 0}}
@@ -266,7 +291,7 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
                 navigation.navigate({
                   name: 'ReportManifest',
                   params: {
-                      dataCode: item.product._id,
+                      dataCode: item.pick_task_product_id,
                   }
                 })
               }}

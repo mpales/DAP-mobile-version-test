@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     View,
+    ScrollView
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { CheckBox, Input, Avatar, Button, LinearProgress, Badge} from 'react-native-elements';
@@ -14,7 +15,9 @@ import Mixins from '../../../mixins';
 import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import ArrowDown from '../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
-
+import UploadTooltip from '../../../component/include/upload-tooltip';
+import {postBlob} from '../../../component/helper/network';
+import RNFetchBlob from 'rn-fetch-blob';
 class ReportManifest extends React.Component {
     constructor(props) {
         super(props)
@@ -25,7 +28,7 @@ class ReportManifest extends React.Component {
             reasonOption: '',
             otherReason: "",
             dataCode : '0',
-            _manifest : null,
+            _task : null,
             errors: '',
             progressLinearVal : 0,
             qtyreported : "0",
@@ -34,12 +37,15 @@ class ReportManifest extends React.Component {
         this.handleSubmit.bind(this);
     }
     static getDerivedStateFromProps(props,state){
-        const {inboundList,navigation} = props;
+        const {outboundList,navigation, manifestList, loadFromGallery} = props;
         const {dataCode} = state;
         if(dataCode === '0'){
             const {routes, index} = navigation.dangerouslyGetState();
             if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-              return {...state, dataCode: routes[index].params.dataCode,};
+                loadFromGallery({gtype: 'report',gID : routes[index].params.dataCode });
+                // for prototype only should be params ID from backend
+                let manifest = outboundList.find((element)=>element.pick_task_product_id === routes[index].params.dataCode);
+              return {...state, dataCode: routes[index].params.dataCode, _task:manifest};
             }
         }
         return {...state};
@@ -48,16 +54,27 @@ class ReportManifest extends React.Component {
         if(this.props.keyStack !== nextProps.keyStack){
           if(nextProps.keyStack === 'ReportManifest'){
             this.props.setBottomBar(false);
-            return true;
+            const {routes, index} = nextProps.navigation.dangerouslyGetState();
+            if(routes[index].params !== undefined &&  routes[index].params.submitPhoto !== undefined && routes[index].params.submitPhoto === true){
+               this.setState({submitPhoto : true});
+            }
+            return false;
           }
         }
         return true;
       }
-      componentDidUpdate(prevProps, prevState, snapshot) {
+      async componentDidUpdate(prevProps, prevState, snapshot) {
        
         if(prevState.dataCode !== this.state.dataCode){
-          this.props.addPhotoProofPostpone(null);
+          this.props.addPhotoReportPostpone(null);
         }
+        if(prevState.submitPhoto !== this.state.submitPhoto && this.state.submitPhoto === true){
+            if(this.props.photoReportPostpone !== null){
+                this.setState({submitPhoto:false});
+            } else {
+                this.setState({submitPhoto:false,errors:'take a Photo Report before continue process'})
+            }
+          }
       }
     handleDeliveryOptions = (selectedValue) => {
         this.setState({
@@ -72,16 +89,87 @@ class ReportManifest extends React.Component {
             reasonOption: selectedValue,
         });
     }
-
-    handleSubmit = () => {
-        const {currentTask, outboundList} = this.props;
-        const {dataCode, bayCode} = this.state;
-        // let list = outboundList.find((element)=>element.location_bay === bayCode && element.barcode === dataCode)
-        // this.props.setBottomBar(false);
-        // this.props.setReportedTask(currentTask);
-        // this.props.addPhotoReportPostpone(null);
-        // this.props.setReportedList(list.id);
-        // this.props.navigation.navigate('List');
+    listenToProgressUpload = (written, total) => {
+        const {overlayProgress} = this.state;
+        this.setState({progressLinearVal:(1/total)*written, overlayProgress: overlayProgress === false ? true : overlayProgress});
+      }
+      getPhotoReceivingGoods = async () => {
+        const {photoReportPostpone} = this.props;
+        let formdata = [];
+        for (let index = 0; index < photoReportPostpone.length; index++) {
+          let name,filename,path,type ='';
+          await RNFetchBlob.fs.stat(photoReportPostpone[index]).then((FSStat)=>{
+            name = FSStat.filename.replace('.','-');
+            filename= FSStat.filename;
+            path = FSStat.path;
+            type = FSStat.type;
+          });
+          if(type === 'file')
+          formdata.push({ name : 'photos', filename : filename, type:'image/jpg', data: RNFetchBlob.wrap(path)})
+        }
+        return formdata;
+      }
+      handleSubmit = async () => {
+        const {currentTask} = this.props;
+        const {dataCode, _task, qtyreported, reasonOption} = this.state;
+        let FormData = await this.getPhotoReceivingGoods();
+        let intOption = '0';
+        switch (reasonOption) {
+            case 'damage-goods':
+                intOption = '1';
+                break;
+            case 'missing-item':
+                intOption = '2';
+                break;
+            case 'excess-item':
+                intOption = '3';
+                break;
+            case 'exp-date':
+                intOption = '4';
+                break;
+            case 'other':
+                intOption = '5';
+                break;
+            default:
+                break;
+        }
+        let parsedQty = parseInt(qtyreported);
+        let metafield = reasonOption !== 'other' && isNaN(parsedQty) === false && parsedQty > 0 ?
+        [   { name : 'type', data: intOption},
+        {name :'description', data : this.state.otherReason},
+        {name : 'qty', data : qtyreported},] 
+        : [  
+             { name : 'type', data: intOption},
+             {name :'description', data : this.state.otherReason},
+            ];
+        postBlob('/outboundMobile/pickTask/'+currentTask+'/product/'+_task.pick_task_product_id+'/reports', [
+            // element with property `filename` will be transformed into `file` in form data
+            ...metafield,
+            // custom content type
+            ...FormData,
+          ], this.listenToProgressUpload).then(result=>{
+              console.log(result);
+            if(typeof result !== 'object' && result === 'Pick Job successfully reported'){
+                this.props.setBottomBar(true);
+                this.props.addPhotoReportPostpone(null);
+                const {routes,index} = this.props.navigation.dangerouslyGetState();
+                this.props.navigation.navigate('List')
+            } else {
+              if(typeof result === 'object'){
+                if(result.errors !== undefined){
+                    let errors = '';
+                    result.errors.forEach(element => {
+                        errors += element.msg + ' ';
+                    });
+                    this.setState({errors:errors,overlayProgress: false});
+                } else {
+                    this.setState({errors: result.error,overlayProgress: false});
+                }
+              } else {
+                this.setState({errors: result,overlayProgress: false});
+              }
+            }
+          });
     }
     onChangeReasonInput = (value) => {
         this.setState({
@@ -92,7 +180,7 @@ class ReportManifest extends React.Component {
     
     render() {
         return (
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
             <View style={styles.contentContainer}>
                 <Text style={styles.title}>Report</Text>
                 <CheckBox
@@ -179,7 +267,7 @@ class ReportManifest extends React.Component {
                           onPress={()=>{
                             const {qtyreported} = this.state;
                             let qty = parseInt(qtyreported)
-                            this.setState({qtyreported: (qtyreported === '' || qty === NaN) || (qty < 0) ? '0' : ''+ (qty+1) });
+                            this.setState({qtyreported: (qtyreported === '' || isNaN(qty) === true) || (qty < 0) ? '0' : ''+ (qty+1) });
                         }}
                           />
                                     </View>
@@ -249,9 +337,21 @@ class ReportManifest extends React.Component {
                                     flex: 2,
                                     borderRadius: 5,
                                     }}/>
-                                    <View style={{marginVertical: 5}}>
-                                    <LinearProgress value={this.state.progressLinearVal} color="primary" style={{width:80}} variant="determinate"/>
-                                    </View>
+                                       <View style={{marginVertical: 5}}>
+                                        <UploadTooltip 
+                                        overlayLinearProgress={{
+                                          value:this.state.progressLinearVal, 
+                                          color:"#F1811C",
+                                          variant:"determinate", 
+                                          style:{height:13, backgroundColor:'white', borderRadius:10}
+                                        }} 
+                                        value={this.state.progressLinearVal} 
+                                        color="primary" 
+                                        style={{width:80}} 
+                                        variant="determinate"
+                                        enabled={this.state.overlayProgress}
+                                        />
+                                        </View>
                                     <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Photo Proof Container</Text>
                                     {this.state.errors !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.errors}</Text>)}
                             </View>
@@ -261,11 +361,10 @@ class ReportManifest extends React.Component {
           titleStyle={styles.deliveryText}
           onPress={this.handleSubmit}
           title="Submit"
-          disabled={true}
-        //   disabled={this.props.photoReportPostpone === null || (this.props.photoReportID !== null && this.props.photoReportID !== this.state.dataCode) || this.state.reasonOption === '' ? true : false}
+         disabled={this.props.photoReportPostpone === null || (this.props.photoReportID !== null && this.props.photoReportID !== this.state.dataCode) || this.state.reasonOption === '' ? true : false}
           />
             </View>
-        </View>
+        </ScrollView>
         )
     }
 }
@@ -399,6 +498,9 @@ const mapDispatchToProps = (dispatch) => {
             return dispatch({type:'ReportedTask', payload: data});
         },
         addPhotoReportPostpone: (uri) => dispatch({type: 'PhotoReportPostpone', payload: uri}),
+        loadFromGallery: (action) => {
+            return dispatch({type:'loadFromGallery', payload: action});
+          },
     };
 };
 
