@@ -53,7 +53,7 @@ const UploadProgress: React.FC<Props> = ({
       }
     }, [_stateTooltip,enabled]);
     React.useEffect(() => {
-      callbackTooltip();
+      if(typeof callbackTooltip === 'function') callbackTooltip();
     }, [_stateTooltip]);
     const toggleHandler = React.useCallback(()=>{
       if(enabled === true){
