@@ -43,7 +43,9 @@ class RecollectionForm extends React.Component {
 
   navigateToReportRecollection = () => {};
 
-  navigateItemDetails = () => {};
+  navigateRecollectionDetails = () => {
+    this.props.navigation.navigate('RecollectionDetails');
+  };
 
   // TODO
   // need to clear recollection photo list signature base64 and data when submitted
@@ -60,7 +62,7 @@ class RecollectionForm extends React.Component {
             <ListItemPOD
               item={item}
               key={index}
-              navigate={this.navigateItemDetails}
+              navigate={this.navigateRecollectionDetails}
             />
           ))}
           <View style={styles.container}>
