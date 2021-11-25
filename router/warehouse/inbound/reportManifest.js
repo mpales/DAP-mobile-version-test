@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     View,
+    ScrollView
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { CheckBox, Input, Avatar, Button, LinearProgress, Badge} from 'react-native-elements';
@@ -93,8 +94,6 @@ class ReportManifest extends React.Component {
     }
     listenToProgressUpload = (written, total) => {
         const {overlayProgress} = this.state;
-        console.log(written);
-        console.log(total);
         this.setState({progressLinearVal:(1/total)*written, overlayProgress: overlayProgress === false ? true : overlayProgress});
       }
       getPhotoReceivingGoods = async () => {
@@ -166,7 +165,7 @@ class ReportManifest extends React.Component {
                     });
                     this.setState({errors:errors,overlayProgress: false});
                 } else {
-                    this.setState({errors: result,error,overlayProgress: false});
+                    this.setState({errors: result.error,overlayProgress: false});
                 }
               } else {
                 this.setState({errors: result,overlayProgress: false});
@@ -183,7 +182,7 @@ class ReportManifest extends React.Component {
     
     render() {
         return (
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
                 <View style={styles.contentContainer}>
                     <Text style={styles.title}>Report</Text>
                     <CheckBox
@@ -353,7 +352,7 @@ class ReportManifest extends React.Component {
               disabled={this.props.photoReportPostpone === null || (this.props.photoReportID !== null && this.props.photoReportID !== this.state.dataCode) || this.state.reasonOption === ''? true : false}
               />
                 </View>
-            </View>
+            </ScrollView>
         )
     }
 }

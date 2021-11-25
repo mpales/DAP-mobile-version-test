@@ -88,6 +88,8 @@ const initialState = {
     ApplicationNavigational: null,
     stockTakeId: null,
     manifestError: null,
+    taskError: null,
+    taskSuccess: null,
   },
 };
 
@@ -510,15 +512,31 @@ export default function appReducer(state = initialState, action) {
           ...state.filters,
           POSMPostpone: action.payload,
         },
-      };
-    case 'ManifestError':
+      };  
+      case 'ManifestError':
       return {
         ...state,
         filters: {
           ...state.filters,
           manifestError: action.payload,
         },
+      }; 
+      case 'TaskError':
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          taskError: action.payload,
+        },
       };
+      case 'TaskSuccess':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            taskSuccess: action.payload,
+          },
+        };
     case 'addPhotoProofID':
       return {
         ...state,

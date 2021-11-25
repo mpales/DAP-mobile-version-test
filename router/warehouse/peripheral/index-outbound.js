@@ -20,6 +20,7 @@ import CheckmarkIcon from '../../../assets/icon/iconmonstr-check-mark-8mobile.sv
 import XMarkIcon from '../../../assets/icon/iconmonstr-x-mark-7mobile.svg';
 import Mixins from '../../../mixins';
 import moment from 'moment';
+import {postData} from '../../../component/helper/network';
 import {connect} from 'react-redux';
 const screen = Dimensions.get('screen');
 
@@ -50,23 +51,23 @@ class Example extends React.Component {
       if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined) {
         //from input code
         setBarcodeScanner(true);
-        let indexProduct = routes[index].params.inputCode; 
-        let item = outboundList.find((element,index)=> index === indexProduct);
+        let pick_task_product_id = routes[index].params.inputCode; 
+        let item = outboundList.find((element,index)=> element.pick_task_product_id === pick_task_product_id);
 
         return {...state, bayCode: item.detail[0].warehouse_storage_container_id, dataItem: item, indexData: routes[index].params.inputCode};
       } else if (routes[index].params !== undefined && routes[index].params.manualCode !== undefined) {
         //from manual code
         setBarcodeScanner(false);
         let manualCode = routes[index].params.manualCode;
-        let indexCode = routes[index].params.indexData;
-        let item = outboundList.find((element, index)=>element.product.item_code === manualCode && index === indexCode);
+        let pick_task_product_id = routes[index].params.indexData;
+        let item = outboundList.find((element, index)=>element.product.item_code === manualCode && element.pick_task_product_id === pick_task_product_id);
         return {...state, dataCode: item.detail[0].warehouse_storage_container_id,bayCode: item.detail[0].warehouse_storage_container_id, dataItem: item, itemCode : routes[index].params.manualCode,indexData: routes[index].params.indexData};
       }
     } else if(bayCode !== null && scanItem !== null && itemCode === null && routes[index].params !== undefined && routes[index].params.manualCode !== undefined && scanItem === routes[index].params.manualCode) {
       setBarcodeScanner(false);
       let manualCode = routes[index].params.manualCode;
-      let indexCode = routes[index].params.indexData;
-      let item = outboundList.find((element, index)=>element.product.item_code === manualCode && index === indexCode);
+      let pick_task_product_id = routes[index].params.indexData;
+      let item = outboundList.find((element, index)=>element.product.item_code === manualCode && element.pick_task_product_id === pick_task_product_id);
       return {...state, dataCode: item.detail[0].warehouse_storage_container_id,bayCode: item.detail[0].warehouse_storage_container_id, dataItem: item, itemCode : routes[index].params.manualCode,indexData: routes[index].params.indexData };
 
     }
@@ -76,7 +77,7 @@ class Example extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     if(nextState.dataCode !== '0' && nextState.bayCode !== null && nextState.scanItem === null && nextProps.detectBarcode === false){
       if(nextState.dataCode === nextState.bayCode) {
-        let item = nextProps.outboundList.find((element,index)=>index === nextState.indexData);
+        let item = nextProps.outboundList.find((element,index)=> element.pick_task_product_id === nextState.indexData);
         this.setState({dataCode: '0', scanItem:  item.product.item_code});
         return true;
       } else if (nextState.dataCode !== nextState.bayCode){
@@ -85,9 +86,9 @@ class Example extends React.Component {
       }
     }else if(nextState.dataCode !== '0' && nextState.bayCode !== null && nextState.scanItem !== null && nextState.itemCode === null && nextProps.detectBarcode === false){
       if(nextState.dataCode === nextState.scanItem) {
-       this.setState({dataCode: '0',itemCode : nextState.scanItem});
+       this.setState({itemCode : nextState.scanItem});
        return true;
-      } else if (nextState.dataCode !== nextState.itemCode){
+      } else if (nextState.dataCode !== nextState.scanItem){
         nextProps.setBarcodeScanner(true);
         return false;
       }
@@ -95,7 +96,7 @@ class Example extends React.Component {
  
      return true;
    }
-  componentDidUpdate(prevProps, prevState) {
+  async componentDidUpdate(prevProps, prevState) {
     const {outboundList,detectBarcode, currentASN, navigation, setBarcodeScanner} = this.props;
     const {dataCode, dataItem} = this.state;
     if(prevProps.detectBarcode !== detectBarcode){
@@ -104,6 +105,13 @@ class Example extends React.Component {
       } else {
         this.handleZoomInAnimation();
       }
+    }
+    if(prevState.scanItem !== this.state.scanItem && this.state.scanItem !== null && this.state.itemCode === null){
+    let bayScanned = await postData('outboundMobile/pickTask/'+this.props.currentTask+'/product/'+this.state.indexData);
+    if(typeof bayScanned === 'object' && bayScanned.error !== undefined){
+      this.props.setItemError(bayScanned.error);
+      this.props.navigation.goBack();
+    }
     }
     
   }
@@ -306,49 +314,49 @@ class Example extends React.Component {
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Stock Grade </Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
-                  <Text style={styles.infoNotFound}>{gradeArr[0]}</Text>
+                  <Text style={styles.infoNotFound}>{gradeArr[0].length > 0 ? gradeArr[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>UOM</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
-                  <Text style={styles.infoNotFound}>{uomFiltered[0]}</Text>
+                  <Text style={styles.infoNotFound}>{uomFiltered[0].length > 0 ? uomFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Packaging </Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
-                  <Text style={styles.infoNotFound}>{packagingFiltered[0]}</Text>
+                  <Text style={styles.infoNotFound}>{packagingFiltered[0].length > 0 ? packagingFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Qty to pick</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
-                  <Text style={styles.infoNotFound}>{qtyPickArrFiltered[0]}</Text>
+                  <Text style={styles.infoNotFound}>{qtyPickArrFiltered[0].length > 0 ? qtyPickArrFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Whole Qty</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
-                  <Text style={styles.infoNotFound}>{wholeFiltered[0]}</Text>
+                  <Text style={styles.infoNotFound}>{wholeFiltered[0].length > 0 ? wholeFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Category</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
-                  <Text style={styles.infoNotFound}>{categoryFiltered[0]}</Text>
+                  <Text style={styles.infoNotFound}>{categoryFiltered[0].length > 0 ? categoryFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Banch Number :</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
-                  <Text style={styles.infoNotFound}>{banchFiltered[0]}</Text>
+                  <Text style={styles.infoNotFound}>{banchFiltered[0].length > 0 ? banchFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>EXP Date</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
-                  <Text style={styles.infoNotFound}>{moment(expFiltered[0]).format('YYYY-MM-DD HH:mm:ss')}</Text>
+                  <Text style={styles.infoNotFound}>{expFiltered[0].length > 0 ? moment(expFiltered[0]).format('YYYY-MM-DD HH:mm:ss') : '-'}</Text>
                   </View>
                 </View>
                      
@@ -422,7 +430,7 @@ class Example extends React.Component {
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Category</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
-                  <Text style={styles.infoNotFound}>-</Text>
+                  <Text style={styles.infoNotFound}>{categoryFiltered[0].length > 0 ? categoryFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 </View>
@@ -607,25 +615,25 @@ class Example extends React.Component {
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>Stock Grade</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
-                      <Text style={styles.infoNotFound}>{gradeArr[0]}</Text>
+                      <Text style={styles.infoNotFound}>{gradeArr[0].length > 0 ? gradeArr[0] : '-'}</Text>
                       </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>UOM</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
-                      <Text style={styles.infoNotFound}>{uomFiltered[0]}</Text>
+                      <Text style={styles.infoNotFound}>{uomFiltered[0].length > 0 ? uomFiltered[0] : '-'}</Text>
                       </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>Packaging</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
-                      <Text style={styles.infoNotFound}>{packagingFiltered[0]}</Text>
+                      <Text style={styles.infoNotFound}>{packagingFiltered[0].length > 0 ? packagingFiltered[0] : '-'}</Text>
                       </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>Category</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
-                      <Text style={styles.infoNotFound}>{categoryFiltered[0]}</Text>
+                      <Text style={styles.infoNotFound}>{categoryFiltered[0].length > 0 ? categoryFiltered[0] : '-'}</Text>
                       </View>
                     </View>
                   </View>
@@ -633,13 +641,13 @@ class Example extends React.Component {
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>Banch Number</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
-                      <Text style={styles.infoNotFound}>{banchFiltered[0]}</Text>
+                      <Text style={styles.infoNotFound}>{banchFiltered[0].length > 0 ? banchFiltered[0] : '-'}</Text>
                       </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>EXP Date</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
-                      <Text style={styles.infoNotFound}>{moment(expFiltered[0]).format('YY/MM/DD')}</Text>
+                      <Text style={styles.infoNotFound}>{expFiltered[0].length > 0 ? moment(expFiltered[0]).format('YY/MM/DD') : '-'}</Text>
                       </View>
                     </View>
                   </View>
@@ -679,7 +687,7 @@ class Example extends React.Component {
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Category</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
-                  <Text style={styles.infoNotFound}>{categoryFiltered[0]}</Text>
+                  <Text style={styles.infoNotFound}>{categoryFiltered[0].length > 0 ? categoryFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 </>) : null}
@@ -754,17 +762,16 @@ class Example extends React.Component {
       return dataCode;
     });
   };
-  onSubmit = () => {
-    const {dataCode,qty, dataItem} = this.state;
+  onSubmit = async () => {
+    const {dataCode,qty, dataItem, indexData} = this.state;
+    const {currentTask} = this.props;
     this.props.setBarcodeScanner(true);
-    this.setState({
-      dataCode: '0',
-    });
-    // for prototype only
-    let arr = this.makeScannedItem(dataItem.barcode,qty);
-    this.props.setItemScanned(arr);
-    this.props.setItemIDScanned(dataItem.id);
-    this.props.setBottomBar(false);
+    let getConfirmation = await postData('/outboundMobile/pickTask/'+currentTask+'/product/'+indexData+'/confirm',{quantity: qty});
+    if(typeof getConfirmation === 'object' && getConfirmation.error !== undefined){
+      this.props.setItemError(getConfirmation.error);
+    } else {
+      this.props.setItemSuccess(getConfirmation);
+    }
     this.props.navigation.navigate('List');
   }
 
@@ -1022,6 +1029,7 @@ function mapStateToProps(state) {
     // end
     outboundList: state.originReducer.outboundList,
     keyStack: state.originReducer.filters.keyStack,
+    currentTask: state.originReducer.filters.currentTask,
   };
 }
 
@@ -1038,6 +1046,12 @@ const mapDispatchToProps = (dispatch) => {
     },
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
+    },
+    setItemError : (error)=>{
+      return dispatch({type:'TaskError', payload: error});
+    },
+    setItemSuccess : (error)=>{
+      return dispatch({type:'TaskSuccess', payload: error});
     },
   };
 };

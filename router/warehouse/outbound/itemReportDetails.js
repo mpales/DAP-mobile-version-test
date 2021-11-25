@@ -29,7 +29,7 @@ class ConnoteReportDetails extends React.Component {
       receivingNumber: null,
       title: 'Damage Item',
       note: 'Theres some crack on packages',
-      dataReports : [1,2],
+      dataReports : null,
       overlayImage : false,
       overlayImageString: null,
       overlayImageFilename : null,
@@ -37,19 +37,49 @@ class ConnoteReportDetails extends React.Component {
     this.renderPhotoProof.bind(this);
     this.renderInner.bind(this)
   }
- 
+  static getDerivedStateFromProps(props,state){
+    const {navigation} = props;
+    const {receivingNumber} = state;
+    if(receivingNumber === null){
+      const {routes, index} = navigation.dangerouslyGetState();
+      if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
+        return {...state, receivingNumber: routes[index].params.number};
+      }
+      return {...state};
+    } 
+    
+    return {...state};
+  }
   componentDidUpdate(prevProps, prevState, snapshot) {
- 
+   if(prevState.dataReports !== this.state.dataReports){
+    for (const [key, value] of Object.entries(this.arrayImageProcessingRef)) {
+      if(value !== undefined){
+        value.init();
+      }
+    }
+   } 
+   if(prevState.overlayImage !== this.state.overlayImage && this.state.overlayImage === true){
+    if(this.overlayThumb !== null && this.overlayThumb !== undefined){
+      this.overlayThumb.refresh();
+    }
+   } 
   }
   async componentDidMount(){
-   
+    const {receivingNumber} = this.state;
+    const {currentTask} = this.props;
+    const result = await getData('/outboundMobile/pickTask/'+currentTask+'/product/'+receivingNumber+'/reports');
+    if(typeof result === 'object' && result.error === undefined){
+      this.setState({dataReports:result})
+    } else {
+      this.props.navigation.goBack();
+    }
   }
   toggleOverlay = (item)=>{
     const {overlayImage} = this.state;
     this.setState({
       overlayImage: !overlayImage,
-      overlayImageString : item !== undefined ? '/inboundsMobile/'+item.inbound_id+'/'+item.inbound_product_id+'/reports/'+item.report_id+'/photo/'+item.id : null,
-      overlayImageFilename: item !== undefined ? ''+item.inbound_id+''+item.inbound_product_id+''+item.report_id+''+item.id+'.png' : null,
+      overlayImageString : item !== undefined ? '/outboundMobile/pickTask/'+item.pick_task_id+'/product/'+item.pick_task_product_id+'/reports/'+item.report_id+'/photo/'+item.id : null,
+      overlayImageFilename: item !== undefined ? ''+item.pick_task_id+''+item.pick_task_product_id+''+item.report_id+''+item.id+'.png' : null,
     });
   }
   renderPhotoProof = ({item,index})=>{
@@ -58,7 +88,7 @@ class ConnoteReportDetails extends React.Component {
         this.arrayImageProcessingRef[item.id] = ref
       }} 
       callbackToFetch={async (indicatorTick)=>{
-        return await getBlob('/inboundsMobile/'+item.inbound_id+'/'+item.inbound_product_id+'/reports/'+item.report_id+'/thumb/'+item.id,{filename:''+item.inbound_id+''+item.inbound_product_id+''+item.report_id+''+item.id+'.jpg'},(received, total) => {
+        return await getBlob('/outboundMobile/pickTask/'+item.pick_task_id+'/product/'+item.pick_task_product_id+'/reports/'+item.report_id+'/thumb/'+item.id,{filename:''+item.pick_task_id+''+item.pick_task_product_id+''+item.report_id+''+item.id+'.jpg'},(received, total) => {
           // if(this.arrayImageProcessingRef.length > 0 && this.arrayImageProcessingRef[item.id] !== undefined && this.arrayImageProcessingRef[item.id] !== null)
           // this.arrayImageProcessingRef[item.id].
           indicatorTick(received)
@@ -71,33 +101,57 @@ class ConnoteReportDetails extends React.Component {
       /></TouchableOpacity>)
   }
   renderInner = (item) =>{
+    let photoData = Array.from({length:item.pick_task_report_photos.length}).map((num,index)=>{
+      return {...item.pick_task_report_photos[index],report_id:item.id,pick_task_id:item.pick_task_id,pick_task_product_id:item.pick_task_product_id}
+    });
+    let report_title = 'Other';
+    switch (item.type) {
+      case 1:
+        report_title = 'Damage Item'
+        break;
+        case 2:
+          report_title = 'Item Missing'
+          break;
+          case 3:
+            report_title = 'Excess Item'
+            break;
+            case 5:
+              report_title = 'Others'
+              break;
+              case 4:
+                report_title = 'Expired Item'
+                break;
+                        
+      default:
+        break;
+    }
     return (<Card containerStyle={styles.cardContainer} style={styles.card}>
     <View style={styles.header}>
       <Text
         style={[
           styles.headerTitle,
-          {marginBottom: 10, color: '#E03B3B', fontSize: 20},
+          {marginBottom: 10, color: '#E03B3B', fontSize: 20, color: item.acknowledged === 1 ? '#17B055' : '#E03B3B'},
         ]}>
-          Damage Item
+        {report_title }
       </Text>
     </View>
     <View style={styles.detail}>
-      <DetailList title="Report By" value="Kim Tan" />
-      <DetailList title="Date and Time" value={moment().format('DD/MM/YYY h:mm a')} />
+      <DetailList title="Report By" value={item.reported_by.firstName} />
+      <DetailList title="Date and Time" value={moment.unix(item.reported_on).format('DD/MM/YYYY h:mm a')} />
       <DetailList title="Photo Proof" value={''} />
-      {/* <FlatList
+      <FlatList
             horizontal={true}
             keyExtractor={(item,index)=>index}
             data={photoData}
             renderItem={this.renderPhotoProof}
-      /> */}
+      />
       <Text style={styles.detailText}>Note</Text>
       <TextInput
         style={styles.note}
         multiline={true}
         numberOfLines={3}
         textAlignVertical="top"
-        value={"Test"}
+        value={item.description}
         editable={false}
       />
     </View>
@@ -108,7 +162,7 @@ class ConnoteReportDetails extends React.Component {
       <>
         <StatusBar barStyle="dark-content" />
         <View style={styles.container}>
-          <View style={styles.header}>
+          <View style={[styles.header,{   paddingHorizontal:10,}]}>
             <Text style={styles.headerTitle}>Report Details</Text>
           </View>
           <Overlay isVisible={this.state.overlayImage} onBackdropPress={this.toggleOverlay}>
@@ -134,6 +188,7 @@ class ConnoteReportDetails extends React.Component {
             keyExtractor={(item,index)=>index}
               data={this.state.dataReports}
               renderItem={({item}) => this.renderInner(item)}
+              contentContainerStyle={{paddingHorizontal:10}}
             />
           </View>
         </View>
@@ -146,7 +201,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    padding: 20,
+    paddingHorizontal:10,
+    paddingVertical:20,
   },
   header: {
     flexDirection: 'row',
@@ -204,7 +260,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
   return {
-    currentASN : state.originReducer.filters.currentASN,
+    currentTask : state.originReducer.filters.currentTask,
   };
 };
 

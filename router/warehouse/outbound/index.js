@@ -68,8 +68,9 @@ class HomeNavigator extends React.Component {
                 },
               })
             },
-            headerShown: false,
+            headerShown: true,
             headerTintColor: '#fff',
+            headerTitle: '',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
             headerLeft: (props) => {
               return(
@@ -195,7 +196,7 @@ class HomeNavigator extends React.Component {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
                   this.props.setBottomBar('false')
-                  this.props.navigation.goBack();
+                  this.props.navigation.navigate('List')
                 }
               }
               />);
@@ -297,7 +298,7 @@ class HomeNavigator extends React.Component {
             <Stack.Screen
           name="SingleCamera"
           component={SingleCamera}
-          options={() => ({
+          options={({navigation}) => ({
             headerStyle: {
               backgroundColor: '#121C78',
               elevation: 0,
@@ -309,6 +310,28 @@ class HomeNavigator extends React.Component {
                 },
               })
             },
+            headerLeft: (props) => {
+              const {routes, index} = navigation.dangerouslyGetState();
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  navigation.navigate(routes[index-1].name,{ submitPhoto: false });
+                }
+              }
+              />);
+            },
+            headerRight: () => {
+              const {routes, index} = navigation.dangerouslyGetState();
+              return (
+              <Button
+                type="clear"
+                title="Submit"
+                buttonStyle={{paddingHorizontal: 20, margin: 0}}
+                iconContainerStyle={{padding: 0, margin: 0}}
+                titleStyle={{padding: 0, margin: 0, color: '#fff'}}
+                onPress={() =>
+                  navigation.navigate(routes[index-1].name,{ submitPhoto: true })}
+              />
+            )},
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},

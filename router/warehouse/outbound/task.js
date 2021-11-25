@@ -7,7 +7,8 @@ import {
     Text,
     TouchableOpacity,
     View,
-    RefreshControl
+    RefreshControl,
+    ActivityIndicator
 } from 'react-native';
 import {
     Card,
@@ -27,7 +28,7 @@ import Mixins,{themeStoreContext} from '../../../mixins';
 //icon
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import {observer} from 'mobx-react';
-
+import EmptyIlustrate from '../../../assets/icon/list-empty mobile.svg';
 import {getData} from '../../../component/helper/network';
 
 const window = Dimensions.get('window');
@@ -60,7 +61,7 @@ class List extends React.Component {
         const result = await getData('outboundMobile/pickTask');
         this.setState({renderGoBack: false});
         if(Array.isArray(result)){
-            return result.filter((o)=> o !== null);
+            return result.filter((o)=> o !== null).sort((a, b) => -(String(a.delivery_date).localeCompare(String(b.delivery_date))));
         } else {
             return [];
         }
@@ -80,15 +81,15 @@ class List extends React.Component {
         }
         let filtered = (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.dropdown !== this.state.dropdown ? this.state.filtered : null;
         if(filtered === 0) {
-            this.setState({list:outboundTask.filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown))))});
+            this.setState({list:outboundTask.filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
         } else if(filtered === 1){
-           this.setState({list:outboundTask.filter((element)=> element.status === 4).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
+           this.setState({list:outboundTask.filter((element)=> element.status === 4).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
         } else if(filtered === 2){
-            this.setState({list:outboundTask.filter((element)=> element.status === 1).filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
+            this.setState({list:outboundTask.filter((element)=> element.status === 1).filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
         }else if(filtered === 3){
-            this.setState({list:outboundTask.filter((element)=> element.status === 2).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
+            this.setState({list:outboundTask.filter((element)=> element.status === 2).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
         }else if(filtered === 4){
-            this.setState({list:outboundTask.filter((element)=> element.status === 3).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
+            this.setState({list:outboundTask.filter((element)=> element.status === 3).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
         }
         
     }
@@ -204,14 +205,19 @@ class List extends React.Component {
                     textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6}}
                     />
                             </ScrollView>
-                            {this.state.list.map((data, i) => (
+                            {this.state.list.length === 0 ? 
+                (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
+                    <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+                              <Text style={{  ...Mixins.subtitle3,}}>Empty Job</Text>
+                  </View>)
+                :this.state.list.map((data, i) => (
                                 <Outbound 
                                     key={i} 
                                     index={i} 
                                     item={data} 
                                     ToManifest={()=>{
                                         this.props.setBottomBar(true);
-                                        // this.props.setCurrentTask(data.id);
+                                        this.props.setCurrentTask(data.id);
                                         // this.props.setActiveTask(data.id);
                                         this.props.navigation.navigate(   {
                                             name: 'List',

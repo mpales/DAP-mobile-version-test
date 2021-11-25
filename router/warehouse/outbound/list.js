@@ -7,7 +7,8 @@ import {
     Text,
     TouchableOpacity,
     View, 
-    RefreshControl
+    RefreshControl, 
+    ActivityIndicator
 } from 'react-native';
 import {
     Card,
@@ -25,15 +26,17 @@ import Mixins from '../../../mixins';
 //icon
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import moment from 'moment';
+import Banner from '../../../component/banner/banner';
 import {getData} from '../../../component/helper/network';
 import mixins, {themeStoreContext} from '../../../mixins';
 import {observer} from 'mobx-react';
-
+import EmptyIlustrate from '../../../assets/icon/manifest-empty mobile.svg';
 const window = Dimensions.get('window');
 
 @observer
 class List extends React.Component {
   static contextType = themeStoreContext;
+  _unsubscribe = null;
   constructor(props) {
         super(props);
 
@@ -45,6 +48,8 @@ class List extends React.Component {
             updated: false,
             renderRefresh : false,
             renderGoBack : false,
+            notifbanner : '',
+            notifsuccess: false,
         };
     this.setFiltered.bind(this);
     this.updateSearch.bind(this);
@@ -71,7 +76,7 @@ class List extends React.Component {
 
         if(this.props.keyStack !== prevProps.keyStack){
           if(prevProps.keyStack === 'Barcode' && this.props.keyStack ==='List'){
-            this.setState({updated: true});
+            this.setState({renderRefresh: true});
     
           } else if(prevProps.keyStack === 'ReportManifest' && this.props.keyStack ==='List'){
             this.setState({updated: true});
@@ -104,6 +109,16 @@ class List extends React.Component {
       async componentDidMount() {
         const {navigation, currentTask,barcodeScanned, ReportedManifest} = this.props;
         const {taskNumber, _manifest, search} = this.state;
+        this._unsubscribe = this.props.navigation.addListener('focus', () => {
+          // do something
+          if(this.props.taskSuccess !== null){
+            this.setState({notifbanner: this.props.taskSuccess, notifsuccess: true});
+            this.props.setItemSuccess(null);
+          } else if(this.props.taskError !== null){
+            this.setState({notifbanner: this.props.taskError, notifsuccess: false});
+            this.props.setItemError(null);
+          }
+        });
         if(taskNumber === null){
           const {routes, index} = navigation.dangerouslyGetState();
           if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
@@ -119,6 +134,9 @@ class List extends React.Component {
           }
         }
       }
+      componentWillUnmount(){
+        this._unsubscribe();
+      }
     updateSearch = (search) => {
         this.setState({search});
       };
@@ -128,6 +146,9 @@ class List extends React.Component {
     _onRefresh = () => {
       this.setState({renderRefresh: true});
   }
+  closeNotifBanner = ()=>{
+    this.setState({notifbanner:'', notifsuccess: false});
+  }
     render() {
         const {outboundTask} = this.props;
         const {taskNumber, _list} = this.state;
@@ -136,6 +157,11 @@ class List extends React.Component {
         return(
             <SafeAreaProvider>
                 <StatusBar barStyle="dark-content" />
+                {this.state.notifbanner !== '' && (<Banner
+                  title={this.state.notifbanner}
+                  backgroundColor={this.state.notifsuccess === true ? "#17B055" : "#F1811C"}
+                  closeBanner={this.closeNotifBanner}
+                />)}
                 <ScrollView 
                    style={{...styles.body, backgroundColor: this.context._Scheme5}} 
                     showsVerticalScrollIndicator={false}
@@ -225,7 +251,17 @@ class List extends React.Component {
                     />
                             </ScrollView>
                            
-                            {_list.map((data, i, arr) =>   {
+                            {_list.length === 0 ? 
+                (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
+                  {this.state.taskNumber === null ? (    <ActivityIndicator 
+                    size={50} 
+                    color="#121C78"
+                />) :  (<>
+                <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+                <Text style={{  ...Mixins.subtitle3,}}>Empty Product</Text>
+                </>)}
+                  </View>)
+                : _list.map((data, i, arr) =>   {
                               
                                 return (
                                 <OutboundDetail 
@@ -237,7 +273,7 @@ class List extends React.Component {
                                         this.props.navigation.navigate({
                                           name: 'Barcode',
                                           params: {
-                                              inputCode: i,
+                                              inputCode: data.pick_task_product_id,
                                           }
                                         });
                                     }}
@@ -540,6 +576,8 @@ function mapStateToProps(state) {
         currentTask : state.originReducer.filters.currentTask,
         ReportedList : state.originReducer.filters.ReportedList,
         keyStack: state.originReducer.filters.keyStack,
+        taskError: state.originReducer.filters.taskError,
+        taskSuccess : state.originReducer.filters.taskSuccess,
     };
   }
   
@@ -569,6 +607,12 @@ const mapDispatchToProps = (dispatch) => {
       },
       setItemIDScanned : (id) => {
         return dispatch({type: 'ListIDScanned', payload: id});
+      },
+      setItemError : (error)=>{
+        return dispatch({type:'TaskError', payload: error});
+      },
+      setItemSuccess : (error)=>{
+        return dispatch({type:'TaskSuccess', payload: error});
       },
       //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
     };
