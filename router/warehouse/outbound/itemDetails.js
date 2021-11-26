@@ -25,6 +25,7 @@ class ConnoteDetails extends React.Component {
       sortBy: 'Name',
       dataCode : '0',
       bayCode :'0',
+      dataActivities : [],
       totalReports: 0,
       _itemDetail: null,
     };
@@ -55,6 +56,12 @@ class ConnoteDetails extends React.Component {
       console.log(resultTotalReport)
       if(typeof resultTotalReport === 'object' && resultTotalReport.error === undefined){
         this.setState({totalReports:resultTotalReport.length})
+      }
+
+      const resultActivities = await getData('/outboundMobile/pickTask/'+this.props.currentTask+'/product/'+dataCode+'/activities');
+      console.log(resultActivities);
+      if(typeof resultActivities === 'object' && resultActivities.error === undefined){
+        this.setState({dataActivities:resultActivities})
       }
     }
   }
@@ -171,20 +178,33 @@ class ConnoteDetails extends React.Component {
           </View>
         </View>
         <View style={[styles.header, {marginTop: 10}]}>
+        <View style={{flex:1}}>
           <Text style={styles.detailText}>Date and Time</Text>
-          <Text style={styles.detailText}>Name</Text>
+          </View>
+          <View style={{flexShrink:1}}>
+          <Text style={[styles.detailText,{textAlign:'left'}]}>Name</Text>
+          </View>
+          <View style={{flex:1, justifyContent:'flex-end',alignItems:'flex-end'}}>
           <Text style={styles.detailText}>Activities</Text>
+          </View>
         </View>
       </>
     );
   };
 
-  renderInner = (item) => {
+  renderInner = ({item,index}) => {
+    let oddeven = index % 2;
     return (
-      <View style={styles.header}>
-        <Text style={styles.detailText}>{item.date}</Text>
-        <Text style={styles.detailText}>{item.name}</Text>
-        <Text style={styles.detailText}>{item.status}</Text>
+      <View style={[styles.header,{backgroundColor: oddeven == 0 ? '#EFEFEF' : 'white'}]}>
+         <View style={{flex:1}}>
+        <Text style={styles.detailText}>{moment(item.date).format('DD/MM/YYYY h:mm a')}</Text>
+        </View>
+        <View style={{flexShrink:1}}>
+        <Text style={styles.detailText}>{item.user_id.firstName}</Text>
+        </View>
+        <View style={{flex:1, justifyContent:'flex-end',alignItems:'flex-end'}}>
+        <Text style={[styles.detailText,{textAlign:'right'}]}>{item.activity}</Text>
+        </View>
       </View>
     );
   };
@@ -204,10 +224,10 @@ class ConnoteDetails extends React.Component {
           </View>
           <View style={styles.body}>
             <FlatList
-              data={[]}
+              data={this.state.dataActivities}
               style={{padding:0}}
               ListHeaderComponent={this.renderHeader}
-              renderItem={({item}) => this.renderInner(item)}
+              renderItem={this.renderInner}
             />
           </View>
         </View>
