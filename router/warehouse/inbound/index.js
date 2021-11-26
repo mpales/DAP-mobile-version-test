@@ -24,6 +24,8 @@ import Mixins from '../../../mixins';
 import itemDetail from './itemDetails';
 import SingleCamera from '../peripheral/cameraMulti';
 import EnlargeImage from '../peripheral/enlargeImage';
+import EnlargePhoto from '../peripheral/enlargePhoto';
+import viewPhoto from './attributes/photos';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import recordIVAS from './recordIVAS';
 import IVAS from './IVAS-list';
@@ -774,6 +776,50 @@ class HomeNavigator extends React.Component {
             },
             headerTitle:'',
             headerTransparent: true,
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+          })}
+        />
+         <Stack.Screen
+          name="EnlargePhoto"
+          component={EnlargePhoto}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTitle:'',
+            headerTransparent: true,
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+          })}
+        />
+         <Stack.Screen
+          name="ViewPhotoAttributes"
+          component={viewPhoto}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTitle:'Photo',
+            headerTransparent: false,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
         

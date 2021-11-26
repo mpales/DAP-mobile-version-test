@@ -34,7 +34,7 @@ class CameraSingle extends React.Component {
     }
     
     static getDerivedStateFromProps(props,state){
-     const {addPhotoProofID, addPhotoReportID, navigation, photoProofPostpone, photoReportPostpone} = props;
+     const {addPhotoProofID, addPhotoReportID, addAttributeID,navigation, photoProofPostpone, photoReportPostpone, attributePhotoPostpone} = props;
      const {pictureGallery} = state;
      // only one instance of multi camera can exist before submited
      if(pictureGallery === null){
@@ -47,7 +47,12 @@ class CameraSingle extends React.Component {
             if(photoReportPostpone !== null) addPhotoReportID(routes[index-1].params.dataCode)
             return {...state,pictureGallery: photoReportPostpone,rootIDType: routes[index-1].name, rootIDnumber: routes[index-1].params.dataCode}
             }
-         } 
+         } else if(routes[index-1] !== undefined && routes[index-1].name === "newItem"){
+            if(routes[index-1].params !== undefined && routes[index-1].params.inputCode !== undefined){
+           if(attributePhotoPostpone !== null) addAttributeID(routes[index-1].params.inputCode)
+           return {...state,pictureGallery: attributePhotoPostpone,rootIDType: routes[index-1].name, rootIDnumber: routes[index-1].params.inputCode}
+           }
+        } 
      } else {
          
      }
@@ -73,6 +78,12 @@ class CameraSingle extends React.Component {
        } else if(this.state.rootIDType === 'ReportManifest' && Array.isArray(this.props.photoReportPostpone) && ((prevProps.photoReportPostpone === null && this.props.photoReportPostpone !== prevProps.photoReportPostpone) || this.props.photoReportPostpone.length !== prevProps.photoReportPostpone.length)){
             this.props.addPhotoReportID(this.state.rootIDnumber)
             this.setState({pictureGallery : this.props.photoReportPostpone});
+            if(this.state.isShowImagePreview && this.state.pictureGallery !== null) {
+                this.flatlist.scrollToEnd();
+            }
+        } else if(this.state.rootIDType === 'newItem' && Array.isArray(this.props.attributePhotoPostpone) && ((prevProps.attributePhotoPostpone === null && this.props.attributePhotoPostpone !== prevProps.attributePhotoPostpone) || this.props.attributePhotoPostpone.length !== prevProps.attributePhotoPostpone.length)){
+            this.props.addAttributeID(this.state.rootIDnumber)
+            this.setState({pictureGallery : this.props.attributePhotoPostpone});
             if(this.state.isShowImagePreview && this.state.pictureGallery !== null) {
                 this.flatlist.scrollToEnd();
             }
@@ -110,6 +121,9 @@ class CameraSingle extends React.Component {
             } else if(rootIDType === 'ReportManifest') {
                 this.props.addPhotoReportID(this.state.rootIDnumber)
                 this.props.addPhotoReportPostpone( pictureData);
+            } else if(rootIDType === 'newItem') {
+                this.props.addAttributeID(this.state.rootIDnumber)
+                this.props.addAttributePostpone( pictureData);
             }
         } else {
 
@@ -291,6 +305,7 @@ function mapStateToProps(state) {
     return {
         photoProofPostpone: state.originReducer.photoProofPostpone,
         photoReportPostpone: state.originReducer.photoReportPostpone,
+        attributePhotoPostpone : state.originReducer.attributePhotoPostpone,
         keyStack: state.originReducer.filters.keyStack,
     };
 }
@@ -299,6 +314,8 @@ const mapDispatchToProps = (dispatch) => {
     return {
         addPhotoProofID: (id) => dispatch({type:'addPhotoProofID', payload: id}),
         addPhotoProofPostpone: (uri) => dispatch({type: 'PhotoProofPostpone', payload: uri}),
+        addAttributeID: (id) => dispatch({type:'addAttributePhotoID', payload: id}),
+        addAttributePostpone: (uri) => dispatch({type: 'attributePostpone', payload: uri}),
         addPhotoReportID: (id) => dispatch({type:'addPhotoReportID', payload: id}),
         addPhotoReportPostpone: (uri) => dispatch({type: 'PhotoReportPostpone', payload: uri}),
     };

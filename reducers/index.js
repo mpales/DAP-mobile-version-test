@@ -7,10 +7,12 @@ const initialState = {
   userRole: USER,
   photoProofPostpone: null,
   disposalPostpone: null,
+  attributePhotoPostpone : null,
   photoReportPostpone: null,
   photoReportID: null,
   photoProofID: null,
   disposalProofID: null,
+  attributeProofID: null,
   photoProofList: [],
   stockTakeReportPhotoList: [],
   route: ROUTE,
@@ -316,6 +318,18 @@ export default function appReducer(state = initialState, action) {
               ? action.payload.gID
               : initialState.disposalProofID,
         };
+      } else if (action.payload.gtype === 'attribute') {
+        return {
+          ...state,
+          attributePhotoPostpone :
+            Array.isArray(state.gallery[action.payload.gID]) === true
+              ? state.gallery[action.payload.gID]
+              : initialState.attributePhotoPostpone ,
+              attributeProofID:
+            Array.isArray(state.gallery[action.payload.gID]) === true
+              ? action.payload.gID
+              : initialState.attributeProofID,
+        };
       }
     case 'PhotoProofPostpone':
       if (action.payload === null) {
@@ -401,6 +415,48 @@ export default function appReducer(state = initialState, action) {
               : state.gallery,
         };
       }
+      case 'attributePostpone':
+        if (action.payload === null) {
+          return {
+            ...state,
+            gallery:
+              state.attributeProofID !== null
+                ? {
+                    ...state.gallery,
+                    [state.attributeProofID]: initialState.attributePhotoPostpone ,
+                  }
+                : state.gallery,
+                attributePhotoPostpone : initialState.attributePhotoPostpone ,
+                attributeProofID: initialState.attributeProofID,
+          };
+        } else if (Array.isArray(state.attributePhotoPostpone)) {
+          return {
+            ...state,
+            attributePhotoPostpone: [...state.attributePhotoPostpone, action.payload],
+            gallery:
+              state.attributeProofID !== null
+                ? {
+                    ...state.gallery,
+                    [state.attributeProofID]: [
+                      ...state.attributePhotoPostpone,
+                      action.payload,
+                    ],
+                  }
+                : state.gallery,
+          };
+        } else {
+          return {
+            ...state,
+            attributePhotoPostpone: [action.payload],
+            gallery:
+              state.attributeProofID !== null
+                ? {
+                    ...state.gallery,
+                    [state.attributeProofID]: [action.payload],
+                  }
+                : state.gallery,
+          };
+        }
     case 'PhotoReportPostpone':
       if (action.payload === null) {
         return {
@@ -493,6 +549,18 @@ export default function appReducer(state = initialState, action) {
               }
             : state.gallery,
       };
+      case 'AttributePhotoUpdate':
+        return {
+          ...state,
+          attributePhotoPostpone: action.payload,
+          gallery:
+            state.attributeProofID !== null
+              ? {
+                  ...state.gallery,
+                  [state.attributeProofID]: action.payload,
+                }
+              : state.gallery,
+        };
     case 'DisposalMediaUpdate':
       return {
         ...state,
@@ -542,6 +610,11 @@ export default function appReducer(state = initialState, action) {
         ...state,
         photoProofID: action.payload,
       };
+      case 'addAttributePhotoID':
+        return {
+          ...state,
+          attributeProofID: action.payload,
+        };
     case 'addDisposalProofID':
       return {
         ...state,

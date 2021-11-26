@@ -33,7 +33,7 @@ class EnlargeImage extends React.Component {
     static getDerivedStateFromProps(props,state){
         // only one instance of multi camera can exist before submited
         if(props.route.params.index !== undefined && state.rootIDType === '') {
-            return {...state,currentPictureIndex: props.route.params.index,  rootIDType :  props.route.params.rootIDType,  pictureData:props.route.params.rootIDType === 'ReceivingDetail' ? props.photoProofPostpone : props.route.params.rootIDType === 'ReportManifest' ? props.photoReportPostpone : null,}
+            return {...state,currentPictureIndex: props.route.params.index,  rootIDType :  props.route.params.rootIDType,  pictureData:props.route.params.rootIDType === 'ReceivingDetail' ? props.photoProofPostpone : props.route.params.rootIDType === 'ReportManifest' ? props.photoReportPostpone : props.route.params.rootIDType === 'newItem' ? props.attributePhotoPostpone : null,}
          
         }
       
@@ -50,6 +50,9 @@ class EnlargeImage extends React.Component {
             } else if(this.state.rootIDType === 'ReportManifest'){
                 this.props.addPhotoReportPostpone(null);
                 this.props.addPhotoReportID(null);
+            } else if(this.state.rootIDType === 'newItem'){
+                this.props.addAttributePostpone(null);
+                this.props.addAttributeID(null);
             }
             this.props.navigation.navigate('SingleCamera');
         } else {
@@ -58,6 +61,8 @@ class EnlargeImage extends React.Component {
                     this.props.addPhotoProofUpdate(this.state.pictureData);
                 } else if(this.state.rootIDType === 'ReportManifest'){
                     this.props.addPhotoReportUpdate(this.state.pictureData);
+                } else if(this.state.rootIDType === 'newItem'){
+                    this.props.addAttributeUpdate(this.state.pictureData);
                 }
             }
         }
@@ -229,6 +234,7 @@ function mapStateToProps(state) {
         photoProofList: state.originReducer.photoProofList,
         photoProofPostpone: state.originReducer.photoProofPostpone,
         photoReportPostpone: state.originReducer.photoReportPostpone,
+        attributePhotoPostpone : state.originReducer.attributePhotoPostpone,
     };
 }
   
@@ -241,7 +247,10 @@ const mapDispatchToProps = (dispatch) => {
         addPhotoProofUpdate: (data) => dispatch({type: 'PhotoProofUpdate', payload: data}),
         addPhotoReportPostpone: (uri) => dispatch({type: 'PhotoReportPostpone', payload: uri}),
         addPhotoReportUpdate: (data) => dispatch({type: 'PhotoReportUpdate', payload: data}),
+        addAttributePostpone: (uri) => dispatch({type: 'attributePostpone', payload: uri}),
+        addAttributeUpdate: (data) => dispatch({type: 'AttributePhotoUpdate', payload: data}),
         addPhotoProofID: (id) => dispatch({type:'addPhotoProofID', payload: id}),
+        addAttributeID: (id) => dispatch({type:'addAttributePhotoID', payload: id}),
         addPhotoReportID: (id) => dispatch({type:'addPhotoReportID', payload: id}),
     };
 };
