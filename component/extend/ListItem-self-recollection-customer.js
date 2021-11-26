@@ -8,39 +8,23 @@ import Mixins from '../../mixins';
 import {stockTakeJobStatusColor} from '../helper/status-color';
 import Format from '../helper/format';
 
-const ListItemStockTake = ({item, navigate}) => {
+const ListItemStockTake = ({item}) => {
   return (
     <ThemeProvider theme={theme}>
       <ListItem
-        Component={TouchableScale}
-        onPress={() => navigate(item)}
-        friction={90} //
-        tension={100} // These props are passed to the parent component (here TouchableScale)
-        activeScale={0.95}
-        pad={0}
-        style={{paddingHorizontal: 20, marginBottom: 10}}>
-        <View
-          style={[
-            styles.leftList,
-            {
-              backgroundColor: stockTakeJobStatusColor(item.status),
-            },
-          ]}
-        />
+        Component={View}
+        style={styles.container}
+        containerStyle={{
+          borderRadius: 5,
+          paddingVertical: 5,
+          paddingHorizontal: 20,
+        }}>
         <ListItem.Content
           style={[styles.sectionContainer, {flexDirection: 'column'}]}>
           <Text style={styles.valueText}>{Format.formatDate(item.date)}</Text>
           <Text style={styles.valueText}>{item.poId}</Text>
           <Text style={styles.valueText}>{item.client.name}</Text>
         </ListItem.Content>
-        <ListItem.Chevron
-          size={16}
-          color="#2D2C2C"
-          containerStyle={styles.chevronContainer}
-          Component={() => (
-            <IconArrow66Mobile height="26" width="26" fill="#2D2C2C" />
-          )}
-        />
         <View
           style={[
             styles.statusContainer,
@@ -56,9 +40,15 @@ const ListItemStockTake = ({item, navigate}) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginLeft: 20,
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   sectionContainer: {
-    marginHorizontal: 14,
-    paddingVertical: 12,
     flexGrow: 1,
   },
   titleText: {
@@ -68,9 +58,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   statusContainer: {
-    position: 'absolute',
-    right: 14,
-    top: 12,
     borderRadius: 5,
     paddingHorizontal: 10,
   },
@@ -83,15 +70,6 @@ const styles = StyleSheet.create({
   subtitleText: {
     marginVertical: 2,
     color: '#6C6B6B',
-  },
-  chevronContainer: {
-    alignContent: 'flex-end',
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end',
-    flexShrink: 1,
-    padding: 0,
-    margin: 0,
-    marginRight: 5,
   },
   containerList: {
     marginHorizontal: 0,
@@ -108,13 +86,6 @@ const styles = StyleSheet.create({
 
     elevation: 5,
   },
-  leftList: {
-    backgroundColor: 'grey',
-    flexShrink: 1,
-    padding: 3,
-    borderRadius: 5,
-    alignSelf: 'stretch',
-  },
   valueText: {
     flex: 1,
     ...Mixins.small1,
@@ -123,41 +94,17 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginVertical: 2,
   },
-  recountContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderRadius: 5,
-    borderColor: '#D5D5D5',
-    borderWidth: 1,
-    paddingHorizontal: 5,
-    marginBottom: 5,
-  },
-  recountText: {
-    ...Mixins.subtitle3,
-    color: '#F07120',
-    lineHeight: 21,
-    fontWeight: '600',
-  },
 });
 
 const theme = {
   ListItem: {
     containerStyle: styles.containerList,
-    titleStyle: {
-      color: 'red',
-    },
   },
   ListItemTitle: {
     style: styles.titleText,
   },
   ListItemSubtitle: {
     style: styles.subtitleText,
-  },
-  Avatar: {
-    size: 70,
-    containerStyle: styles.avatarContainer,
-    overlayContainerStyle: styles.avatarOverlay,
   },
   ListItemContent: {
     containerStyle: styles.sectionContainer,

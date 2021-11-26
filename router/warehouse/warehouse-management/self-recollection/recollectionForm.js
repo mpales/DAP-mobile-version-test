@@ -47,6 +47,10 @@ class RecollectionForm extends React.Component {
     this.props.navigation.navigate('RecollectionDetails');
   };
 
+  navigateToSelectCustomer = () => {
+    this.props.navigation.navigate('SelectCustomer');
+  };
+
   // TODO
   // need to clear recollection photo list signature base64 and data when submitted
 
@@ -72,7 +76,7 @@ class RecollectionForm extends React.Component {
                 {justifyContent: 'center', marginTop: 20},
               ]}>
               <Text style={styles.text}>{`You have ${1} Delivery Job, `}</Text>
-              <TouchableOpacity onPress={() => {}}>
+              <TouchableOpacity onPress={this.navigateToSelectCustomer}>
                 <Text style={styles.navigationText}>Add More Delivery?</Text>
               </TouchableOpacity>
             </View>

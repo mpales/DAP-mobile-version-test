@@ -12,7 +12,7 @@ import Mixins from '../../../../mixins';
 import Format from '../../../../component/helper/format';
 import {cleanKeyString} from '../../../../component/helper/string';
 
-class recollectionDetails extends React.Component {
+class RecollectionDetails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -64,9 +64,10 @@ class recollectionDetails extends React.Component {
                     fontSize={14}
                   />
                   {item.attributes !== undefined &&
-                    Object.keys(item.attributes).map((key) => {
+                    Object.keys(item.attributes).map((key, index) => {
                       return (
                         <TextList
+                          key={index}
                           title={cleanKeyString(key)}
                           value={
                             key.includes('date')
@@ -163,4 +164,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(recollectionDetails);
+)(RecollectionDetails);

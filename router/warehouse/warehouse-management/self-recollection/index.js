@@ -7,6 +7,7 @@ import {connect} from 'react-redux';
 import SelfRecollectionList from './selfRecollectionList';
 import RecollectionForm from './recollectionForm';
 import RecollectionDetails from './recollectionDetails';
+import SelectCustomer from './selectCustomer';
 import RecollectionCamera from '../peripheral/recollectionCamera';
 import RecollectionEnlargeImage from '../peripheral/recollectionEnlargeImage';
 // style
@@ -90,6 +91,13 @@ class SelfRecollectionNavigator extends React.Component {
           name="RecollectionDetails"
           options={{
             headerTitle: 'Item Details',
+          }}
+        />
+        <Stack.Screen
+          component={SelectCustomer}
+          name="SelectCustomer"
+          options={{
+            headerTitle: 'Select Customer',
           }}
         />
         <Stack.Screen
