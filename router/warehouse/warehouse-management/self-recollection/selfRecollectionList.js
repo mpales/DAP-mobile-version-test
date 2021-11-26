@@ -144,7 +144,10 @@ class SelfRecollectionList extends React.Component {
               value={this.state.search}
               lightTheme={true}
               inputStyle={styles.searchInputText}
-              searchIcon={<SearchIcon height="20" width="20" fill="#2D2C2C" />}
+              searchIcon={
+                null
+                // <SearchIcon height="20" width="20" fill="#2D2C2C" />
+              }
               containerStyle={styles.searchContainer}
               inputContainerStyle={styles.searchInputContainer}
               placeholder="Search..."

@@ -30,7 +30,7 @@ const ListItemStockTake = ({item, navigate}) => {
         <ListItem.Content
           style={[styles.sectionContainer, {flexDirection: 'column'}]}>
           <Text style={styles.valueText}>{Format.formatDate(item.date)}</Text>
-          <Text style={styles.valueText}>{`JOB ID ${item.poId}`}</Text>
+          <Text style={styles.valueText}>{item.poId}</Text>
           <Text style={styles.valueText}>{item.client.name}</Text>
         </ListItem.Content>
         <ListItem.Chevron
