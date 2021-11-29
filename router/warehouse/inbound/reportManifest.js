@@ -146,6 +146,7 @@ class ReportManifest extends React.Component {
             ...FormData,
           ], this.listenToProgressUpload).then(result=>{
             if(typeof result !== 'object' && result === 'Report submitted successfully'){
+                this.setState({errors:'',overlayProgress: false});
                 this.props.setBottomBar(false);
                 this.props.setReportedASN(currentASN);
                 this.props.addPhotoReportPostpone(null);

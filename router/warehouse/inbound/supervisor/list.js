@@ -102,17 +102,26 @@ class List extends React.Component {
         if(prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true){
             const resultedList =  await this.updateASN();
             this.props.setinboundList(resultedList);
-        }
-        let filtered =  ((prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type) && inboundList.length > 0 ? this.state.filtered : null;
-        if(filtered === 0) {
-            let AllASN = await this.updateStatus();
-            this.setState({list:AllASN.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
-        } else if(filtered === 1){
-            let PendingASN = await this.updateStatus();
-            this.setState({list:PendingASN.filter((element)=> element.status === 7).filter((element)=>String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
-        } else if(filtered === 2){
-            let ProgressASN = await this.updateStatus();
-            this.setState({list:ProgressASN.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
+            let filtered =  ((prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type) && inboundList.length > 0 ? this.state.filtered : null;
+            if(filtered === 0) {
+                this.setState({list:resultedList.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
+            } else if(filtered === 1){
+                this.setState({list:resultedList.filter((element)=> element.status === 7).filter((element)=>String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
+            } else if(filtered === 2){
+                this.setState({list:resultedList.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
+            }
+        } else {
+            let filtered =  ((prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type) && inboundList.length > 0 ? this.state.filtered : null;
+            if(filtered === 0) {
+                let AllASN = await this.updateStatus();
+                this.setState({list:AllASN.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
+            } else if(filtered === 1){
+                let PendingASN = await this.updateStatus();
+                this.setState({list:PendingASN.filter((element)=> element.status === 7).filter((element)=>String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
+            } else if(filtered === 2){
+                let ProgressASN = await this.updateStatus();
+                this.setState({list:ProgressASN.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
+            }
         }
         
     }
