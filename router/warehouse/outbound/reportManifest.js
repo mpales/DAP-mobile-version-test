@@ -148,8 +148,8 @@ class ReportManifest extends React.Component {
             // custom content type
             ...FormData,
           ], this.listenToProgressUpload).then(result=>{
-              console.log(result);
             if(typeof result !== 'object' && result === 'Pick Job successfully reported'){
+                this.setState({errors:'',overlayProgress: false});
                 this.props.setBottomBar(true);
                 this.props.addPhotoReportPostpone(null);
                 const {routes,index} = this.props.navigation.dangerouslyGetState();
