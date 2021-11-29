@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  FlatList,
+  Dimensions,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -24,6 +24,10 @@ import {
 } from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
+// icon
+import ArrowRight from '../../../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
+
+const screen = Dimensions.get('window');
 
 class ClientStorageList extends React.Component {
   constructor(props) {
@@ -42,27 +46,31 @@ class ClientStorageList extends React.Component {
   }
 
   componentDidMount() {
-    this.getClientProductQuantity();
+    this.setState({
+      isLoading: false,
+      itemStatusData: DUMMYTABLEDATA,
+    });
+    // this.getClientProductQuantity();
   }
 
-  getClientProductQuantity = async () => {
-    const {route} = this.props;
-    let clientId = route.params?.client.id ?? null;
-    let productId = route.params?.product.id ?? null;
-    if (clientId !== null && productId !== null) {
-      const result = await getData(
-        `/clients/${clientId}/products/${productId}/quantity`,
-      );
-      if (typeof result === 'object' && result.error === undefined) {
-        this.setState({
-          itemStatusData: result,
-        });
-      }
-      this.setState({
-        isLoading: false,
-      });
-    }
-  };
+  // getClientProductQuantity = async () => {
+  //   const {route} = this.props;
+  //   let clientId = route.params?.client.id ?? null;
+  //   let productId = route.params?.product.id ?? null;
+  //   if (clientId !== null && productId !== null) {
+  //     const result = await getData(
+  //       `/clients/${clientId}/products/${productId}/quantity`,
+  //     );
+  //     if (typeof result === 'object' && result.error === undefined) {
+  //       this.setState({
+  //         itemStatusData: result,
+  //       });
+  //     }
+  //     this.setState({
+  //       isLoading: false,
+  //     });
+  //   }
+  // };
 
   getProductListByStatus = async (status) => {
     this.setState({
@@ -169,63 +177,59 @@ class ClientStorageList extends React.Component {
             </View>
           </View>
           {!isLoading && (
-            <Card containerStyle={styles.cardContainer}>
-              {itemStatusData === null ? (
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <Text style={styles.title}>No Result</Text>
-                </View>
-              ) : (
-                <View style={styles.tableRow}>
-                  <View style={styles.firstColumn}>
-                    <Text style={styles.tableColumnFirst}>Item Status</Text>
-                    {itemStatusData.map((value, index) => {
-                      return (
-                        <Text
-                          style={
-                            index % 2 === 0
-                              ? [
-                                  styles.tableColumnFirst,
-                                  {backgroundColor: '#F5F5FB'},
-                                ]
-                              : styles.tableColumnFirst
-                          }>
-                          {clientProductStatus(value.status)}
-                        </Text>
-                      );
-                    })}
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View style={styles.cardContainer}>
+                {itemStatusData === null ? (
+                  <View
+                    style={{
+                      flexShrink: 1,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Text style={styles.title}>No Result</Text>
                   </View>
-                  <ScrollView horizontal={true}>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
+                ) : (
+                  <View
+                    style={[
+                      styles.tableRow,
+                      {paddingHorizontal: 0, marginVertical: 10},
+                    ]}>
+                    <View style={styles.firstColumn}>
+                      <Text style={styles.tableColumnFirst}>Item Status</Text>
+                      {itemStatusData.map((data, index) => {
+                        return (
+                          <Text
+                            key={index}
+                            style={
+                              index % 2 === 0
+                                ? [
+                                    styles.tableColumnFirst,
+                                    {backgroundColor: '#F5F5FB'},
+                                  ]
+                                : styles.tableColumnFirst
+                            }>
+                            {data.status}
+                          </Text>
+                        );
+                      })}
+                    </View>
+                    <View style={styles.verticalLineSeparator} />
+                    <View
+                      style={{
+                        flexDirection: 'column',
+                      }}>
                       <View style={styles.tableRow}>
-                        {Object.keys(itemStatusData[0]).map((value, index) => {
-                          if (value === 'product_id' || value === 'status') {
-                            return;
-                          }
-                          return (
-                            <Text style={styles.tableColumnValue}>
-                              {cleanKeyString(value)}
-                            </Text>
-                          );
-                        })}
+                        <Text style={styles.tableColumnFirst}>Quantity</Text>
                       </View>
                       {itemStatusData.map((data, index) => {
-                        let key = [];
-                        Object.keys(data).map((value) => {
-                          if (value !== 'product_id' && value !== 'status') {
-                            key.push(value);
-                          }
-                        });
                         return (
                           <TouchableOpacity
-                            disabled={
-                              clientProductStatus(data.status) ===
-                              clientProductStatus(1)
-                            }
+                            disabled={true}
                             onPress={() =>
                               this.getProductListByStatus(
                                 clientProductStatusEndpoint(data.status),
@@ -241,23 +245,18 @@ class ClientStorageList extends React.Component {
                                   ]
                                 : [styles.tableRow]
                             }>
-                            {key.map((keyValue) => {
-                              return (
-                                <Text style={styles.tableColumnValue}>
-                                  {data[keyValue] === null
-                                    ? '0'
-                                    : data[keyValue]}
-                                </Text>
-                              );
-                            })}
+                            <Text style={styles.tableColumnValue}>
+                              {data.quantity}
+                            </Text>
+                            <ArrowRight fill="#2D2C2C" width="10" height="10" />
                           </TouchableOpacity>
                         );
                       })}
                     </View>
-                  </ScrollView>
-                </View>
-              )}
-            </Card>
+                  </View>
+                )}
+              </View>
+            </View>
           )}
           <View style={styles.lineSeparator} />
           {storageList !== null &&
@@ -279,6 +278,13 @@ class ClientStorageList extends React.Component {
     );
   }
 }
+
+const DUMMYTABLEDATA = [
+  {status: 'On Hand', quantity: 21},
+  {status: 'Sales Order', quantity: 9},
+  {status: 'Free', quantity: 18},
+  {status: 'ASN/Transit', quantity: 9},
+];
 
 const styles = StyleSheet.create({
   body: {
@@ -312,6 +318,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   cardContainer: {
+    flexShrink: 1,
     borderRadius: 5,
     backgroundColor: '#fff',
     marginBottom: 15,
@@ -327,13 +334,11 @@ const styles = StyleSheet.create({
   },
   tableRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 10,
   },
   firstColumn: {
     width: 100,
-    borderRightWidth: 1,
-    borderRightColor: '#D5D5D5',
   },
   column: {
     flexDirection: 'column',
@@ -366,6 +371,16 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#D5D5D5',
     marginVertical: 10,
+    position: 'absolute',
+    left: 100,
+  },
+  verticalLineSeparator: {
+    position: 'absolute',
+    height: '115%',
+    left: 100,
+    zIndex: 2,
+    borderRightWidth: 1,
+    borderColor: '#D5D5D5',
   },
   emptyContainer: {
     flex: 1,
