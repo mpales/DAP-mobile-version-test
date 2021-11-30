@@ -28,7 +28,11 @@ export default ImageLoading = forwardRef((props, ref) => {
         setURI(null);
         const currentValue = await getValue() // when frame drop detected because rn-reanimated use synchronous 
         let uri = await props.callbackToFetch(indicatorTick);
-        setURI(Platform.OS === 'android' ? 'file://' + uri : '' + uri );
+        if(typeof uri ===  'object'){
+            setURI( `data:${uri.mimetype};base64,${uri.base64}`);
+        } else {
+            setURI(Platform.OS === 'android' ? 'file://' + uri : '' + uri );
+        }
         value.setValue(1); // set different value
     }, [getValue])
     const [progressLinearVal, setTick] = useState(0);
@@ -66,7 +70,6 @@ export default ImageLoading = forwardRef((props, ref) => {
         return imageURI !== null ? false : true;
     },
     }));
-    
     return (
     <View style={{...props.containerStyle}}>
     <Animated.View style={[{...props.style, ...StyleSheet.absoluteFillObject, justifyContent:'center',alignItems:'center'},{transform:[  { scale: value.interpolate( {

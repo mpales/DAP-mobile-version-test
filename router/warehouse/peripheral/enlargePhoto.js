@@ -31,6 +31,8 @@ class EnlargeImage extends React.Component {
             currentPictureIndex: 0,
             isShowDelete: false,
             typeGallery:null,
+            productID : null,
+            photoId : null,
             data : null,
             inboundId: null,
             respondBackend :'',
@@ -47,9 +49,10 @@ class EnlargeImage extends React.Component {
         if(inboundId === null){
             const {routes, index} = navigation.dangerouslyGetState();
             if(routes[index].params !== undefined && routes[index].params.inboundId !== undefined && routes[index].params.photoId !== undefined){
-                return {...state,inboundId:routes[index].params.inboundId, data:routes[index].params.photoId,currentPictureIndex:routes[index].params.index, typeGallery: routes[index].params.type };
+                return {...state,inboundId:routes[index].params.inboundId, data:routes[index].params.receivedPhotoId, photoId : routes[index].params.photoId,currentPictureIndex:routes[index].params.index, productID: routes[index].params.productId };
              } 
         } 
+        console.log(state.currentPictureIndex);
         return {...state};
        }
        shouldComponentUpdate(nextProps, nextState) {
@@ -71,7 +74,8 @@ class EnlargeImage extends React.Component {
         // }
       if(prevState.updateLoadImage !== this.state.updateLoadImage && this.state.updateLoadImage === true){
         if(this.state.convertedPictureData.length > 0){
-
+            if(this.viewerImageRef[  this.state.currentPictureIndex] !== undefined)
+            this.viewerImageRef[  this.state.currentPictureIndex].init(); 
             this.flatlist.scrollToIndex({index:this.state.currentPictureIndex,animated:true});
         } else {
             this.props.navigation.goBack();
@@ -106,12 +110,14 @@ class EnlargeImage extends React.Component {
         let respondbackend = '';
         const {pictureData, convertedPictureData, currentPictureIndex} = this.state;
         // let typeAPI = this.state.typeGallery === 'received' ? 'receivePhoto' : 'processingPhoto';
-        // const result = await deleteData('/inboundsMobile/'+this.state.inboundId+'/'+typeAPI+'/'+convertedPictureData[currentPictureIndex]);
-        // if(typeof result === 'object' && result.error === undefined){
-        //     respondbackend = result;
-        //   } else {
-        //     respondbackend = result.error;
-        //   }
+        console.log(convertedPictureData[currentPictureIndex]);
+        const result = await deleteData('/inboundsMobile/'+this.state.inboundId+'/'+this.state.productID+'/product-photos/'+convertedPictureData[currentPictureIndex]);
+        if(typeof result === 'object' && result.error === undefined){
+             respondbackend = result;
+           } else {
+             respondbackend = result.error;
+           }
+           console.log(convertedPictureData.filter((element,index) => index !== currentPictureIndex));
         this.setState({
             respondBackend: respondbackend,
             convertedPictureData : convertedPictureData.filter((element,index) => index !== currentPictureIndex),
@@ -130,19 +136,18 @@ class EnlargeImage extends React.Component {
         });
     }
     renderImage = ({item,index}) => {
-        let typeAPI = this.state.typeGallery === 'received' ? 'receivePhoto' : 'processingPhoto';
-        
+         
         return(   
         <ImageZoom cropWidth={window.width}
         cropHeight={window.height/2}
         imageWidth={window.width}
         imageHeight={window.height/2}>
-            {/* <ImageLoading 
+            <ImageLoading 
             ref={ ref => {
                 this.viewerImageRef[index] = ref;
             }} 
             callbackToFetch={async (indicatorTick)=>{
-                return await getBlob('/inboundsMobile/'+this.state.inboundId+'/'+typeAPI+'/'+item,{filename:item+'.png'},(received, total) => {
+                return await getBlob('/inboundsMobile/'+this.state.inboundId+'/'+this.state.productID+'/product-photos/'+item+'/full',(received, total) => {
                     // if(this.viewerImageRef[index] !== null)
                     // this.viewerImageRef[index].
                     indicatorTick(received)
@@ -152,7 +157,7 @@ class EnlargeImage extends React.Component {
             style={{width: '100%', height: '100%',backgroundColor:'black'}}
             imageStyle={{}}
             imageContainerStyle={{width: '100%', height: '100%'}}
-            />  */}
+            />  
             <Image style={{backgroundColor:'black', flex:1}}/>
         </ImageZoom>
         );

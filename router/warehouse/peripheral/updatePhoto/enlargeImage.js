@@ -71,7 +71,8 @@ class EnlargeImage extends React.Component {
         // }
       if(prevState.updateLoadImage !== this.state.updateLoadImage && this.state.updateLoadImage === true){
         if(this.state.convertedPictureData.length > 0){
-
+            if(this.viewerImageRef[  this.state.currentPictureIndex] !== undefined )
+            this.viewerImageRef[  this.state.currentPictureIndex].init(); 
             this.flatlist.scrollToIndex({index:this.state.currentPictureIndex,animated:true});
         } else {
             this.props.navigation.goBack();
