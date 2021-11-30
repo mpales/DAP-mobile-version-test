@@ -165,23 +165,13 @@ class WarehouseManagement extends React.Component {
 }
 
 function mapStateToProps(state) {
-  return {
-    todos: state.originReducer.todos,
-    textfield: state.originReducer.todos.name,
-    value: state.originReducer.todos.name,
-    userRole: state.originReducer.userRole,
-    isPhotoProofSubmitted: state.originReducer.filters.isPhotoProofSubmitted,
-    isSignatureSubmitted: state.originReducer.filters.isSignatureSubmitted,
-  };
+  return {};
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
-    },
-    setStartDelivered: (toggle) => {
-      return dispatch({type: 'startDelivered', payload: toggle});
     },
     setCurrentStackKey: (string) => {
       return dispatch({type: 'keyStack', payload: string});
