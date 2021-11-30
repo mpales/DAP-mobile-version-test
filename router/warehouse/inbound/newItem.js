@@ -4,15 +4,18 @@ import {View, Keyboard, ScrollView, TouchableOpacity, Dimensions} from 'react-na
 import {connect} from 'react-redux';
 import moment from 'moment';
 import Mixins from '../../../mixins';
-import {putData, getData} from '../../../component/helper/network';
+import {putData, getData, postBlob} from '../../../component/helper/network';
 import Banner from '../../../component/banner/banner';
 import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
 import IconView from '../../../assets/icon/iconmonstr-picture-1 1mobile.svg';
 import IconBarcodeMobile from '../../../assets/icon/iconmonstr-barcode-3 2mobile.svg';
 import EmptyIlustrate from '../../../assets/icon/Groupempty.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
+import UploadTooltip from '../../../component/include/upload-tooltip';
+import RNFetchBlob from 'rn-fetch-blob';
 const window = Dimensions.get('window');
 class Acknowledge extends React.Component {
+  unsubscribe = null;
   constructor(props) {
     super(props);
     this.state = {
@@ -33,6 +36,11 @@ class Acknowledge extends React.Component {
       weight: '',
       pcscarton: '',
       errors : '',
+      errorsphoto : '',
+      labelerror: false,
+      submitPhoto: false,
+      validPhoto: false,
+      _manifest: null,
       keyboardState : 'hide',
     };
     this.registerBarcode.bind(this);
@@ -59,6 +67,7 @@ class Acknowledge extends React.Component {
           volweight: manifest.basic.volume !== null ? String(manifest.basic.volume) : '',
           weight: manifest.basic.weight !== null ? String(manifest.basic.weight) : '',
           pcscarton: manifest.basic.carton_pcs !== null ? String(manifest.basic.carton_pcs) : '',
+          _manifest: manifest,
         };
       }
       return {...state};
@@ -73,6 +82,13 @@ class Acknowledge extends React.Component {
         if(routes[index].params !== undefined && routes[index].params.attrBarcode !== undefined){
           //if multiple sku
           this.setState({barcode: routes[index].params.attrBarcode});
+        }
+        return false;
+      } if(nextProps.keyStack === 'newItem' && this.props.keyStack === 'SingleCamera'){ 
+        const {routes, index} = nextProps.navigation.dangerouslyGetState();
+        if(routes[index].params !== undefined && routes[index].params.submitPhoto !== undefined  && routes[index].params.submitPhoto === true){
+          //if multiple sku
+          this.setState({submitPhoto: true});
         }
         return false;
       }
@@ -102,6 +118,15 @@ class Acknowledge extends React.Component {
       this.props.setManifestList(updatedManifest);
       }
     }
+    if(prevState.submitPhoto !== this.state.submitPhoto && this.state.submitPhoto === true){
+      if(this.props.attributePhotoPostpone !== null){
+        this.setState({submitPhoto:false, overlayProgress:true});
+        await this.uploadSubmittedPhoto();
+      } else {
+        this.setState({submitPhoto:false,errorsphoto:'take a Photo Proof before continue process', labelerror: true})
+      }
+
+    }
     if(prevState.length !== this.state.length || prevState.width !== this.state.width || prevState.height !== this.state.height){
       const {length,width,height} = this.state;
       if(length !== '' && width !== '' && height !== ''){
@@ -127,6 +152,7 @@ class Acknowledge extends React.Component {
         pcscarton: getAttributes.basic.carton_pcs !== null ? String(getAttributes.basic.carton_pcs) : '',
       });
     }
+
     Keyboard.addListener("keyboardDidShow", this.keyboardDidShowHandle);
     Keyboard.addListener("keyboardDidHide", this.keyboardDidHideHandle);
   }
@@ -203,12 +229,56 @@ class Acknowledge extends React.Component {
     this.toggleOverlay();
     if(action) {
       // for prototype only
-      this.submitItem();
+      if((this.state._manifest.is_new === 1 || this.state._manifest.record === 1) && this.state._manifest.input_basic_attributes === 1){
+      this.submitItem(); 
+      } else {
+        this.props.navigation.navigate('Manifest');
+      }
       // end
 
      // this.props.navigation.navigate('containerDetail');
     }
   }
+  getPhotoReceivingGoods = async () => {
+    const {attributePhotoPostpone} = this.props;
+    let formdata = [];
+    for (let index = 0; index < attributePhotoPostpone.length; index++) {
+      let name,filename,path,type ='';
+      await RNFetchBlob.fs.stat(attributePhotoPostpone[index]).then((FSStat)=>{
+        name = FSStat.filename.replace('.','-');
+        filename= FSStat.filename;
+        path = FSStat.path;
+        type = FSStat.type;
+      });
+      if(type === 'file')
+      formdata.push({ name : 'photos', filename : filename, type:'image/jpg', data: RNFetchBlob.wrap(path)})
+    }
+    return formdata;
+  }
+  listenToProgressUpload = (written, total) => {
+    this.setState({progressLinearVal:(1/total)*written});
+  }
+  uploadSubmittedPhoto = async () => {
+    const {attributePhotoPostpone} = this.props;
+    const {productID} = this.state;
+    const {currentASN} = this.props;
+    let FormData = await this.getPhotoReceivingGoods();
+    postBlob('/inboundsMobile/'+currentASN+'/'+productID+'/record-product-photos', [
+      // element with property `filename` will be transformed into `file` in form data
+      //{ name : 'receiptNumber', data: this.state.data.inbound_asn !== null ? this.state.data.inbound_asn.reference_id :  this.state.data.inbound_grn !== null ?  this.state.data.inbound_grn.reference_id : this.state.data.inbound_other.reference_id},
+      // custom content type
+      ...FormData,
+    ], this.listenToProgressUpload).then(result=>{
+      if(typeof result !== 'object'){
+        this.props.addAttributePostpone( null );
+        this.setState({ progressLinearVal:0, errorsphoto:result, labelerror : false,overlayProgress : false,validPhoto : true});         
+    } else {       
+      if(typeof result === 'object'){
+        this.setState({errorsphoto: result.error,progressLinearVal:0, labelerror: true,overlayProgress : false,validPhoto : false});
+      }
+    }
+    });
+  };
   render(){
     const {barcode, sku,description, uom, length,width,height,volweight,weight,pcscarton} = this.state;
     return (
@@ -290,7 +360,7 @@ class Acknowledge extends React.Component {
             <EmptyIlustrate width="70" height="70" style={{marginHorizontal:20}}/>
          </View>
         </View>
-          <View style={{
+         {(this.state._manifest.barcode === 1 || this.state._manifest.is_new === 1) && ( <View style={{
             marginHorizontal:10, marginVertical:10, 
             shadowColor: "#000",
             shadowOffset: {
@@ -346,11 +416,11 @@ class Acknowledge extends React.Component {
                
                 </View>
               </View>
-              </View>
+              </View>)}
           </View>
         )}
         
-        <View style={{
+       { (this.state._manifest.is_new === 1 || this.state._manifest.input_basic_attributes === 1) && ( <View style={{
           marginHorizontal:10, 
           marginVertical:10, 
         shadowColor: "#000",
@@ -453,8 +523,8 @@ class Acknowledge extends React.Component {
                   keyboardType="number-pad"
               />
           </View>
-         </View>
-         <View style={{
+         </View>)}
+        {(this.state._manifest.take_photo === 1 || this.state._manifest.is_new === 1) && ( <View style={{
            marginHorizontal:10, 
            marginVertical:10, 
         shadowColor: "#000",
@@ -474,7 +544,7 @@ class Acknowledge extends React.Component {
            </View>
            <Divider color="#D5D5D5"/>
            <View style={{flexDirection:'row', paddingHorizontal:20,marginTop:0}}>
-           <View style={[styles.sheetPackages,{alignItems: 'center',justifyContent: 'center',marginHorizontal: 32, marginTop: 20}]}>
+           <View style={[styles.sheetPackages,{alignItems: 'flex-start',justifyContent: 'flex-start',marginHorizontal: 0, marginTop: 20}]}>
               <Avatar
                 onPress={()=>{
                   this.props.navigation.navigate('SingleCamera');
@@ -506,15 +576,34 @@ class Acknowledge extends React.Component {
                   : '#F07120',
                   flex: 2,
                   borderRadius: 5,
-                }}/>
-
+                }}
+                containerStyle={{   alignSelf:'center'}}
+                />
+                  <View style={{marginVertical: 5, paddingHorizontal:40}}>
+                  <UploadTooltip 
+                      overlayLinearProgress={{
+                      value:this.state.progressLinearVal, 
+                      color:"#F1811C",
+                      variant:"determinate", 
+                      style:{height:13, backgroundColor:'white', borderRadius:10}
+                      }} 
+                        value={this.state.progressLinearVal} 
+                        color="primary" 
+                        style={{width:80}} 
+                        variant="determinate"
+                        enabled={this.state.overlayProgress}
+                      />
+                  </View>
                 {/* <LinearProgress value={this.state.progressLinearVal} color="primary" style={{width:80}} variant="determinate"/> */}
+                <View style={{maxWidth: 150, justifyContent:'center', alignItems:'center', alignSelf:'center'}}>
                 <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Take Photo</Text>
+                {this.state.errorsphoto !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color: this.state.labelerror === false ? '#17B055' : 'red'}}>{this.state.errorsphoto}</Text>)}
+                </View>
               </View>
-              <View style={[styles.sheetPackages,{alignItems: 'center',justifyContent: 'center',marginHorizontal: 32, marginTop: 20}]}>
+              <View style={[styles.sheetPackages,{alignItems: 'flex-start',justifyContent: 'flex-start',marginHorizontal: 32, marginTop: 20}]}>
               <Avatar
                 onPress={()=>{
-                  this.props.navigation.navigate('ViewPhotoAttributes',{number:1});
+                  this.props.navigation.navigate('ViewPhotoAttributes',{number:this.state.productID});
                 }}
                 size={79}
                 ImageComponent={() => (
@@ -541,13 +630,13 @@ class Acknowledge extends React.Component {
                 <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>View Photo</Text>
               </View>
            </View>
-         </View>
+         </View>)}
         {this.state.keyboardState === 'hide' && ( <Button
               containerStyle={{flex:1, marginRight: 0,marginVertical:30}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.toggleOverlay}
-              disabled={this.state.length !== '' && this.state.weight !== '' & this.state.pcscarton !== '' && this.state.volweight !== '' && this.state.width !== '' && this.state.height !== '' ? false : true}
+              disabled={(( this.state._manifest.input_basic_attributes === 0 || (this.state._manifest.input_basic_attributes === 1 && this.state.length !== '' && this.state.weight !== '' & this.state.pcscarton !== '' && this.state.volweight !== '' && this.state.width !== '' && this.state.height !== '')) && (this.state._manifest.take_photo === 0 || this.state._manifest.take_photo === 1 && this.state.validPhoto !== true) && ( this.state._manifest.barcode === 0 || (this.state._manifest.barcode === 1 && this.state.barcode !== ''))) ? false : true}
               title="Confirm"
             />)}
           
@@ -769,6 +858,7 @@ const mapDispatchToProps = (dispatch) => {
     loadFromGallery: (action) => {
       return dispatch({type:'loadFromGallery', payload: action});
     },
+    addAttributePostpone: (uri) => dispatch({type: 'attributePostpone', payload: uri}),
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };

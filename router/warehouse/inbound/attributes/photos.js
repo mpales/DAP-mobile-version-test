@@ -63,90 +63,92 @@ class Photos extends React.Component {
     return {...state};
    }
    shouldComponentUpdate(nextProps, nextState) {
-    // if(this.props.keyStack !== nextProps.keyStack){
-    //   if(nextProps.keyStack === 'PhotosDraft' && this.props.keyStack ==='CameraMulti'){
-    //     this.setState({updateData:true});
-    //     return false;
-    //   } 
-    // }
+     if(this.props.keyStack !== nextProps.keyStack){
+       if(nextProps.keyStack === 'EnlargePhoto' && this.props.keyStack ==='ViewPhotoAttributes'){
+         this.setState({updateData:true});
+         return false;
+       } 
+     }
     return true;
   }
   async componentDidUpdate(prevProps, prevState, snapshot) {
     
-    // if(this.state.updateData === true){
-    //   const result = await getData('inboundsMobile/'+this.state.receivingNumber+'/photosIds');
-    //   if(typeof result === 'object' && result.error === undefined){
-    //     let dumpPath = [];
-    //     let dumpreceivedPhotoId =[];
-    //     let dumpprocessingPhotoId = [];
-    //     for (let index = 0; index < result.inbound_photos.length; index++) {
-    //       const element = result.inbound_photos[index].photoId;
-    //       if(result.inbound_photos[index].status === 2){
-    //         dumpreceivedPhotoId.push(element);
-    //       } else if(result.inbound_photos[index].status === 3){
-    //         dumpprocessingPhotoId.push(element);
-    //       }
-    //      // let respath = await getBlob('/inboundsMobile/'+this.state.receivingNumber+'/processingThumb/'+element,{filename:element+'.jpg'});
-    //     //  dumpPath.push(respath);
-    //     }
-    //     this.setState({updateData:false, receivedPhotoId: dumpreceivedPhotoId, processingPhotoId: dumpprocessingPhotoId});
-    //   } else {
-    //     this.props.navigation.goBack();
-    //   }
-    // }
-    // if(prevState.receivedPhotoId !== this.state.receivedPhotoId && this.state.updateData === prevState.updateData){
-    //   this.arrayImageReceivedRef.forEach((element,index) => {
-    //     this.arrayImageReceivedRef[index].init();       
-    //   });
-    // } 
-    // if(prevState.processingPhotoId !== this.state.processingPhotoId && this.state.updateData === prevState.updateData) {
-    //   this.arrayImageProcessingRef.forEach((element,index) => {
-    //     this.arrayImageProcessingRef[index].init();       
-    //   });
-    // }
-    // if(this.state.updateData !== prevState.updateData && this.state.updateData === false) {
-    //   this.arrayImageProcessingRef.forEach((element,index) => {
-    //     this.arrayImageProcessingRef[index].refresh();       
-    //   });
-    //   this.arrayImageReceivedRef.forEach((element,index) => {
-    //     this.arrayImageReceivedRef[index].refresh();       
-    //   });
-    // }
+    if(this.state.updateData === true){
+       const result = await getData('/inboundsMobile/'+this.props.currentASN+'/'+this.state.receivingNumber+'/product-photos');
+       if(typeof result === 'object' && result.error === undefined){
+         let dumpPath = [];
+         let dumpreceivedPhotoId =[];
+         let dumpprocessingPhotoId = [];
+         for (let index = 0; index < result.length; index++) {
+           const element = result[index].photoId;
+           dumpreceivedPhotoId.push(element);
+        //  let respath = await getBlob('/inboundsMobile/'+this.state.receivingNumber+'/processingThumb/'+element,{filename:element+'.jpg'});
+        // dumpPath.push(respath);
+         }
+         this.setState({updateData:false, receivedPhotoId: dumpreceivedPhotoId});
+       } else {
+         this.props.navigation.goBack();
+       }
+     }
+     if(prevState.receivedPhotoId !== this.state.receivedPhotoId && this.state.updateData === prevState.updateData){
+       this.arrayImageReceivedRef.forEach((element,index) => {
+         this.arrayImageReceivedRef[index].init();       
+      });
+     } 
+   
+     if(this.state.updateData !== prevState.updateData && this.state.updateData === false) {
+  
+       this.arrayImageReceivedRef.forEach((element,index) => {
+         this.arrayImageReceivedRef[index].refresh();       
+       });
+     }
   }
   
   async componentDidMount(){
-    // const result = await getData('inboundsMobile/'+this.state.receivingNumber+'/photosIds');
-    // if(typeof result === 'object' && result.error === undefined){
-    //   let dumpPath = [];
-    //   let dumpreceivedPhotoId =[];
-    //   let dumpprocessingPhotoId = [];
-    //   for (let index = 0; index < result.inbound_photos.length; index++) {
-    //     const element = result.inbound_photos[index].photoId;
-    //     if(result.inbound_photos[index].status === 2){
-    //       dumpreceivedPhotoId.push(element);
-    //     } else if(result.inbound_photos[index].status === 3){
-    //       dumpprocessingPhotoId.push(element);
-    //     }
-    //   }
-    //   this.setState({updateData:false,  receivedPhotoId: dumpreceivedPhotoId, processingPhotoId: dumpprocessingPhotoId});
-    // } else {
-    //   this.props.navigation.goBack();
-    // }
-    this.setState({updateData:false,  receivedPhotoId: ['dad','sad','sad','sad','sad','sad','sad','sad','sad','sad','sad','sad','sad','sad','sad','sad','sad','sad','sad','sad','sad']});
+     const result = await getData('/inboundsMobile/'+this.props.currentASN+'/'+this.state.receivingNumber+'/product-photos');
+    console.log(result);
+     if(typeof result === 'object' && result.error === undefined){
+       let dumpPath = [];
+       let dumpreceivedPhotoId =[];
+       let dumpprocessingPhotoId = [];
+       for (let index = 0; index < result.length; index++) {
+         const element = result[index].photoId;
+           dumpreceivedPhotoId.push(element);
+       }
+       this.setState({updateData:false,  receivedPhotoId: dumpreceivedPhotoId});
+     } else {
+       this.props.navigation.goBack();
+     }
   }
-  
   renderCardImageReceived = ({item,index})=>{ 
-    return (<TouchableOpacity 
-      style={{width:78,height:78,backgroundColor:'black', marginHorizontal:5, marginVertical:5}}
-      onPress={()=>{
-        this.props.navigation.navigate('EnlargePhoto', {
-          inboundId: 'test',
-          photoId: ['asdasd','asdasd','asdasd','asdasddasd'],
-          index: 1,
-          type: 'AttributePhoto'
-        });
+    return (
+    <TouchableOpacity
+    onPress={()=>{
+      this.props.navigation.navigate('EnlargePhoto',{
+        inboundId: this.props.currentASN,
+        photoId: item,
+        receivedPhotoId : this.state.receivedPhotoId,
+        productId : this.state.receivingNumber,
+        index: index,
+      });
+    }}
+    >
+      <ImageLoading 
+      ref={ ref => {
+        this.arrayImageReceivedRef[index] = ref
+      }} 
+      callbackToFetch={async (indicatorTick)=>{
+        return await getBlob('/inboundsMobile/'+this.props.currentASN+'/'+this.state.receivingNumber+'/product-photos/'+item+'/thumbs',(received, total) => {
+          // if(this.arrayImageProcessingRef[index] !== undefined)
+          // this.arrayImageReceivedRef[index].
+          indicatorTick(received)
+        })
       }}
-      />)
+      containerStyle={{width:78,height:78, margin:5}}
+      style={{width:78,height:78,backgroundColor:'black'}}
+      imageStyle={{width:78,height:78}}
+      imageContainerStyle={{}}
+      /></TouchableOpacity>)
   }
 
   render() {
@@ -194,6 +196,7 @@ function mapStateToProps(state) {
     indexBottomBar : state.originReducer.filters.indexBottomBar,
     indexStack : state.originReducer.filters.indexStack,
     keyStack : state.originReducer.filters.keyStack,
+    currentASN : state.originReducer.filters.currentASN,
   };
 }
 

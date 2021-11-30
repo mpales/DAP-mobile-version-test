@@ -64,7 +64,7 @@ class Acknowledge extends React.Component {
         this.props.setBottomBar(false);
         return false;
       } else if(nextProps.keyStack === 'ReceivingDetail'){
-        this.setState({updateData:true});
+        this.setState({updateData:true, errors : '', labelerror:false});
         return false;
       }
     }

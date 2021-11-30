@@ -131,7 +131,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
   const isCurrentManifest = useSelector(
     (state) => state.originReducer.filters.currentManifest,
   );
-  let addAttribute = item.is_transit === undefined && item.input_basic_attributes === 0 ? false : item.is_transit !== undefined ? false : true;
+  let addAttribute = item.is_transit === undefined && (item.record === 0 && item.is_new === 0 ) ? false : item.is_transit !== undefined ? false : true;
   let status = 'grey';
   let textstatus = 'pending';
   switch (item.status) {
@@ -174,17 +174,17 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
         <ListItem.Content style={styles.sectionContainer}>
         <View style={{flexDirection:"row", flexGrow:1, justifyContent:'center',alignContent:'center',alignItems:'center'}}>
           <View style={{flexDirection:'row', flexShrink:1,}}>
-        {addAttribute && ( <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5',paddingHorizontal:10, marginRight:5}}>
+        {item.is_new === 1 && ( <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5',paddingHorizontal:10, marginRight:5}}>
                         
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#F07120', fontWeight: '500'}}>
                         New
                         </Text>
                         
                     </View>)}
-                    {item.take_photo === 1 && ( <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5',paddingHorizontal:10, marginRight:5}}>
+                    {item.record === 1 && ( <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5',paddingHorizontal:10, marginRight:5}}>
                         
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#F07120', fontWeight: '500'}}>
-                        Photo
+                        Record
                         </Text>
                         
                     </View>)}
@@ -368,7 +368,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                         }
                       })
                     }}
-                    title="Input Attribute"
+                    title="Record Attribute"
                   />
                 )}
             </View>
