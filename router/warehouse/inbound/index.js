@@ -39,8 +39,11 @@ import DetailsDraft from './details/index';
 import SupervisorMode from './supervisor/index';
 import RegisterBarcode from '../peripheral/index-inbound-register';
 import POSMPhoto from '../peripheral/POSMPhoto/index';
+import CompleteReceiving from './complete-receiving';
+import Completed from './completed';
 import WarehouseIn from '../detail/index-inbound';
 import updatePhoto from '../peripheral/updatePhoto';
+import completeReceiving from './complete-receiving';
 const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
   constructor(props) {
@@ -658,7 +661,65 @@ class HomeNavigator extends React.Component {
             headerTitle:'Shipment VAS'
         
           })}
-        />
+        />   
+        <Stack.Screen
+        name="CompleteReceiving"
+        component={completeReceiving}
+        options={() => ({
+          headerStyle: {
+            backgroundColor: '#121C78',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+            ...Platform.select({
+              android: {
+                height: 45,
+              },
+            })
+          },
+          headerLeft: (props) => {
+            return(
+              <HeaderBackButton  {...props} onPress={()=>{
+                this.props.navigation.navigate('Manifest')
+              }
+            }
+            />);
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+          headerTitle:'Complete Receiving'
+      
+        })}
+      />
+        <Stack.Screen
+        name="Completed"
+        component={Completed}
+        options={() => ({
+          headerStyle: {
+            backgroundColor: '#121C78',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+            ...Platform.select({
+              android: {
+                height: 45,
+              },
+            })
+          },
+          headerLeft: (props) => {
+            return(
+              <HeaderBackButton  {...props} onPress={()=>{
+                this.props.navigation.navigate('List')
+              }
+            }
+            />);
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+          headerTitle:'Completed'
+      
+        })}
+      />
            <Stack.Screen
           name="IVAS"
           component={IVAS}

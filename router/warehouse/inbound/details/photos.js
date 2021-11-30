@@ -38,6 +38,7 @@ const window = Dimensions.get('window');
 
 class Photos extends React.Component {
   arrayImageReceivedRef = [];
+  arrayImageReceivingRef = [];
   arrayImageProcessingRef = [];
   constructor(props) {
     super(props);
@@ -45,6 +46,7 @@ class Photos extends React.Component {
       receivingNumber : null,
       data :null,
       receivedPhotoId : null,
+      receivingPhotoId : null,
       processingPhotoId : null,
     };
   }
@@ -78,17 +80,20 @@ class Photos extends React.Component {
         let dumpPath = [];
         let dumpreceivedPhotoId =[];
         let dumpprocessingPhotoId = [];
+        let dumpreceivingPhotoId = [];
         for (let index = 0; index < result.inbound_photos.length; index++) {
           const element = result.inbound_photos[index].photoId;
           if(result.inbound_photos[index].status === 2){
             dumpreceivedPhotoId.push(element);
           } else if(result.inbound_photos[index].status === 3){
             dumpprocessingPhotoId.push(element);
+          }else if(result.inbound_photos[index].status === 4){
+            dumpreceivingPhotoId.push(element);
           }
          // let respath = await getBlob('/inboundsMobile/'+this.state.receivingNumber+'/processingThumb/'+element,{filename:element+'.jpg'});
         //  dumpPath.push(respath);
         }
-        this.setState({updateData:false, receivedPhotoId: dumpreceivedPhotoId, processingPhotoId: dumpprocessingPhotoId});
+        this.setState({updateData:false, receivingPhotoId: dumpreceivingPhotoId,receivedPhotoId: dumpreceivedPhotoId, processingPhotoId: dumpprocessingPhotoId});
       } else {
         this.props.navigation.goBack();
       }
@@ -103,12 +108,20 @@ class Photos extends React.Component {
         this.arrayImageProcessingRef[index].init();       
       });
     }
+    if(prevState.receivingPhotoId !== this.state.receivingPhotoId && this.state.updateData === prevState.updateData) {
+      this.arrayImageReceivingRef.forEach((element,index) => {
+        this.arrayImageReceivingRef[index].init();       
+      });
+    }
     if(this.state.updateData !== prevState.updateData && this.state.updateData === false) {
       this.arrayImageProcessingRef.forEach((element,index) => {
         this.arrayImageProcessingRef[index].refresh();       
       });
       this.arrayImageReceivedRef.forEach((element,index) => {
         this.arrayImageReceivedRef[index].refresh();       
+      });
+      this.arrayImageReceivingRef.forEach((element,index) => {
+        this.arrayImageReceivingRef[index].refresh();       
       });
     }
   }
@@ -119,22 +132,24 @@ class Photos extends React.Component {
       let dumpPath = [];
       let dumpreceivedPhotoId =[];
       let dumpprocessingPhotoId = [];
+      let dumpreceivingPhotoId = [];
       for (let index = 0; index < result.inbound_photos.length; index++) {
         const element = result.inbound_photos[index].photoId;
         if(result.inbound_photos[index].status === 2){
           dumpreceivedPhotoId.push(element);
         } else if(result.inbound_photos[index].status === 3){
           dumpprocessingPhotoId.push(element);
+        }else if(result.inbound_photos[index].status === 4){
+          dumpreceivingPhotoId.push(element);
         }
       }
-      this.setState({updateData:false,  receivedPhotoId: dumpreceivedPhotoId, processingPhotoId: dumpprocessingPhotoId});
+      this.setState({updateData:false,receivingPhotoId :dumpreceivingPhotoId ,  receivedPhotoId: dumpreceivedPhotoId, processingPhotoId: dumpprocessingPhotoId});
     } else {
       this.props.navigation.goBack();
     }
   }
   
   renderCardImageReceived = ({item,index})=>{ 
-    console.log('this'+item);
     return (<ImageLoading 
       ref={ ref => {
         this.arrayImageReceivedRef[index] = ref
@@ -171,22 +186,39 @@ class Photos extends React.Component {
       imageContainerStyle={{}}
       />)
   }
+  renderCardImageCompleted= ({item,index})=>{ 
+    return (<ImageLoading 
+      ref={ ref => {
+        this.arrayImageReceivingRef[index] = ref
+      }} 
+      callbackToFetch={async (indicatorTick)=>{
+        return await getBlob('/inboundsMobile/'+this.state.receivingNumber+'/complete-photo/'+item+'/thumbs',(received, total) => {
+          // if(this.arrayImageProcessingRef[index] !== undefined)
+          // this.arrayImageProcessingRef[index].
+          indicatorTick(received)
+        })
+      }}
+      containerStyle={{width:78,height:78, margin:5}}
+      style={{width:78,height:78,backgroundColor:'black'}}
+      imageStyle={{width:78,height:78}}
+      imageContainerStyle={{}}
+      />)
+  }
   render() {
     return (
-        <View style={[StyleSheet.absoluteFill,{backgroundColor:'white',paddingHorizontal:40,paddingVertical:20}]}>
-            <Card containerStyle={{margin:0}}>
+        <ScrollView style={[StyleSheet.absoluteFill,{backgroundColor:'white',paddingHorizontal:40,paddingVertical:0}]}>
+            <Card containerStyle={{marginVertical:20, marginHorizontal:0}}>
             <Card.Title style={{textAlign:'left',...Mixins.subtitle3,color:'#424141',fontWeight:'600',lineHeight:21}}>Photo Proof Before Opening Container</Card.Title>
            
             <FlatList
-            horizontal={false}
+            horizontal={true}
             keyExtractor={(item,index)=>index}
             data={this.state.receivedPhotoId}
             renderItem={this.renderCardImageReceived}
-            numColumns={3}
-            style={{height:180}}
+          
             />
         <Button
-                        containerStyle={{flexShrink:1, marginRight: 0,}}
+                        containerStyle={{flexShrink:1, marginRight: 0,marginTop:20,}}
                         buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
                         titleStyle={styles.deliveryText}
                         onPress={()=>{
@@ -198,18 +230,16 @@ class Photos extends React.Component {
                         }}
                 title='Update Photos' />
             </Card>
-            <Card containerStyle={{marginVertical:10,marginHorizontal:0}}>
+            <Card containerStyle={{marginVertical:20, marginHorizontal:0}}>
             <Card.Title style={{textAlign:'left',...Mixins.subtitle3,color:'#424141',fontWeight:'600',lineHeight:21}}>Photo Proof After Opening Container</Card.Title>
             <FlatList
-            horizontal={false}
+            horizontal={true}
             keyExtractor={(item,index)=>index}
             data={this.state.processingPhotoId}
             renderItem={this.renderCardImagProcessing}
-            numColumns={3}
-            style={{height:180}}
             />
             <Button
-                        containerStyle={{flexShrink:1, marginRight: 0,}}
+                        containerStyle={{flexShrink:1, marginRight: 0,marginTop:20}}
                         buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
                         titleStyle={styles.deliveryText}
                         onPress={()=>{
@@ -221,7 +251,30 @@ class Photos extends React.Component {
                         }}
                 title='Update Photos' />
             </Card>
-        </View>
+
+            <Card containerStyle={{marginTop:20,marginBottom:40,  marginHorizontal:0}}>
+            <Card.Title style={{textAlign:'left',...Mixins.subtitle3,color:'#424141',fontWeight:'600',lineHeight:21}}>Photo Complete Receiving</Card.Title>
+            <FlatList
+            horizontal={true}
+            keyExtractor={(item,index)=>index}
+            data={this.state.receivingPhotoId}
+            renderItem={this.renderCardImageCompleted}
+        
+            />
+            <Button
+                        containerStyle={{flexShrink:1, marginRight: 0,marginTop:20}}
+                        buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
+                        titleStyle={styles.deliveryText}
+                        onPress={()=>{
+                          this.props.navigation.navigate('UpdatePhotos',{
+                            photoId: this.state.receivingPhotoId,
+                            inboundId : this.state.receivingNumber,
+                            type : 'receiving',
+                          });
+                        }}
+                title='Update Photos' />
+            </Card>
+        </ScrollView>
     );
  
   }

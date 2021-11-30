@@ -12,7 +12,7 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 // icons
 import TrashCan16Mobile from '../../../assets/icon/iconmonstr-trash-can-16mobile.svg';
-
+import Mixins from '../../../mixins';
 import OfflineMode from '../../../component/linked/offlinemode';
 const window = Dimensions.get("window");
 
@@ -33,7 +33,7 @@ class EnlargeImage extends React.Component {
     static getDerivedStateFromProps(props,state){
         // only one instance of multi camera can exist before submited
         if(props.route.params.index !== undefined && state.rootIDType === '') {
-            return {...state,currentPictureIndex: props.route.params.index,  rootIDType :  props.route.params.rootIDType,  pictureData:props.route.params.rootIDType === 'ReceivingDetail' ? props.photoProofPostpone : props.route.params.rootIDType === 'ReportManifest' ? props.photoReportPostpone : props.route.params.rootIDType === 'newItem' ? props.attributePhotoPostpone : null,}
+            return {...state,currentPictureIndex: props.route.params.index,  rootIDType :  props.route.params.rootIDType,  pictureData:props.route.params.rootIDType === 'ReceivingDetail' ? props.photoProofPostpone : props.route.params.rootIDType === 'ReportManifest' ? props.photoReportPostpone : props.route.params.rootIDType === 'newItem' ? props.attributePhotoPostpone : props.route.params.rootIDType === 'CompleteReceiving' ? props.receivingPhotoPostpone : null,}
          
         }
       
@@ -53,6 +53,12 @@ class EnlargeImage extends React.Component {
             } else if(this.state.rootIDType === 'newItem'){
                 this.props.addAttributePostpone(null);
                 this.props.addAttributeID(null);
+            } else if(this.state.rootIDType === 'newItem'){
+                this.props.addAttributePostpone(null);
+                this.props.addAttributeID(null);
+            }else if(this.state.rootIDType === 'CompleteReceiving'){
+                this.props.addPhotoReceivingPostpone(null);
+                this.props.addReceivingID(null);
             }
             this.props.navigation.navigate('SingleCamera');
         } else {
@@ -63,6 +69,8 @@ class EnlargeImage extends React.Component {
                     this.props.addPhotoReportUpdate(this.state.pictureData);
                 } else if(this.state.rootIDType === 'newItem'){
                     this.props.addAttributeUpdate(this.state.pictureData);
+                } else if(this.state.rootIDType === 'CompleteReceiving'){
+                    this.props.addPhotoReceivingUpdate(this.state.pictureData);
                 }
             }
         }
@@ -135,7 +143,7 @@ class EnlargeImage extends React.Component {
                 {this.state.isShowDelete &&
                     <View style={styles.transparentOverlay}>
                         <View style={styles.deleteContainer}>
-                            <Text>Delete this image ?</Text>
+                        <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'black'}}>Delete this image ?</Text>
                             <View style={styles.confirmButtonContainer}>
                                 <TouchableOpacity
                                     onPress={this.handleShowDelete}
@@ -209,10 +217,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     confirmText: {
+        ...Mixins.subtitle3,lineHeight:21,
         color: '#fff',
         fontWeight: '700',
     },
     cancelText: {
+        ...Mixins.subtitle3,lineHeight:21,
         color: '#6C6B6B',
         fontWeight: '700',
     },
@@ -225,6 +235,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     deleteText: {
+        ...Mixins.subtitle3,lineHeight:21,
         color: '#fff',
     }
 })
@@ -235,6 +246,7 @@ function mapStateToProps(state) {
         photoProofPostpone: state.originReducer.photoProofPostpone,
         photoReportPostpone: state.originReducer.photoReportPostpone,
         attributePhotoPostpone : state.originReducer.attributePhotoPostpone,
+        receivingPhotoPostpone : state.originReducer.receivingPhotoPostpone,
     };
 }
   
@@ -247,10 +259,13 @@ const mapDispatchToProps = (dispatch) => {
         addPhotoProofUpdate: (data) => dispatch({type: 'PhotoProofUpdate', payload: data}),
         addPhotoReportPostpone: (uri) => dispatch({type: 'PhotoReportPostpone', payload: uri}),
         addPhotoReportUpdate: (data) => dispatch({type: 'PhotoReportUpdate', payload: data}),
+        addPhotoReceivingPostpone: (uri) => dispatch({type: 'receivingPostpone', payload: uri}),
+        addPhotoReceivingUpdate: (data) => dispatch({type: 'ReceivingPhotoUpdate', payload: data}),
         addAttributePostpone: (uri) => dispatch({type: 'attributePostpone', payload: uri}),
         addAttributeUpdate: (data) => dispatch({type: 'AttributePhotoUpdate', payload: data}),
         addPhotoProofID: (id) => dispatch({type:'addPhotoProofID', payload: id}),
         addAttributeID: (id) => dispatch({type:'addAttributePhotoID', payload: id}),
+        addReceivingID: (id) => dispatch({type:'addReceivingPhotoID', payload: id}),
         addPhotoReportID: (id) => dispatch({type:'addPhotoReportID', payload: id}),
     };
 };
