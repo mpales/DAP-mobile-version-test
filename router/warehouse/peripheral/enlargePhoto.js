@@ -56,9 +56,7 @@ class EnlargeImage extends React.Component {
         return {...state};
        }
        shouldComponentUpdate(nextProps, nextState) {
-        if(this.state.currentPictureIndex !== nextState.currentPictureIndex && nextState.updateLoadImage === false){
-            return false;
-        }
+ 
         return true;
       }
     componentDidUpdate(prevProps, prevState){
@@ -74,8 +72,11 @@ class EnlargeImage extends React.Component {
         // }
       if(prevState.updateLoadImage !== this.state.updateLoadImage && this.state.updateLoadImage === true){
         if(this.state.convertedPictureData.length > 0){
-            if(this.viewerImageRef[  this.state.currentPictureIndex] !== undefined)
-            this.viewerImageRef[  this.state.currentPictureIndex].init(); 
+            for (let index = 0; index < this.state.convertedPictureData.length; index++) {
+                if(this.viewerImageRef[  index] !== undefined && this.state.convertedPictureData[index] !== undefined)
+               this.viewerImageRef[  index].init(); 
+          }
+     
             this.flatlist.scrollToIndex({index:this.state.currentPictureIndex,animated:true});
         } else {
             this.props.navigation.goBack();
@@ -184,6 +185,9 @@ class EnlargeImage extends React.Component {
                             return <Image key={index} style={styles.picture} source={{uri: value}} />
                         })} */}
                     </View>
+                    <View style={{backgroundColor:'transparent',height:20}}>
+                    <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'white'}}>{'Photo Index : '+ (this.state.currentPictureIndex + 1)}</Text>
+                    </View>
                     <View style={styles.respondContainer}>
                             <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.respondBackend}</Text>
                     </View>
@@ -198,7 +202,7 @@ class EnlargeImage extends React.Component {
                 {this.state.isShowDelete &&
                     <View style={styles.transparentOverlay}>
                         <View style={styles.deleteContainer}>
-                            <Text>Delete this image ?</Text>
+                        <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'black'}}>Delete this image ?</Text>
                             <View style={styles.confirmButtonContainer}>
                                 <TouchableOpacity
                                     onPress={this.handleShowDelete}
@@ -272,10 +276,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     confirmText: {
+        ...Mixins.subtitle3,lineHeight:21,
         color: '#fff',
         fontWeight: '700',
     },
     cancelText: {
+        ...Mixins.subtitle3,lineHeight:21,
         color: '#6C6B6B',
         fontWeight: '700',
     },

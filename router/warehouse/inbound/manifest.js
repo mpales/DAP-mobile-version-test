@@ -269,17 +269,9 @@ class Warehouse extends React.Component{
     this.toggleOverlay();
     if(action) {
       // for prototype only
-      const result = await postData('/inboundsMobile/'+receivingNumber+'/complete-receiving')
-      console.log(result);
-      if(typeof result !== 'object'){
-        this.setState({notifbanner:result, notifsuccess : true});
-      } else {
-        if(result.error !== undefined) this.setState({notifbanner:result.error, notifsuccess: false});
-      }
-      this.props.addCompleteASN(currentASN);
-      this.props.completedInboundList.push(this.state.inboundCode);
-      // end
-
+      this.props.navigation.navigate('CompleteReceiving', {
+        inputCode : receivingNumber,
+      })
      // this.props.navigation.navigate('containerDetail');
     }
   }

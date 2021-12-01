@@ -37,8 +37,10 @@ class RelocationRequest extends React.Component {
   }
 
   componentDidMount() {
-    this.getClientList();
-    this._unsubscribe = this.props.navigation.addListener('focus', () => {});
+    this._unsubscribe = this.props.navigation.addListener('focus', () => {
+      this.getClientList();
+      this.props.setSelectedRequestRelocation(null);
+    });
   }
 
   componentWillUnmount() {
@@ -134,9 +136,9 @@ class RelocationRequest extends React.Component {
 
   navigateToRequestRelocationForm = (data) => {
     const {client, clientId} = this.state;
-    this.props.navigation.navigate('RequestRelocationForm', {
-      productStorage: {...data, client: {id: clientId, name: client}},
-    });
+    const selectedRelocation = {...data, client: {id: clientId, name: client}};
+    this.props.setSelectedRequestRelocation(selectedRelocation);
+    this.props.navigation.navigate('RequestRelocationForm');
   };
 
   navigateToRequestRelocationBarcode = () => {
@@ -384,6 +386,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
+    },
+    setSelectedRequestRelocation: (data) => {
+      return dispatch({type: 'SelectedRequestRelocation', payload: data});
     },
   };
 };

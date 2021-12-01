@@ -30,7 +30,7 @@ class RelocationRequest extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      relocateFrom: this.props.route.params?.productStorage ?? null,
+      relocateFrom: this.props.selectedRequestRelocation,
       warehouseList: null,
       locationList: [],
       reasonCodeList: REASONCODELIST,
@@ -253,45 +253,47 @@ class RelocationRequest extends React.Component {
         )}
         <ScrollView style={styles.body}>
           <Text style={styles.title}>Relocate From</Text>
-          <Card containerStyle={styles.cardContainer}>
-            <TextList title="Warehouse" value={relocateFrom.warehouseName} />
-            <TextList title="Location" value={relocateFrom.locationId} />
-            <TextList title="Client" value={relocateFrom.client.name} />
-            <TextList
-              title="Item Code"
-              value={
-                !!relocateFrom.itemCode
-                  ? relocateFrom.itemCode
-                  : relocateFrom.product.item_code
-              }
-            />
-            <TextList
-              title="Description"
-              value={
-                relocateFrom.description
-                // !!relocateFrom.description
-                //   ? relocateFrom.description
-                //   : relocateFrom.product.description
-              }
-            />
-            <TextList title="Quantity" value={relocateFrom.quantity} />
-            <TextList
-              title="UOM"
-              value={
-                typeof relocateFrom.uom === 'object'
-                  ? relocateFrom.uom.packaging
-                  : relocateFrom.uom
-              }
-            />
-            <TextList
-              title="Grade"
-              value={productGradeToString(
-                !!relocateFrom.productGrade
-                  ? relocateFrom.productGrade
-                  : relocateFrom.grade,
-              )}
-            />
-          </Card>
+          {relocateFrom !== null && (
+            <Card containerStyle={styles.cardContainer}>
+              <TextList title="Warehouse" value={relocateFrom.warehouseName} />
+              <TextList title="Location" value={relocateFrom.locationId} />
+              <TextList title="Client" value={relocateFrom.client.name} />
+              <TextList
+                title="Item Code"
+                value={
+                  !!relocateFrom.itemCode
+                    ? relocateFrom.itemCode
+                    : relocateFrom.product.item_code
+                }
+              />
+              <TextList
+                title="Description"
+                value={
+                  relocateFrom.description
+                  // !!relocateFrom.description
+                  //   ? relocateFrom.description
+                  //   : relocateFrom.product.description
+                }
+              />
+              <TextList title="Quantity" value={relocateFrom.quantity} />
+              <TextList
+                title="UOM"
+                value={
+                  typeof relocateFrom.uom === 'object'
+                    ? relocateFrom.uom.packaging
+                    : relocateFrom.uom
+                }
+              />
+              <TextList
+                title="Grade"
+                value={productGradeToString(
+                  !!relocateFrom.productGrade
+                    ? relocateFrom.productGrade
+                    : relocateFrom.grade,
+                )}
+              />
+            </Card>
+          )}
           <View style={styles.relocateToContainer}>
             <Text style={[styles.title, {marginHorizontal: 0}]}>
               Relocate To
@@ -676,7 +678,10 @@ const styles = StyleSheet.create({
 });
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    selectedRequestRelocation:
+      state.originReducer.filters.selectedRequestRelocation,
+  };
 }
 
 const mapDispatchToProps = (dispatch) => {
