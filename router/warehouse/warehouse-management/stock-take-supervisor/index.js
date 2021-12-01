@@ -26,7 +26,6 @@ class StockTakeSupervisorNavigator extends React.Component {
       bottomSheet: false,
       isShowSignature: false,
     };
-    this.setWrapperofStack.bind(this);
   }
 
   setWrapperofStack = (index, key) => {
@@ -130,9 +129,6 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
     setCurrentStackKey: (string) => {
       return dispatch({type: 'keyStack', payload: string});
     },

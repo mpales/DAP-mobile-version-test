@@ -46,11 +46,6 @@ class StockTakeCountDetails extends React.Component {
       isShowBanner: false,
       isSubmitted: false,
     };
-    this.handleShowModal.bind(this);
-    this.confirmStockTake.bind(this);
-    this.handleMinus.bind(this);
-    this.handlePlus.bind(this);
-    this.handleInput.bind(this);
   }
 
   componentDidMount() {
@@ -158,13 +153,6 @@ class StockTakeCountDetails extends React.Component {
       reEnteredQuantity: inputQuantity,
     });
     this.handleShowModal();
-  };
-
-  navigateToReportStockTakeCount = () => {
-    const {stockTakeDetails} = this.state;
-    this.props.navigation.navigate('ReportStockTakeCount', {
-      productId: stockTakeDetails.id,
-    });
   };
 
   navigateToStockTakeReportDetails = () => {
@@ -419,12 +407,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#6C6B6B',
   },
-  reportButtonText: {
-    ...Mixins.subtitle3,
-    fontSize: 18,
-    lineHeight: 25,
-    color: '#E03B3B',
-  },
   backButtonText: {
     ...Mixins.subtitle3,
     fontSize: 18,
@@ -511,19 +493,11 @@ const styles = StyleSheet.create({
 function mapStateToProps(state) {
   return {
     stockTakeId: state.originReducer.filters.stockTakeId,
-    keyStack: state.originReducer.filters.keyStack,
   };
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-    setStockTakeId: (id) => {
-      return dispatch({type: 'StockTakeId', payload: id});
-    },
-  };
+  return {};
 };
 
 export default connect(
