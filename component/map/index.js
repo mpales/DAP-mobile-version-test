@@ -70,6 +70,7 @@ class NavigationalMap extends React.Component {
           latitude: data[index].coords.lat,
           longitude: data[index].coords.lng,
         },
+        waypoints : data[index].waypoints,
       };
     });
 
@@ -113,7 +114,7 @@ class NavigationalMap extends React.Component {
     const destination = new Location(markers[index][0], markers[index][1]);
     if (NavigationalMap.Beacon instanceof Distance === false) {
       NavigationalMap.Beacon = new Distance(destination);
-      props.getDeliveryDirections(route[index].coordinate, currentCoords);
+      props.getDeliveryDirections(route[index].coordinate, currentCoords, route[index].waypoints);
       props.reverseGeoCoding(currentCoords);
       let initialCamera = NavigationalMap.Beacon.camera(
         ASPECT_RATIO,
@@ -139,7 +140,7 @@ class NavigationalMap extends React.Component {
       updateToRenderMap === true
     ) {
       NavigationalMap.Beacon = new Distance(destination);
-      props.getDeliveryDirections(route[index].coordinate, currentCoords);
+      props.getDeliveryDirections(route[index].coordinate, currentCoords, route[index].waypoints);
       props.reverseGeoCoding(currentCoords);
       let initialCamera = NavigationalMap.Beacon.camera(
         ASPECT_RATIO,
@@ -581,6 +582,7 @@ class NavigationalMap extends React.Component {
       index,
       ApplicationNavigational,
     } = this.props;
+    const {route} = this.state;
     let LatLngs = [];
     let marker = [];
     let latLng;
@@ -602,6 +604,27 @@ class NavigationalMap extends React.Component {
       currentPositionData.coords.lng,
     );
     marker.push(latLng.location());
+
+    let waypoints = this.state.route[index].waypoints;
+    if(waypoints !== null){
+      if(Array.isArray(waypoints) === true){
+        for (let index = 0; index < waypoints.length; index++) {
+          const coordinates = waypoints[index];
+          let latLng = new Location(
+           coordinates.latitude,
+           coordinates.longitude,
+         ); 
+         marker.push(latLng.location());
+        } 
+       } else if(typeof waypoints === 'object' && waypoints !== null){
+         let latLng = new Location(
+          waypoints.latitude,
+          waypoints.longitude,
+         ); 
+         marker.push(latLng.location());
+       }
+    }
+   
     // push polyline steps
     LatLngs = Array.from({length: deliveryDestinationData.steps.length}).map(
       (num, index) => {
