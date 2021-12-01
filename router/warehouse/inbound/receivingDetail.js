@@ -255,8 +255,8 @@ class Acknowledge extends React.Component {
   uploadSubmittedPhoto = async () => {
     const {photoProofPostpone} = this.props;
     let FormData = await this.getPhotoReceivingGoods();
-    let uploadCategory = this.state.data.status === 3 ? 'receiving' : 'processing';
-    putBlob('/inboundsMobile/'+this.state.receivingNumber +'/'+ uploadCategory, [
+    let uploadCategory = this.state.data.status === 3 ? 'receiving/first' : 'processing';
+    putBlob('/inboundsMobile/'+this.state.receivingNumber +'/'+ uploadCategory , [
       // element with property `filename` will be transformed into `file` in form data
       //{ name : 'receiptNumber', data: this.state.data.inbound_asn !== null ? this.state.data.inbound_asn.reference_id :  this.state.data.inbound_grn !== null ?  this.state.data.inbound_grn.reference_id : this.state.data.inbound_other.reference_id},
       // custom content type

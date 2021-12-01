@@ -79,6 +79,8 @@ class CameraSingle extends React.Component {
                         galleryIDDump.push(element);
                     } else if (result.inbound_photos[index].status === 3 && this.state.typeGallery === 'processing'){
                         galleryIDDump.push(element);
+                    } else if (result.inbound_photos[index].status === 4 && this.state.typeGallery === 'receiving'){
+                        galleryIDDump.push(element);
                     }
                 }
                 this.setState({pictureGallery: galleryIDDump, updateGallery:false});
@@ -96,7 +98,7 @@ class CameraSingle extends React.Component {
         }
         if(this.state.updateGallery !== prevState.updateGallery && this.state.updateGallery === false){
             this.flatlistImageRef.forEach(element => {
-                    element.refresh();
+                if(element !== null) element.refresh();
             });
         }
     }
@@ -149,9 +151,10 @@ class CameraSingle extends React.Component {
     handlePhotoConfirmation = async (confirm) => {
         const {pictureData, pictureGallery} = this.state;
         let FormData = await this.getPhotoToFormdata();
-        let uploadCategory = this.state.typeGallery === 'received' ? 'receiving' : 'processing' ;
+        let uploadCategory = this.state.typeGallery === 'received' ? 'receiving/update' : 'processing' ;
         if(confirm) {
-            putBlob('/inboundsMobile/'+this.state.inboundId +'/'+ uploadCategory, [
+            let putString = this.state.typeGallery === 'receiving' ? '/inboundsMobile/'+this.state.inboundId+'/complete-receiving':'/inboundsMobile/'+this.state.inboundId +'/'+ uploadCategory ;
+            putBlob(putString, [
                 FormData,
               ], this.listenToProgressUpload).then(result=>{
                 if(typeof result !== 'object'){
@@ -175,7 +178,7 @@ class CameraSingle extends React.Component {
     }
 
     renderItem = ({ item, index }) => {
-        let typeAPI = this.state.typeGallery === 'received' ? 'receiveThumb' : 'processingThumb';
+        let typeAPI = this.state.typeGallery === 'received' ? 'receiveThumb' : this.state.typeGallery === 'receiving' ? 'complete-receiving' : 'processingThumb';
         return (
         <TouchableOpacity
             style={styles.pictureSize}
@@ -186,11 +189,19 @@ class CameraSingle extends React.Component {
             this.flatlistImageRef[index] = ref;
         }} 
         callbackToFetch={async (indicatorTick)=>{
-            return await getBlob('/inboundsMobile/'+this.state.inboundId+'/'+typeAPI+'/'+item,{filename:item+'.jpg'},(received, total) => {
-                // if(this.flatlistImageRef[index] !== null)
-                // this.flatlistImageRef[index].
-                indicatorTick(received)
-            })
+            if(typeAPI === 'complete-receiving'){
+                return await getBlob('/inboundsMobile/'+this.state.inboundId+'/complete-photo/'+item+'/full',(received, total) => {
+                    // if(this.flatlistImageRef[index] !== null)
+                    // this.flatlistImageRef[index].
+                    indicatorTick(received)
+                })
+            } else {
+                return await getBlob('/inboundsMobile/'+this.state.inboundId+'/'+typeAPI+'/'+item,{filename:item+'.jpg'},(received, total) => {
+                    // if(this.flatlistImageRef[index] !== null)
+                    // this.flatlistImageRef[index].
+                    indicatorTick(received)
+                })
+            }
         }}
         containerStyle={{width: '100%', height: '100%',}}
         style={{width: '100%', height: '100%',backgroundColor:'black'}}
@@ -264,11 +275,21 @@ class CameraSingle extends React.Component {
                                 this.thumbRef = ref
                             }} 
                             callbackToFetch={async (indicatorTick)=>{
-                                return await getBlob('/inboundsMobile/'+this.state.inboundId+'/'+( this.state.typeGallery ==='received' ? 'receiveThumb' : 'processingThumb')+'/'+this.state.pictureGallery[this.state.pictureGallery.length -1],{filename:this.state.pictureGallery[this.state.pictureGallery.length -1]+'.jpg'},(received, total) => {
-                                    // if(this.thumbRef !== null)
-                                    // this.thumbRef.
-                                    indicatorTick(received)
-                                })
+                                if(this.state.typeGallery === 'receiving'){
+
+                                    return await getBlob('/inboundsMobile/'+this.state.inboundId+'/complete-photo/'+this.state.pictureGallery[this.state.pictureGallery.length -1]+'/full',(received, total) => {
+                                        // if(this.thumbRef !== null)
+                                        // this.thumbRef.
+                                        indicatorTick(received)
+                                    })
+                                } else {
+
+                                    return await getBlob('/inboundsMobile/'+this.state.inboundId+'/'+( this.state.typeGallery ==='received' ? 'receiveThumb' : 'processingThumb')+'/'+this.state.pictureGallery[this.state.pictureGallery.length -1],{filename:this.state.pictureGallery[this.state.pictureGallery.length -1]+'.jpg'},(received, total) => {
+                                        // if(this.thumbRef !== null)
+                                        // this.thumbRef.
+                                        indicatorTick(received)
+                                    })
+                                }
                             }}
                             containerStyle={styles.imagePreviewButton}
                             style={{width: '100%', height: '100%',backgroundColor:'black'}}

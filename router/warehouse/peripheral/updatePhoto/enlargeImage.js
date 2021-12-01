@@ -53,9 +53,7 @@ class EnlargeImage extends React.Component {
         return {...state};
        }
        shouldComponentUpdate(nextProps, nextState) {
-        if(this.state.currentPictureIndex !== nextState.currentPictureIndex && nextState.updateLoadImage === false){
-            return false;
-        }
+
         return true;
       }
     componentDidUpdate(prevProps, prevState){
@@ -71,8 +69,11 @@ class EnlargeImage extends React.Component {
         // }
       if(prevState.updateLoadImage !== this.state.updateLoadImage && this.state.updateLoadImage === true){
         if(this.state.convertedPictureData.length > 0){
-            if(this.viewerImageRef[  this.state.currentPictureIndex] !== undefined )
-            this.viewerImageRef[  this.state.currentPictureIndex].init(); 
+            for (let index = 0; index < this.state.convertedPictureData.length; index++) {
+                  if(this.viewerImageRef[  index] !== undefined && this.state.convertedPictureData[index] !== undefined)
+                 this.viewerImageRef[  index].init(); 
+            }
+       
             this.flatlist.scrollToIndex({index:this.state.currentPictureIndex,animated:true});
         } else {
             this.props.navigation.goBack();
@@ -107,7 +108,8 @@ class EnlargeImage extends React.Component {
         let respondbackend = '';
         const {pictureData, convertedPictureData, currentPictureIndex} = this.state;
         let typeAPI = this.state.typeGallery === 'received' ? 'receivePhoto' : 'processingPhoto';
-        const result = await deleteData('/inboundsMobile/'+this.state.inboundId+'/'+typeAPI+'/'+convertedPictureData[currentPictureIndex]);
+        let deleteString = this.state.typeGallery === 'receiving' ? '/inboundsMobile/'+this.state.inboundId+'/complete-photo/'+convertedPictureData[currentPictureIndex] : '/inboundsMobile/'+this.state.inboundId+'/'+typeAPI+'/'+convertedPictureData[currentPictureIndex];
+        const result = await deleteData(deleteString);
         if(typeof result === 'object' && result.error === undefined){
             respondbackend = result;
           } else {
@@ -131,7 +133,7 @@ class EnlargeImage extends React.Component {
         });
     }
     renderImage = ({item,index}) => {
-        let typeAPI = this.state.typeGallery === 'received' ? 'receivePhoto' : 'processingPhoto';
+        let typeAPI = this.state.typeGallery === 'received' ? 'receivePhoto' : this.state.typeGallery === 'receiving' ? 'complete-receiving' :'processingPhoto';
         
         return(   
         <ImageZoom cropWidth={window.width}
@@ -143,11 +145,19 @@ class EnlargeImage extends React.Component {
                 this.viewerImageRef[index] = ref;
             }} 
             callbackToFetch={async (indicatorTick)=>{
-                return await getBlob('/inboundsMobile/'+this.state.inboundId+'/'+typeAPI+'/'+item,{filename:item+'.png'},(received, total) => {
-                    // if(this.viewerImageRef[index] !== null)
-                    // this.viewerImageRef[index].
-                    indicatorTick(received)
-                })
+                if(typeAPI === 'complete-receiving'){
+                    return await getBlob('/inboundsMobile/'+this.state.inboundId+'/complete-photo/'+item+'/full',(received, total) => {
+                        // if(this.flatlistImageRef[index] !== null)
+                        // this.flatlistImageRef[index].
+                        indicatorTick(received)
+                    })
+                } else {
+                    return await getBlob('/inboundsMobile/'+this.state.inboundId+'/'+typeAPI+'/'+item,{filename:item+'.png'},(received, total) => {
+                        // if(this.viewerImageRef[index] !== null)
+                        // this.viewerImageRef[index].
+                        indicatorTick(received)
+                    })
+                }
             }}
             containerStyle={{width: window.width, height: window.height/2}}
             style={{width: '100%', height: '100%',backgroundColor:'black'}}
@@ -175,9 +185,9 @@ class EnlargeImage extends React.Component {
                          onViewableItemsChanged={this.handleOnChangeImage}
                         />
                         }
-                        {/* {this.state.pictureData.map((value, index) => {
-                            return <Image key={index} style={styles.picture} source={{uri: value}} />
-                        })} */}
+                    </View>
+                    <View style={{backgroundColor:'transparent',height:20}}>
+                    <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'white'}}>{'Photo Index : '+ (this.state.currentPictureIndex + 1)}</Text>
                     </View>
                     <View style={styles.respondContainer}>
                             <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.respondBackend}</Text>
@@ -193,7 +203,7 @@ class EnlargeImage extends React.Component {
                 {this.state.isShowDelete &&
                     <View style={styles.transparentOverlay}>
                         <View style={styles.deleteContainer}>
-                            <Text>Delete this image ?</Text>
+                        <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'black'}}>Delete this image ?</Text>
                             <View style={styles.confirmButtonContainer}>
                                 <TouchableOpacity
                                     onPress={this.handleShowDelete}
@@ -267,10 +277,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     confirmText: {
+        ...Mixins.subtitle3,lineHeight:21,
         color: '#fff',
         fontWeight: '700',
     },
     cancelText: {
+        ...Mixins.subtitle3,lineHeight:21,
         color: '#6C6B6B',
         fontWeight: '700',
     },
@@ -287,6 +299,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     deleteText: {
+        ...Mixins.subtitle3,lineHeight:21,
         color: '#fff',
     }
 })

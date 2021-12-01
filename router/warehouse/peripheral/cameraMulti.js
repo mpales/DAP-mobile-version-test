@@ -34,7 +34,7 @@ class CameraSingle extends React.Component {
     }
     
     static getDerivedStateFromProps(props,state){
-     const {addPhotoProofID, addPhotoReportID, addAttributeID,navigation, photoProofPostpone, photoReportPostpone, attributePhotoPostpone} = props;
+     const {addPhotoProofID, addPhotoReportID, addAttributeID,addReceivingID,navigation,receivingPhotoPostpone, photoProofPostpone, photoReportPostpone, attributePhotoPostpone} = props;
      const {pictureGallery} = state;
      // only one instance of multi camera can exist before submited
      if(pictureGallery === null){
@@ -51,6 +51,11 @@ class CameraSingle extends React.Component {
             if(routes[index-1].params !== undefined && routes[index-1].params.inputCode !== undefined){
            if(attributePhotoPostpone !== null) addAttributeID(routes[index-1].params.inputCode)
            return {...state,pictureGallery: attributePhotoPostpone,rootIDType: routes[index-1].name, rootIDnumber: routes[index-1].params.inputCode}
+           }
+        }  else if(routes[index-1] !== undefined && routes[index-1].name === "CompleteReceiving"){
+            if(routes[index-1].params !== undefined && routes[index-1].params.inputCode !== undefined){
+           if(receivingPhotoPostpone !== null) addReceivingID(routes[index-1].params.inputCode)
+           return {...state,pictureGallery: receivingPhotoPostpone,rootIDType: routes[index-1].name, rootIDnumber: routes[index-1].params.inputCode}
            }
         } 
      } else {
@@ -84,6 +89,12 @@ class CameraSingle extends React.Component {
         } else if(this.state.rootIDType === 'newItem' && Array.isArray(this.props.attributePhotoPostpone) && ((prevProps.attributePhotoPostpone === null && this.props.attributePhotoPostpone !== prevProps.attributePhotoPostpone) || this.props.attributePhotoPostpone.length !== prevProps.attributePhotoPostpone.length)){
             this.props.addAttributeID(this.state.rootIDnumber)
             this.setState({pictureGallery : this.props.attributePhotoPostpone});
+            if(this.state.isShowImagePreview && this.state.pictureGallery !== null) {
+                this.flatlist.scrollToEnd();
+            }
+        }else if(this.state.rootIDType === 'CompleteReceiving' && Array.isArray(this.props.receivingPhotoPostpone) && ((prevProps.receivingPhotoPostpone === null && this.props.receivingPhotoPostpone !== prevProps.receivingPhotoPostpone) || this.props.receivingPhotoPostpone.length !== prevProps.receivingPhotoPostpone.length)){
+            this.props.addReceivingID(this.state.rootIDnumber)
+            this.setState({pictureGallery : this.props.receivingPhotoPostpone});
             if(this.state.isShowImagePreview && this.state.pictureGallery !== null) {
                 this.flatlist.scrollToEnd();
             }
@@ -124,6 +135,9 @@ class CameraSingle extends React.Component {
             } else if(rootIDType === 'newItem') {
                 this.props.addAttributeID(this.state.rootIDnumber)
                 this.props.addAttributePostpone( pictureData);
+            } else if(rootIDType === 'CompleteReceiving') {
+                this.props.addReceivingID(this.state.rootIDnumber)
+                this.props.addReceivingPostpone( pictureData);
             }
         } else {
 
@@ -306,6 +320,7 @@ function mapStateToProps(state) {
         photoProofPostpone: state.originReducer.photoProofPostpone,
         photoReportPostpone: state.originReducer.photoReportPostpone,
         attributePhotoPostpone : state.originReducer.attributePhotoPostpone,
+        receivingPhotoPostpone : state.originReducer.receivingPhotoPostpone,
         keyStack: state.originReducer.filters.keyStack,
     };
 }
@@ -316,6 +331,8 @@ const mapDispatchToProps = (dispatch) => {
         addPhotoProofPostpone: (uri) => dispatch({type: 'PhotoProofPostpone', payload: uri}),
         addAttributeID: (id) => dispatch({type:'addAttributePhotoID', payload: id}),
         addAttributePostpone: (uri) => dispatch({type: 'attributePostpone', payload: uri}),
+        addReceivingID: (id) => dispatch({type:'addReceivingPhotoID', payload: id}),
+        addReceivingPostpone: (uri) => dispatch({type: 'receivingPostpone', payload: uri}),
         addPhotoReportID: (id) => dispatch({type:'addPhotoReportID', payload: id}),
         addPhotoReportPostpone: (uri) => dispatch({type: 'PhotoReportPostpone', payload: uri}),
     };
