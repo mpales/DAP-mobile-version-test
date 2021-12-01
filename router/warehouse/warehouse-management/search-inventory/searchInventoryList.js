@@ -69,14 +69,8 @@ class SearchInventoryList extends React.Component {
   };
 
   render() {
-    const {
-      warehouse,
-      warehouseName,
-      locationId,
-      searchResult,
-      selectedSortBy,
-      isLoading,
-    } = this.state;
+    const {warehouseName, locationId, searchResult, selectedSortBy, isLoading} =
+      this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
@@ -195,47 +189,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
-const SEARCHRESULT = [
-  {
-    warehouse: 'KEPPEL',
-    location: 'JP4 B-L145',
-  },
-  {
-    warehouse: 'JEPPEL',
-    location: 'JP4 B-L132',
-  },
-  {
-    warehouse: 'AEPPEL',
-    location: 'JP4 B-L175',
-  },
-  {
-    warehouse: 'KEPPEL',
-    location: 'JP4 B-L148',
-  },
-  {
-    warehouse: 'BEPPEL',
-    location: 'JP4 B-L101',
-  },
-  {
-    warehouse: 'KEPPEL',
-    location: 'JP4 B-L110',
-  },
-  {
-    warehouse: 'KEPPEL',
-    location: 'JP4 B-L150',
-  },
-];
 
 function mapStateToProps(state) {
   return {};
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-  };
+  return {};
 };
 
 export default connect(
