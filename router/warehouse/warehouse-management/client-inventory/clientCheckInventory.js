@@ -30,12 +30,11 @@ class ClientCheckInventory extends React.Component {
       filteredClientList: null,
       filteredProductList: null,
     };
-    this.submitSearch.bind(this);
   }
 
   componentDidMount() {
-    this.getClientList();
     this._unsubscribe = this.props.navigation.addListener('focus', () => {
+      this.getClientList();
       this.props.setBottomBar(true);
     });
   }
@@ -331,26 +330,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
   },
-  resultContainer: {
-    flexShrink: 1,
-    padding: 20,
-  },
   inputWrapper: {
     marginTop: 10,
     overflow: 'visible',
-  },
-  title: {
-    ...Mixins.subtitle3,
-    fontSize: 18,
-    lineHeight: 25,
-  },
-  text: {
-    ...Mixins.subtitle3,
-    fontSize: 14,
-    lineHeight: 21,
-  },
-  textBlue: {
-    color: '#2A3386',
   },
   inputTitle: {
     ...Mixins.subtitle3,
