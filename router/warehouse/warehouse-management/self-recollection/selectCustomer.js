@@ -28,7 +28,6 @@ class SelectCustomer extends React.Component {
       search: '',
       isRefreshing: false,
     };
-    this.updateSearch.bind(this);
   }
 
   componentDidMount() {
@@ -393,11 +392,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-  };
+  return {};
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SelectCustomer);
