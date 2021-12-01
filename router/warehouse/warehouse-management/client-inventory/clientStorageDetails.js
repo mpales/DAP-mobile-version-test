@@ -1,6 +1,6 @@
 import React from 'react';
 import {ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
-import {Card, Button} from 'react-native-elements';
+import {Card} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
@@ -11,7 +11,6 @@ import Format from '../../../../component/helper/format';
 import {cleanKeyString} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
-import moment from 'moment';
 
 class ClientStorageDetails extends React.Component {
   constructor(props) {
@@ -212,23 +211,6 @@ class ClientStorageDetails extends React.Component {
   }
 }
 
-const STORAGEDETAIL = {
-  client: 'ROBERTO',
-  itemCode: '09871233456',
-  description: 'ERGOBLOM V2 BLUE DESK',
-  barcode: 'BT-09-123345',
-  grade: '01',
-  quantity: 30,
-  UOM: 'PCS',
-  receiptDate: moment().subtract(1, 'days').unix(),
-  attributes: {
-    productCategory: 'Fashion',
-    color: 'BLACK',
-    expiryDate: '-',
-    banch: '01',
-  },
-};
-
 const styles = StyleSheet.create({
   body: {
     backgroundColor: Colors.white,
@@ -256,11 +238,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
     elevation: 6,
   },
-  text: {
-    ...Mixins.subtitle3,
-    fontSize: 14,
-    lineHeight: 21,
-  },
   lineSeparator: {
     width: '100%',
     borderBottomWidth: 1,
@@ -270,17 +247,11 @@ const styles = StyleSheet.create({
 });
 
 function mapStateToProps(state) {
-  return {
-    keyStack: state.originReducer.filters.keyStack,
-  };
+  return {};
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-  };
+  return {};
 };
 
 export default connect(

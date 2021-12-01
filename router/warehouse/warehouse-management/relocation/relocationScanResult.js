@@ -5,7 +5,6 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 // helper
 import {getData} from '../../../../component/helper/network';
-import moment from 'moment';
 // component
 import RelocationBarcodeResult from '../../../../component/extend/ListItem-relocation-barcode-result';
 //style
@@ -140,11 +139,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-  };
+  return {};
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(BarcodeCamera);

@@ -3,15 +3,16 @@ import {FlatList, StatusBar, StyleSheet, Text, View} from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
-import {Picker} from '@react-native-picker/picker';
+import SelectDropdown from 'react-native-select-dropdown';
 // helper
 import {getData} from '../../../../component/helper/network';
-//component
+// component
 import ListItemSearchInventory from '../../../../component/extend/ListItem-search-inventory-result';
 import Loading from '../../../../component/loading/loading';
-//style
+// style
 import Mixins from '../../../../mixins';
-
+// icon
+import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 class SearchInventoryList extends React.Component {
   constructor(props) {
     super(props);
@@ -69,42 +70,34 @@ class SearchInventoryList extends React.Component {
   };
 
   render() {
-    const {
-      warehouse,
-      warehouseName,
-      locationId,
-      searchResult,
-      selectedSortBy,
-      isLoading,
-    } = this.state;
+    const {warehouseName, locationId, searchResult, selectedSortBy, isLoading} =
+      this.state;
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
         <View style={styles.headerContainer}>
           <Text style={styles.text}>Sort By</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              mode="dropdown"
-              selectedValue={selectedSortBy}
-              onValueChange={(value) => this.sortList(value)}
-              itemStyle={{
-                height: 50,
-                borderRadius: 5,
-                marginHorizontal: -10,
-              }}
-              style={{maxWidth: 180}}>
-              <Picker.Item
-                label="Location"
-                value="location"
-                style={styles.text}
-              />
-              <Picker.Item
-                label="Warehouse"
-                value="warehouse"
-                style={styles.text}
-              />
-            </Picker>
-          </View>
+          <SelectDropdown
+            buttonStyle={styles.dropdownButton}
+            buttonTextStyle={styles.dropdownButtonText}
+            rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
+            data={['Location', 'Warehouse']}
+            defaultValueByIndex={0}
+            onSelect={(selectedItem) => {
+              this.sortList(selectedItem);
+            }}
+            buttonTextAfterSelection={(selectedItem) => {
+              return selectedItem;
+            }}
+            rowTextForSelection={(item) => {
+              return item;
+            }}
+            renderDropdownIcon={() => (
+              <View style={{marginRight: 10}}>
+                <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+              </View>
+            )}
+          />
           <View
             style={{
               flexDirection: 'row',
@@ -186,56 +179,32 @@ const styles = StyleSheet.create({
   textBlue: {
     color: '#2A3386',
   },
-  pickerContainer: {
-    width: 180,
-    borderWidth: 1,
+  dropdownButton: {
+    width: 150,
+    maxHeight: 40,
     borderRadius: 5,
-    borderColor: '#D5D5D5',
-    marginTop: 5,
+    borderWidth: 1,
+    borderColor: '#ABABAB',
+    backgroundColor: 'white',
+    paddingHorizontal: 0,
     marginBottom: 10,
   },
+  dropdownButtonText: {
+    paddingHorizontal: 10,
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#424141',
+    textAlign: 'left',
+    paddingHorizontal: 0,
+  },
 });
-const SEARCHRESULT = [
-  {
-    warehouse: 'KEPPEL',
-    location: 'JP4 B-L145',
-  },
-  {
-    warehouse: 'JEPPEL',
-    location: 'JP4 B-L132',
-  },
-  {
-    warehouse: 'AEPPEL',
-    location: 'JP4 B-L175',
-  },
-  {
-    warehouse: 'KEPPEL',
-    location: 'JP4 B-L148',
-  },
-  {
-    warehouse: 'BEPPEL',
-    location: 'JP4 B-L101',
-  },
-  {
-    warehouse: 'KEPPEL',
-    location: 'JP4 B-L110',
-  },
-  {
-    warehouse: 'KEPPEL',
-    location: 'JP4 B-L150',
-  },
-];
 
 function mapStateToProps(state) {
   return {};
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-  };
+  return {};
 };
 
 export default connect(

@@ -15,8 +15,6 @@ import {connect} from 'react-redux';
 // component
 import {TextList} from '../../../../component/extend/Text-list';
 import Banner from '../../../../component/banner/banner';
-// helper
-import {putData} from '../../../../component/helper/network';
 //style
 import Mixins from '../../../../mixins';
 
@@ -184,21 +182,11 @@ const OPERATORLIST = [
 ];
 
 function mapStateToProps(state) {
-  return {
-    stockTakeId: state.originReducer.filters.stockTakeId,
-    keyStack: state.originReducer.filters.keyStack,
-  };
+  return {};
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-    setStockTakeId: (id) => {
-      return dispatch({type: 'StockTakeId', payload: id});
-    },
-  };
+  return {};
 };
 
 export default connect(

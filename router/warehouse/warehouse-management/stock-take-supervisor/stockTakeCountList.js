@@ -39,8 +39,6 @@ class StockTakeCountList extends React.Component {
       filterStatus: 'All',
       isShowModal: false,
     };
-    this.handleFilterStatus.bind(this);
-    this.updateSearch.bind(this);
   }
 
   componentDidMount() {
@@ -512,9 +510,6 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
     setStockTakeId: (id) => {
       return dispatch({type: 'StockTakeId', payload: id});
     },

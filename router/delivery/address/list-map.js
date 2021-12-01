@@ -94,7 +94,10 @@ class ListMap extends Component {
     if(prevProps.route_id !== this.props.route_id){
       let {coords} = this.props.currentPositionData;
       let orders = this.translateOrdersTraffic();
-      this.props.getDirectionsAPIWithTraffic(orders, coords);  
+      let waypoints = Array.from({length:this.props.dataPackage.length}).map((num,index) => {
+        return this.props.dataPackage[index].waypoints;
+       });
+      this.props.getDirectionsAPIWithTraffic(orders, coords, waypoints);  
   }
   // for active subscribed geoLocation please see the conditional within props.step to update;
   // if((prevProps.location === undefined && this.props.location !== undefined ) || (prevProps.route_id !== this.props.route_id && this.props.stat.length === 0)){

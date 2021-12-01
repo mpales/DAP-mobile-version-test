@@ -39,9 +39,6 @@ class StockTakeCountList extends React.Component {
       filterStatus: 'All',
       isShowModal: false,
     };
-    this.handleFilterStatus.bind(this);
-    this.updateSearch.bind(this);
-    this.completeStockTake.bind(this);
   }
 
   componentDidMount() {
@@ -405,9 +402,6 @@ const styles = StyleSheet.create({
     borderColor: '#D5D5D5',
     height: 35,
   },
-  search: {
-    alignItems: 'flex-end',
-  },
   badgeContainer: {
     flex: 1,
     minHeight: 25,
@@ -514,9 +508,6 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
     setStockTakeId: (id) => {
       return dispatch({type: 'StockTakeId', payload: id});
     },

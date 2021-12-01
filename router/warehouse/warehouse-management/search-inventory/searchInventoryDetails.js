@@ -1,6 +1,6 @@
 import React from 'react';
 import {ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
-import {Card, Button} from 'react-native-elements';
+import {Card} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
@@ -53,7 +53,6 @@ class SearchInventoryDetails extends React.Component {
 
   render() {
     const {inventoryList, warehousName, locationId, isLoading} = this.state;
-    console.log(inventoryList);
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -140,10 +139,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     flex: 1,
   },
-  headerContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
   title: {
     ...Mixins.subtitle3,
     fontSize: 18,
@@ -165,22 +160,10 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
     elevation: 6,
   },
-  cardTitle: {
-    ...Mixins.subtitle1,
-    lineHeight: 21,
-  },
   text: {
     ...Mixins.subtitle3,
     fontSize: 14,
     lineHeight: 21,
-  },
-  pickerContainer: {
-    width: 150,
-    borderWidth: 1,
-    borderRadius: 5,
-    borderColor: '#D5D5D5',
-    marginTop: 5,
-    marginBottom: 10,
   },
   lineSeparator: {
     width: '100%',
@@ -191,17 +174,11 @@ const styles = StyleSheet.create({
 });
 
 function mapStateToProps(state) {
-  return {
-    keyStack: state.originReducer.filters.keyStack,
-  };
+  return {};
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-  };
+  return {};
 };
 
 export default connect(

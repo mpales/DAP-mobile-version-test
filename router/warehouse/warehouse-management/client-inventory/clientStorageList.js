@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Dimensions,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -8,26 +7,20 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Card} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
-import {Picker} from '@react-native-picker/picker';
-//component
+import SelectDropdown from 'react-native-select-dropdown';
+// component
 import ListItemClientStorage from '../../../../component/extend/ListItem-client-inventory-storage';
-//helper
+// helper
 import {getData} from '../../../../component/helper/network';
-import {
-  clientProductStatus,
-  clientProductStatusEndpoint,
-  cleanKeyString,
-} from '../../../../component/helper/string';
-//style
+import {clientProductStatusEndpoint} from '../../../../component/helper/string';
+// style
 import Mixins from '../../../../mixins';
 // icon
 import ArrowRight from '../../../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
-
-const screen = Dimensions.get('window');
+import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 
 class ClientStorageList extends React.Component {
   constructor(props) {
@@ -97,8 +90,9 @@ class ClientStorageList extends React.Component {
   };
 
   sortList = (type) => {
+    const {storageList} = this.state;
     this.setState({selectedSortBy: type});
-    let sortedList = [...this.state.storageList];
+    let sortedList = !!storageList ? [...storageList] : [];
     sortedList.sort((a, b) =>
       a[type] > b[type] ? 1 : b[type] > a[type] ? -1 : 0,
     );
@@ -130,29 +124,27 @@ class ClientStorageList extends React.Component {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.headerContainer}>
             <Text style={styles.text}>Sort By</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dialog"
-                selectedValue={selectedSortBy}
-                onValueChange={(value) => this.sortList(value)}
-                itemStyle={{
-                  height: 50,
-                  borderRadius: 5,
-                  marginHorizontal: -10,
-                }}
-                style={{maxWidth: 150}}>
-                <Picker.Item
-                  label="Location"
-                  value="location"
-                  style={styles.text}
-                />
-                <Picker.Item
-                  label="Quantity"
-                  value="quantity"
-                  style={styles.text}
-                />
-              </Picker>
-            </View>
+            <SelectDropdown
+              buttonStyle={styles.dropdownButton}
+              buttonTextStyle={styles.dropdownButtonText}
+              rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
+              data={['Location', 'Warehouse']}
+              defaultValueByIndex={0}
+              onSelect={(selectedItem) => {
+                this.sortList(selectedItem);
+              }}
+              buttonTextAfterSelection={(selectedItem) => {
+                return selectedItem;
+              }}
+              rowTextForSelection={(item) => {
+                return item;
+              }}
+              renderDropdownIcon={() => (
+                <View style={{marginRight: 10}}>
+                  <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+                </View>
+              )}
+            />
             <View
               style={{
                 flexDirection: 'row',
@@ -309,13 +301,23 @@ const styles = StyleSheet.create({
   textBlue: {
     color: '#2A3386',
   },
-  pickerContainer: {
+  dropdownButton: {
     width: 150,
-    borderWidth: 1,
+    maxHeight: 40,
     borderRadius: 5,
-    borderColor: '#D5D5D5',
-    marginTop: 5,
+    borderWidth: 1,
+    borderColor: '#ABABAB',
+    backgroundColor: 'white',
+    paddingHorizontal: 0,
     marginBottom: 10,
+  },
+  dropdownButtonText: {
+    paddingHorizontal: 10,
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#424141',
+    textAlign: 'left',
+    paddingHorizontal: 0,
   },
   cardContainer: {
     flexShrink: 1,
@@ -371,8 +373,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#D5D5D5',
     marginVertical: 10,
-    position: 'absolute',
-    left: 100,
   },
   verticalLineSeparator: {
     position: 'absolute',
@@ -395,11 +395,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-  };
+  return {};
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ClientStorageList);

@@ -127,13 +127,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
     elevation: 6,
   },
-  title: {
-    ...Mixins.subtitle3,
-    fontSize: 18,
-    lineHeight: 23,
-    marginHorizontal: 20,
-    marginTop: 10,
-  },
   titleTextBig: {
     ...Mixins.small1,
     fontSize: 14,
@@ -154,11 +147,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-  };
+  return {};
 };
 
 export default connect(

@@ -228,6 +228,7 @@ class Photos extends React.Component {
                             type : 'received',
                           });
                         }}
+                        disabled={ this.state.receivedPhotoId !== null && this.state.receivedPhotoId.length > 0 ? false : true  }
                 title='Update Photos' />
             </Card>
             <Card containerStyle={{marginVertical:20, marginHorizontal:0}}>
@@ -249,6 +250,7 @@ class Photos extends React.Component {
                             type : 'processing',
                           });
                         }}
+                        disabled={ this.state.processingPhotoId !== null && this.state.processingPhotoId.length > 0 ? false : true  }
                 title='Update Photos' />
             </Card>
 
@@ -272,6 +274,7 @@ class Photos extends React.Component {
                             type : 'receiving',
                           });
                         }}
+                        disabled={ this.state.receivingPhotoId !== null && this.state.receivingPhotoId.length > 0 ? false : true  }
                 title='Update Photos' />
             </Card>
         </ScrollView>

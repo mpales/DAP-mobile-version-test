@@ -276,9 +276,6 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
     setRecollectionSignatureData: (toggle) => {
       return dispatch({type: 'RecollectionSignatureData', payload: toggle});
     },
