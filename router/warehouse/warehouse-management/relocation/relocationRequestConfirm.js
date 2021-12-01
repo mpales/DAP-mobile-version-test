@@ -11,14 +11,15 @@ import {Button, Card, Input, Overlay} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
-import {Picker} from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
+import SelectDropdown from 'react-native-select-dropdown';
 // component
 import {TextList, CustomTextList} from '../../../../component/extend/Text-list';
 // style
 import Mixins from '../../../../mixins';
 // icon
 import CheckmarkIcon from '../../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
+import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 
 const window = Dimensions.get('window');
 
@@ -75,6 +76,7 @@ class RelocationRequestConfirm extends React.Component {
   };
 
   calculateSliderPercentage = (value) => {
+    value = isNaN(value) || /\s/g.test(value) ? 0 : value;
     const {relocateFrom} = this.state;
     let percentage = 0;
     if (value !== '') {
@@ -107,7 +109,6 @@ class RelocationRequestConfirm extends React.Component {
       remarks,
       gradeList,
       quantityToTransfer,
-      selectedGrade,
       showOverlay,
       sliderValue,
     } = this.state;
@@ -135,7 +136,7 @@ class RelocationRequestConfirm extends React.Component {
             <Input
               multiline={true}
               containerStyle={{paddingHorizontal: 0}}
-              inputContainerStyle={styles.inputContainer}
+              inputContainerStyle={[styles.inputContainer, {height: 'auto'}]}
               numberOfLines={3}
               textAlignVertical="top"
               inputStyle={styles.inputText}
@@ -189,18 +190,27 @@ class RelocationRequestConfirm extends React.Component {
           </View>
           <View style={styles.inputFormContainer}>
             <Text style={styles.inputFormtitle}>Destination Grade</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dialog"
-                selectedValue={selectedGrade}
-                onValueChange={(value) => this.handlePicker(value, 'grade')}>
-                <Picker.Item label="Select Grade" value="" color="#ABABAB" />
-                {gradeList.length > 0 &&
-                  gradeList.map((item) => (
-                    <Picker.Item label={item.name} value={item.name} />
-                  ))}
-              </Picker>
-            </View>
+            <SelectDropdown
+              buttonStyle={styles.dropdownButton}
+              buttonTextStyle={styles.dropdownButtonText}
+              rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
+              data={!!gradeList ? gradeList : []}
+              defaultButtonText="Selected Reason Code"
+              onSelect={(selectedItem) => {
+                this.handlePicker(selectedItem.id, 'grade');
+              }}
+              buttonTextAfterSelection={(selectedItem) => {
+                return selectedItem.grade;
+              }}
+              rowTextForSelection={(item) => {
+                return item.grade;
+              }}
+              renderDropdownIcon={() => (
+                <View style={{marginRight: 10}}>
+                  <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+                </View>
+              )}
+            />
           </View>
           <Button
             title="Confirm Relocation"
@@ -280,14 +290,16 @@ const RELOCATEFROM = {
 };
 
 const GRADELIST = [
-  {name: 'Pick'},
-  {name: 'Buffer'},
-  {name: 'Damage'},
-  {name: 'Defective'},
-  {name: 'Short Expiry'},
-  {name: 'Expired'},
-  {name: 'No Stock'},
-  {name: 'Reserve'},
+  {id: 1, grade: 'PICK'},
+  {id: 2, grade: 'BUFFER'},
+  {id: 3, grade: 'DAMAGE'},
+  {id: 4, grade: 'DEFECTIVE'},
+  {id: 5, grade: 'SHORT EXPIRY'},
+  {id: 6, grade: 'EXPIRED'},
+  {id: 7, grade: 'NO STOCK'},
+  {id: 8, grade: 'RESERVE'},
+  {id: 9, grade: 'SIT'},
+  {id: 10, grade: 'REWORK'},
 ];
 
 const styles = StyleSheet.create({
@@ -354,10 +366,28 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderColor: '#D5D5D5',
     paddingHorizontal: 10,
+    height: 40,
   },
   inputText: {
     ...Mixins.subtitle3,
     lineHeight: 21,
+  },
+  dropdownButton: {
+    width: '100%',
+    maxHeight: 40,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ABABAB',
+    backgroundColor: 'white',
+    paddingHorizontal: 0,
+  },
+  dropdownButtonText: {
+    paddingHorizontal: 10,
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#424141',
+    textAlign: 'left',
+    paddingHorizontal: 0,
   },
 });
 

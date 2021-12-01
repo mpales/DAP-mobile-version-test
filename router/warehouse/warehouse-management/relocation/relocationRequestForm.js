@@ -11,8 +11,8 @@ import {Button, Card, Input, Overlay} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
-import {Picker} from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
+import SelectDropdown from 'react-native-select-dropdown';
 // component
 import {TextList, CustomTextList} from '../../../../component/extend/Text-list';
 import Banner from '../../../../component/banner/banner';
@@ -23,6 +23,7 @@ import {getData, postData} from '../../../../component/helper/network';
 import Mixins from '../../../../mixins';
 // icon
 import CheckmarkIcon from '../../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
+import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 
 const window = Dimensions.get('window');
 
@@ -148,6 +149,7 @@ class RelocationRequest extends React.Component {
   };
 
   calculateSliderPercentage = (value) => {
+    value = isNaN(value) || /\s/g.test(value) ? 0 : value;
     const {relocateFrom} = this.state;
     let percentage = 0;
     if (value !== '') {
@@ -232,10 +234,8 @@ class RelocationRequest extends React.Component {
       locationList,
       reasonCodeList,
       gradeList,
-      newLocation,
       selectedWarehouse,
       selectedLocation,
-      selectedReasonCode,
       selectedGrade,
       remarks,
       quantityToTransfer,
@@ -306,87 +306,83 @@ class RelocationRequest extends React.Component {
           </View>
           <View style={styles.inputFormContainer}>
             <Text style={styles.inputFormTitle}>Warehouse</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dropdown"
-                selectedValue={selectedWarehouse}
-                onValueChange={(value) => this.handlePicker(value, 'warehouse')}
-                itemStyle={{
-                  height: 50,
-                  borderRadius: 5,
-                  marginHorizontal: -10,
-                }}>
-                <Picker.Item label="Select Warehouse" value={null} />
-                {warehouseList !== null &&
-                  warehouseList.map((item) => (
-                    <Picker.Item
-                      label={item.name}
-                      value={item.id}
-                      key={item.id}
-                    />
-                  ))}
-              </Picker>
-            </View>
+            <SelectDropdown
+              buttonStyle={styles.dropdownButton}
+              buttonTextStyle={styles.dropdownButtonText}
+              rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
+              data={!!warehouseList ? warehouseList : []}
+              defaultButtonText="Select Warehouse"
+              onSelect={(selectedItem) => {
+                this.handlePicker(selectedItem.id, 'warehouse');
+              }}
+              buttonTextAfterSelection={(selectedItem) => {
+                return selectedItem.name;
+              }}
+              rowTextForSelection={(item) => {
+                return item.name;
+              }}
+              renderDropdownIcon={() => (
+                <View style={{marginRight: 10}}>
+                  <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+                </View>
+              )}
+            />
           </View>
           <View style={styles.inputFormContainer}>
             <Text style={styles.inputFormTitle}>Location ID</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dropdown"
-                selectedValue={selectedLocation}
-                onValueChange={(value) =>
-                  this.handlePicker(value, 'locationId')
-                }
-                itemStyle={{
-                  height: 50,
-                  borderRadius: 5,
-                  marginHorizontal: -10,
-                }}
-                enabled={!!selectedWarehouse}>
-                <Picker.Item label="Select Location ID" value={null} />
-                {locationList.length > 0 &&
-                  locationList.map((item) => (
-                    <Picker.Item
-                      label={item.locationId}
-                      value={item.id}
-                      key={item.id}
-                    />
-                  ))}
-              </Picker>
-            </View>
+            <SelectDropdown
+              buttonStyle={styles.dropdownButton}
+              buttonTextStyle={styles.dropdownButtonText}
+              rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
+              data={!!locationList ? locationList : []}
+              defaultButtonText="Selected Location ID"
+              onSelect={(selectedItem) => {
+                this.handlePicker(selectedItem.id, 'locationId');
+              }}
+              buttonTextAfterSelection={(selectedItem) => {
+                return selectedItem.locationId;
+              }}
+              rowTextForSelection={(item) => {
+                return item.locationId;
+              }}
+              renderDropdownIcon={() => (
+                <View style={{marginRight: 10}}>
+                  <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+                </View>
+              )}
+              disabled={selectedWarehouse === null}
+            />
           </View>
           <View style={styles.inputFormContainer}>
             <Text style={styles.inputFormTitle}>Reason Code</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dropdown"
-                selectedValue={selectedReasonCode}
-                onValueChange={(value) =>
-                  this.handlePicker(value, 'reasonCode')
-                }
-                itemStyle={{
-                  height: 50,
-                  borderRadius: 5,
-                  marginHorizontal: -10,
-                }}>
-                <Picker.Item label="Select Reason Code" value={null} />
-                {reasonCodeList !== null &&
-                  reasonCodeList.map((item) => (
-                    <Picker.Item
-                      label={item.code}
-                      value={item.id}
-                      key={item.code}
-                    />
-                  ))}
-              </Picker>
-            </View>
+            <SelectDropdown
+              buttonStyle={styles.dropdownButton}
+              buttonTextStyle={styles.dropdownButtonText}
+              rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
+              data={!!reasonCodeList ? reasonCodeList : []}
+              defaultButtonText="Selected Reason Code"
+              onSelect={(selectedItem) => {
+                this.handlePicker(selectedItem.id, 'reasonCode');
+              }}
+              buttonTextAfterSelection={(selectedItem) => {
+                return selectedItem.code;
+              }}
+              rowTextForSelection={(item) => {
+                return item.code;
+              }}
+              renderDropdownIcon={() => (
+                <View style={{marginRight: 10}}>
+                  <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+                </View>
+              )}
+            />
           </View>
           <View style={styles.inputFormContainer}>
             <Text style={styles.inputFormTitle}>Remarks</Text>
             <Input
               multiline={true}
               containerStyle={{paddingHorizontal: 0}}
-              inputContainerStyle={styles.inputContainer}
+              inputContainerStyle={[styles.inputContainer, {height: 'auto'}]}
               numberOfLines={3}
               textAlignVertical="top"
               inputStyle={styles.inputText}
@@ -440,31 +436,27 @@ class RelocationRequest extends React.Component {
           </View>
           <View style={styles.inputFormContainer}>
             <Text style={styles.inputFormTitle}>Destination Grade</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dropdown"
-                selectedValue={selectedGrade}
-                onValueChange={(value) => this.handlePicker(value, 'grade')}
-                itemStyle={{
-                  height: 50,
-                  borderRadius: 5,
-                  marginHorizontal: -10,
-                }}>
-                <Picker.Item
-                  label="Select Grade"
-                  value={null}
-                  color="#ABABAB"
-                />
-                {gradeList !== null &&
-                  gradeList.map((item) => (
-                    <Picker.Item
-                      label={item.grade}
-                      value={item.id}
-                      key={item.id}
-                    />
-                  ))}
-              </Picker>
-            </View>
+            <SelectDropdown
+              buttonStyle={styles.dropdownButton}
+              buttonTextStyle={styles.dropdownButtonText}
+              rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
+              data={!!gradeList ? gradeList : []}
+              defaultButtonText="Selected Reason Code"
+              onSelect={(selectedItem) => {
+                this.handlePicker(selectedItem.id, 'grade');
+              }}
+              buttonTextAfterSelection={(selectedItem) => {
+                return selectedItem.grade;
+              }}
+              rowTextForSelection={(item) => {
+                return item.grade;
+              }}
+              renderDropdownIcon={() => (
+                <View style={{marginRight: 10}}>
+                  <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+                </View>
+              )}
+            />
           </View>
           <Button
             title="Confirm Relocate"
@@ -654,6 +646,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderColor: '#D5D5D5',
     paddingHorizontal: 10,
+    height: 40,
   },
   inputText: {
     ...Mixins.subtitle3,
@@ -673,6 +666,23 @@ const styles = StyleSheet.create({
     ...Mixins.bgButtonPrimary,
     paddingHorizontal: 20,
     paddingVertical: 5,
+  },
+  dropdownButton: {
+    width: '100%',
+    maxHeight: 40,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ABABAB',
+    backgroundColor: 'white',
+    paddingHorizontal: 0,
+  },
+  dropdownButtonText: {
+    paddingHorizontal: 10,
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#424141',
+    textAlign: 'left',
+    paddingHorizontal: 0,
   },
 });
 

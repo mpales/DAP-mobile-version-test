@@ -4,11 +4,13 @@ import {Button, Input} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
-import {Picker} from '@react-native-picker/picker';
+import SelectDropdown from 'react-native-select-dropdown';
 // helper
 import {getData} from '../../../../component/helper/network';
 // style
 import Mixins from '../../../../mixins';
+// icon
+import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 
 class SearchInventory extends React.Component {
   constructor(props) {
@@ -89,37 +91,30 @@ class SearchInventory extends React.Component {
           <View style={styles.searchContainer}>
             <View style={[styles.inputWrapper, {zIndex: 2}]}>
               <Text style={styles.inputTitle}>Warehouse</Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  mode="dropdown"
-                  selectedValue={warehouse}
-                  onValueChange={(value) =>
-                    this.handleInput(value, 'warehouse')
-                  }
-                  itemStyle={{
-                    height: 50,
-                    borderRadius: 5,
-                    marginHorizontal: -10,
-                  }}
-                  style={{height: 50}}>
-                  <Picker.Item
-                    label="Select Warehouse"
-                    value={null}
-                    style={styles.text}
-                  />
-                  {warehouseList !== null &&
-                    warehouseList.map((item) => {
-                      return (
-                        <Picker.Item
-                          key={item.id}
-                          label={item.name}
-                          value={item.id}
-                          style={styles.text}
-                        />
-                      );
-                    })}
-                </Picker>
-              </View>
+              <SelectDropdown
+                buttonStyle={styles.dropdownButton}
+                buttonTextStyle={styles.dropdownButtonText}
+                rowTextStyle={[
+                  styles.dropdownButtonText,
+                  {textAlign: 'center'},
+                ]}
+                data={!!warehouseList ? warehouseList : []}
+                defaultButtonText="Select Warehouse"
+                onSelect={(selectedItem) => {
+                  this.handleInput(selectedItem.id, 'warehouse');
+                }}
+                buttonTextAfterSelection={(selectedItem) => {
+                  return selectedItem.name;
+                }}
+                rowTextForSelection={(item) => {
+                  return item.name;
+                }}
+                renderDropdownIcon={() => (
+                  <View style={{marginRight: 10}}>
+                    <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+                  </View>
+                )}
+              />
             </View>
             <View style={[styles.inputWrapper, {zIndex: 1}]}>
               <Text style={styles.inputTitle}>Search Location ID</Text>
@@ -180,12 +175,13 @@ const styles = StyleSheet.create({
   inputTitle: {
     ...Mixins.subtitle3,
     lineHeight: 21,
+    marginBottom: 10,
   },
   inputContainer: {
-    marginTop: 5,
     borderRadius: 5,
     borderWidth: 1,
-    height: 50,
+    height: 40,
+    borderColor: '#D5D5D5',
   },
   inputText: {
     ...Mixins.subtitle3,
@@ -201,12 +197,22 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 25,
   },
-  pickerContainer: {
-    borderWidth: 1,
+  dropdownButton: {
+    width: '100%',
+    maxHeight: 40,
     borderRadius: 5,
-    borderColor: '#D5D5D5',
-    marginTop: 5,
-    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ABABAB',
+    backgroundColor: 'white',
+    paddingHorizontal: 0,
+  },
+  dropdownButtonText: {
+    paddingHorizontal: 10,
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#424141',
+    textAlign: 'left',
+    paddingHorizontal: 0,
   },
 });
 
