@@ -106,10 +106,6 @@ const styles = StyleSheet.create({
     right: 0,
     left: 0,
   },
-  transparentOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(196,196,196,0.5)',
-  },
   title: {
     fontSize: 22,
     fontWeight: '700',
@@ -123,11 +119,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: 25,
-  },
-  buttonContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
   },
   closeButton: {
     position: 'absolute',

@@ -59,7 +59,6 @@ class BarcodeCamera extends React.Component {
 
   render() {
     const {isShowOverlay, canDetectBarcode} = this.state;
-    console.log('asdfafasd', canDetectBarcode);
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -140,9 +139,6 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
     setBarcodeScanner: (toggle) => {
       return dispatch({type: 'ScannerActive', payload: toggle});
     },
