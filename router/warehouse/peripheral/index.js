@@ -158,7 +158,7 @@ class Example extends React.Component {
           this.props.setItemError(result.error);
           this.props.navigation.goBack();
          } else {
-          this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: Boolean(item.take_photo)});
+          this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: false});
          }
         }
       } else if(this.state.indexItem !== null && this.state.multipleSKU === true){
@@ -168,7 +168,7 @@ class Example extends React.Component {
           this.props.setItemError(result.error);
           this.props.navigation.goBack();
          } else {
-          this.setState({dataItem: item, qty : 0, ItemGrade: "Pick",currentPOSM: Boolean(item.take_photo), multipleSKU : false, filterMultipleSKU : null}); 
+          this.setState({dataItem: item, qty : 0, ItemGrade: "Pick",currentPOSM: false, multipleSKU : false, filterMultipleSKU : null}); 
          }
       }
     } 
@@ -178,7 +178,7 @@ class Example extends React.Component {
       let item = manifestList.find((element)=>element.pId === scanItem);  
       let indexItem = manifestList.findIndex((element)=> element.pId === scanItem);
       const result = await postData('inboundsMobile/'+this.props.currentASN+'/'+item.pId+'/switch-status/2')
-      this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: Boolean(item.take_photo)});
+      this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: false});
     }
   }
   }
@@ -236,7 +236,7 @@ class Example extends React.Component {
             this.props.setItemError(result.error);
             this.props.navigation.goBack();
            } else {
-            this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: Boolean(item.take_photo)});
+            this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: false});
            }
         }
       } else if(this.state.indexItem !== null && this.state.multipleSKU === true){
@@ -246,7 +246,7 @@ class Example extends React.Component {
           this.props.setItemError(result.error);
           this.props.navigation.goBack();
          } else {
-          this.setState({dataItem: item, qty :  0, ItemGrade: "Pick", currentPOSM: Boolean(item.take_photo), filterMultipleSKU :null , multipleSKU: false}); 
+          this.setState({dataItem: item, qty :  0, ItemGrade: "Pick", currentPOSM: false, filterMultipleSKU :null , multipleSKU: false}); 
          }
       }
     }
@@ -255,7 +255,7 @@ class Example extends React.Component {
       let item = manifestList.find((element)=>element.pId === scanItem);  
       let indexItem = manifestList.findIndex((element)=> element.pId === scanItem);
       this.handleZoomInAnimation();
-      this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: Boolean(item.take_photo)});
+      this.setState({dataItem: item, qty : 0, ItemGrade: "Pick", indexItem: indexItem, currentPOSM: false});
     }
   }
   }
@@ -897,7 +897,7 @@ class Example extends React.Component {
       qty : qty === '' ? 0 : qty,
       enterAttr : dataItem.take_photo === 1 ? false : true,
       isConfirm: dataItem.is_transit === 1 ? true : false,
-      isPOSM: Boolean(dataItem.take_photo),
+      isPOSM: false,
     });
     // for prototype only
     let arr = this.makeScannedItem(scanItem,qty);
