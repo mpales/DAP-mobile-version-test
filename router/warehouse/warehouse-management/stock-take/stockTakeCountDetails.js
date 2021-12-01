@@ -41,11 +41,6 @@ class StockTakeCountDetails extends React.Component {
       isShowBanner: false,
       isSubmitted: false,
     };
-    this.handleShowModal.bind(this);
-    this.confirmStockTake.bind(this);
-    this.handleMinus.bind(this);
-    this.handlePlus.bind(this);
-    this.handleInput.bind(this);
   }
 
   componentDidMount() {
@@ -449,38 +444,14 @@ const styles = StyleSheet.create({
   },
 });
 
-const STOCKTAKEDETAIL = {
-  warehouse: 'KEPPEL',
-  location: 'JP2 C05-002',
-  pallet: 'JP2 C05-002',
-  itemCode: '561961',
-  description: 'DAP ITEMS',
-  quantity: 0,
-  UOM: 'PCS',
-  grade: '01',
-  attributes: {
-    productCategory: 'Fashion',
-    color: 'BLACK',
-    banch: '01',
-  },
-};
-
 function mapStateToProps(state) {
   return {
     stockTakeId: state.originReducer.filters.stockTakeId,
-    keyStack: state.originReducer.filters.keyStack,
   };
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-    setStockTakeId: (id) => {
-      return dispatch({type: 'StockTakeId', payload: id});
-    },
-  };
+  return {};
 };
 
 export default connect(

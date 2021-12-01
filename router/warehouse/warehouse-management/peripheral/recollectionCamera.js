@@ -26,10 +26,6 @@ class CameraSingle extends React.Component {
       isFlashActive: false,
       pictureGallery: this.props.recollectionPhotoList,
     };
-
-    this.handleShowImagePreview.bind(this);
-    this.takePicture.bind(this);
-    this.flashToggle.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {

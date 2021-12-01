@@ -47,7 +47,6 @@ class RelocationRequest extends React.Component {
       errorMessage: '',
       isSubmitting: false,
     };
-    this.handleShowOverlay.bind(this);
   }
 
   componentDidMount() {
@@ -306,7 +305,7 @@ class RelocationRequest extends React.Component {
             />
           </View>
           <View style={styles.inputFormContainer}>
-            <Text style={styles.inputFormtitle}>Warehouse</Text>
+            <Text style={styles.inputFormTitle}>Warehouse</Text>
             <View style={styles.pickerContainer}>
               <Picker
                 mode="dropdown"
@@ -330,7 +329,7 @@ class RelocationRequest extends React.Component {
             </View>
           </View>
           <View style={styles.inputFormContainer}>
-            <Text style={styles.inputFormtitle}>Location ID</Text>
+            <Text style={styles.inputFormTitle}>Location ID</Text>
             <View style={styles.pickerContainer}>
               <Picker
                 mode="dropdown"
@@ -357,7 +356,7 @@ class RelocationRequest extends React.Component {
             </View>
           </View>
           <View style={styles.inputFormContainer}>
-            <Text style={styles.inputFormtitle}>Reason Code</Text>
+            <Text style={styles.inputFormTitle}>Reason Code</Text>
             <View style={styles.pickerContainer}>
               <Picker
                 mode="dropdown"
@@ -383,7 +382,7 @@ class RelocationRequest extends React.Component {
             </View>
           </View>
           <View style={styles.inputFormContainer}>
-            <Text style={styles.inputFormtitle}>Remarks</Text>
+            <Text style={styles.inputFormTitle}>Remarks</Text>
             <Input
               multiline={true}
               containerStyle={{paddingHorizontal: 0}}
@@ -398,7 +397,7 @@ class RelocationRequest extends React.Component {
           </View>
           <View style={[styles.inputFormContainer, {marginHorizontal: 0}]}>
             <View style={{marginHorizontal: 20}}>
-              <Text style={styles.inputFormtitle}>Quantity To Transfer</Text>
+              <Text style={styles.inputFormTitle}>Quantity To Transfer</Text>
               <Input
                 containerStyle={{paddingHorizontal: 0}}
                 inputContainerStyle={styles.inputContainer}
@@ -440,7 +439,7 @@ class RelocationRequest extends React.Component {
             </View>
           </View>
           <View style={styles.inputFormContainer}>
-            <Text style={styles.inputFormtitle}>Destination Grade</Text>
+            <Text style={styles.inputFormTitle}>Destination Grade</Text>
             <View style={styles.pickerContainer}>
               <Picker
                 mode="dropdown"
@@ -645,7 +644,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginBottom: 20,
   },
-  inputFormtitle: {
+  inputFormTitle: {
     ...Mixins.subtitle3,
     lineHeight: 21,
     marginBottom: 10,

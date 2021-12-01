@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import {ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import {Button, Input} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -16,8 +9,6 @@ import {Picker} from '@react-native-picker/picker';
 import {getData} from '../../../../component/helper/network';
 // style
 import Mixins from '../../../../mixins';
-// icon
-import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 
 class SearchInventory extends React.Component {
   constructor(props) {
@@ -28,7 +19,6 @@ class SearchInventory extends React.Component {
       warehouse: null,
       locationId: '',
     };
-    this.submitSearch.bind(this);
   }
 
   componentDidMount() {
@@ -179,25 +169,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
   },
-  resultContainer: {
-    flexShrink: 1,
-    padding: 20,
-  },
   inputWrapper: {
     marginTop: 10,
-  },
-  title: {
-    ...Mixins.subtitle3,
-    fontSize: 18,
-    lineHeight: 25,
   },
   text: {
     ...Mixins.subtitle3,
     fontSize: 14,
     lineHeight: 21,
-  },
-  textBlue: {
-    color: '#2A3386',
   },
   inputTitle: {
     ...Mixins.subtitle3,

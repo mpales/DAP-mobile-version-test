@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Dimensions,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -8,7 +7,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Card} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
@@ -17,17 +15,11 @@ import {Picker} from '@react-native-picker/picker';
 import ListItemClientStorage from '../../../../component/extend/ListItem-client-inventory-storage';
 //helper
 import {getData} from '../../../../component/helper/network';
-import {
-  clientProductStatus,
-  clientProductStatusEndpoint,
-  cleanKeyString,
-} from '../../../../component/helper/string';
+import {clientProductStatusEndpoint} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
 // icon
 import ArrowRight from '../../../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
-
-const screen = Dimensions.get('window');
 
 class ClientStorageList extends React.Component {
   constructor(props) {
@@ -97,8 +89,9 @@ class ClientStorageList extends React.Component {
   };
 
   sortList = (type) => {
+    const {storageList} = this.state;
     this.setState({selectedSortBy: type});
-    let sortedList = [...this.state.storageList];
+    let sortedList = !!storageList ? [...storageList] : [];
     sortedList.sort((a, b) =>
       a[type] > b[type] ? 1 : b[type] > a[type] ? -1 : 0,
     );
@@ -395,11 +388,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-  };
+  return {};
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ClientStorageList);

@@ -28,7 +28,6 @@ class WarehouseManagement extends React.Component {
       bottomSheet: false,
       isShowSignature: false,
     };
-    this.setWrapperofStack.bind(this);
   }
 
   setWrapperofStack = (index, key) => {

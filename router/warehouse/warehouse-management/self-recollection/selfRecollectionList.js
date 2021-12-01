@@ -29,8 +29,6 @@ class SelfRecollectionList extends React.Component {
       isLoading: true,
       isRefreshing: false,
     };
-    this.handleFilterStatus.bind(this);
-    this.updateSearch.bind(this);
   }
 
   componentDidMount() {
@@ -291,11 +289,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     flex: 1,
   },
-  searchTitle: {
-    ...Mixins.subtitle3,
-    lineHeight: 20,
-    color: '#424141',
-  },
   searchInputText: {
     ...Mixins.subtitle3,
     lineHeight: 21,
@@ -313,9 +306,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#D5D5D5',
     height: 35,
-  },
-  search: {
-    alignItems: 'flex-end',
   },
   badgeContainer: {
     flex: 1,

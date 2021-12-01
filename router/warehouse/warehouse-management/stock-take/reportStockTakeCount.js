@@ -72,13 +72,8 @@ class StockTakeReport extends React.Component {
       isShowBanner: false,
       errorMessage: '',
     });
-    const {
-      reasonOption,
-      otherReason,
-      remarks,
-      quantity,
-      productId,
-    } = this.state;
+    const {reasonOption, otherReason, remarks, quantity, productId} =
+      this.state;
     if (parseInt(reasonOption) === 3 && otherReason === '') {
       this.setState({
         isShowBanner: true,
