@@ -36,9 +36,6 @@ class RelocationConfirm extends React.Component {
       isLoading: true,
       isSubmitting: false,
     };
-    this.handleShowOverlay.bind(this);
-    this.confirmRelocation.bind(this);
-    this.navigateToRelocationJobList.bind(this);
   }
 
   componentDidMount() {
@@ -106,12 +103,8 @@ class RelocationConfirm extends React.Component {
   };
 
   render() {
-    const {
-      errorMessage,
-      isLoading,
-      isSubmitting,
-      relocationDetails,
-    } = this.state;
+    const {errorMessage, isLoading, isSubmitting, relocationDetails} =
+      this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -304,12 +297,6 @@ const styles = StyleSheet.create({
     lineHeight: 25,
     color: '#2A3386',
     marginBottom: 5,
-  },
-  titleText: {
-    ...Mixins.small1,
-    lineHeight: 18,
-    color: '#2D2C2C',
-    fontWeight: '500',
   },
   button: {
     ...Mixins.bgButtonPrimary,

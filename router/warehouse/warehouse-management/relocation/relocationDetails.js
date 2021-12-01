@@ -88,12 +88,8 @@ class RelocationDetails extends React.Component {
   };
 
   render() {
-    const {
-      errorMessage,
-      isLoading,
-      relocationDetails,
-      isSubmitting,
-    } = this.state;
+    const {errorMessage, isLoading, relocationDetails, isSubmitting} =
+      this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -252,10 +248,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
     elevation: 6,
   },
-  cardTitle: {
-    ...Mixins.subtitle1,
-    lineHeight: 21,
-  },
   blueContainer: {
     backgroundColor: '#414993',
     borderRadius: 5,
@@ -283,17 +275,11 @@ const styles = StyleSheet.create({
 });
 
 function mapStateToProps(state) {
-  return {
-    keyStack: state.originReducer.filters.keyStack,
-  };
+  return {};
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-  };
+  return {};
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(RelocationDetails);

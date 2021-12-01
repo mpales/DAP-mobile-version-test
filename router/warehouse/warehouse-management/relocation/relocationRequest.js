@@ -12,7 +12,6 @@ import {Button, Input} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
-import moment from 'moment';
 import {getData} from '../../../../component/helper/network';
 // component
 import RelocationResult from '../../../../component/extend/ListItem-relocation-result';
@@ -33,7 +32,6 @@ class RelocationRequest extends React.Component {
       filteredClientList: null,
       searchSubmitted: false,
     };
-    this.submitSearch.bind(this);
   }
 
   componentDidMount() {
@@ -384,9 +382,6 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
     setSelectedRequestRelocation: (data) => {
       return dispatch({type: 'SelectedRequestRelocation', payload: data});
     },

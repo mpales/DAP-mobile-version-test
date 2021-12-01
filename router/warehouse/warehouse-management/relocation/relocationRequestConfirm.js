@@ -36,9 +36,6 @@ class RelocationRequestConfirm extends React.Component {
       sliderValue: 0,
       showOverlay: false,
     };
-    this.handleShowOverlay.bind(this);
-    this.confirmRelocation.bind(this);
-    this.navigateToRelocationJobList.bind(this);
   }
 
   handleShowOverlay = (value) => {
@@ -306,10 +303,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 10,
   },
-  sectionContainer: {
-    marginTop: 10,
-    marginBottom: 40,
-  },
   cardContainer: {
     borderRadius: 5,
     backgroundColor: '#fff',
@@ -330,12 +323,6 @@ const styles = StyleSheet.create({
     lineHeight: 25,
     color: '#2A3386',
     marginBottom: 5,
-  },
-  titleText: {
-    ...Mixins.small1,
-    lineHeight: 18,
-    color: '#2D2C2C',
-    fontWeight: '500',
   },
   button: {
     ...Mixins.bgButtonPrimary,
