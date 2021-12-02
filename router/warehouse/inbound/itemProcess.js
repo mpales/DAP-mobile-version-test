@@ -705,7 +705,7 @@ class Example extends React.Component {
     this.setState({
       dataCode: '0',
       qty : qty === '' ? 0 : qty,
-      enterAttr : dataItem.take_photo === 1 ? false : true,
+      enterAttr : true,
       isConfirm: dataItem.is_transit === 1 ? true : false,
       isPOSM: false,
     });
