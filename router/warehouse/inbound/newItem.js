@@ -636,7 +636,7 @@ class Acknowledge extends React.Component {
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.toggleOverlay}
-              disabled={(( this.state._manifest.input_basic_attributes === 0 || (this.state._manifest.input_basic_attributes === 1 && this.state.length !== '' && this.state.weight !== '' & this.state.pcscarton !== '' && this.state.volweight !== '' && this.state.width !== '' && this.state.height !== '')) && (this.state._manifest.take_photo === 0 || this.state._manifest.take_photo === 1 && this.state.validPhoto !== true) && ( this.state._manifest.barcode === 0 || (this.state._manifest.barcode === 1 && this.state.barcode !== ''))) ? false : true}
+              disabled={(( this.state._manifest.input_basic_attributes === 0 || (this.state._manifest.input_basic_attributes === 1 && this.state.length !== '' && this.state.weight !== '' & this.state.pcscarton !== '' && this.state.volweight !== '' && this.state.width !== '' && this.state.height !== '')) && (this.state._manifest.take_photo === 0 || this.state._manifest.take_photo === 1 && this.state.validPhoto === true) && ( this.state._manifest.barcode === 0 || (this.state._manifest.barcode === 1 && this.state.barcode !== ''))) ? false : true}
               title="Confirm"
             />)}
           
