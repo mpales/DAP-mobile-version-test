@@ -48,6 +48,7 @@ class Photos extends React.Component {
       receivedPhotoId : null,
       receivingPhotoId : null,
       processingPhotoId : null,
+      updateData: false,
     };
   }
   static getDerivedStateFromProps(props,state){
@@ -95,32 +96,39 @@ class Photos extends React.Component {
         }
         this.setState({updateData:false, receivingPhotoId: dumpreceivingPhotoId,receivedPhotoId: dumpreceivedPhotoId, processingPhotoId: dumpprocessingPhotoId});
       } else {
+        if(this.props.keyStack === 'PhotosDraft')
         this.props.navigation.goBack();
       }
     }
     if(prevState.receivedPhotoId !== this.state.receivedPhotoId && this.state.updateData === prevState.updateData){
       this.arrayImageReceivedRef.forEach((element,index) => {
+        if(this.arrayImageReceivedRef[index] !== undefined && this.arrayImageReceivedRef[index] !== null)
         this.arrayImageReceivedRef[index].init();       
       });
     } 
     if(prevState.processingPhotoId !== this.state.processingPhotoId && this.state.updateData === prevState.updateData) {
       this.arrayImageProcessingRef.forEach((element,index) => {
+        if(this.arrayImageProcessingRef[index] !== undefined && this.arrayImageProcessingRef[index] !== null)
         this.arrayImageProcessingRef[index].init();       
       });
     }
     if(prevState.receivingPhotoId !== this.state.receivingPhotoId && this.state.updateData === prevState.updateData) {
       this.arrayImageReceivingRef.forEach((element,index) => {
+        if(this.arrayImageReceivingRef[index] !== undefined && this.arrayImageReceivingRef[index] !== null)
         this.arrayImageReceivingRef[index].init();       
       });
     }
     if(this.state.updateData !== prevState.updateData && this.state.updateData === false) {
       this.arrayImageProcessingRef.forEach((element,index) => {
+        if(this.arrayImageProcessingRef[index] !== undefined && this.arrayImageProcessingRef[index] !== null)
         this.arrayImageProcessingRef[index].refresh();       
       });
       this.arrayImageReceivedRef.forEach((element,index) => {
+        if(this.arrayImageReceivedRef[index] !== undefined && this.arrayImageReceivedRef[index] !== null)
         this.arrayImageReceivedRef[index].refresh();       
       });
       this.arrayImageReceivingRef.forEach((element,index) => {
+        if(this.arrayImageReceivingRef[index] !== undefined && this.arrayImageReceivingRef[index] !== null)
         this.arrayImageReceivingRef[index].refresh();       
       });
     }

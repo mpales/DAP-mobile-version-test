@@ -94,7 +94,7 @@ class Photos extends React.Component {
      }
      if(prevState.receivedPhotoId !== this.state.receivedPhotoId && this.state.updateData === prevState.updateData){
        this.arrayImageReceivedRef.forEach((element,index) => {
-         if(this.arrayImageReceivedRef[index] !== null)
+         if(this.arrayImageReceivedRef[index] !== undefined && this.arrayImageReceivedRef[index] !== null)
          this.arrayImageReceivedRef[index].init();       
       });
      } 
@@ -102,7 +102,7 @@ class Photos extends React.Component {
      if(this.state.updateData !== prevState.updateData && this.state.updateData === false) {
   
        this.arrayImageReceivedRef.forEach((element,index) => {
-        if(this.arrayImageReceivedRef[index] !== null)
+        if(this.arrayImageReceivedRef[index] !== undefined && this.arrayImageReceivedRef[index] !== null)
          this.arrayImageReceivedRef[index].refresh();       
        });
      }
