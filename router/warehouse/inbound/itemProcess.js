@@ -573,13 +573,19 @@ class Example extends React.Component {
                <View
                       style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelNotFound}>SKU</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                          <Text style={styles.labelNotFound}>SKU</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoNotFound}>
                           
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelNotFound}>Barcode</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                          <Text style={styles.labelNotFound}>Barcode</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoNotFound}>
                           {this.state.dataCode}
                         </Text>
