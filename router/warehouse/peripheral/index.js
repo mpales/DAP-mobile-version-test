@@ -310,7 +310,7 @@ class Example extends React.Component {
     const {dataItem, dataCode, qty, scanItem} = this.state;
     return (
       <ScrollView style={styles.modalOverlay} contentContainerStyle={{  justifyContent: 'center',
-      alignItems: 'center',paddingTop:this.state.keyboardState === 'hide' ? 60 : 0 }}>
+      alignItems: 'center',paddingTop:this.state.keyboardState === 'hide' ? (dataItem === null && this.state.multipleSKU === false) ? 150 : 60 : 0 }}>
         <Animated.View
           style={
            ( dataItem !== null && this.state.enterAttr !== true && this.state.isConfirm !== true && this.state.isPOSM !== true) || (dataItem === null && this.state.multipleSKU === true)
@@ -760,13 +760,19 @@ class Example extends React.Component {
                <View
                       style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelNotFound}>SKU</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                          <Text style={styles.labelNotFound}>SKU</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoNotFound}>
                           
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelNotFound}>Barcode</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                          <Text style={styles.labelNotFound}>Barcode</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoNotFound}>
                           {this.state.dataCode}
                         </Text>

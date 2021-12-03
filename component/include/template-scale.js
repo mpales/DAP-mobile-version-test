@@ -32,6 +32,13 @@ const styles = {
         fontWeight: '400',
         lineHeight: 18,
       },
+      dotLabel: {
+        ...Mixins.small1,
+        color: '#2D2C2C',
+        fontWeight: '500',
+        lineHeight: 18,
+        paddingHorizontal:9,
+      },
 };
 const theme = {
  
@@ -53,8 +60,11 @@ const Manifest = React.forwardRef((props, ref) => {
   return (
     <ThemeProvider theme={theme}>
         <View style={[styles.dividerContent,{marginVertical:3}]}>
-            <Text style={styles.labelPackage}>{props.name}</Text>
-            <View style={{ flex: 1, alignItems: 'stretch', justifyContent: 'center', flexDirection: 'column' }}>
+        <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignItems:'center'}}>                        
+              <Text style={styles.labelPackage}>{props.name}</Text>
+              <Text style={styles.dotLabel}>:</Text>
+            </View>
+            <View style={{ flexGrow: 1,flexBasis:1, alignItems: 'stretch', justifyContent: 'center', flexDirection: 'column' }}>
               <View style={{flexShrink: 1, justifyContent:'center', alignItems: 'center'}}><Text style={Mixins.small3}>{scaleVal}</Text></View>
             <Slider
               style={{flexShrink:1}}

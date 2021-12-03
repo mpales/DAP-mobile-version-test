@@ -17,12 +17,19 @@ const styles = {
         lineHeight: 18,
         width: 100,
         textAlignVertical: "center",
-        paddingRight: 5,
+        paddingRight: 0,
       },
       textInput: {
         borderWidth: 1,
         borderColor: '#D5D5D5',
         borderRadius: 5,
+      },
+      dotLabel: {
+        ...Mixins.small1,
+        color: '#2D2C2C',
+        fontWeight: '500',
+        lineHeight: 18,
+        paddingHorizontal:9,
       },
 };
 const theme = {
@@ -45,9 +52,13 @@ const Manifest = React.forwardRef((props, ref) => {
   return (
     <ThemeProvider theme={theme}>
         <View style={[styles.dividerContent,{marginVertical:3}]}>
-            <Text style={styles.labelPackage}>{props.name}</Text>
+        <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignItems:'center'}}>                        
+              <Text style={styles.labelPackage}>{props.name}</Text>
+              <Text style={styles.dotLabel}>:</Text>
+        </View>
+        
                         <Input 
-                          containerStyle={{...styles.textInput,flexShrink: 1, maxHeight:30}}
+                          containerStyle={{...styles.textInput,flexGrow: 1, maxHeight:30, flexBasis:1}}
                           inputContainerStyle={{maxHeight:30, padding:0, margin:0, borderBottomColor: 'transparent'}} 
                             inputStyle={{...Mixins.containedInputDefaultStyle,marginHorizontal:0}}
                             labelStyle={Mixins.containedInputDefaultLabel}
