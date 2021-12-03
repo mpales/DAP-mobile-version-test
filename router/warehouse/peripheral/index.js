@@ -8,7 +8,8 @@ import {
   View,
   Dimensions,
   FlatList,
-  Keyboard
+  Keyboard,
+  ScrollView
 } from 'react-native';
 import {
 Button,
@@ -308,7 +309,8 @@ class Example extends React.Component {
   renderModal = () => {
     const {dataItem, dataCode, qty, scanItem} = this.state;
     return (
-      <View style={styles.modalOverlay}>
+      <ScrollView style={styles.modalOverlay} contentContainerStyle={{  justifyContent: 'center',
+      alignItems: 'center',paddingTop:this.state.keyboardState === 'hide' ? 60 : 0 }}>
         <Animated.View
           style={
            ( dataItem !== null && this.state.enterAttr !== true && this.state.isConfirm !== true && this.state.isPOSM !== true) || (dataItem === null && this.state.multipleSKU === true)
@@ -412,19 +414,28 @@ class Example extends React.Component {
               <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: 20}]}>
                <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                       {dataItem.is_transit !== 1 ? (<><View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>Item Code</Text>
+                        <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                           <Text style={styles.labelPackage}>Item Code</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>
                           {dataItem.item_code}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>Description</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                          <Text style={styles.labelPackage}>Description</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>
-                          {dataItem.description}
+                        {dataItem.description}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
                         <Text style={styles.labelPackage}>Barcode</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>
                           {dataItem.barcodes.length === 0 ? 'EMPTY' : dataItem.barcodes[dataItem.barcodes.length -1].code_number}
                         </Text>
@@ -432,19 +443,28 @@ class Example extends React.Component {
                       </>) : (
                         <>
                         <View style={styles.dividerContent}>
+                        <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
                         <Text style={styles.labelPackage}>Container # </Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>
                          {dataItem.container_no}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>No. of Pallet</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                      <Text style={styles.labelPackage}>No. of Pallet</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>
                           {dataItem.total_pallet}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>No. of Carton</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                      <Text style={styles.labelPackage}>No. of Carton</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>
                           {dataItem.total_carton}
                         </Text>
@@ -452,15 +472,18 @@ class Example extends React.Component {
                         </>
                       )}
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>Pallet ID</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                      <Text style={styles.labelPackage}>Pallet ID</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                       { this.state.isConfirm === true ? (  
                       <Text style={styles.infoPackage}>
                         {this.state.PalletArray.some((o)=>o.palete_id === this.state.ItemPallet) === true ? this.state.PalletArray.find((o)=>o.palete_id === this.state.ItemPallet)['pallet_no'] : null}
                         </Text>) 
                         :(  
-                        <View style={styles.infoElement}>
+                          <View style={[styles.infoElement,{flex:1}]}>
                         <SelectDropdown
-                            buttonStyle={{maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
+                            buttonStyle={{width:'100%',maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
                             buttonTextStyle={{...styles.infoPackage,textAlign:'left',}}
                             data={this.state.PalletArray !== null ?this.state.PalletArray : [] }
                             defaultValueByIndex={0}
@@ -489,31 +512,50 @@ class Example extends React.Component {
                       {dataItem.is_transit !== 1 && (
                         <>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>Grade</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                      <Text style={styles.labelPackage}>Grade</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>{ this.props.ManifestType === 1 ? ( dataItem.rework === 0 ? 'SIT -> Buffer' : 'SIT-> Rework -> Buffer') : (dataItem.rework === 0 ? 'SIT-> Pick' : 'SIT-> Rework -> Pick')}</Text>
                     
                       </View>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>UOM</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                      <Text style={styles.labelPackage}>UOM</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>
                         {dataItem.uom}
                         </Text>
                       </View>
+                      {this.state.isConfirm !== true && (
+                      <View style={styles.dividerContent}>
+                        <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                          <Text style={styles.labelPackage}>Item Classification</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
+                        <Text style={styles.infoPackage}>
+                        {dataItem.product_class === 1 ? 'Normal Stock' :dataItem.product_class === 2 ? 'POSM' : dataItem.product_class === 3 ? 'Packaging Materials' :dataItem.product_class === 4 ? 'Samples' :'-'}
+                        </Text>
+                      </View>)}
                       </>)}
-
+                   
                       {this.state.isConfirm === true && (    
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>QTY</Text>
+                         <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                          <Text style={styles.labelPackage}>QTY</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}> {this.state.qty} </Text>
                         </View>
                         )}
                     </View>
                     {this.state.isConfirm !== true && (
-                        <View style={[styles.sectionDividier,{flexDirection:'row',marginTop:15}]}>
-                          <View style={[styles.dividerContent,{marginRight: 35}]}>
-                            <Text style={styles.qtyTitle}>Qty</Text>
+                          <View style={[styles.sectionDividier,{flexDirection:dataItem.is_transit === 1 ? 'row' : 'column',marginTop:15,}]}>
+                         <View style={[styles.dividerContent,dataItem.is_transit !== 1 ? {marginRight: 35, alignContent:'flex-start', justifyContent:'flex-start'} : {marginRight: 35,}]}>
+                            <Text style={styles.qtyTitle}>{dataItem.is_transit === 1 ? 'Qty' : 'Document Qty'}</Text>
                           </View>
-                          <View style={styles.dividerInput}>
+                          <View style={[styles.dividerInput,dataItem.is_transit !== 1 ? {justifyContent:'center', alignContent:'center', paddingHorizontal:40, flexShrink:1, marginBottom:30, } : null]}>
                           <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
                            const {qty,dataItem} = this.state;
                             this.setState({qty: qty !== '' && qty > 0 ? qty-1 : qty === '' ? 0 : qty});
@@ -522,7 +564,7 @@ class Example extends React.Component {
                           badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
                           />
                           <Input 
-                            containerStyle={{flex: 1,paddingVertical:0}}
+                            containerStyle={dataItem.is_transit !== 1 ? {flex: 1,paddingVertical:0, height:40} : {flex: 1,paddingVertical:0}}
                             keyboardType="number-pad"
                             inputContainerStyle={styles.textInput} 
                             inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.h4,fontWeight: '600',lineHeight: 27,color:'#424141'}]}
@@ -818,7 +860,7 @@ class Example extends React.Component {
             </View>)}
           </View>
         </Animated.View>
-      </View>
+      </ScrollView>
     );
   };
 
@@ -993,8 +1035,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
     zIndex: 10,
   },
   search: {
@@ -1100,6 +1140,13 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     lineHeight: 24,
     color: '#424141',
+  },
+  dotLabel: {
+    ...Mixins.small1,
+    color: '#2D2C2C',
+    fontWeight: '500',
+    lineHeight: 18,
+    paddingHorizontal:9,
   },
   labelPackage: {
     minWidth: 100,

@@ -111,7 +111,7 @@ class HomeNavigator extends React.Component {
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('true')
+                  this.props.setBottomBar(true)
                   this.props.navigation.navigate('Home');
                 }
               }
@@ -141,7 +141,7 @@ class HomeNavigator extends React.Component {
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('true')
+                  this.props.setBottomBar(true)
                   this.props.navigation.navigate('WarehouseIn');
                 }
               }
@@ -171,7 +171,7 @@ class HomeNavigator extends React.Component {
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('true')
+                  this.props.setBottomBar(true)
                   this.props.navigation.navigate('List');
                 }
               }
@@ -200,7 +200,7 @@ class HomeNavigator extends React.Component {
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('true')
+                  this.props.setBottomBar(true)
                   this.props.navigation.navigate('WarehouseIn');
                 }
               }
@@ -230,7 +230,7 @@ class HomeNavigator extends React.Component {
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('false')
+                  this.props.setBottomBar(false)
                   this.props.navigation.navigate('PalletList');
                 }
               }
@@ -260,7 +260,7 @@ class HomeNavigator extends React.Component {
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('false')
+                  this.props.setBottomBar(false)
                   this.props.navigation.navigate('Manifest');
                 }
               }
@@ -290,7 +290,7 @@ class HomeNavigator extends React.Component {
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('false')
+                  this.props.setBottomBar(false)
                   this.props.navigation.navigate('Manifest');
                 }
               }
@@ -320,7 +320,7 @@ class HomeNavigator extends React.Component {
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar('false')
+                  this.props.setBottomBar(false)
                   this.props.navigation.goBack();
                 }
               }
