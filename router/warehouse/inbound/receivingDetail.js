@@ -296,6 +296,21 @@ class Acknowledge extends React.Component {
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
               <View style={{flexShrink:1, backgroundColor: 'transparent', paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
+              <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Inbound ID</Text>
+             </View>
+             <Input 
+                containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',}}
+                inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, flexDirection:'column-reverse',}} 
+                inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B', marginVertical:0, paddingVertical:0}]}
+                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,marginTop:5}]}
+                value={data.inbound_number}
+                multiline={true}
+                disabled={true}
+                label=" : "
+            />
+         </View>
+         <View style={{flexDirection:'row', flexShrink:1}}>
+              <View style={{flexShrink:1, backgroundColor: 'transparent', paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
               <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Ref #</Text>
              </View>
              <Input 

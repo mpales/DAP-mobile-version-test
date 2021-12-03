@@ -20,7 +20,8 @@ class Acknowledge extends React.Component {
     super(props);
     this.state = {
       dataCode: '0',
-      _visibleOverlay : false,
+      _visibleCartonOverlay : false,
+      _visiblePhotoOverlay : false,
       bottomSheet: false,
       _inputCode : null,
       isShowSignature: false,
@@ -40,6 +41,8 @@ class Acknowledge extends React.Component {
       labelerror: false,
       submitPhoto: false,
       validPhoto: false,
+      recordPhoto : false,
+      validDimensions : false,
       _manifest: null,
       keyboardState : 'hide',
     };
@@ -213,7 +216,8 @@ class Acknowledge extends React.Component {
       Keyboard.removeListener("keyboardDidHide", this.keyboardDidHideHandle);
       this.props.setManifestList(updatedManifestAttr)
       this.props.setBottomBar(false);
-      this.props.navigation.navigate('Manifest');
+      // this.props.navigation.navigate('Manifest');
+      this.setState({validDimensions: true});
     
     } else {
       if(updateAttr.error !== undefined){
@@ -221,19 +225,38 @@ class Acknowledge extends React.Component {
       }
     }
   }
-  toggleOverlay =()=> {
-    const {_visibleOverlay} = this.state;
-    this.setState({_visibleOverlay: !_visibleOverlay})
+  toggleCartonOverlay =()=> {
+    const {_visibleCartonOverlay} = this.state;
+    this.setState({_visibleCartonOverlay: !_visibleCartonOverlay})
   }
-  handleConfirm = async ({action}) => {
-    this.toggleOverlay();
+  handleCartonConfirm = async ({action}) => {
+    this.toggleCartonOverlay();
     if(action) {
       // for prototype only
-      if((this.state._manifest.is_new === 1 || this.state._manifest.record === 1) && this.state._manifest.input_basic_attributes === 1){
-      this.submitItem(); 
-      } else {
-        this.props.navigation.navigate('Manifest');
-      }
+      // if((this.state._manifest.is_new === 1 || this.state._manifest.record === 1) && this.state._manifest.input_basic_attributes === 1){
+       this.submitItem(); 
+      // } else {
+      //   this.props.navigation.navigate('Manifest');
+      // }
+      // end
+
+     // this.props.navigation.navigate('containerDetail');
+    }
+  }
+  togglePhotoOverlay =()=> {
+    const {_visiblePhotoOverlay} = this.state;
+    this.setState({_visiblePhotoOverlay: !_visiblePhotoOverlay})
+  }
+  handlePhotoConfirm = async ({action}) => {
+    this.togglePhotoOverlay();
+    if(action) {
+      this.setState({recordPhoto:true});
+      // for prototype only
+      // if((this.state._manifest.is_new === 1 || this.state._manifest.record === 1) && this.state._manifest.input_basic_attributes === 1){
+      // this.submitItem(); 
+      // } else {
+      //   this.props.navigation.navigate('Manifest');
+      // }
       // end
 
      // this.props.navigation.navigate('containerDetail');
@@ -283,12 +306,12 @@ class Acknowledge extends React.Component {
     const {barcode, sku,description, uom, length,width,height,volweight,weight,pcscarton} = this.state;
     return (
       <>
-        <ScrollView style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 10,paddingVertical: 25}}>
-          {this.state.errors !== '' && (<Banner
+      {this.state.errors !== '' && (<Banner
             title={this.state.errors}
             backgroundColor="#F1811C"
             closeBanner={this.closeErrorBanner}
           />)}
+        <ScrollView style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 10,paddingVertical: 25}}>
         {this.state.keyboardState === 'hide' && (
           <View>
         <View style={{
@@ -420,7 +443,8 @@ class Acknowledge extends React.Component {
           </View>
         )}
         
-       { (this.state._manifest.is_new === 1 || this.state._manifest.input_basic_attributes === 1) && ( <View style={{
+       { (this.state._manifest.is_new === 1 || this.state._manifest.input_basic_attributes === 1) && ( 
+       <View style={{
           marginHorizontal:10, 
           marginVertical:10, 
         shadowColor: "#000",
@@ -523,10 +547,22 @@ class Acknowledge extends React.Component {
                   keyboardType="number-pad"
               />
           </View>
+          <Button
+              containerStyle={{flex:1, marginRight: 0, marginTop:30, marginBottom:10, paddingHorizontal:30}}
+              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
+              titleStyle={styles.deliveryText}
+              onPress={this.toggleCartonOverlay}
+              disabledStyle={this.state.validDimensions  === true ? {backgroundColor:  '#17B055', opacity: 1, color: 'white'} : null}
+              disabledTitleStyle={this.state.validDimensions  === true ? {color:'white'}: null}
+              disabled={( this.state._manifest.is_new === 1 || this.state._manifest.input_basic_attributes === 1) && this.state.validDimensions  === false && this.state.lengtwh !== '' && this.state.weight !== '' & this.state.pcscarton !== '' && this.state.volweight !== '' && this.state.width !== '' && this.state.height !== '' ? false : true}
+              title="Update Carton Dimensions"
+            />
          </View>)}
-        {(this.state._manifest.take_photo === 1 || this.state._manifest.is_new === 1) && ( <View style={{
+        {this.state.keyboardState === 'hide' && (this.state._manifest.take_photo === 1 || this.state._manifest.is_new === 1) && ( 
+        <View style={{
            marginHorizontal:10, 
-           marginVertical:10, 
+          marginTop:10,
+          marginBottom:60,
         shadowColor: "#000",
         shadowOffset: {
           width: 0,
@@ -547,6 +583,7 @@ class Acknowledge extends React.Component {
            <View style={[styles.sheetPackages,{alignItems: 'flex-start',justifyContent: 'flex-start',marginHorizontal: 0, marginTop: 20}]}>
               <Avatar
                 onPress={()=>{
+                  if(this.state.recordPhoto === false)
                   this.props.navigation.navigate('SingleCamera');
                 }}
                 size={79}
@@ -571,7 +608,7 @@ class Acknowledge extends React.Component {
                   },
                 }}
                 overlayContainerStyle={{
-                  backgroundColor: this.props.attributeProofID !== null && this.props.attributeProofID !== this.state._inputCode ? 'grey' : this.props.attributePhotoPostpone !== null  
+                  backgroundColor: this.props.attributeProofID !== null && this.props.attributeProofID !== this.state._inputCode ? 'grey' : (this.props.attributePhotoPostpone !== null || this.state.recordPhoto === true)  
                   ? '#17B055'
                   : '#F07120',
                   flex: 2,
@@ -630,29 +667,49 @@ class Acknowledge extends React.Component {
                 <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>View Photo</Text>
               </View>
            </View>
-         </View>)}
-        {this.state.keyboardState === 'hide' && ( <Button
-              containerStyle={{flex:1, marginRight: 0,marginVertical:30}}
+         
+           <Button
+              containerStyle={{flex:1, marginRight: 0, marginTop:30, marginBottom:10, paddingHorizontal:30}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
-              onPress={this.toggleOverlay}
-              disabled={(( this.state._manifest.input_basic_attributes === 0 || (this.state._manifest.input_basic_attributes === 1 && this.state.length !== '' && this.state.weight !== '' & this.state.pcscarton !== '' && this.state.volweight !== '' && this.state.width !== '' && this.state.height !== '')) && (this.state._manifest.take_photo === 0 || this.state._manifest.take_photo === 1 && this.state.validPhoto === true) && ( this.state._manifest.barcode === 0 || (this.state._manifest.barcode === 1 && this.state.barcode !== ''))) ? false : true}
-              title="Confirm"
-            />)}
-          
+              onPress={this.togglePhotoOverlay}
+              disabledStyle={this.state.recordPhoto  === true ? {backgroundColor:  '#17B055', opacity: 1, color: 'white'} : null}
+              disabledTitleStyle={this.state.recordPhoto  === true ? {color:'white'}: null}
+              disabled={( this.state._manifest.is_new === 1 || this.state._manifest.take_photo === 1) && this.state.validPhoto === true && this.state.recordPhoto === false ? false : true}
+              title="Confirm upload photos"
+            />
+         </View>)}
+ 
         </ScrollView>
-        <Overlay fullScreen={false} overlayStyle={styles.overlayContainerStyle} isVisible={this.state._visibleOverlay} onBackdropPress={this.toggleOverlay}>
-            <Text style={styles.confirmText}>Are you sure you want Confirm Record  ?</Text>
+        <Overlay fullScreen={false} overlayStyle={styles.overlayContainerStyle} isVisible={this.state._visibleCartonOverlay} onBackdropPress={this.toggleCartonOverlay}>
+            <Text style={styles.confirmText}>Are you sure you want Confirm Record Carton Dimensions  ?</Text>
             <View style={styles.cancelButtonContainer}>
               <TouchableOpacity 
                 style={[styles.cancelButton, {borderWidth: 1, borderColor: '#ABABAB'}]}
-                onPress={() => this.handleConfirm({action: false})}
+                onPress={() => this.handleCartonConfirm({action: false})}
               >
               <Text style={[styles.cancelText, {color: '#6C6B6B'}]}>No</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.cancelButton, {backgroundColor: '#F07120'}]}
-                onPress={() => this.handleConfirm({action: true})}
+                onPress={() => this.handleCartonConfirm({action: true})}
+              >
+                <Text style={[styles.cancelText, {color: '#fff'}]}>Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </Overlay>
+          <Overlay fullScreen={false} overlayStyle={styles.overlayContainerStyle} isVisible={this.state._visiblePhotoOverlay} onBackdropPress={this.togglePhotoOverlay}>
+            <Text style={styles.confirmText}>Are you sure you want Confirm Record Take Photo ?</Text>
+            <View style={styles.cancelButtonContainer}>
+              <TouchableOpacity 
+                style={[styles.cancelButton, {borderWidth: 1, borderColor: '#ABABAB'}]}
+                onPress={() => this.handlePhotoConfirm({action: false})}
+              >
+              <Text style={[styles.cancelText, {color: '#6C6B6B'}]}>No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.cancelButton, {backgroundColor: '#F07120'}]}
+                onPress={() => this.handlePhotoConfirm({action: true})}
               >
                 <Text style={[styles.cancelText, {color: '#fff'}]}>Yes</Text>
               </TouchableOpacity>

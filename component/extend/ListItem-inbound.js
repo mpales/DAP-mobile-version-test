@@ -156,6 +156,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         <ListItem.Subtitle style={{...Mixins.body1, lineHeight: 21, color: '#424141', fontWeight: '600'}}>
         {item.reference_id}
         </ListItem.Subtitle>
+        <Text style={styles.descText}>{'Inbound ID : '+item.inbound_number}</Text>
         <Text style={styles.descText}>{item.client}</Text>
         <Text style={styles.descText}>{item.total_product_processed+'/'+item.total_product+' Lines Complete'}</Text>
         </ListItem.Content>

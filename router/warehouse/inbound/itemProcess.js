@@ -300,7 +300,10 @@ class Example extends React.Component {
     return (
       <View style={styles.modalOverlay}>
           <View style={[styles.sectionSheetDetail, {marginHorizontal: 0, marginTop:0}]}>
-            <View style={styles.modalHeader}>
+            {( dataItem === null || (dataItem !== null && (this.state.isConfirm !== false || this.state.enterAttr !== false || this.state.isPOSM !== false))) && (<View style={styles.modalHeader}>
+              {(dataItem !== null && this.state.isConfirm === true ) && (
+                <CheckmarkIcon height="24" width="24" fill="#17B055" />
+              )}
               {dataItem !== null ? (
                 <Text style={styles.modalHeaderText}>
                   {this.state.isConfirm === true ? ' Item Processed ' : this.state.enterAttr === true ? 'Enter Item Attribute' : this.state.isPOSM === true ? 'Photo Required' : ' Item Found'}                
@@ -313,24 +316,33 @@ class Example extends React.Component {
                   Item Not Found
                 </Text>
               )}
-            </View>
+            </View>)}
             {(dataItem !== null && ((this.state.enterAttr === false && this.state.isPOSM === false) || this.state.isConfirm === true )) ? (
               <View style={styles.sheetPackages}>
                <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                       {dataItem.is_transit !== 1 ? (<><View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>Item Code</Text>
+                        <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                           <Text style={styles.labelPackage}>Item Code</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>
                           {dataItem.item_code}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>Description</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                          <Text style={styles.labelPackage}>Description</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>
                           {dataItem.description}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
                         <Text style={styles.labelPackage}>Barcode</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>
                           {dataItem.barcodes.length === 0 ? 'EMPTY' : dataItem.barcodes[dataItem.barcodes.length -1].code_number}
                         </Text>
@@ -338,19 +350,28 @@ class Example extends React.Component {
                       </>) : (
                         <>
                         <View style={styles.dividerContent}>
+                        <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
                         <Text style={styles.labelPackage}>Container # </Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>
                          {dataItem.container_no}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>No. of Pallet</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                      <Text style={styles.labelPackage}>No. of Pallet</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>
                           {dataItem.total_pallet}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>No. of Carton</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                      <Text style={styles.labelPackage}>No. of Carton</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>
                           {dataItem.total_carton}
                         </Text>
@@ -358,15 +379,18 @@ class Example extends React.Component {
                         </>
                       )}
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>Pallet ID</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                      <Text style={styles.labelPackage}>Pallet ID</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                       { this.state.isConfirm === true ? (  
                       <Text style={styles.infoPackage}>
                         {this.state.PalletArray.some((o)=>o.palete_id === this.state.ItemPallet) === true ? this.state.PalletArray.find((o)=>o.palete_id === this.state.ItemPallet)['pallet_no'] : null}
                         </Text>) 
                         :(  
-                        <View style={styles.infoElement}>
+                        <View style={[styles.infoElement,{flex:1}]}>
                         <SelectDropdown
-                            buttonStyle={{maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
+                            buttonStyle={{width:'100%',maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
                             buttonTextStyle={{...styles.infoPackage,textAlign:'left',}}
                             data={this.state.PalletArray !== null ?this.state.PalletArray : [] }
                             defaultValueByIndex={0}
@@ -395,31 +419,51 @@ class Example extends React.Component {
                       {dataItem.is_transit !== 1 && (
                         <>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>Grade</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                      <Text style={styles.labelPackage}>Grade</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>{ this.props.ManifestType === 1 ? ( dataItem.rework === 0 ? 'SIT -> Buffer' : 'SIT-> Rework -> Buffer') : (dataItem.rework === 0 ? 'SIT-> Pick' : 'SIT-> Rework -> Pick')}</Text>
                     
                       </View>
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>UOM</Text>
+                      <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                      <Text style={styles.labelPackage}>UOM</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}>
                         {dataItem.uom}
                         </Text>
                       </View>
+                      {this.state.isConfirm !== true && (
+                      <View style={styles.dividerContent}>
+                        <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                          <Text style={styles.labelPackage}>Item Classification</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
+                        <Text style={styles.infoPackage}>
+                        {dataItem.product_class === 1 ? 'Normal Stock' :dataItem.product_class === 2 ? 'POSM' : dataItem.product_class === 3 ? 'Packaging Materials' :dataItem.product_class === 4 ? 'Samples' :'-'}
+                        </Text>
+                      </View>)}
+
                       </>)}
 
                       {this.state.isConfirm === true && (    
                       <View style={styles.dividerContent}>
-                        <Text style={styles.labelPackage}>QTY</Text>
+                        <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignContent:'center'}}>                        
+                          <Text style={styles.labelPackage}>QTY</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
                         <Text style={styles.infoPackage}> {this.state.qty} </Text>
                         </View>
                         )}
                     </View>
                     {this.state.isConfirm !== true && (
-                        <View style={[styles.sectionDividier,{flexDirection:'row',marginTop:15}]}>
-                          <View style={[styles.dividerContent,{marginRight: 35}]}>
-                            <Text style={styles.qtyTitle}>Qty</Text>
+                            <View style={[styles.sectionDividier,{flexDirection:dataItem.is_transit === 1 ? 'row' : 'column',marginTop:15,}]}>
+                              <View style={[styles.dividerContent,dataItem.is_transit !== 1 ? {marginRight: 35, alignContent:'flex-start', justifyContent:'flex-start'} : {marginRight: 35,}]}>
+                            <Text style={styles.qtyTitle}>{dataItem.is_transit === 1 ? 'Qty' : 'Document Qty'}</Text>
                           </View>
-                          <View style={styles.dividerInput}>
+                          <View style={[styles.dividerInput,dataItem.is_transit !== 1 ? {justifyContent:'center', alignContent:'center', paddingHorizontal:40, marginVertical:0} : null]}>
                           <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
                            const {qty,dataItem} = this.state;
                             this.setState({qty: qty !== '' && qty > 0 ? qty-1 : qty === '' ? 0 : qty});
@@ -800,6 +844,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingTop:20,
   },
   search: {
     borderColor: 'gray',
@@ -860,8 +905,21 @@ const styles = StyleSheet.create({
   sectionSheetDetail: {
     flexGrow: 1,
     flexDirection: 'column',
+    width:screen.width -40,
+    borderRadius:13,
     marginHorizontal: 32,
     marginTop: 20,
+    marginBottom:20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    
+    elevation: 4,
+    backgroundColor:'white'
   },
   detailContent: {
     flexShrink: 1,
@@ -906,6 +964,13 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: '#424141',
   },
+  dotLabel: {
+    ...Mixins.small1,
+    color: '#2D2C2C',
+    fontWeight: '500',
+    lineHeight: 18,
+    paddingHorizontal:9,
+  },
   labelPackage: {
     minWidth: 100,
     ...Mixins.small1,
@@ -935,22 +1000,9 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   sheetPackages: {
-    width: screen.width - 40,
-    marginHorizontal: 20,
-    marginVertical:10,
     borderRadius:13,
     padding:20,
     flexShrink: 1,
-    shadowColor: "#000",
-shadowOffset: {
-	width: 0,
-	height: 2,
-},
-shadowOpacity: 0.23,
-shadowRadius: 2.62,
-
-elevation: 4,
-backgroundColor:'white'
   },
   buttonSheetContainer: {
     flexDirection: 'column',
@@ -1027,17 +1079,19 @@ backgroundColor:'white'
   },
   modalHeader: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    marginTop:20,
-    marginBottom:0,
-    marginHorizontal:20,
-    
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop:20,
+    paddingBottom:10,
+    marginHorizontal:0,
+    borderBottomColor:'#D5D5D5',
+    borderBottomWidth:1,
   },
   modalHeaderText: {
     ...Mixins.h6,
-    color: '#424141',
-    fontWeight:'700',
+    color: '#17B055',
+    fontWeight:'400',
+    lineHeight:27,
   },
   cancelButton: {
     backgroundColor: '#FFF',
