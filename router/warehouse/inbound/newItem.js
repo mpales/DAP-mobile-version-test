@@ -4,7 +4,7 @@ import {View, Keyboard, ScrollView, TouchableOpacity, Dimensions} from 'react-na
 import {connect} from 'react-redux';
 import moment from 'moment';
 import Mixins from '../../../mixins';
-import {putData, getData, postBlob} from '../../../component/helper/network';
+import {putData, getData, postBlob, postData} from '../../../component/helper/network';
 import Banner from '../../../component/banner/banner';
 import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
 import IconView from '../../../assets/icon/iconmonstr-picture-1 1mobile.svg';
@@ -42,6 +42,7 @@ class Acknowledge extends React.Component {
       submitPhoto: false,
       validPhoto: false,
       recordPhoto : false,
+      recordBarcodes : false,
       validDimensions : false,
       _manifest: null,
       keyboardState : 'hide',
@@ -71,6 +72,9 @@ class Acknowledge extends React.Component {
           weight: manifest.basic.weight !== null ? String(manifest.basic.weight) : '',
           pcscarton: manifest.basic.carton_pcs !== null ? String(manifest.basic.carton_pcs) : '',
           _manifest: manifest,
+          recordPhoto : !(Boolean(manifest.can_take_photos)),
+          validDimensions : !(Boolean(manifest.can_record_attribute)),
+          recordBarcodes : !(Boolean(manifest.can_take_barcodes)),
         };
       }
       return {...state};
@@ -94,32 +98,40 @@ class Acknowledge extends React.Component {
           this.setState({submitPhoto: true});
         }
         return false;
+      } else if(nextProps.keyStack === 'newItem'){
+        this.setState({errors: '', errorsphoto: '',labelerror: false,});
+        return false;
       }
     }
     return true;
   }
   async componentDidUpdate(prevProps, prevState, snapshot){
     const {currentASN, manifestList} = this.props;
-    if(prevState.barcode !== this.state.barcode && this.state.barcode !== ''){
-      const updatedBarcodes = await getData('inboundsMobile/'+currentASN+'/item-barcode');
-      if(updatedBarcodes.error !== undefined){
-        this.props.navigation.goBack();
-      } else {
-        let updatedManifest = [];
-        for (let index = 0; index < manifestList.length; index++) {
-          const element = manifestList[index];
-          let findBarcode = updatedBarcodes.products.find((o)=> o.pId === element.pId);
-          if(findBarcode !== undefined){
-            updatedManifest[index] = {
-              ...manifestList[index],
-              barcodes: findBarcode.barcodes,
-            }
-          } else {
-            updatedManifest[index] = manifestList[index];
-          }
-        }
-      this.props.setManifestList(updatedManifest);
+    if((prevState.barcode !== this.state.barcode && this.state.barcode !== '') || (prevState.recordPhoto !== this.state.recordPhoto && this.state.recordPhoto === true) || (prevState.validDimensions !== this.state.validDimensions && this.state.validDimensions === true)){
+       const result = await getData('inboundsMobile/'+currentASN);
+       if(typeof result === 'object' && result.error === undefined){
+         this.props.setManifestList(result.products);
+         this.setState({sku:''});
       }
+      // const updatedBarcodes = await getData('inboundsMobile/'+currentASN+'/item-barcode');
+      // if(updatedBarcodes.error !== undefined){
+      //   this.props.navigation.goBack();
+      // } else {
+      //   let updatedManifest = [];
+      //   for (let index = 0; index < manifestList.length; index++) {
+      //     const element = manifestList[index];
+      //     let findBarcode = updatedBarcodes.products.find((o)=> o.pId === element.pId);
+      //     if(findBarcode !== undefined){
+      //       updatedManifest[index] = {
+      //         ...manifestList[index],
+      //         barcodes: findBarcode.barcodes,
+      //       }
+      //     } else {
+      //       updatedManifest[index] = manifestList[index];
+      //     }
+      //   }
+      // this.props.setManifestList(updatedManifest);
+      //}
     }
     if(prevState.submitPhoto !== this.state.submitPhoto && this.state.submitPhoto === true){
       if(this.props.attributePhotoPostpone !== null){
@@ -170,7 +182,8 @@ class Acknowledge extends React.Component {
     this.setState({keyboardState:'hide'})
   };
   registerBarcode = () => {
-    const {productID} = this.state;
+    const {productID, recordBarcodes} = this.state;
+    if(recordBarcodes === false)
     this.props.navigation.navigate({
       name: 'RegisterBarcode',
       params: {
@@ -250,7 +263,14 @@ class Acknowledge extends React.Component {
   handlePhotoConfirm = async ({action}) => {
     this.togglePhotoOverlay();
     if(action) {
-      this.setState({recordPhoto:true});
+      const {currentASN} = this.props;
+      const {_inputCode} = this.state;
+      const confirmPhotos = postData('/inboundsMobile/'+currentASN+'/'+_inputCode+'/confirm-photos');
+      if(typeof confirmPhotos === 'object' && confirmPhotos.error !== undefined){
+        this.setState({errors: confirmPhotos.error});
+      } else {
+        this.setState({recordPhoto:true});
+      }
       // for prototype only
       // if((this.state._manifest.is_new === 1 || this.state._manifest.record === 1) && this.state._manifest.input_basic_attributes === 1){
       // this.submitItem(); 
@@ -311,7 +331,7 @@ class Acknowledge extends React.Component {
             backgroundColor="#F1811C"
             closeBanner={this.closeErrorBanner}
           />)}
-        <ScrollView style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 10,paddingVertical: 25}}>
+        <ScrollView style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 10,paddingVertical: 0}}>
         {this.state.keyboardState === 'hide' && (
           <View>
         <View style={{
@@ -431,7 +451,7 @@ class Acknowledge extends React.Component {
                     justifyContent:'center',
                   },
                 }}
-                overlayContainerStyle={styles.barcodeButton}
+                overlayContainerStyle={[styles.barcodeButton,{backgroundColor: this.state.recordBarcodes === false ? '#F07120':'#17B055'}]}
                 onPress={this.registerBarcode}
                 activeOpacity={0.7}
                 containerStyle={Mixins.buttonAvatarDefaultContainerStyle}

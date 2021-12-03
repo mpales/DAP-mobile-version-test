@@ -177,16 +177,22 @@ const Manifest = ({item, index, ToManifest}) => {
         </View>
           <ListItem.Content style={styles.sectionContainer}>
           <Badge value={category} status="warning" textStyle={{...Mixins.small3,fontWeight: '700',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-start', marginBottom:10}} badgeStyle={{backgroundColor: categorycolor}} />
-                    <Text style={{...Mixins.small1,lineHeight: 18,color: '#ABABAB', fontWeight: '400'}}>
+                    <Text style={{...Mixins.small1,lineHeight: 18,color: '#424141', fontWeight: '500'}}>
                     {moment(item.eta).format("DD-MM-YYYY")}
                     </Text>
-                    <Text style={{...Mixins.body1,lineHeight: 21,color: '#424141', fontWeight: '600'}}>
+                    <Text style={{...Mixins.small1,lineHeight: 21,color: '#424141', fontWeight: '500'}}>
+                    {'Inbound ID : '+item.inbound_number}
+                    </Text>
+                   
+                    {item.reference_id ? (
+                    <Text style={{...Mixins.small1,lineHeight: 21,color: '#424141', fontWeight: '500'}}>
                     {item.reference_id}
-                      </Text>
-                    <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '400'}}>
+                    </Text>
+                    ) : null}
+                    <Text style={{...Mixins.small1,lineHeight: 18,color: '#424141', fontWeight: '500'}}>
                     {item.client}
                     </Text>
-                    <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '400'}}>
+                    <Text style={{...Mixins.small1,lineHeight: 18,color: '#424141', fontWeight: '500'}}>
                     {item.total_product_processed+'/'+item.total_product+' Lines Complete'}
                     </Text>
     

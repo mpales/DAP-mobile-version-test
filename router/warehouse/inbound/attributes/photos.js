@@ -47,6 +47,7 @@ class Photos extends React.Component {
       data :null,
       receivedPhotoId : null,
       processingPhotoId : null,
+      updateData: false,
     };
   }
   static getDerivedStateFromProps(props,state){
@@ -64,7 +65,7 @@ class Photos extends React.Component {
    }
    shouldComponentUpdate(nextProps, nextState) {
      if(this.props.keyStack !== nextProps.keyStack){
-       if(nextProps.keyStack === 'EnlargePhoto' && this.props.keyStack ==='ViewPhotoAttributes'){
+       if(nextProps.keyStack === 'ViewPhotoAttributes' && this.props.keyStack ==='EnlargePhoto'){
          this.setState({updateData:true});
          return false;
        } 
@@ -87,11 +88,13 @@ class Photos extends React.Component {
          }
          this.setState({updateData:false, receivedPhotoId: dumpreceivedPhotoId});
        } else {
+         if(this.props.keyStack === 'ViewPhotoAttributes')
          this.props.navigation.goBack();
        }
      }
      if(prevState.receivedPhotoId !== this.state.receivedPhotoId && this.state.updateData === prevState.updateData){
        this.arrayImageReceivedRef.forEach((element,index) => {
+         if(this.arrayImageReceivedRef[index] !== null)
          this.arrayImageReceivedRef[index].init();       
       });
      } 
@@ -99,6 +102,7 @@ class Photos extends React.Component {
      if(this.state.updateData !== prevState.updateData && this.state.updateData === false) {
   
        this.arrayImageReceivedRef.forEach((element,index) => {
+        if(this.arrayImageReceivedRef[index] !== null)
          this.arrayImageReceivedRef[index].refresh();       
        });
      }
