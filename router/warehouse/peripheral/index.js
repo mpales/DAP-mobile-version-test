@@ -309,8 +309,8 @@ class Example extends React.Component {
   renderModal = () => {
     const {dataItem, dataCode, qty, scanItem} = this.state;
     return (
-      <ScrollView style={styles.modalOverlay} contentContainerStyle={{  justifyContent: 'center',
-      alignItems: 'center',paddingTop:this.state.keyboardState === 'hide' ? (dataItem === null && this.state.multipleSKU === false) ? 150 : 60 : 0 }}>
+      <ScrollView style={styles.modalOverlay} scrollEnabled={dataItem === null && this.state.multipleSKU === true ? false:true} horizontal={dataItem === null && this.state.multipleSKU === true ? true:false} contentContainerStyle={{  justifyContent: 'center',
+      alignItems: 'center',paddingLeft: dataItem === null && this.state.multipleSKU === true ? ((screen.width * 0.1) /2) : null, paddingTop:this.state.keyboardState === 'hide' ? (dataItem === null && this.state.multipleSKU === false) ? 150 : 60 : 0 }}>
         <Animated.View
           style={
            ( dataItem !== null && this.state.enterAttr !== true && this.state.isConfirm !== true && this.state.isPOSM !== true) || (dataItem === null && this.state.multipleSKU === true)
