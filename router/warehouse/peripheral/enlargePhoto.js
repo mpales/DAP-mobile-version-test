@@ -35,6 +35,7 @@ class EnlargeImage extends React.Component {
             photoId : null,
             data : null,
             inboundId: null,
+            recordPhoto : false,
             respondBackend :'',
             updateLoadImage: false,
         });
@@ -43,16 +44,17 @@ class EnlargeImage extends React.Component {
         this.handleDelete.bind(this);
     }
     static getDerivedStateFromProps(props,state){
-        const {addPhotoProofID, navigation} = props;
+        const {addPhotoProofID, navigation, manifestList} = props;
         const {pictureGallery, inboundId} = state;
         // only one instance of multi camera can exist before submited
         if(inboundId === null){
             const {routes, index} = navigation.dangerouslyGetState();
             if(routes[index].params !== undefined && routes[index].params.inboundId !== undefined && routes[index].params.photoId !== undefined){
-                return {...state,inboundId:routes[index].params.inboundId, data:routes[index].params.receivedPhotoId, photoId : routes[index].params.photoId,currentPictureIndex:routes[index].params.index, productID: routes[index].params.productId };
+                let manifest = manifestList.find((element)=>element.pId === routes[index].params.productId);
+
+                return {...state,  recordPhoto : !(Boolean(manifest.can_take_photos)),inboundId:routes[index].params.inboundId, data:routes[index].params.receivedPhotoId, photoId : routes[index].params.photoId,currentPictureIndex:routes[index].params.index, productID: routes[index].params.productId };
              } 
         } 
-        console.log(state.currentPictureIndex);
         return {...state};
        }
        shouldComponentUpdate(nextProps, nextState) {
@@ -191,13 +193,15 @@ class EnlargeImage extends React.Component {
                     <View style={styles.respondContainer}>
                             <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.respondBackend}</Text>
                     </View>
-                    <TouchableOpacity 
+                {this.state.recordPhoto === false && (    
+                <TouchableOpacity 
                         style={styles.deleteButton}
                         onPress={this.handleShowDelete}
                     >
                         <TrashCan16Mobile height="30" width="25" fill="#fff" />
                         <Text style={styles.deleteText}>Delete</Text>
                     </TouchableOpacity>
+                    )}
                 </View>
                 {this.state.isShowDelete &&
                     <View style={styles.transparentOverlay}>
@@ -306,6 +310,7 @@ function mapStateToProps(state) {
     return {
         photoProofList: state.originReducer.photoProofList,
         photoProofPostpone: state.originReducer.photoProofPostpone,
+        manifestList: state.originReducer.manifestList,
     };
 }
   

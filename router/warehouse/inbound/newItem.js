@@ -98,6 +98,9 @@ class Acknowledge extends React.Component {
           this.setState({submitPhoto: true});
         }
         return false;
+      } else if(nextProps.keyStack === 'newItem'){
+        this.setState({errors: '', errorsphoto: '',labelerror: false,});
+        return false;
       }
     }
     return true;
@@ -657,7 +660,6 @@ class Acknowledge extends React.Component {
               <View style={[styles.sheetPackages,{alignItems: 'flex-start',justifyContent: 'flex-start',marginHorizontal: 32, marginTop: 20}]}>
               <Avatar
                 onPress={()=>{
-                  if(this.props.recordPhoto === false)
                   this.props.navigation.navigate('ViewPhotoAttributes',{number:this.state.productID});
                 }}
                 size={79}
@@ -674,7 +676,7 @@ class Acknowledge extends React.Component {
                   },
                 }}
                 overlayContainerStyle={{
-                  backgroundColor: this.state.recordPhoto === false ? '#fff' : 'grey',
+                  backgroundColor: '#fff',
                   borderColor:"#424141",
                   borderWidth:1,
                   flex: 2,
