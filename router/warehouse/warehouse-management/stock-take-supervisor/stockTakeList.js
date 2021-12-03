@@ -122,7 +122,7 @@ class StockTakeList extends React.Component {
     return (
       <View
         style={{
-          marginTop: '50%',
+          flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
         }}>
@@ -260,6 +260,7 @@ class StockTakeList extends React.Component {
               onRefresh={this.refreshStockTakeList}
               keyExtractor={(item, index) => index}
               showsVerticalScrollIndicator={false}
+              contentContainerStyle={{flex: 1}}
               ListEmptyComponent={this.renderEmpty}
             />
           </>

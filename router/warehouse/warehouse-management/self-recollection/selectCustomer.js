@@ -229,13 +229,17 @@ class SelectCustomer extends React.Component {
               checkedIcon={this.checkedIcon()}
               uncheckedIcon={this.uncheckedIcon()}
             />
-            <View style={styles.lineVertical} />
-            <TouchableOpacity
-              onPress={() => this.setState({selectedCustomer: []})}>
-              <Text style={[styles.text, {color: '#F94242', fontSize: 9}]}>
-                Clear Selected
-              </Text>
-            </TouchableOpacity>
+            {selectedCustomer.length > 0 && (
+              <>
+                <View style={styles.lineVertical} />
+                <TouchableOpacity
+                  onPress={() => this.setState({selectedCustomer: []})}>
+                  <Text style={[styles.text, {color: '#F94242', fontSize: 9}]}>
+                    Clear Selected
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
           <Text
             style={[

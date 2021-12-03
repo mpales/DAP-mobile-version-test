@@ -107,7 +107,7 @@ class SelfRecollectionList extends React.Component {
     return (
       <View
         style={{
-          marginTop: '50%',
+          flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
         }}>
@@ -239,6 +239,7 @@ class SelfRecollectionList extends React.Component {
               onRefresh={this.refreshStockTakeList}
               keyExtractor={(item, index) => index}
               showsVerticalScrollIndicator={false}
+              contentContainerStyle={{flex: 1}}
               ListEmptyComponent={this.renderEmpty}
             />
           </>
@@ -270,6 +271,30 @@ const RECOLLECTIONLIST = [
     poId: 'PO00001236',
     client: {
       name: 'Li',
+    },
+    status: 'Waiting',
+  },
+  {
+    date: new Date(),
+    poId: 'PO00001237',
+    client: {
+      name: 'Si',
+    },
+    status: 'Waiting',
+  },
+  {
+    date: new Date(),
+    poId: 'PO00001237',
+    client: {
+      name: 'Si',
+    },
+    status: 'Waiting',
+  },
+  {
+    date: new Date(),
+    poId: 'PO00001237',
+    client: {
+      name: 'Si',
     },
     status: 'Waiting',
   },
