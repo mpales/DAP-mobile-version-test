@@ -86,29 +86,31 @@ class RelocationList extends React.Component {
   filterJoblist = () => {
     const {search, filterStatus} = this.state;
     const {jobList} = this.state;
-    let filteredJobList = [];
-    if (search.length > 0) {
-      filteredJobList = jobList.filter((job) => {
-        return (
-          job.clientName.toLowerCase().includes(search.toLowerCase()) ||
-          job.code.toLowerCase().includes(search.toLowerCase()) ||
-          job.itemCode.toLowerCase().includes(search.toLowerCase()) ||
-          job.warehouseNameFrom.toLowerCase().includes(search.toLowerCase())
-        );
-      });
-      if (filterStatus !== 'All') {
-        filteredJobList = filteredJobList.filter((job) => {
-          return job.status === filterStatus;
-        });
-      }
-    } else {
-      if (filterStatus !== 'All') {
+    if (jobList !== null) {
+      let filteredJobList = [];
+      if (search.length > 0) {
         filteredJobList = jobList.filter((job) => {
-          return job.status === filterStatus;
+          return (
+            job.clientName.toLowerCase().includes(search.toLowerCase()) ||
+            job.code.toLowerCase().includes(search.toLowerCase()) ||
+            job.itemCode.toLowerCase().includes(search.toLowerCase()) ||
+            job.warehouseNameFrom.toLowerCase().includes(search.toLowerCase())
+          );
         });
+        if (filterStatus !== 'All') {
+          filteredJobList = filteredJobList.filter((job) => {
+            return job.status === filterStatus;
+          });
+        }
+      } else {
+        if (filterStatus !== 'All') {
+          filteredJobList = jobList.filter((job) => {
+            return job.status === filterStatus;
+          });
+        }
       }
+      this.setState({filteredJobList: filteredJobList});
     }
-    this.setState({filteredJobList: filteredJobList});
   };
 
   navigateToDetails = (relocationId, status) => {
@@ -134,7 +136,7 @@ class RelocationList extends React.Component {
     return (
       <View
         style={{
-          marginTop: '50%',
+          flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
         }}>
@@ -262,6 +264,7 @@ class RelocationList extends React.Component {
               onRefresh={this.refreshRelocationList}
               keyExtractor={(item, index) => index}
               showsVerticalScrollIndicator={false}
+              contentContainerStyle={{flex: 1}}
               ListEmptyComponent={this.renderEmpty}
             />
           </>

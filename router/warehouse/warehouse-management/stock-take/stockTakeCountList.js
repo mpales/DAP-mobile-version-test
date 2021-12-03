@@ -166,7 +166,7 @@ class StockTakeCountList extends React.Component {
     return (
       <View
         style={{
-          marginTop: '50%',
+          flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
         }}>
@@ -322,6 +322,7 @@ class StockTakeCountList extends React.Component {
               keyExtractor={(item, index) => index}
               showsVerticalScrollIndicator={false}
               style={{marginBottom: 70}}
+              contentContainerStyle={{flex: 1}}
               ListEmptyComponent={this.renderEmpty}
             />
             {jobData.status !== 'Completed' && (
