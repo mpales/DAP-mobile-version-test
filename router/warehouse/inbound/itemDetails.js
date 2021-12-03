@@ -88,14 +88,14 @@ class ConnoteDetails extends React.Component {
                 <DetailList title="Quantity" value={_itemDetail.qty} />
                 <DetailList title="Product Class" value={_itemDetail.product_class === 1 ? 'Normal Stock' : _itemDetail.product_class === 2 ? 'POSM' : _itemDetail.product_class === 3 ? 'Packaging Materials' : 'Samples'} />
                 <DetailList title="CBM" value={_itemDetail.basic.volume} />
-                <DetailList title="Weight" value={_itemDetail.basic.weight} />
+                <DetailList title="Weight"  value={ _itemDetail.basic.weight + ' KG'} />
                 </View>
                 <Divider/>
                 <View style={[styles.detailSection,{paddingVertical:10}]}>
                   <Text style={styles.reportSectionTitle}>{'Product Category : '+ _itemDetail.category}</Text>
                   <DetailList title="Color" value="-" />
                   <DetailList title="EXP Date" value="-" />
-                  <DetailList title="Banch" value="-" />
+                  <DetailList title="Batch" value="-" />
                 </View>
                 <View style={[styles.reportSection,{paddingHorizontal:20}]}>
                   <Text style={styles.reportSectionTitle}>Report:</Text>
@@ -138,11 +138,11 @@ class ConnoteDetails extends React.Component {
     let oddeven = index % 2;
     return (
       <View style={[styles.header,{backgroundColor: oddeven == 0 ? '#EFEFEF' : 'white'}]}>
-            <View style={{flex:1}}>
+          <View style={{flex:1}}>
         <Text style={styles.detailText}>{moment(item.dateTime).format('DD/MM/YYYY h:mm a')}</Text>
         </View>
-        <View style={{flexShrink:1, paddingHorizontal:10}}>
-        <Text style={styles.detailText}>{item.user.firstName}</Text>
+        <View style={{flexShrink:1, paddingHorizontal:10,}}>
+        <Text style={[styles.detailText, {textAlignVertical:'top'}]}>{item.user.firstName}</Text>
         </View>
         <View style={{flex:1, justifyContent:'flex-end',alignItems:'flex-end'}}>
         <Text style={[styles.detailText,{textAlign:'right'}]}>{item.activities}</Text>

@@ -318,7 +318,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, flexDirection:'column-reverse',}} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B', marginVertical:0, paddingVertical:0}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,marginTop:5}]}
-                value={data.reference_id}
+                value={ data.reference_id ? data.reference_id : '-'}
                 multiline={true}
                 disabled={true}
                 label=" : "

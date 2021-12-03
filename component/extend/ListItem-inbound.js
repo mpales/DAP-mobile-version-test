@@ -72,9 +72,9 @@ const styles = {
   },
   descText: {
     ...Mixins.small1,
-    fontWeight: '400',
+    fontWeight: '500',
     lineHeight: 18,
-    color:'#ABABAB'
+    color:'#424141'
   }
 };
 const theme = {
@@ -150,13 +150,16 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
         <ListItem.Content style={styles.sectionContainer}>
-        <ListItem.Title style={{...Mixins.body3,lineHeight: 18,color: '#ABABAB', fontWeight: '600'}}>
+        <ListItem.Title style={{...Mixins.body3,lineHeight: 18,color: '#424141', fontWeight: '500'}}>
         {moment(item.eta).format("DD-MM-YYYY")}
         </ListItem.Title>
-        <ListItem.Subtitle style={{...Mixins.body1, lineHeight: 21, color: '#424141', fontWeight: '600'}}>
-        {item.reference_id}
+        <ListItem.Subtitle style={{...Mixins.small1, lineHeight: 21, color: '#424141', fontWeight: '500'}}>
+        {'Inbound ID : '+item.inbound_number}
         </ListItem.Subtitle>
-        <Text style={styles.descText}>{'Inbound ID : '+item.inbound_number}</Text>
+        {item.reference_id ? (
+        <Text style={styles.descText}>
+          {item.reference_id}
+        </Text>) : null}
         <Text style={styles.descText}>{item.client}</Text>
         <Text style={styles.descText}>{item.total_product_processed+'/'+item.total_product+' Lines Complete'}</Text>
         </ListItem.Content>
