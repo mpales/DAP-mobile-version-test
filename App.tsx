@@ -19,6 +19,7 @@ import {
   Text,
   Keyboard,
   InteractionManager,
+  BackHandler,
 } from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Signature from './Browser';
@@ -45,6 +46,7 @@ import {
   switchLogged,
   refreshLogin,
   setRootParams,
+  setRootScreens
 } from './component/helper/persist-login';
 import MenuWarehouse from './router/warehouse/detail/warehouse-menu';
 import LogoLarge from './assets/dap_logo_hires1-e1544435829468 5large.svg';
@@ -169,7 +171,9 @@ class App extends React.Component<IProps, IState> {
         email: '',
         password: '',
       });
-      refreshLogin();
+      setTimeout(() => {
+        setRootParams('loggedParams', user);
+      }, 1000);
     } else if (result.errors) {
       this.setState({
         errors: result.errors,
@@ -475,23 +479,62 @@ const NavigationWrapper = (props) => {
   const roleType = useSelector((state) => state.originReducer.userRole.type);
   const dispatch = useDispatch();
   const [visible, setVisible] = React.useState(false);
+  const [currentRoute, setRouteName] = React.useState(null);
   const {changeQueueSemaphore} = offlineActionCreators;
 
   const toggleOverlay = () => {
     setVisible(!visible);
   };
 
+  React.useEffect(() => {
+    // fixed bug can go back to warehouse screen from logout flow
+    const backAction = () => {
+      if(currentRoute !== null && currentRoute === 'Login'){
+        BackHandler.exitApp()
+        return true;
+      }
+      return false;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [currentRoute]);
   const filterLoading = React.useCallback(
     (state) => {
+      setRouteName(state.routes[state.index].name);
       const task = InteractionManager.runAfterInteractions(() => {
         if (state.routes[state.index].name === 'Details' && !isJWTExist) {
           switchLogged('Login', {});
         } else if (state.routes[state.index].name === 'Login' && isJWTExist) {
-          if (roleType === 'Warehouse') {
-            switchLogged('MenuWarehouse', {});
-          } else {
-            switchLogged('Details', {});
+          if (
+            state.routes[state.index].params !== undefined &&
+            state.routes[state.index].params.loggedParams !== undefined
+          ) {
+            if (
+              state.routes[state.index].params.loggedParams.type ===
+              'Warehouse'
+            ) {
+              // changes screen to trigger on what warehouse modules using user role.
+              setRootScreens('screen','Warehouse','Details');
+              setRootScreens('role','Warehouse','Details');
+              switchLogged('MenuWarehouse', {});
+            } else if (
+              state.routes[state.index].params.loggedParams.type ===
+              'Delivery'
+            ) {
+              switchLogged('Details', {
+                screen: 'Acknowledgement',
+                role: 'Delivery',
+              });
+            } else {
+              switchLogged('Details', {});
+            }
           }
+          
         }
         if (
           state.routes[state.index].params !== undefined &&
@@ -531,6 +574,8 @@ const NavigationWrapper = (props) => {
 const Root = (props) => {
   const [isLoading, setLoading] = React.useState(true);
   const isLoggedIn = React.useRef(null);
+  const [isRole, setRole] = React.useState(null);
+  const [initialParams, setInitParams] = React.useState({});
   const setLoggedin = React.useCallback((store) => {
     let bool = store.getState().originReducer.filters.logged;
     let roleType = store.getState().originReducer.userRole.type;
@@ -540,18 +585,45 @@ const Root = (props) => {
       } else {
         setRoute('Details');
       }
-      setLoading(false);
+      setRole(roleType)
     } else {
       setRoute('Login');
       setLoading(false);
     }
     isLoggedIn.current = bool;
   }, []);
+  
   const {store, persistor} = configureStore(() => {
     // this is callback to store.subscribe, please don't load anymore state
     // as this is expensive trigger to redux without lazy
     setLoggedin(store);
   });
+  
+  React.useEffect(() => {
+    if (isRole !== null) {
+      if (isRole === 'Warehouse') {
+        setInitParams({screen: 'Warehouse', role: 'Warehouse'});
+        setLoading(false);
+      } else if (isRole === 'Delivery') {
+        // const result = await getData('cmobile/driver/acknowledge');
+        // if (result.acknowledgeDetails) {
+        //   if (result.acknowledgeDetails.hasAcknowledge === true) {
+        //     setInitParams({screen: 'Delivery', role: 'Delivery'});
+        //     setLoading(false);
+        //   } else {
+        //     setInitParams({screen: 'Acknowledge', role: 'Delivery'});
+        //     setLoading(false);
+        //   }
+        // } else {
+          setInitParams({screen: 'Detail', role: 'Delivery'});
+          setLoading(false);
+        // }
+      } else {
+        setInitParams({});
+        setLoading(false);
+      }
+    }
+  }, [isRole]);
   const [routeName, setRoute] = React.useState('Login');
 
   React.useEffect(() => {
@@ -559,6 +631,7 @@ const Root = (props) => {
       SplashScreen.hide();
     }
   }, [isLoading]);
+
 
   if (isLoading) return null;
   return (
@@ -585,6 +658,7 @@ const Root = (props) => {
               <Stack.Screen
                 name="Details"
                 component={Beranda}
+                initialParams={initialParams}
                 options={{
                   title: '',
                 }}

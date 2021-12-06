@@ -74,8 +74,6 @@ class AnimatedMarkers extends React.Component {
       startForegroundService: false,
       ApplicationNavigational: null,
       _visibleOverlayContact: false,
-      _statDistanceFromNavigation: false,
-      _statDurationFromNavigation: false, 
     };
     this.renderCard.bind(this);
     this.onPressedTraffic.bind(this);
@@ -120,8 +118,6 @@ class AnimatedMarkers extends React.Component {
       } else {
         this.setState({
           toggleContainer: false,
-        _statDistanceFromNavigation:false,
-        _statDurationFromNavigation: false,
         });
       }
     }
@@ -280,8 +276,8 @@ class AnimatedMarkers extends React.Component {
     const {route, index} = this.state;
     const to = '-';
     const current = '-';
-    const durationAPI = this.state._statDurationFromNavigation !== false ? this.state._statDurationFromNavigation :this.props.statAPI[index] !== undefined ? this.props.statAPI[index].durationAPI : undefined;
-    const distanceAPI = this.state._statDistanceFromNavigation !== false ? this.state._statDistanceFromNavigation : this.props.statAPI[index] !== undefined ? this.props.statAPI[index].distanceAPI : undefined;
+    const durationAPI = this.props.statAPI[index] !== undefined ? this.props.statAPI[index].durationAPI : undefined;
+    const distanceAPI = this.props.statAPI[index] !== undefined ? this.props.statAPI[index].distanceAPI : undefined;
     const {named,packages, Address, list} = this.props.dataPackage[index];
     return (
       <View style={styles.sheetContainer}>
@@ -557,11 +553,15 @@ class AnimatedMarkers extends React.Component {
       destinationid,
     } = this.props;
     
-    if(!this.props.isConnected && this.props.isActionQueue.length > 0 ){
+    if (
+      this.props.statAPI.length === 0 ||
+      this.props.dataPackage.length === 0 || (
+        this.props.currentDeliveringAddress !== null && toggleContainer === false 
+        )
+    ) {
       return (
         <View style={styles.container}>
-          <OfflineMode/>
-         <Loading />
+          <Loading />
         </View>
       );
     }
@@ -580,12 +580,6 @@ class AnimatedMarkers extends React.Component {
                 markers={this.props.markers}
                 trafficLayer={this.state.trafficLayer}
                 style={styles.map}
-                UpdatedStat = {(stat)=>{
-                  this.setState({
-                    _statDistanceFromNavigation: stat.distance,
-                    _statDurationFromNavigation: stat.duration,
-                  });
-                }}
                 />
               {startDelivered &&
           currentPositionData !== null &&

@@ -1,20 +1,121 @@
-import React from 'react';
-import {
-  ListItem,
-  Avatar,
-  ThemeProvider,
-  withBadge,
-  Badge,
-  Button,
-  Text,
-} from 'react-native-elements';
+import React, {PureComponent} from 'react';
+import {ListItem, ThemeProvider, Button, Text} from 'react-native-elements';
 import {View, TouchableOpacity} from 'react-native';
 import TouchableScale from 'react-native-touchable-scale'; // https://github.com/kohver/react-native-touchable-scale
-import IconCursor20Mobile from '../../assets/icon/iconmonstr-cursor-20 1mobile.svg';
 import IconTime2Mobile from '../../assets/icon/iconmonstr-time-2 1mobile.svg';
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
+// helper
 import Mixins from '../../mixins';
+import {deliveryStatusColor} from '../helper/status-color';
 import FormatHelper from '../helper/format';
+
+class ListAddressMap extends PureComponent {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const {item, index, drag, isActive, navigation} = this.props;
+    return (
+      <ThemeProvider theme={theme}>
+        <ListItem
+          key={index}
+          Component={TouchableScale}
+          onPress={() => navigation(index)}
+          containerStyle={{
+            paddingHorizontal: 28,
+            paddingVertical: 15,
+            borderBottomWidth: isActive ? 0 : 1,
+            borderBottomColor: '#ABABAB',
+            backgroundColor: isActive ? '#cccccc' : 'transparent',
+          }}
+          friction={90} //
+          tension={100} // These props are passed to the parent component (here TouchableScale)
+          activeScale={0.95}>
+          <TouchableOpacity style={styles.leftList}>
+            <Text
+              style={{
+                ...Mixins.body3,
+                lineHeight: 18,
+                fontWeight: '600',
+                color: '#424141',
+                textAlign: 'center',
+              }}>
+              {index + 1 > 9 ? index + 1 : `0${index + 1}`}
+            </Text>
+          </TouchableOpacity>
+          <ListItem.Content>
+            <ListItem.Title
+              style={{
+                ...Mixins.subtitle3,
+                lineHeight: 21,
+                color: '#000000',
+                fontWeight: '600',
+              }}>
+              {item.named}
+            </ListItem.Title>
+            <View style={styles.listItemTitle}>
+              <Button
+                title={FormatHelper.ETATime2Current(
+                  item.durationAPI,
+                0,
+                )}
+                type="clear"
+                icon={() => (
+                  <IconTime2Mobile height="15" width="15" fill="#ABABAB" />
+                )}
+                disabledStyle={{
+                  paddingVertical: 1,
+                  paddingHorizontal: 0,
+                }}
+                disabledTitleStyle={{
+                  ...Mixins.small3,
+                  marginLeft: 9,
+                  lineHeight: 15,
+                  fontWeight: '400',
+                  color: '#000000',
+                }}
+                disabled={true}
+              />
+              <Button
+                title={item.status}
+                disabledTitleStyle={styles.statusText}
+                disabledStyle={[
+                  styles.status,
+                  {backgroundColor: deliveryStatusColor(item.status)},
+                ]}
+                disabled={true}
+              />
+            </View>
+            <ListItem.Subtitle style={styles.distance}>
+               {"Distance "+FormatHelper.calculateDistance(item.distanceAPI)} Km
+            </ListItem.Subtitle>
+            <Text style={styles.eta}>
+              {"ETA : "+FormatHelper.formatETATime(item.durationAPI, 0)}
+            </Text>
+            {/* <View style={styles.detail}>
+              <Text style={styles.labelDetail}>Packages</Text>
+              <Text style={styles.labelInfo}>{item.packages}</Text>
+            </View> */}
+            <View style={[styles.legend, {width: '100%'}]}>
+              <View style={styles.legendLabel}>
+                <Text style={styles.label}>{"To"}</Text>
+              </View>
+              <View style={styles.legendInfo}>
+                <Text style={styles.info}>
+                  {item.Address}, {"-"}
+                </Text>
+              </View>
+            </View>
+          </ListItem.Content>
+          <View style={styles.rightList}>
+            <IconArrow66Mobile height="16" width="26" fill="#2D2C2C" />
+          </View>
+        </ListItem>
+      </ThemeProvider>
+    );
+  }
+}
 
 const styles = {
   sectionContainer: {
@@ -45,19 +146,26 @@ const styles = {
   label: {
     ...Mixins.small3,
     lineHeight: 12,
-    color: '#C4C4C4',
+    color: '#424141',
   },
   info: {
     ...Mixins.small3,
     lineHeight: 12,
     color: '#000000',
   },
+  distance: {
+    ...Mixins.small3,
+    lineHeight: 15,
+    color: '#424141',
+    fontWeight: '400',
+  },
   eta: {
     ...Mixins.small3,
     fontWeight: '400',
     lineHeight: 15,
-        color: '#424141',
+    color: '#424141',
     textAlign: 'center',
+    marginBottom: 3,
   },
   detail: {
     flexDirection: 'row',
@@ -78,7 +186,32 @@ const styles = {
   legendLabel: {
     marginRight: 8,
   },
+  listItemTitle: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  status: {
+    paddingVertical: 0,
+  },
+  statusText: {
+    ...Mixins.small3,
+    color: '#FFF',
+    fontSize: 10,
+    lineHeight: 14,
+  },
+  flexEnd: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+  },
+  rightList: {
+    position: 'absolute',
+    right: 10,
+  },
 };
+
 const theme = {
   ListItem: {
     containerStyle: styles.containerList,
@@ -112,77 +245,5 @@ const theme = {
     paddingVertical: 12,
   },
 };
-const Manifest = ({item, index, drag, isActive, navigation}) => {
 
-  return (
-    <ThemeProvider theme={theme}>
-      <ListItem
-        key={index}
-        Component={TouchableScale}
-        onLongPress={drag}
-        containerStyle={{
-          paddingHorizontal: 28,
-          paddingVertical: 15,
-          borderBottomWidth: isActive ? 0 : 1,
-          borderBottomColor: '#ABABAB',
-          backgroundColor: isActive ? '#cccccc' : 'transparent',
-        }}
-        friction={90} //
-        tension={100} // These props are passed to the parent component (here TouchableScale)
-        activeScale={0.95}>
-        <View style={styles.leftList}>
-          <Text
-            style={{...Mixins.body3,lineHeight: 18,fontWeight: '600', color: '#424141', textAlign: 'center'}}>
-            {index+1}
-          </Text>
-        </View>
-        <ListItem.Content>
-        <ListItem.Title style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
-        {item.named}
-          </ListItem.Title>
-          <ListItem.Subtitle style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
-          Distant Location {FormatHelper.calculateDistance(item.distanceAPI)} Km
-          </ListItem.Subtitle>
-          <View style={styles.legend}>
-            <View style={styles.legendLabel}>
-              <Text style={styles.label}>To</Text>
-            </View>
-            <View style={styles.legendInfo}>
-              <Text style={styles.info}>{item.Address}</Text>
-            </View>
-          </View>
-        </ListItem.Content>
-        <View style={styles.rightList}>
-          <Text style={styles.eta}>ETA : {' '}
-              {FormatHelper.formatETATime(item.durationAPI, 0)}</Text>
-          <Button
-            title={FormatHelper.ETATime2Current(
-              item.durationAPI,
-            0,
-            )}
-            type="clear"
-            titleStyle={{marginLeft: 9, fontSize: 10, color: '#000000'}}
-            icon={() => (
-              <IconTime2Mobile height="15" width="15" fill={"#ABABAB"} />
-            )}
-          />
-          <ListItem.Chevron
-            size={26}
-            color="#2D2C2C"
-            Component={(props)=>(
-              <Button
-                {...props}
-                type="clear"
-                icon={
-                  <IconArrow66Mobile height="16" width="26" fill="#2D2C2C"/>
-                }
-              />)}
-            onPress={() => navigation(index)}
-          />
-        </View>
-      </ListItem>
-    </ThemeProvider>
-  );
-};
-
-export default Manifest;
+export default ListAddressMap;

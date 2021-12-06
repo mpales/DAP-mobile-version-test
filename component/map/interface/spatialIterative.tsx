@@ -47,15 +47,20 @@ export default class Distance {
     this.locator.bind(this);
     this.view_history.bind(this);
   }
-  checkDestinationID(uuid: any, geoLocation?:geoLocation){
-
-    if(geoLocation !== undefined) {
-      return uuid === uuidv5( Geohash.encode(geoLocation.latitude,geoLocation.longitude, 6) +  Geohash.encode(Distance.location.latitude(),Distance.location.longitude(), 6), MY_NAMESPACE);
-    } else {
-      return null;
-    }      
+  checkDestinationID(uuid: any, destinationCords : L.LatLng){
+    let destinationuuid = uuidv5(
+      Geohash.encode(
+        destinationCords ? destinationCords.lat :  Distance.location.lat,
+        destinationCords ? destinationCords.lng : Distance.location.lng,
+        9,
+      ),
+      MY_NAMESPACE,
+    );
+    return uuid === destinationuuid;
   }
-
+  terminateDestination() {
+    new Distance(new Location(0,0));
+  }
   checkDestination(Location:Location){
     return Distance.location.lat === Location.latitude() && Distance.location.lng === Location.longitude();
   }
