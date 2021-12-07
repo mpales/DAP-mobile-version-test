@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     View,
+    ScrollView
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { CheckBox, Input, Avatar, Button, LinearProgress} from 'react-native-elements';
@@ -15,6 +16,7 @@ import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.s
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import ArrowDown from '../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 import {postBlob} from '../../../component/helper/network';
+import Banner from '../../../component/banner/banner';
 import RNFetchBlob from 'rn-fetch-blob';
 class ReportManifest extends React.Component {
     constructor(props) {
@@ -180,7 +182,15 @@ class ReportManifest extends React.Component {
     
     render() {
         return (
-            <View style={styles.container}>
+            <>
+                {this.state.errors !== '' && (<Banner
+            title={this.state.errors}
+            backgroundColor="#F1811C"
+            closeBanner={()=>{
+              this.setState({errors:''});
+            }}
+          />)}
+            <ScrollView style={styles.container}>
                 <View style={styles.contentContainer}>
                     <Text style={styles.title}>Report</Text>
                     <CheckBox
@@ -318,7 +328,7 @@ class ReportManifest extends React.Component {
                                         <LinearProgress value={this.state.progressLinearVal} color="primary" style={{width:80}} variant="determinate"/>
                                         </View>
                                         <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Photo Proof</Text>
-                                        {this.state.errors !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.errors}</Text>)}
+                                        {/* {this.state.errors !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.errors}</Text>)} */}
                                 </View>
                                 <Button
               containerStyle={{flexShrink:1}}
@@ -329,7 +339,8 @@ class ReportManifest extends React.Component {
               disabled={this.props.photoReportPostpone === null || (this.props.photoReportID !== null && this.props.photoReportID !== this.state.dataCode) || this.state.reasonOption === ''? true : false}
               />
                 </View>
-            </View>
+            </ScrollView>
+            </>
         )
     }
 }

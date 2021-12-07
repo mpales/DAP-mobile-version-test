@@ -117,9 +117,6 @@ class Acknowledge extends React.Component {
     this.setState({keyboardState:'hide'})
   };
  
-  closeErrorBanner = ()=>{
-    this.setState({errors:''});
-  }
   submitItem = async ()=>{
     const {manifestList} = this.props;
     const {productID,length,width,height,volweight,weight,_inputCode} = this.state;
@@ -185,6 +182,13 @@ class Acknowledge extends React.Component {
     }
     });
   };
+  
+  closeErrorBanner = ()=>{
+    this.setState({errors:''});
+  }
+  closePhotoErrorBanner = ()=>{
+    this.setState({errorsphoto:'', labelerror : false});
+  }
   render(){
     const {barcode, sku,description, uom, length,width,height,volweight,weight,pcscarton} = this.state;
     return (
@@ -193,6 +197,11 @@ class Acknowledge extends React.Component {
             title={this.state.errors}
             backgroundColor="#F1811C"
             closeBanner={this.closeErrorBanner}
+          />)}
+          {this.state.errorsphoto !== '' && (<Banner
+            title={this.state.errorsphoto}
+            backgroundColor={this.state.labelerror === false ? "#17B055" : "#F1811C"}
+            closeBanner={this.closePhotoErrorBanner}
           />)}
         <ScrollView style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 10,paddingVertical: 25}}>        
          <View style={{
@@ -270,7 +279,6 @@ class Acknowledge extends React.Component {
                 <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B', textAlign:'center'}}>Photo Proof Complete
 Receiving</Text>
                 </View>
-                {this.state.errorsphoto !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color: this.state.labelerror === false ? '#17B055' : 'red'}}>{this.state.errorsphoto}</Text>)}
               </View>
            </View>
          </View>

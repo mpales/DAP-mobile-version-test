@@ -353,6 +353,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                   }
                 })
               }}
+              disabled={item.status === 1 || item.status === 2 ? false : true }
               title="Process Item"
             />
                 {addAttribute && (

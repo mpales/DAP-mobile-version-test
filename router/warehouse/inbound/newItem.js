@@ -322,6 +322,10 @@ class Acknowledge extends React.Component {
     }
     });
   };
+  
+  closePhotoErrorBanner = ()=>{
+    this.setState({errorsphoto:'', labelerror : false});
+  }
   render(){
     const {barcode, sku,description, uom, length,width,height,volweight,weight,pcscarton} = this.state;
     return (
@@ -330,6 +334,11 @@ class Acknowledge extends React.Component {
             title={this.state.errors}
             backgroundColor="#F1811C"
             closeBanner={this.closeErrorBanner}
+          />)}
+              {this.state.errorsphoto !== '' && (<Banner
+            title={this.state.errorsphoto}
+            backgroundColor={this.state.labelerror === false ? "#17B055" : "#F1811C"}
+            closeBanner={this.closePhotoErrorBanner}
           />)}
         <ScrollView style={{flex: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 10,paddingVertical: 0}}>
         {this.state.keyboardState === 'hide' && (
@@ -495,6 +504,7 @@ class Acknowledge extends React.Component {
                   onChangeText={(text)=>{this.setState({length:text})}}
                   keyboardType="number-pad"
                   value={length}
+                  disabled={this.state.validDimensions}
               />
           </View>
           <View style={{flexDirection:'row', flexShrink:1,  paddingHorizontal:10,}}>
@@ -509,6 +519,7 @@ class Acknowledge extends React.Component {
                   onChangeText={(text)=>{this.setState({width:text})}}
                   keyboardType="number-pad"
                   value={width}
+                  disabled={this.state.validDimensions}
               />
           </View>
           <View style={{flexDirection:'row', flexShrink:1,  paddingHorizontal:10,}}>
@@ -523,6 +534,7 @@ class Acknowledge extends React.Component {
                   onChangeText={(text)=>{this.setState({height:text})}}
                   keyboardType="number-pad"
                   value={height}
+                  disabled={this.state.validDimensions}
               />
           </View>
           <View style={{flexDirection:'row', flexShrink:1,  paddingHorizontal:10,}}>
@@ -550,6 +562,7 @@ class Acknowledge extends React.Component {
                   labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                   onChangeText={(text)=>{this.setState({weight:text})}}
                   value={weight}
+                  disabled={this.state.validDimensions}
                   keyboardType="number-pad"
               />
           </View>
@@ -564,6 +577,7 @@ class Acknowledge extends React.Component {
                   labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                   onChangeText={(text)=>{this.setState({pcscarton:text})}}
                   value={pcscarton}
+                  disabled={this.state.validDimensions}
                   keyboardType="number-pad"
               />
           </View>
@@ -574,7 +588,7 @@ class Acknowledge extends React.Component {
               onPress={this.toggleCartonOverlay}
               disabledStyle={this.state.validDimensions  === true ? {backgroundColor:  '#17B055', opacity: 1, color: 'white'} : null}
               disabledTitleStyle={this.state.validDimensions  === true ? {color:'white'}: null}
-              disabled={( this.state._manifest.is_new === 1 || this.state._manifest.input_basic_attributes === 1) && this.state.validDimensions  === false && this.state.lengtwh !== '' && this.state.weight !== '' & this.state.pcscarton !== '' && this.state.volweight !== '' && this.state.width !== '' && this.state.height !== '' ? false : true}
+              disabled={( this.state._manifest.is_new === 1 || this.state._manifest.input_basic_attributes === 1) && this.state.validDimensions  === false && this.state.length !== '' && this.state.weight !== '' & this.state.pcscarton !== '' && this.state.volweight !== '' && this.state.width !== '' && this.state.height !== '' ? false : true}
               title="Update Carton Dimensions"
             />
          </View>)}
@@ -654,7 +668,7 @@ class Acknowledge extends React.Component {
                 {/* <LinearProgress value={this.state.progressLinearVal} color="primary" style={{width:80}} variant="determinate"/> */}
                 <View style={{maxWidth: 150, justifyContent:'center', alignItems:'center', alignSelf:'center'}}>
                 <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B'}}>Take Photo</Text>
-                {this.state.errorsphoto !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color: this.state.labelerror === false ? '#17B055' : 'red'}}>{this.state.errorsphoto}</Text>)}
+                {/* {this.state.errorsphoto !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color: this.state.labelerror === false ? '#17B055' : 'red'}}>{this.state.errorsphoto}</Text>)} */}
                 </View>
               </View>
               <View style={[styles.sheetPackages,{alignItems: 'flex-start',justifyContent: 'flex-start',marginHorizontal: 32, marginTop: 20}]}>

@@ -11,6 +11,7 @@ import {getData, putBlob, postData} from '../../../component/helper/network';
 import Loading from '../../../component/loading/loading';
 import UploadProgress from '../../../component/include/upload-progress';
 import UploadTooltip from '../../../component/include/upload-tooltip';
+import Banner from '../../../component/banner/banner';
 import RNFetchBlob from 'rn-fetch-blob';
 class Acknowledge extends React.Component {
   constructor(props) {
@@ -192,7 +193,7 @@ class Acknowledge extends React.Component {
       } else {
         let uploadCategory = this.state.data.status === 3 ? 'receiving' : 'processing';
         const result = await postData('inboundsMobile/'+ receivingNumber + '/'+uploadCategory);
-        if(typeof result !== 'object' && (result === 'Inbound status changed to received' || result === 'Inbound status changed to processing')){
+        if((typeof result !== 'object' && (result === 'Inbound status changed to received' || result === 'Inbound status changed to processing')) || (typeof result === 'object' && result.msg !== undefined &&  result.msg === 'Inbound status changed to processing')){
           if(this.state.data.status === 3){
             this.setState({updateData:true, submitDetail:false, errors: '', labelerror: false});
           } else {
@@ -272,12 +273,22 @@ class Acknowledge extends React.Component {
     }
     });
   };
+  
+  closeNotifBanner = ()=>{
+    this.setState({errors:'', labelerror: false});
+  }
   render(){
     const {data,startReceiving} = this.state;
     const {userRole} = this.props;
     if(data === null)
     return <Loading />
     return (
+      <>
+      {this.state.errors !== '' && (<Banner
+        title={this.state.errors}
+        backgroundColor={this.state.labelerror === false ? "#17B055" : "#F1811C"}
+        closeBanner={this.closeNotifBanner}
+      />)}
         <ScrollView style={{flexGrow: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
          <View style={{flexDirection:'row', flexShrink:1}}>
              <View style={{flexShrink:1, backgroundColor: 'transparent',  paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
@@ -522,7 +533,6 @@ class Acknowledge extends React.Component {
                 <View style={{maxWidth: 150, justifyContent:'center'}}>
                 <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '600',color:'#6C6B6B', textAlign:'center'}}>{ data.status === 3 ? 'Photo Proof Before Opening Container' : 'Photo Proof After Opening Container'}</Text>
                 </View>
-               {this.state.errors !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color: this.state.labelerror === false ? '#17B055' : 'red'}}>{this.state.errors}</Text>)}
                 </>)}
                 </View>
                 
@@ -560,6 +570,7 @@ class Acknowledge extends React.Component {
               </View>
             </View>
         </ScrollView>
+        </>
     );
   }
 }
