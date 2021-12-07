@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, TouchableOpacity, Text, PermissionsAndroid, NativeModules, FlatList, ScrollView} from 'react-native';
+import {View, TouchableOpacity, Text, PermissionsAndroid, NativeModules, FlatList, ScrollView,RefreshControl, Image} from 'react-native';
 import {SearchBar, Badge} from 'react-native-elements';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import AddressList from '../../../component/extend/ListItem-address';
@@ -55,6 +55,7 @@ class List extends Component {
     data: [],
     search: '',
     namedOrder,
+    isLoading: false,
     locationPermission : false,
   };
   this.props.setDataOrder(namedOrder);
@@ -134,7 +135,7 @@ class List extends Component {
   }
   
   updateStateData = () => {
-    this.setState({data: Array.from({length: this.props.dataPackage.length}).map((element,index)=>{
+    this.setState({isLoading: false,data: Array.from({length: this.props.dataPackage.length}).map((element,index)=>{
     //  let statSingleOffline = this.props.stat[index];
       let statSingleAPI = this.props.statAPI[index];
       let namedData = this.props.dataPackage.length > 0 ? this.props.dataPackage[index] : this.state.namedOrder[index];
@@ -154,6 +155,11 @@ class List extends Component {
               lat: coords.latitude,
               lng: coords.longitude,
             };
+            let orders = this.translateOrdersTraffic();
+            let waypoints = Array.from({length:this.state.namedOrder.length}).map((num,index) => {
+             return this.state.namedOrder[index].waypoints;
+            });
+            this.props.getDirectionsAPIWithTraffic(orders, coords, waypoints);  
             this.props.reverseGeoCoding(coords);
             Geolocation.clearWatch(watchID);
             RNFusedLocation.stopObserving();
@@ -176,14 +182,10 @@ class List extends Component {
         });
      }
 
-    if(prevProps.route_id !== this.props.route_id){
-         let {coords} = this.props.currentPositionData;
-         let orders = this.translateOrdersTraffic();
-         let waypoints = Array.from({length:this.state.namedOrder.length}).map((num,index) => {
-          return this.state.namedOrder[index].waypoints;
-         });
-         this.props.getDirectionsAPIWithTraffic(orders, coords, waypoints);  
-    }
+    // if(prevProps.route_id !== this.props.route_id){
+    //      let {coords} = this.props.currentPositionData;
+     
+    // }
     // stop using own routestat calculation, will be using google api stats.
     //  // for active subscribed geoLocation please see the conditional within props.step to update;
   //  if((prevProps.location === undefined && this.props.location !== undefined ) || (prevProps.route_id !== this.props.route_id && this.props.stat.length === 0)){
@@ -260,6 +262,39 @@ class List extends Component {
       index: index,
     })
   }
+  renderEmpty = () => {
+    const {isConnected} = this.props;
+    return (
+      <View style={styles.emptyDeliveryContainer}>
+        {isConnected === false ? (
+          <Image
+            source={require('../../../assets/server_unreachable.jpg')}
+            style={{width: 200, height: 100}}
+            resizeMode="contain"
+          />
+        ) : (
+          <Image
+            source={require('../../../assets/grey_truck.jpg')}
+            style={{width: 200, height: 100}}
+            resizeMode="contain"
+          />
+        )}
+        <Text style={styles.noDeliveryText}>
+          {isConnected === false
+            ? 'Transport Server Unreachable'
+            : 'No Pending Delivery'}
+        </Text>
+        <TouchableOpacity
+          style={styles.refreshButton}
+          onPress={this.getTotalPackages}
+          disabled={true}
+          >
+          <Text style={styles.refreshButtonText}>{'Refresh'}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   render() {
 
     const {search} = this.state;
@@ -272,8 +307,16 @@ class List extends Component {
               <AddressList {...props} navigation={this.navigateToDelivery} />
             );
           }}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.isLoading}
+              onRefresh={this.updateStateData}
+            />
+          }
+          ListEmptyComponent={this.renderEmpty}
           keyExtractor={(item, index) => index}
           ListHeaderComponent={() => {
+            if(this.state.data.length === 0) return null;
             return (
               <View style={styles.filterContainer}>
                 <SearchBar
@@ -388,6 +431,35 @@ const styles = {
     ...Mixins.small3,
     lineHeight: 12,
     color: '#121C78'
+  },
+  
+  emptyDeliveryContainer: {
+    flex: 1,
+    marginTop: '30%',
+    marginHorizontal: 20,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noDeliveryText: {
+    ...Mixins.subtitle3,
+    lineHeight: 15,
+    marginVertical: 20,
+  },
+  
+  refreshButton: {
+    width: '100%',
+    marginHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#F07120',
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  refreshButtonText: {
+    ...Mixins.subtitle3,
+    color: '#FFFFFF',
+    fontSize: 20,
   },
 };
 

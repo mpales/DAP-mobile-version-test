@@ -62,7 +62,7 @@ class ListMap extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if( prevProps.statAPI.length !== this.props.statAPI.length || prevProps.stat.length === 0 && this.props.stat.length > 0 ||  prevProps.route_id !== this.props.route_id || prevProps.isActionQueue.length !== this.props.isActionQueue.length || prevProps.isConnected !== this.props.isConnected ){
+    if( prevProps.statAPI.length !== this.props.statAPI.length ||  prevProps.route_id !== this.props.route_id || prevProps.isActionQueue.length !== this.props.isActionQueue.length || prevProps.isConnected !== this.props.isConnected ){
       this.updateStateData();
     }
    
@@ -74,6 +74,11 @@ class ListMap extends Component {
             lat: coords.latitude,
             lng: coords.longitude,
           };
+          let orders = this.translateOrdersTraffic();
+          let waypoints = Array.from({length:this.props.dataPackage.length}).map((num,index) => {
+            return this.props.dataPackage[index].waypoints;
+           });
+          this.props.getDirectionsAPIWithTraffic(orders, coords, waypoints);  
           this.props.reverseGeoCoding(coords);
           this.props.setGeoLocation(latLng);
           Geolocation.clearWatch(watchID);
@@ -91,14 +96,10 @@ class ListMap extends Component {
     }
 
    
-    if(prevProps.route_id !== this.props.route_id){
-      let {coords} = this.props.currentPositionData;
-      let orders = this.translateOrdersTraffic();
-      let waypoints = Array.from({length:this.props.dataPackage.length}).map((num,index) => {
-        return this.props.dataPackage[index].waypoints;
-       });
-      this.props.getDirectionsAPIWithTraffic(orders, coords, waypoints);  
-  }
+  //   if(prevProps.route_id !== this.props.route_id){
+  //     let {coords} = this.props.currentPositionData;
+  
+  // }
   // for active subscribed geoLocation please see the conditional within props.step to update;
   // if((prevProps.location === undefined && this.props.location !== undefined ) || (prevProps.route_id !== this.props.route_id && this.props.stat.length === 0)){
   //   let COORDINATES = this.props.steps;

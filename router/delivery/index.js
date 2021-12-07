@@ -386,6 +386,16 @@ class DeliveryNavigator extends React.Component {
           labelStyle: Mixins.button,
           itemStyle: Mixins.verticalBarMargin,
         }}>
+          
+        <Drawer.Screen
+          name="HomeDrawer"
+          component={this.deliveryTab}
+          options={{
+            drawerIcon: ({focused, color, size}) => (
+              <IconGear2Mobile height="20" width="17" fill="#2D2C2C" />
+            ),
+          }}
+        />
         <Drawer.Screen
           name="End of Day Delivery"
           component={NoDelivery}
@@ -397,15 +407,6 @@ class DeliveryNavigator extends React.Component {
         />
         <Drawer.Screen
           name="Settings"
-          component={this.deliveryTab}
-          options={{
-            drawerIcon: ({focused, color, size}) => (
-              <IconGear2Mobile height="20" width="17" fill="#2D2C2C" />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="HomeDrawer"
           component={this.deliveryTab}
           options={{
             drawerIcon: ({focused, color, size}) => (

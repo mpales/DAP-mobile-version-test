@@ -1,26 +1,133 @@
-import React from 'react';
-import {
-  ListItem,
-  Avatar,
-  ThemeProvider,
-  withBadge,
-  Badge,
-  Button,
-  Text,
-} from 'react-native-elements';
-import {View, TouchableOpacity} from 'react-native';
+import React, {PureComponent} from 'react';
+import {ListItem, Button, Text} from 'react-native-elements';
+import {StyleSheet, View} from 'react-native';
 import TouchableScale from 'react-native-touchable-scale'; // https://github.com/kohver/react-native-touchable-scale
-import IconCursor20Mobile from '../../assets/icon/iconmonstr-cursor-20 1mobile.svg';
 import IconTime2Mobile from '../../assets/icon/iconmonstr-time-2 1mobile.svg';
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
+import IconDelivery6Mobile from '../../assets/icon/iconmonstr-delivery-6mobile.svg';
+// helper
 import Mixins from '../../mixins';
+import {deliveryStatusColor} from '../helper/status-color';
 import FormatHelper from '../helper/format';
-import {deliveryStatusColor} from '../helper/status-color'
-const BadgedIcon = withBadge((props) => {
-  return {bottom: props.value};
-})(IconCursor20Mobile);
 
-const styles = {
+class ListItemAddress extends PureComponent {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const {item, index, navigation} = this.props;
+    return (
+      <ListItem
+        key={index}
+        Component={TouchableScale}
+        onPress={() => navigation(index)}
+        friction={90}
+        tension={100}
+        activeScale={0.95}
+        containerStyle={styles.listItemContainer}>
+        <ListItem.Title style={styles.titleText}>{item.named}</ListItem.Title>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}>
+          <View
+            style={[
+              styles.deliveryIconContainer,
+              {backgroundColor: deliveryStatusColor(item.status)},
+            ]}>
+            <IconDelivery6Mobile height="35" width="35" fill="#fff" />
+          </View>
+          <ListItem.Content style={{marginLeft: 10}}>
+            <View style={styles.listItemTitle}>
+              <Button
+                title={FormatHelper.ETATime2Current(
+                  item.durationAPI,
+                 0,
+                )}
+                type="clear"
+                icon={() => (
+                  <IconTime2Mobile height="15" width="15" fill="#ABABAB" />
+                )}
+                disabledStyle={{
+                  paddingVertical: 1,
+                  paddingHorizontal: 0,
+                }}
+                disabledTitleStyle={{
+                  ...Mixins.small3,
+                  marginLeft: 9,
+                  lineHeight: 15,
+                  fontWeight: '400',
+                  color: '#000000',
+                }}
+                disabled={true}
+              />
+              <Button
+                title={item.deliveryStatus}
+                disabledTitleStyle={styles.statusText}
+                disabledStyle={[
+                  styles.status,
+                  {backgroundColor: deliveryStatusColor(item.status)},
+                ]}
+                disabled={true}
+              />
+            </View>
+            <ListItem.Subtitle style={styles.distance}>
+               {"Distance "+FormatHelper.calculateDistance(item.distanceAPI)} Km
+            </ListItem.Subtitle>
+            <Text style={styles.eta}>
+              {"ETA : "+FormatHelper.formatETATime(item.durationAPI, 0)}
+            </Text>
+            {/* <View style={styles.detail}>
+              <Text style={styles.labelDetail}>Packages</Text>
+              <Text style={styles.labelInfo}>{item.packages}</Text>
+            </View> */}
+            <View style={[styles.legend, {width: '100%'}]}>
+              <View style={styles.legendLabel}>
+                <Text style={styles.label}>{"To"}</Text>
+              </View>
+              <View style={styles.legendInfo}>
+                <Text style={styles.info}>
+                  {item.Address}, {"-"}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.rightList}>
+              <IconArrow66Mobile height="20" width="20" fill="#6C6B6B" />
+            </View>
+          </ListItem.Content>
+        </View>
+      </ListItem>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  listItemContainer: {
+    paddingVertical: 20,
+    marginHorizontal: 20,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    marginBottom: 10,
+    shadowColor: '#000',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
+  },
+  listItemTitle: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   sectionContainer: {
     marginHorizontal: 21,
     padding: 0,
@@ -31,8 +138,11 @@ const styles = {
     borderRadius: 10,
   },
   titleText: {
-    color: '#6C6B6B',
+    ...Mixins.subtitle3,
+    lineHeight: 15,
+    color: '#000000',
     fontWeight: '600',
+    marginBottom: 3,
   },
   subtitleText: {
     marginVertical: 2,
@@ -45,22 +155,30 @@ const styles = {
   },
   legend: {
     flexDirection: 'row',
+    paddingRight: 20,
   },
   label: {
     ...Mixins.small3,
     lineHeight: 12,
-    color: '#C4C4C4',
+    color: '#424141',
   },
   info: {
     ...Mixins.small3,
     lineHeight: 12,
     color: '#000000',
   },
-  eta: {
-...Mixins.small3,
-fontWeight: '400',
-lineHeight: 15,
+  distance: {
+    ...Mixins.small3,
+    lineHeight: 15,
     color: '#424141',
+    fontWeight: '400',
+  },
+  eta: {
+    ...Mixins.small3,
+    fontWeight: '400',
+    lineHeight: 15,
+    color: '#424141',
+    marginBottom: 3,
   },
   detail: {
     flexDirection: 'row',
@@ -81,7 +199,31 @@ lineHeight: 15,
   legendLabel: {
     marginRight: 8,
   },
-};
+  deliveryIconContainer: {
+    padding: 20,
+    borderRadius: 10,
+    backgroundColor: '#F1811C',
+  },
+  status: {
+    paddingVertical: 0,
+  },
+  statusText: {
+    ...Mixins.small3,
+    color: '#FFF',
+    fontSize: 10,
+    lineHeight: 14,
+  },
+  flexEnd: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+  },
+  rightList: {
+    position: 'absolute',
+    right: 0,
+  },
+});
+
 const theme = {
   ListItem: {
     containerStyle: styles.containerList,
@@ -115,102 +257,5 @@ const theme = {
     paddingVertical: 12,
   },
 };
-const Manifest = ({item, index, drag, isActive, navigation}) => {
-  let badgecolor = deliveryStatusColor(item.status);
-  return (
-    <ThemeProvider theme={theme}>
-      <ListItem
-        key={index}
-        Component={TouchableScale}
-        onLongPress={drag}
-        containerStyle={{
-          paddingHorizontal: 35,
-          paddingVertical: 23,
-          borderBottomWidth: isActive ? 0 : 1,
-          borderBottomColor: '#ABABAB',
-          backgroundColor: isActive ? '#cccccc' : 'transparent',
-        }}
-        friction={90} //
-        tension={100} // These props are passed to the parent component (here TouchableScale)
-        activeScale={0.95}>
-        <View style={{flexDirection:'column',alignItems:'flex-start'}}>
-          <View style={{flexGrow:1,paddingVertical:2}}>
-          <Text
-            style={{...Mixins.body3,lineHeight: 18,fontWeight: '600', color: '#424141', textAlign: 'center'}}>
-            {index+1}
-          </Text>
-          </View>
-        </View>
-        <ListItem.Content>
-          <ListItem.Title style={{...Mixins.subtitle3,lineHeight: 21,color: '#000000', fontWeight: '600'}}>
-            {item.named}
-          </ListItem.Title>
-          <ListItem.Subtitle style={{...Mixins.small3, lineHeight: 15, color: '#6C6B6B', fontWeight: '400'}}>
-            Distant Location {FormatHelper.calculateDistance(item.distanceAPI)} Km
-          </ListItem.Subtitle>
-          <Text style={styles.eta}>ETA : {' '}
-              {FormatHelper.formatETATime(item.durationAPI, 0)}</Text>
-          <View style={styles.detail}>
-            <Text style={styles.labelDetail}>Packages</Text>
-            <Text style={styles.labelInfo}>3 box</Text>
-          </View>
-          <View style={styles.legend}>
-            <View style={styles.legendLabel}>
-              <Text style={styles.label}>Current</Text>
-              <Text style={styles.label}>To</Text>
-            </View>
-            <View style={styles.legendInfo}>
-            <Text style={styles.info}>{item.current}</Text>
-              <Text style={styles.info}>{item.to}</Text>
-            </View>
-          </View>
 
-          <Button
-            containerStyle={{marginTop: 12}}
-            titleStyle={{...Mixins.small3,lineHeight:12}}
-            buttonStyle={{
-              paddingHorizontal: 34,
-              paddingVertical: 6,
-              backgroundColor: '#2A3386',
-            }}
-            title="Start Delivering"
-          />
-        </ListItem.Content>
-        <View style={styles.rightList}>
-          <Badge
-            value={item.status}
-            status="warning"
-            badgeStyle={{paddingHorizontal: 16, height: 16, backgroundColor:badgecolor}}
-            textStyle={{...Mixins.small3,lineHeight: 12,}}
-          />
-          <Button
-            title={FormatHelper.ETATime2Current(
-              item.durationAPI,
-            0,
-            )}
-            type="clear"
-            titleStyle={{...Mixins.small3, marginLeft: 9,lineHeight: 15, fontWeight: '400', color: '#000000'}}
-            icon={() => (
-              <IconTime2Mobile height="15" width="15" fill="#ABABAB" />
-            )}
-          />
-          <ListItem.Chevron
-            size={26}
-            color="#2D2C2C"
-            Component={(props)=>(
-              <Button
-                {...props}
-                type="clear"
-                icon={
-                  <IconArrow66Mobile height="16" width="26" fill="#2D2C2C"/>
-                }
-              />)}
-            onPress={() => navigation(index)}
-          />
-        </View>
-      </ListItem>
-    </ThemeProvider>
-  );
-};
-
-export default Manifest;
+export default ListItemAddress;

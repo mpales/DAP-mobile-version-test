@@ -50,7 +50,7 @@ class AddressNavigator extends React.Component {
       Address: {
         screen: List,
         navigationOptions: {
-          tabBarLabel: 'List',
+          tabBarLabel: 'Deliver Today',
         },
       },
       Map: {
@@ -107,7 +107,7 @@ class AddressNavigator extends React.Component {
         <Stack.Screen
           name="List"
           component={this.deliveryTab}
-          options={{
+          options={({ navigation }) => ({
             headerStyle: {
               backgroundColor: '#121C78',
               elevation: 0,
@@ -122,6 +122,15 @@ class AddressNavigator extends React.Component {
             headerTintColor: '#fff',
             headerTitle: 'Delivery Order',
             headerBackTitle: 'Back',
+            headerLeft: (props) => {
+              return(
+              <HeaderBackButton  {...props} onPress={()=>{
+                // this.cancelDelivery();
+                navigation.goBack();
+              }
+              }
+              />);
+            },
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22, alignSelf: 'center'},
             headerRight: () => (
               <Button
@@ -134,7 +143,7 @@ class AddressNavigator extends React.Component {
                 )}
               />
             ),
-          }}
+          })}
         />
         <Stack.Screen
           name="Navigation"
@@ -158,7 +167,7 @@ class AddressNavigator extends React.Component {
             headerLeft: (props) => {
               return(
               <HeaderBackButton  {...props} onPress={()=>{
-                this.cancelDelivery();
+                // this.cancelDelivery();
                 navigation.goBack();
               }
               }

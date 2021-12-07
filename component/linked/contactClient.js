@@ -129,9 +129,15 @@ export default OverlayContact = (props) => {
     }
   };
   const sendToWA = () => {
-    Linking.openURL(
+    Linking.canOpenURL(
       'whatsapp://send?&phone=' + phoneNumber + '&text=body-text-here',
-    );
+    ).then((bool) => {
+      console.log('check bool', bool);
+      if (bool)
+        Linking.openURL(
+          'whatsapp://send?&phone=' + phoneNumber + '&text=body-text-here',
+        );
+    });
   };
   return (
     <Overlay

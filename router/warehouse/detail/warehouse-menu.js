@@ -87,7 +87,7 @@ class WarehouseMenu extends React.Component {
                 onPress={()=>{
                   this.props.setBottomBar(true);
                   this.props.setWarehouseModule('INBOUND');
-                  this.props.navigation.navigate('Details')}}
+                  this.props.navigation.navigate('Details', {screen: 'INBOUND', role: 'Warehouse'})}}
                 buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
               />
                  
@@ -102,7 +102,7 @@ class WarehouseMenu extends React.Component {
                 onPress={()=>{
                   this.props.setBottomBar(true);
                   this.props.setWarehouseModule('OUTBOUND');
-                    this.props.navigation.navigate('Details')}}
+                    this.props.navigation.navigate('Details', {screen: 'OUTBOUND', role: 'Warehouse'})}}
                     buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
                     />
                  
@@ -117,7 +117,7 @@ class WarehouseMenu extends React.Component {
                 onPress={()=>{
                   this.props.setBottomBar(true);
                   this.props.setWarehouseModule('WAREHOUSE');
-                    this.props.navigation.navigate('Details')}}
+                    this.props.navigation.navigate('Details', {screen: 'WAREHOUSE', role: 'Warehouse'})}}
                     buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
                     />
                              
@@ -133,7 +133,7 @@ class WarehouseMenu extends React.Component {
                   // // vas navigate
                    this.props.setBottomBar(true);
                    this.props.setWarehouseModule('VAS');
-                    this.props.navigation.navigate('Details');
+                    this.props.navigation.navigate('Details', {screen: 'VAS', role: 'Warehouse'});
                 }}
                     buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
                     />

@@ -980,6 +980,33 @@ export default function appReducer(state = initialState, action) {
             ? state.deliveryDestinationData
             : initialState.deliveryDestinationData,
       };
+       case 'updateNavigationStats':
+      for (let index = 0; index < state.route.dataPackage.length; index++) {
+        const element = state.route.dataPackage[index];
+        if (
+          element.coords.lat ===
+            state.deliveryDestinationData.destinationCoords.latitude &&
+          element.coords.lng ===
+            state.deliveryDestinationData.destinationCoords.longitude
+        ) {
+          if (
+            typeof state.route.statsAPI[state.route.id][index] !== 'undefined'
+          ) {
+            state.route.statsAPI[state.route.id][index] = {
+              ...state.route.statsAPI[state.route.id][index],
+              distanceAPI: action.payload.distance,
+              durationAPI: action.payload.duration,
+            };
+          }
+          if (typeof state.route.statAPI[index] !== 'undefined') {
+            state.route.statAPI[index] = {
+              ...state.route.statAPI[index],
+              distanceAPI: action.payload.distance,
+              durationAPI: action.payload.duration,
+            };
+          }
+        }
+      }
     case 'RouteStats':
       return {
         ...state,
