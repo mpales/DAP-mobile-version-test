@@ -136,16 +136,14 @@ class App extends React.Component<IProps, IState> {
         result.userRights.includes('m9') ||
         result.userRights.includes('m11') ||
         result.userRights.includes('m10') ||
-        result.userRights.includes('m12')
+        result.userRights.includes('m12') ||
+        result.userRights.includes('m13') ||
+        result.userRights.includes('m14') 
       ) {
         type = 'Warehouse';
         if (
           result.userRights.includes('m6') ||
-          result.userRights.includes('m7') ||
-          result.userRights.includes('m8') ||
-          result.userRights.includes('m9') ||
-          result.userRights.includes('m11') ||
-          result.userRights.includes('m12')
+          result.userRights.includes('m13')
         ) {
           role = 'SPV';
         } else {
@@ -518,10 +516,70 @@ const NavigationWrapper = (props) => {
               state.routes[state.index].params.loggedParams.type ===
               'Warehouse'
             ) {
-              // changes screen to trigger on what warehouse modules using user role.
-              setRootScreens('screen','Warehouse','Details');
-              setRootScreens('role','Warehouse','Details');
-              switchLogged('MenuWarehouse', {});
+              let initialScreens = 'Warehouse';
+              const isUserRights = state.routes[state.index].params.loggedParams.userRights;
+              if(isUserRights !== null && isUserRights !== undefined && Array.isArray(isUserRights) === true){
+                if(
+                  isUserRights.includes('m14') ||
+                  isUserRights.includes('m13')  || 
+                  isUserRights.includes('m1') ||
+                  isUserRights.includes('m6')
+                ){
+                  initialScreens = 'Warehouse';
+                  if(            
+                  isUserRights.includes('m1') &&
+                  isUserRights.includes('m6') === false  && 
+                  isUserRights.includes('m13') === false &&
+                  isUserRights.includes('m14') === false){
+                    initialScreens = 'INBOUND';
+                  } else if(
+                    isUserRights.includes('m1') === false &&
+                    isUserRights.includes('m6') && 
+                    isUserRights.includes('m13') === false &&
+                    isUserRights.includes('m14') === false
+                  ){
+                    initialScreens = 'INBOUND';
+                  } else if(
+                    isUserRights.includes('m1') === false &&
+                    isUserRights.includes('m6') === false && 
+                    isUserRights.includes('m13') &&
+                    isUserRights.includes('m14') === false
+                  ){
+                    initialScreens = 'WAREHOUSE';
+                  } else if(
+                    isUserRights.includes('m1') === false &&
+                    isUserRights.includes('m6') === false && 
+                    isUserRights.includes('m13') === false &&
+                    isUserRights.includes('m14')
+                  ){
+                    initialScreens = 'WAREHOUSE';
+                  }
+                } 
+              }
+              
+              switch (initialScreens) {
+                case 'WAREHOUSE':
+                  switchLogged('Details', {
+                    screen: 'WAREHOUSE',
+                    role: 'Warehouse'
+                  });                  
+                  break;
+                case 'INBOUND':
+                  switchLogged('Details', {
+                    screen: 'INBOUND',
+                    role: 'Warehouse'
+                  });
+                  break;
+                case 'OUTBOUND':
+                case 'Warehouse':
+                default:
+                  // changes screen to trigger on what warehouse modules using user role.
+                  setRootScreens('screen',initialScreens,'Details');
+                  setRootScreens('role','Warehouse','Details');
+                  switchLogged('MenuWarehouse', {});
+                break;
+              }
+              console.log('trigger 3');
             } else if (
               state.routes[state.index].params.loggedParams.type ===
               'Delivery'
@@ -575,13 +633,66 @@ const Root = (props) => {
   const [isLoading, setLoading] = React.useState(true);
   const isLoggedIn = React.useRef(null);
   const [isRole, setRole] = React.useState(null);
+  const [initialScreens, setInitScreens] = React.useState("");
   const [initialParams, setInitParams] = React.useState({});
+  const [routeName, setRoute] = React.useState('Login');
   const setLoggedin = React.useCallback((store) => {
     let bool = store.getState().originReducer.filters.logged;
     let roleType = store.getState().originReducer.userRole.type;
+    let userRights = store.getState().originReducer.userRole.userRights;
     if (bool) {
       if (roleType === 'Warehouse') {
-        setRoute('MenuWarehouse');
+        let initialScreens = 'Warehouse';
+        if(userRights !== null && userRights !== undefined && Array.isArray(userRights) === true){
+          if(
+            userRights.includes('m14') ||
+            userRights.includes('m13')  || 
+            userRights.includes('m1') ||
+            userRights.includes('m6')
+          ){
+            initialScreens = 'Warehouse';
+            if(            
+              userRights.includes('m1') &&
+              userRights.includes('m6') === false  && 
+              userRights.includes('m13') === false &&
+              userRights.includes('m14') === false){
+              initialScreens = 'INBOUND';
+            } else if(
+              userRights.includes('m1') === false &&
+              userRights.includes('m6') && 
+              userRights.includes('m13') === false &&
+              userRights.includes('m14') === false
+            ){
+              initialScreens = 'INBOUND';
+            } else if(
+              userRights.includes('m1') === false &&
+              userRights.includes('m6') === false && 
+              userRights.includes('m13') &&
+              userRights.includes('m14') === false
+            ){
+              initialScreens = 'WAREHOUSE';
+            } else if(
+              userRights.includes('m1') === false &&
+              userRights.includes('m6') === false && 
+              userRights.includes('m13') === false &&
+              userRights.includes('m14')
+            ){
+              initialScreens = 'WAREHOUSE';
+            }
+          } 
+        }
+        switch (initialScreens) {
+          case 'WAREHOUSE':
+          case 'INBOUND':
+            setRoute('Details');
+            break;
+          case 'OUTBOUND':
+          case 'Warehouse':
+          default:
+            setRoute('MenuWarehouse');
+          break;
+        }
+        setInitScreens(initialScreens);
       } else {
         setRoute('Details');
       }
@@ -602,7 +713,7 @@ const Root = (props) => {
   React.useEffect(() => {
     if (isRole !== null) {
       if (isRole === 'Warehouse') {
-        setInitParams({screen: 'Warehouse', role: 'Warehouse'});
+        setInitParams({screen: initialScreens, role: 'Warehouse'});
         setLoading(false);
       } else if (isRole === 'Delivery') {
         // const result = await getData('cmobile/driver/acknowledge');
@@ -623,15 +734,14 @@ const Root = (props) => {
         setLoading(false);
       }
     }
-  }, [isRole]);
-  const [routeName, setRoute] = React.useState('Login');
+  }, [isRole, initialScreens]);
 
   React.useEffect(() => {
     if (!isLoading) {
       SplashScreen.hide();
     }
   }, [isLoading]);
-
+  console.log('trigger 4');
 
   if (isLoading) return null;
   return (
