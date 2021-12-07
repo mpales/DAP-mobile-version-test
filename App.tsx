@@ -579,7 +579,6 @@ const NavigationWrapper = (props) => {
                   switchLogged('MenuWarehouse', {});
                 break;
               }
-              console.log('trigger 3');
             } else if (
               state.routes[state.index].params.loggedParams.type ===
               'Delivery'
@@ -741,7 +740,6 @@ const Root = (props) => {
       SplashScreen.hide();
     }
   }, [isLoading]);
-  console.log('trigger 4');
 
   if (isLoading) return null;
   return (
