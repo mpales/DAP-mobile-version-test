@@ -1161,7 +1161,7 @@ const styles = StyleSheet.create({
   },
   dotLabel: {
     ...Mixins.small1,
-    color: '#2D2C2C',
+    color: '#6C6B6B',
     fontWeight: '500',
     lineHeight: 18,
     paddingHorizontal:9,

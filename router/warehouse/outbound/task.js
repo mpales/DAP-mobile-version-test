@@ -78,18 +78,31 @@ class List extends React.Component {
         if(prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true){
             const resultedList =  await this.updateTask();
             this.props.setOutboundTask(resultedList);
-        }
-        let filtered = (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.dropdown !== this.state.dropdown ? this.state.filtered : null;
-        if(filtered === 0) {
-            this.setState({list:outboundTask.filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
-        } else if(filtered === 1){
-           this.setState({list:outboundTask.filter((element)=> element.status === 4).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
-        } else if(filtered === 2){
-            this.setState({list:outboundTask.filter((element)=> element.status === 1).filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
-        }else if(filtered === 3){
-            this.setState({list:outboundTask.filter((element)=> element.status === 2).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
-        }else if(filtered === 4){
-            this.setState({list:outboundTask.filter((element)=> element.status === 3).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            let filtered = (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.dropdown !== this.state.dropdown ? this.state.filtered : null;
+            if(filtered === 0) {
+                this.setState({list:resultedList.filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            } else if(filtered === 1){
+               this.setState({list:resultedList.filter((element)=> element.status === 4).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            } else if(filtered === 2){
+                this.setState({list:resultedList.filter((element)=> element.status === 1).filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            }else if(filtered === 3){
+                this.setState({list:resultedList.filter((element)=> element.status === 2).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            }else if(filtered === 4){
+                this.setState({list:resultedList.filter((element)=> element.status === 3).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            }
+        } else {
+            let filtered = (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.dropdown !== this.state.dropdown ? this.state.filtered : null;
+            if(filtered === 0) {
+                this.setState({list:outboundTask.filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            } else if(filtered === 1){
+               this.setState({list:outboundTask.filter((element)=> element.status === 4).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            } else if(filtered === 2){
+                this.setState({list:outboundTask.filter((element)=> element.status === 1).filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            }else if(filtered === 3){
+                this.setState({list:outboundTask.filter((element)=> element.status === 2).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            }else if(filtered === 4){
+                this.setState({list:outboundTask.filter((element)=> element.status === 3).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            }
         }
         
     }

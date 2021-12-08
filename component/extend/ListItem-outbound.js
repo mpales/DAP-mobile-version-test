@@ -71,7 +71,7 @@ const styles = {
     alignSelf: 'stretch',
   },
   descText: {
-    ...Mixins.small1,
+    ...Mixins.body3,
     fontWeight: '400',
     lineHeight: 18,
     color:'#ABABAB'
@@ -142,12 +142,12 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
           <Text style={{...Mixins.body3, fontWeight: '400',lineHeight: 18, color:'#ABABAB'}}>
             {moment(item.delivery_date).format('DD MMMM YYYY')}
           </Text>
-        <ListItem.Title style={{...Mixins.body3,lineHeight: 18,color: '#ABABAB', fontWeight: '600'}}>
-        {item.pick_task_no}
-        </ListItem.Title>
         <ListItem.Subtitle style={{...Mixins.body1, lineHeight: 21, color: '#424141', fontWeight: '600'}}>
-        {"Warehouse "+warehouses}
+        {item.pick_task_no}
         </ListItem.Subtitle>
+        <ListItem.Title style={{...Mixins.body3,lineHeight: 18,color: '#ABABAB', fontWeight: '600'}}>
+        {"Warehouse "+warehouses}  
+        </ListItem.Title>
         <Text style={styles.descText}>{item.client_id}</Text>
         <Text style={styles.descText}>{"Type : "+(item.type === 1 ? 'Single':'Multiple')}</Text>
         </ListItem.Content>

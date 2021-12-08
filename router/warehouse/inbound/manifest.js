@@ -522,7 +522,7 @@ class Warehouse extends React.Component{
               buttonStyle={[styles.navigationButton, {paddingVertical: 10, backgroundColor: '#121C78'}]}
               titleStyle={styles.deliveryText}
               onPress={this.goToIVAS}
-              disabled={this.state.shipmentVAS}
+              disabled={(this.state.shipmentVAS === true || this.state.receiptid === null )}
               title="Shipment VAS"
             />
             <Button

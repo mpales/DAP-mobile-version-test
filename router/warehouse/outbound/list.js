@@ -79,7 +79,7 @@ class List extends React.Component {
             this.setState({renderRefresh: true});
     
           } else if(prevProps.keyStack === 'ReportManifest' && this.props.keyStack ==='List'){
-            this.setState({updated: true});
+            this.setState({renderRefresh: true});
           }
         }
 
@@ -89,21 +89,33 @@ class List extends React.Component {
           let outboundId = taskNumber === null ? currentTask : taskNumber;
           const resultOutbound = await getData('outboundMobile/pickTask/'+outboundId);
           this.props.setOutboundList(resultOutbound.products)
-        }
-
-        const {outboundList} = this.props;
-        let filtered = (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true)|| prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || this.state.updated === true ? this.state.filtered : null;
-        if(filtered === 0) {
-          this.setState({_list: outboundList.filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
-          } else if(filtered === 1){
-            this.setState({_list: outboundList.filter((element)=> element.status === 4).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
-          } else if(filtered === 2){
-            this.setState({_list: outboundList.filter((element)=>  element.status === 1).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
-          }else if(filtered === 3){
-            this.setState({_list: outboundList.filter((element)=>  element.status === 2).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
-          }else if(filtered === 4){
-            this.setState({_list: outboundList.filter((element)=>  element.status === 3).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
-          } 
+          let filtered = (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true)|| prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || this.state.updated === true ? this.state.filtered : null;
+          if(filtered === 0) {
+            this.setState({_list: resultOutbound.products.filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
+            } else if(filtered === 1){
+              this.setState({_list: resultOutbound.products.filter((element)=> element.status === 4).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
+            } else if(filtered === 2){
+              this.setState({_list: resultOutbound.products.filter((element)=>  element.status === 1).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
+            }else if(filtered === 3){
+              this.setState({_list: resultOutbound.products.filter((element)=>  element.status === 2).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
+            }else if(filtered === 4){
+              this.setState({_list: resultOutbound.products.filter((element)=>  element.status === 3).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
+            }
+        } else {
+          const {outboundList} = this.props;
+          let filtered = (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true)|| prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || this.state.updated === true ? this.state.filtered : null;
+          if(filtered === 0) {
+            this.setState({_list: outboundList.filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
+            } else if(filtered === 1){
+              this.setState({_list: outboundList.filter((element)=> element.status === 4).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
+            } else if(filtered === 2){
+              this.setState({_list: outboundList.filter((element)=>  element.status === 1).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
+            }else if(filtered === 3){
+              this.setState({_list: outboundList.filter((element)=>  element.status === 2).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
+            }else if(filtered === 4){
+              this.setState({_list: outboundList.filter((element)=>  element.status === 3).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false});
+            }
+        } 
        
       }
       async componentDidMount() {
