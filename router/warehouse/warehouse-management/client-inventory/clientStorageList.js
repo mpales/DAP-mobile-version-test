@@ -13,9 +13,9 @@ import {connect} from 'react-redux';
 import SelectDropdown from 'react-native-select-dropdown';
 // component
 import ListItemClientStorage from '../../../../component/extend/ListItem-client-inventory-storage';
+import Loading from '../../../../component/loading/loading';
 // helper
 import {getData} from '../../../../component/helper/network';
-import {clientProductStatusEndpoint} from '../../../../component/helper/string';
 // style
 import Mixins from '../../../../mixins';
 // icon
@@ -25,50 +25,62 @@ import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 class ClientStorageList extends React.Component {
   constructor(props) {
     super(props);
-    this.headerColumn = React.createRef([]);
     this.state = {
       client: this.props.route.params?.client.name ?? null,
       product: this.props.route.params?.product.name ?? null,
       selectedStatus: '',
       selectedSortBy: null,
-      itemStatusData: null,
+      tableStatus: ['On Hand', 'Free', 'Outgoing', 'Incoming', 'Reserved'],
+      itemStatusData: {
+        onhand: 0,
+        free: 0,
+        outgoing: 0,
+        incoming: 0,
+        reserved: 0,
+      },
       storageList: null,
       isLoading: true,
       isStorageListLoaded: false,
     };
   }
 
-  componentDidMount() {
-    this.setState({
-      isLoading: false,
-      itemStatusData: DUMMYTABLEDATA,
-    });
-    // this.getClientProductQuantity();
+  async componentDidMount() {
+    this.getTableData();
   }
 
-  // getClientProductQuantity = async () => {
-  //   const {route} = this.props;
-  //   let clientId = route.params?.client.id ?? null;
-  //   let productId = route.params?.product.id ?? null;
-  //   if (clientId !== null && productId !== null) {
-  //     const result = await getData(
-  //       `/clients/${clientId}/products/${productId}/quantity`,
-  //     );
-  //     if (typeof result === 'object' && result.error === undefined) {
-  //       this.setState({
-  //         itemStatusData: result,
-  //       });
-  //     }
-  //     this.setState({
-  //       isLoading: false,
-  //     });
-  //   }
-  // };
+  getTableData = async () => {
+    this.getClientInventoryProductStatus('on-hand');
+    this.getClientInventoryProductStatus('free');
+    this.getClientInventoryProductStatus('outgoing');
+    this.getClientInventoryProductStatus('incoming');
+    await this.getClientInventoryProductStatus('reserved');
+    this.setState({
+      isLoading: false,
+    });
+  };
+
+  getClientInventoryProductStatus = async (status) => {
+    const {route} = this.props;
+    let clientId = route.params?.client.id ?? null;
+    let productId = route.params?.product.id ?? null;
+    if (clientId !== null && productId !== null) {
+      const result = await getData(
+        `/stocks/client-inventories/client/${clientId}/product/${productId}/status/${status}`,
+      );
+      if (typeof result === 'object' && result.error === undefined) {
+        const newItemStatusData = this.state.itemStatusData;
+        newItemStatusData[status === 'on-hand' ? 'onhand' : status] =
+          result.total;
+        this.setState({
+          itemStatusData: newItemStatusData,
+        });
+      }
+    }
+  };
 
   getProductListByStatus = async (status) => {
     this.setState({
       storageList: null,
-      selectedStatus: status,
       isStorageListLoaded: false,
     });
     const {route} = this.props;
@@ -76,11 +88,11 @@ class ClientStorageList extends React.Component {
     let productId = route.params?.product.id ?? null;
     if (clientId !== null && productId !== null) {
       const result = await getData(
-        `/clients/${clientId}/products/${productId}/${status}`,
+        `/stocks/client-inventories/client/${clientId}/product/${productId}/status/${status}/products`,
       );
       if (typeof result === 'object' && result.error === undefined) {
         this.setState({
-          storageList: status === 'free' ? result.products : result,
+          storageList: result,
         });
       }
       this.setState({
@@ -100,9 +112,8 @@ class ClientStorageList extends React.Component {
   };
 
   navigateToDetails = (data) => {
-    const {selectedStatus} = this.state;
     this.props.navigation.navigate('ClientStorageDetails', {
-      selectedStatus: selectedStatus,
+      clientName: this.state.client,
       data: data,
     });
   };
@@ -114,9 +125,9 @@ class ClientStorageList extends React.Component {
       isStorageListLoaded,
       itemStatusData,
       product,
-      selectedSortBy,
       selectedStatus,
       storageList,
+      tableStatus,
     } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
@@ -168,115 +179,107 @@ class ClientStorageList extends React.Component {
               </View>
             </View>
           </View>
-          {!isLoading && (
-            <View
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                justifyContent: 'center',
-              }}>
-              <View style={styles.cardContainer}>
-                {itemStatusData === null ? (
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              justifyContent: 'center',
+            }}>
+            <View style={styles.cardContainer}>
+              {isLoading ? (
+                <View style={{marginVertical: 10}}>
+                  <Loading />
+                </View>
+              ) : (
+                <View
+                  style={[
+                    styles.tableRow,
+                    {paddingHorizontal: 0, marginVertical: 10},
+                  ]}>
+                  <View style={styles.firstColumn}>
+                    <Text style={styles.tableColumnFirst}>Item Status</Text>
+                    {tableStatus.map((status, index) => {
+                      return (
+                        <Text
+                          key={index}
+                          style={
+                            index % 2 === 0
+                              ? [
+                                  styles.tableColumnFirst,
+                                  {backgroundColor: '#F5F5FB'},
+                                ]
+                              : styles.tableColumnFirst
+                          }>
+                          {status}
+                        </Text>
+                      );
+                    })}
+                  </View>
+                  <View style={styles.verticalLineSeparator} />
                   <View
                     style={{
-                      flexShrink: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
+                      flexDirection: 'column',
                     }}>
-                    <Text style={styles.title}>No Result</Text>
-                  </View>
-                ) : (
-                  <View
-                    style={[
-                      styles.tableRow,
-                      {paddingHorizontal: 0, marginVertical: 10},
-                    ]}>
-                    <View style={styles.firstColumn}>
-                      <Text style={styles.tableColumnFirst}>Item Status</Text>
-                      {itemStatusData.map((data, index) => {
-                        return (
-                          <Text
-                            key={index}
-                            style={
-                              index % 2 === 0
-                                ? [
-                                    styles.tableColumnFirst,
-                                    {backgroundColor: '#F5F5FB'},
-                                  ]
-                                : styles.tableColumnFirst
-                            }>
-                            {data.status}
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableColumnFirst}>Quantity</Text>
+                    </View>
+                    {tableStatus.map((status, index) => {
+                      return (
+                        <TouchableOpacity
+                          key={index}
+                          onPress={() =>
+                            this.getProductListByStatus(
+                              status.toLowerCase().replace(/\s/g, '-'),
+                            )
+                          }
+                          style={
+                            index % 2 === 0
+                              ? [
+                                  styles.tableRow,
+                                  {
+                                    backgroundColor: '#F5F5FB',
+                                  },
+                                ]
+                              : [styles.tableRow]
+                          }>
+                          <Text style={styles.tableColumnValue}>
+                            {itemStatusData[
+                              status.toLowerCase().replace(/\s/g, '')
+                            ] ?? '-'}
                           </Text>
-                        );
-                      })}
-                    </View>
-                    <View style={styles.verticalLineSeparator} />
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                      }}>
-                      <View style={styles.tableRow}>
-                        <Text style={styles.tableColumnFirst}>Quantity</Text>
-                      </View>
-                      {itemStatusData.map((data, index) => {
-                        return (
-                          <TouchableOpacity
-                            disabled={true}
-                            onPress={() =>
-                              this.getProductListByStatus(
-                                clientProductStatusEndpoint(data.status),
-                              )
-                            }
-                            style={
-                              index % 2 === 0
-                                ? [
-                                    styles.tableRow,
-                                    {
-                                      backgroundColor: '#F5F5FB',
-                                    },
-                                  ]
-                                : [styles.tableRow]
-                            }>
-                            <Text style={styles.tableColumnValue}>
-                              {data.quantity}
-                            </Text>
-                            <ArrowRight fill="#2D2C2C" width="10" height="10" />
-                          </TouchableOpacity>
-                        );
-                      })}
-                    </View>
+                          <ArrowRight fill="#2D2C2C" width="10" height="10" />
+                        </TouchableOpacity>
+                      );
+                    })}
                   </View>
-                )}
-              </View>
+                </View>
+              )}
             </View>
-          )}
+          </View>
           <View style={styles.lineSeparator} />
-          {storageList !== null &&
-            isStorageListLoaded &&
-            storageList.map((item) => (
-              <ListItemClientStorage
-                item={item}
-                selectedStatus={selectedStatus}
-                navigate={this.navigateToDetails}
-              />
-            ))}
-          {storageList === null && isStorageListLoaded && (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.text}>No Result</Text>
-            </View>
+          {isStorageListLoaded && (
+            <>
+              {storageList !== null && storageList.length > 0 ? (
+                storageList.map((item, index) => (
+                  <ListItemClientStorage
+                    key={index}
+                    item={item}
+                    selectedStatus={selectedStatus}
+                    navigate={this.navigateToDetails}
+                  />
+                ))
+              ) : (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.text}>No Result</Text>
+                </View>
+              )}
+            </>
           )}
         </ScrollView>
       </SafeAreaProvider>
     );
   }
 }
-
-const DUMMYTABLEDATA = [
-  {status: 'On Hand', quantity: 21},
-  {status: 'Sales Order', quantity: 9},
-  {status: 'Free', quantity: 18},
-  {status: 'ASN/Transit', quantity: 9},
-];
 
 const styles = StyleSheet.create({
   body: {
