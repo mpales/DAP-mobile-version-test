@@ -8,7 +8,10 @@ import {connect} from 'react-redux';
 import {TextList, TextListBig} from '../../../../component/extend/Text-list';
 // helper
 import Format from '../../../../component/helper/format';
-import {cleanKeyString} from '../../../../component/helper/string';
+import {
+  cleanKeyString,
+  productGradeToString,
+} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
 
@@ -16,12 +19,13 @@ class ClientStorageDetails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      clientName: this.props.route.params?.clientName ?? '',
       storageDetails: this.props.route.params?.data ?? null,
     };
   }
 
   render() {
-    const {storageDetails, selectedStatus} = this.state;
+    const {storageDetails, clientName} = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -31,8 +35,14 @@ class ClientStorageDetails extends React.Component {
               <Text
                 style={
                   styles.title
-                }>{`Warehouse ${storageDetails.warehouse_name}`}</Text>
-              <Text style={styles.title}>{`${storageDetails.location}`}</Text>
+                }>{`Warehouse ${storageDetails.warehouse.warehouse}`}</Text>
+              <Text
+                style={
+                  styles.title
+                }>{`${storageDetails.warehouse.locationId}`}</Text>
+              {clientName !== '' && (
+                <Text style={styles.title}>{clientName}</Text>
+              )}
             </>
           )}
           {storageDetails === null ? (
@@ -46,28 +56,33 @@ class ClientStorageDetails extends React.Component {
             </View>
           ) : (
             <Card containerStyle={styles.cardContainer}>
-              <TextList title="Client" value={storageDetails.client} />
-              <TextList title="Item Code" value={storageDetails.item_code} />
+              <TextList
+                title="Item Code"
+                value={storageDetails.product.item_code}
+              />
               <TextList
                 title="Description"
-                value={storageDetails.description}
+                value={storageDetails.product.description}
               />
               <TextList
                 title="Barcode"
-                value={storageDetails.barcode?.code_number ?? '-'}
+                value={storageDetails.productBarcodes}
               />
-              <TextList title="Grade" value={storageDetails.grade} />
+              <TextList
+                title="Grade"
+                value={productGradeToString(storageDetails.grade)}
+              />
               <TextList title="Quantity" value={storageDetails.quantity} />
               <TextList title="UOM" value={storageDetails.uom.packaging} />
               <TextList
                 title="Receipt Date"
-                value={Format.formatDate(storageDetails.receive_date)}
+                value={Format.formatDate(storageDetails.receiptDate)}
               />
               <View style={styles.lineSeparator} />
               <Text>Attributes</Text>
               <TextListBig
                 title="Product Category"
-                value={storageDetails.category}
+                value={storageDetails.product.category}
                 fontSize={14}
               />
               {storageDetails.attributes !== undefined &&
@@ -75,17 +90,11 @@ class ClientStorageDetails extends React.Component {
                   return (
                     <TextList
                       title={cleanKeyString(key)}
-                      value={
-                        key.includes('date')
-                          ? Format.formatDate(
-                              storageDetails.attributes.expiry_date,
-                            )
-                          : storageDetails.attributes[key]
-                      }
+                      value={storageDetails.attributes[key]}
                     />
                   );
                 })}
-              <TextList title="Batch" value={storageDetails.batch_no} />
+              <TextList title="Batch" value={storageDetails.batchNo} />
             </Card>
           )}
         </ScrollView>

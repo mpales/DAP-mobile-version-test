@@ -113,6 +113,7 @@ class ClientStorageList extends React.Component {
 
   navigateToDetails = (data) => {
     this.props.navigation.navigate('ClientStorageDetails', {
+      clientName: this.state.client,
       data: data,
     });
   };
