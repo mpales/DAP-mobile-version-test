@@ -665,7 +665,7 @@ class Example extends React.Component {
                   </View>
                   <View style={styles.sectionDividier, {flex: 1}}>
                     <View style={styles.dividerContent}>
-                      <Text style={styles.labelNotFound}>Banch Number</Text>
+                      <Text style={styles.labelNotFound}>Batch Number</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
                       <Text style={styles.dotLabel}>:</Text>
                       <Text style={styles.infoNotFound}>{banchFiltered[0].length > 0 ? banchFiltered[0] : '-'}</Text>
