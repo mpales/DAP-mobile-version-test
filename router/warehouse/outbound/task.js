@@ -72,7 +72,7 @@ class List extends React.Component {
         const {outboundTask} = this.props;
         if(this.props.keyStack !== prevProps.keyStack){
             if(this.props.keyStack === 'Task'){
-                this.setState({renderGoBack : true});
+                this.setState({renderRefresh : true});
             }
         }
         if(prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true){
