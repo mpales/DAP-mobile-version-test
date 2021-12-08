@@ -17,7 +17,6 @@ class ClientStorageDetails extends React.Component {
     super(props);
     this.state = {
       storageDetails: this.props.route.params?.data ?? null,
-      selectedStatus: this.props.route.params?.selectedStatus,
     };
   }
 
@@ -47,162 +46,46 @@ class ClientStorageDetails extends React.Component {
             </View>
           ) : (
             <Card containerStyle={styles.cardContainer}>
-              {selectedStatus === 'free' ? (
-                <>
-                  <TextList title="Client" value={storageDetails.client} />
-                  <TextList
-                    title="Item Code"
-                    value={storageDetails.item_code}
-                  />
-                  <TextList
-                    title="Description"
-                    value={storageDetails.description}
-                  />
-                  <TextList
-                    title="Barcode"
-                    value={storageDetails.barcode[0].code_number}
-                  />
-                  <TextList title="Grade" value={storageDetails.grade} />
-                  <TextList title="Quantity" value={storageDetails.quantity} />
-                  <TextList title="UOM" value={storageDetails.uom.packaging} />
-                  <TextList
-                    title="Receipt Date"
-                    value={Format.formatDate(storageDetails.receive_date)}
-                  />
-                  <View style={styles.lineSeparator} />
-                  <Text>Attributes</Text>
-                  <TextListBig
-                    title="Product Category"
-                    value={storageDetails.category}
-                    fontSize={14}
-                  />
-                  {storageDetails.attributes !== undefined &&
-                    Object.keys(storageDetails.attributes).map((key) => {
-                      return (
-                        <TextList
-                          title={cleanKeyString(key)}
-                          value={
-                            key.includes('date')
-                              ? Format.formatDate(
-                                  storageDetails.attributes.expiry_date,
-                                )
-                              : storageDetails.attributes[key]
-                          }
-                        />
-                      );
-                    })}
-                  <TextList title="Batch" value={storageDetails.batch_no} />
-                </>
-              ) : selectedStatus === 'salesOrder' ? (
-                <>
-                  <TextList
-                    title="Client"
-                    value={storageDetails.sales_order.client_name}
-                  />
-                  <TextList
-                    title="Item Code"
-                    value={storageDetails.item_code}
-                  />
-                  <TextList
-                    title="Barcode"
-                    value={storageDetails.barcode[0].code_number}
-                  />
-                  <TextList
-                    title="Description"
-                    value={storageDetails.description}
-                  />
-                  <TextList
-                    title="Grade"
-                    value={storageDetails.additional.grade}
-                  />
-                  <TextList
-                    title="Quantity"
-                    value={storageDetails.additional.quantity}
-                  />
-                  <TextList title="UOM" value={storageDetails.uom} />
-                  <TextList
-                    title="Receipt Date"
-                    value={Format.formatDate(
-                      storageDetails.additional.receive_date,
-                    )}
-                  />
-                  <View style={styles.lineSeparator} />
-                  <Text>Attributes</Text>
-                  <TextListBig
-                    title="Product Category"
-                    value={storageDetails.category}
-                    fontSize={14}
-                  />
-                  {storageDetails.additional.attributes !== undefined &&
-                    Object.keys(storageDetails.additional.attributes).map(
-                      (key) => {
-                        return (
-                          <TextList
-                            title={cleanKeyString(key)}
-                            value={
-                              key.includes('date')
-                                ? Format.formatDate(
-                                    storageDetails.additional.attributes
-                                      .expiry_date,
-                                  )
-                                : storageDetails.additional.attributes[key]
-                            }
-                          />
-                        );
-                      },
-                    )}
-                  <TextList
-                    title="Batch"
-                    value={storageDetails.additional.batch_no}
-                  />
-                </>
-              ) : (
-                <>
-                  <TextList title="Client" value={storageDetails.client} />
-                  <TextList
-                    title="Item Code"
-                    value={storageDetails.item_code}
-                  />
-                  <TextList
-                    title="Barcode"
-                    value={storageDetails.barcode[0].code_number}
-                  />
-                  <TextList
-                    title="Description"
-                    value={storageDetails.description}
-                  />
-                  <TextList title="Grade" value={storageDetails.grade} />
-                  <TextList title="Quantity" value={storageDetails.quantity} />
-                  <TextList title="UOM" value={storageDetails.uom.packaging} />
-                  <TextList
-                    title="Receipt Date"
-                    value={Format.formatDate(storageDetails.receive_date)}
-                  />
-                  <View style={styles.lineSeparator} />
-                  <Text>Attributes</Text>
-                  <TextListBig
-                    title="Product Category"
-                    value={storageDetails.product_category}
-                    fontSize={14}
-                  />
-                  {storageDetails.attributes !== undefined &&
-                    Object.keys(storageDetails.attributes).map((key) => {
-                      return (
-                        <TextList
-                          title={cleanKeyString(key)}
-                          value={
-                            key.includes('date')
-                              ? Format.formatDate(
-                                  storageDetails.attributes.expiry_date,
-                                )
-                              : storageDetails.attributes[key]
-                          }
-                        />
-                      );
-                    })}
-                  <TextList title="Batch" value={storageDetails.batch_no} />
-                </>
-              )}
+              <TextList title="Client" value={storageDetails.client} />
+              <TextList title="Item Code" value={storageDetails.item_code} />
+              <TextList
+                title="Description"
+                value={storageDetails.description}
+              />
+              <TextList
+                title="Barcode"
+                value={storageDetails.barcode?.code_number ?? '-'}
+              />
+              <TextList title="Grade" value={storageDetails.grade} />
+              <TextList title="Quantity" value={storageDetails.quantity} />
+              <TextList title="UOM" value={storageDetails.uom.packaging} />
+              <TextList
+                title="Receipt Date"
+                value={Format.formatDate(storageDetails.receive_date)}
+              />
+              <View style={styles.lineSeparator} />
+              <Text>Attributes</Text>
+              <TextListBig
+                title="Product Category"
+                value={storageDetails.category}
+                fontSize={14}
+              />
+              {storageDetails.attributes !== undefined &&
+                Object.keys(storageDetails.attributes).map((key) => {
+                  return (
+                    <TextList
+                      title={cleanKeyString(key)}
+                      value={
+                        key.includes('date')
+                          ? Format.formatDate(
+                              storageDetails.attributes.expiry_date,
+                            )
+                          : storageDetails.attributes[key]
+                      }
+                    />
+                  );
+                })}
+              <TextList title="Batch" value={storageDetails.batch_no} />
             </Card>
           )}
         </ScrollView>

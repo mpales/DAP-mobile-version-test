@@ -16,7 +16,6 @@ import ListItemClientStorage from '../../../../component/extend/ListItem-client-
 import Loading from '../../../../component/loading/loading';
 // helper
 import {getData} from '../../../../component/helper/network';
-import {clientProductStatusEndpoint} from '../../../../component/helper/string';
 // style
 import Mixins from '../../../../mixins';
 // icon
@@ -82,7 +81,6 @@ class ClientStorageList extends React.Component {
   getProductListByStatus = async (status) => {
     this.setState({
       storageList: null,
-      selectedStatus: status,
       isStorageListLoaded: false,
     });
     const {route} = this.props;
@@ -90,11 +88,11 @@ class ClientStorageList extends React.Component {
     let productId = route.params?.product.id ?? null;
     if (clientId !== null && productId !== null) {
       const result = await getData(
-        `/clients/${clientId}/products/${productId}/${status}`,
+        `/stocks/client-inventories/client/${clientId}/product/${productId}/status/${status}/products`,
       );
       if (typeof result === 'object' && result.error === undefined) {
         this.setState({
-          storageList: status === 'free' ? result.products : result,
+          storageList: result,
         });
       }
       this.setState({
@@ -114,9 +112,7 @@ class ClientStorageList extends React.Component {
   };
 
   navigateToDetails = (data) => {
-    const {selectedStatus} = this.state;
     this.props.navigation.navigate('ClientStorageDetails', {
-      selectedStatus: selectedStatus,
       data: data,
     });
   };
@@ -230,10 +226,9 @@ class ClientStorageList extends React.Component {
                       return (
                         <TouchableOpacity
                           key={index}
-                          disabled={true}
                           onPress={() =>
                             this.getProductListByStatus(
-                              clientProductStatusEndpoint(key),
+                              status.toLowerCase().replace(/\s/g, '-'),
                             )
                           }
                           style={
@@ -261,20 +256,23 @@ class ClientStorageList extends React.Component {
             </View>
           </View>
           <View style={styles.lineSeparator} />
-          {storageList !== null &&
-            isStorageListLoaded &&
-            storageList.map((item, index) => (
-              <ListItemClientStorage
-                key={index}
-                item={item}
-                selectedStatus={selectedStatus}
-                navigate={this.navigateToDetails}
-              />
-            ))}
-          {storageList === null && isStorageListLoaded && (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.text}>No Result</Text>
-            </View>
+          {isStorageListLoaded && (
+            <>
+              {storageList !== null && storageList.length > 0 ? (
+                storageList.map((item, index) => (
+                  <ListItemClientStorage
+                    key={index}
+                    item={item}
+                    selectedStatus={selectedStatus}
+                    navigate={this.navigateToDetails}
+                  />
+                ))
+              ) : (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.text}>No Result</Text>
+                </View>
+              )}
+            </>
           )}
         </ScrollView>
       </SafeAreaProvider>
