@@ -219,7 +219,6 @@ class ClientCheckInventory extends React.Component {
       filteredClientList,
       filteredProductList,
     } = this.state;
-    console.log(this.state.clientList);
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />

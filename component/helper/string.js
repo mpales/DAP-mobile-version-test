@@ -20,28 +20,6 @@ export const clientProductStatus = (value) => {
   return statusString;
 };
 
-export const clientProductStatusEndpoint = (value) => {
-  let statusString;
-  switch (value) {
-    case 1:
-      statusString = 'onHand';
-      break;
-    case 2:
-      statusString = 'free';
-      break;
-    case 3:
-      statusString = 'ASN';
-      break;
-    case 4:
-      statusString = 'salesOrder';
-      break;
-    default:
-      statusString = '';
-      break;
-  }
-  return statusString;
-};
-
 export const cleanKeyString = (value) => {
   let newString = value.replace('_', ' ');
   if (newString.toLowerCase() === 'uom') {
@@ -126,7 +104,7 @@ export const productGradeToString = (value) => {
       gradeString = 'REWORK';
       break;
     default:
-      gradeString = '';
+      gradeString = '-';
       break;
   }
   return gradeString;
