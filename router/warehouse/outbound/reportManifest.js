@@ -223,8 +223,8 @@ class ReportManifest extends React.Component {
                     uncheckedColor='#6C6B6B'
                     size={25}
                     containerStyle={styles.checkbox}
-                    checked={this.state.reasonOption === 'exc-item'}
-                    onPress={() => this.handleReasonOptions('exc-item')}
+                    checked={this.state.reasonOption === 'excess-item'}
+                    onPress={() => this.handleReasonOptions('excess-item')}
                 />
                                     <CheckBox
                     title='Expired Date'

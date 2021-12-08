@@ -290,73 +290,85 @@ class Example extends React.Component {
                <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Pallet</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{dataItem.detail[0].warehouse_storage_container_id}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Item Code</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{dataItem.product.item_code}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Description</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{dataItem.product.description}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Barcode</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{dataCode}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Stock Grade </Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{gradeArr[0].length > 0 ? gradeArr[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>UOM</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{uomFiltered[0].length > 0 ? uomFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Packaging </Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{packagingFiltered[0].length > 0 ? packagingFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Qty to pick</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{qtyPickArrFiltered[0].length > 0 ? qtyPickArrFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Whole Qty</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{wholeFiltered[0].length > 0 ? wholeFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Category</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{categoryFiltered[0].length > 0 ? categoryFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
-                  <Text style={styles.labelNotFound}>Banch Number :</Text>
+                  <Text style={styles.labelNotFound}>Batch Number</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{banchFiltered[0].length > 0 ? banchFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>EXP Date</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
-                  <Text style={styles.infoNotFound}>{expFiltered[0].length > 0 ? moment(expFiltered[0]).format('YYYY-MM-DD HH:mm:ss') : '-'}</Text>
+                  <Text style={styles.dotLabel}>:</Text>
+                  <Text style={styles.infoNotFound}>{expFiltered[0].length > 0 ? moment(expFiltered[0]).format('DD/MM/YY') : '-'}</Text>
                   </View>
                 </View>
                      
@@ -400,36 +412,42 @@ class Example extends React.Component {
                <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Location</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                     <Text style={styles.infoNotFound}>{this.state.bayCode}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Item Code</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{dataItem.product.item_code}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Pallet</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>-</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Description</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{dataItem.product.description}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Barcode</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{dataCode}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Category</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{categoryFiltered[0].length > 0 ? categoryFiltered[0] : '-'}</Text>
                   </View>
                 </View>
@@ -589,24 +607,28 @@ class Example extends React.Component {
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Pallet</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                    <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>-</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Item Code</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{dataItem.product.item_code}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Description</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{dataItem.product.description}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Barcode</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.dataCode}</Text>
                   </View>
                 </View>
@@ -615,24 +637,28 @@ class Example extends React.Component {
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>Stock Grade</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
+                      <Text style={styles.dotLabel}>:</Text>
                       <Text style={styles.infoNotFound}>{gradeArr[0].length > 0 ? gradeArr[0] : '-'}</Text>
                       </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>UOM</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
+                      <Text style={styles.dotLabel}>:</Text>
                       <Text style={styles.infoNotFound}>{uomFiltered[0].length > 0 ? uomFiltered[0] : '-'}</Text>
                       </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>Packaging</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
+                      <Text style={styles.dotLabel}>:</Text>
                       <Text style={styles.infoNotFound}>{packagingFiltered[0].length > 0 ? packagingFiltered[0] : '-'}</Text>
                       </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>Category</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
+                      <Text style={styles.dotLabel}>:</Text>
                       <Text style={styles.infoNotFound}>{categoryFiltered[0].length > 0 ? categoryFiltered[0] : '-'}</Text>
                       </View>
                     </View>
@@ -641,13 +667,15 @@ class Example extends React.Component {
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>Banch Number</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
+                      <Text style={styles.dotLabel}>:</Text>
                       <Text style={styles.infoNotFound}>{banchFiltered[0].length > 0 ? banchFiltered[0] : '-'}</Text>
                       </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>EXP Date</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
-                      <Text style={styles.infoNotFound}>{expFiltered[0].length > 0 ? moment(expFiltered[0]).format('YY/MM/DD') : '-'}</Text>
+                      <Text style={styles.dotLabel}>:</Text>
+                      <Text style={styles.infoNotFound}>{expFiltered[0].length > 0 ? moment(expFiltered[0]).format('DD/MM/YY') : '-'}</Text>
                       </View>
                     </View>
                   </View>
@@ -657,36 +685,42 @@ class Example extends React.Component {
                 <><View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Location</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.bayCode}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Item Code</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{dataItem.product.item_code}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Pallet</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>-</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Description</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{dataItem.product.description}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Barcode</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.dataCode}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Category</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                  <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{categoryFiltered[0].length > 0 ? categoryFiltered[0] : '-'}</Text>
                   </View>
                 </View>
@@ -765,13 +799,13 @@ class Example extends React.Component {
   onSubmit = async () => {
     const {dataCode,qty, dataItem, indexData} = this.state;
     const {currentTask} = this.props;
-    this.props.setBarcodeScanner(true);
     let getConfirmation = await postData('/outboundMobile/pickTask/'+currentTask+'/product/'+indexData+'/confirm',{quantity: qty});
     if(typeof getConfirmation === 'object' && getConfirmation.error !== undefined){
       this.props.setItemError(getConfirmation.error);
     } else {
       this.props.setItemSuccess(getConfirmation);
     }
+    this.props.setBarcodeScanner(true);
     this.props.navigation.navigate('List');
   }
 
@@ -924,6 +958,15 @@ const styles = StyleSheet.create({
     color: '#424141',
     fontWeight: '400',
     lineHeight: 18,
+  },
+  
+  dotLabel: {
+    ...Mixins.small1,
+    color: '#6C6B6B',
+    fontWeight: '500',
+    lineHeight: 18,
+    paddingRight:0,
+    paddingLeft:0,
   },
   labelPackage: {
     minWidth: 100,
