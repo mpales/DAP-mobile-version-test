@@ -16,14 +16,20 @@ export const TextList = ({title, value, color}) => (
         <Text style={styles.separatorText}>:</Text>
         {title.toLowerCase() === 'barcode' ? (
           <Text style={styles.valueText}>
-            {Array.isArray(value)
-              ? value.map((data, index) =>
-                  index + 1 === value.length ? data : `${data} \n`,
-                )
-              : value}
+            {Array.isArray(value) ? (
+              <>
+                {value.length > 0
+                  ? value.map((data, index) =>
+                      index + 1 === value.length ? data : `${data} \n`,
+                    )
+                  : '-'}
+              </>
+            ) : (
+              value
+            )}
           </Text>
         ) : (
-          <Text style={styles.valueText}>{value}</Text>
+          <Text style={styles.valueText}>{!!value ? value : '-'}</Text>
         )}
       </>
     )}
