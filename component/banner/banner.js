@@ -47,14 +47,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     flexDirection: 'row',
     flexShrink: 1,
-    elevation: 10,
-    zIndex: 10,
+    elevation: 99,
+    zIndex: 99,
     width: screen.width,
   },
   xButton: {
     position: 'absolute',
-    right: 20,
-    top: 10,
+    right: 30,
+    top: 20,
   },
 });
 

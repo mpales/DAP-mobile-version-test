@@ -36,6 +36,7 @@ import TemplateOption from '../../../component/include/template-option';
 import TemplateScale from '../../../component/include/template-scale';
 import TemplateSelect from '../../../component/include/template-select';
 import TemplateText from '../../../component/include/template-text';
+import Banner from '../../../component/banner/banner';
 import RNFetchBlob from 'rn-fetch-blob';
 
 const screen = Dimensions.get('screen');
@@ -388,7 +389,7 @@ class Example extends React.Component {
                         {this.state.PalletArray.some((o)=>o.palete_id === this.state.ItemPallet) === true ? this.state.PalletArray.find((o)=>o.palete_id === this.state.ItemPallet)['pallet_no'] : null}
                         </Text>) 
                         :(  
-                        <View style={[styles.infoElement,{flex:1}]}>
+                        <View style={[styles.infoElement,{flex:1, flexDirection:'row'}]}>
                         <SelectDropdown
                             buttonStyle={{width:'100%',maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
                             buttonTextStyle={{...styles.infoPackage,textAlign:'left',}}
@@ -505,11 +506,11 @@ class Example extends React.Component {
             ) : dataItem !== null && this.state.enterAttr === true ? (
               <View style={styles.sheetPackages}>
               <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
-                      <View style={{justifyContent:'center', alignItems:'center'}}>
+                      {/* <View style={{justifyContent:'center', alignItems:'center'}}>
                         <Text style={{...Mixins.small3, color:'red'}}>
                           {this.state.errorAttr}
                         </Text>
-                      </View>
+                      </View> */}
                         <TemplateText required={1} name="Batch#" ref={(ref)=>{
                             if(ref !== null)
                             this.refBatch.current = ref;
@@ -752,6 +753,7 @@ class Example extends React.Component {
   onSubmit = () => {
     const {dataCode,qty, scanItem, ItemGrade, dataItem} = this.state;
     //this.props.setBarcodeScanner(true);
+    this.props.navigation.setOptions({headerTitle: 'Item Attribute'});
     this.setState({
       dataCode: '0',
       qty : qty === '' ? 0 : qty,
@@ -796,6 +798,7 @@ class Example extends React.Component {
       }
     }
     if(errors.length === 0){
+      this.props.navigation.setOptions({headerTitle: 'Item Processed'});
       this.setState({
         dataCode: '0',
         isConfirm: true,
@@ -805,15 +808,23 @@ class Example extends React.Component {
       });
     } else {
       this.setState({
-        errorAttr: errors.join(', '),
+        errorAttr: errors.join("\r\n"),
       });
     }
   }
-
+  closeNotifBanner = ()=>{
+    this.setState({errorAttr:'', notifsuccess: false});
+  }
   render() {
     const { dataItem,dataCode } = this.state;
     const {detectBarcode} = this.props;
     return (
+      <>
+         {this.state.errorAttr !== '' && (<Banner
+            title={this.state.errorAttr}
+            backgroundColor="#F1811C"
+            closeBanner={this.closeNotifBanner}
+          />)}
       <ScrollView style={styles.container}>
         {detectBarcode === false   && (this.state.scanItem === "0" || (this.state.scanItem !== "0" && this.state.dataItem !== null) || (this.state.scanItem !== "0" && this.state.multipleSKU === true)) === true && (
           <this.renderModal/>
@@ -831,6 +842,7 @@ class Example extends React.Component {
         </Modalize>)} */}
      
       </ScrollView>
+      </>
     );
   }
 }

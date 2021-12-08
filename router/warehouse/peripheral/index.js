@@ -37,6 +37,7 @@ import TemplateOption from '../../../component/include/template-option';
 import TemplateScale from '../../../component/include/template-scale';
 import TemplateSelect from '../../../component/include/template-select';
 import TemplateText from '../../../component/include/template-text';
+import Banner from '../../../component/banner/banner';
 import RNFetchBlob from 'rn-fetch-blob';
 
 const screen = Dimensions.get('screen');
@@ -481,7 +482,7 @@ class Example extends React.Component {
                         {this.state.PalletArray.some((o)=>o.palete_id === this.state.ItemPallet) === true ? this.state.PalletArray.find((o)=>o.palete_id === this.state.ItemPallet)['pallet_no'] : null}
                         </Text>) 
                         :(  
-                          <View style={[styles.infoElement,{flex:1}]}>
+                          <View style={[styles.infoElement,{flex:1, flexDirection:'row'}]}>
                         <SelectDropdown
                             buttonStyle={{width:'100%',maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
                             buttonTextStyle={{...styles.infoPackage,textAlign:'left',}}
@@ -598,11 +599,11 @@ class Example extends React.Component {
               <View style={[styles.sheetPackages,{marginHorizontal: 32, marginTop: this.state.keyboardState === 'hide' ? 20 : 60}]}>
                <View
                       style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
-                      <View style={{justifyContent:'center', alignItems:'center'}}>
+                      {/* <View style={{justifyContent:'center', alignItems:'center'}}>
                         <Text style={{...Mixins.small3, color:'red'}}>
                           {this.state.errorAttr}
                         </Text>
-                      </View>
+                      </View> */}
                         <TemplateText required={1} name="Batch#" ref={(ref)=>{
                             if(ref !== null)
                             this.refBatch.current = ref;
@@ -984,6 +985,7 @@ class Example extends React.Component {
       }
     }
     if(errors.length === 0){
+      this.props.navigation.setOptions({headerShown:true});
       this.setState({
         dataCode: '0',
         isConfirm: true,
@@ -992,8 +994,9 @@ class Example extends React.Component {
         batchNo: batchAttr,
       });
     } else {
+      this.props.navigation.setOptions({headerShown:false});
       this.setState({
-        errorAttr: errors.join(', '),
+        errorAttr: errors.join("\r\n"),
       });
     }
   }
@@ -1003,6 +1006,15 @@ class Example extends React.Component {
     const {detectBarcode} = this.props;
     return (
       <View style={styles.container}>
+           {this.state.errorAttr !== '' && (<Banner
+            title={this.state.errorAttr}
+            backgroundColor="#F1811C"
+            closeBanner={()=>{
+              console.log('asdasd');
+              this.props.navigation.setOptions({headerShown:true});
+              this.setState({errorAttr:''});
+            }}
+          />)}
         {detectBarcode === false   && (this.state.scanItem === "0" || (this.state.scanItem !== "0" && this.state.dataItem !== null) || (this.state.scanItem !== "0" && this.state.multipleSKU === true)) === true && (
           <this.renderModal/>
         ) }

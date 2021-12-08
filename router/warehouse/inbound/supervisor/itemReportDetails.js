@@ -22,6 +22,7 @@ import Banner from '../../../../component/banner/banner';
 import {getData, getBlob,postData, postBlob} from '../../../../component/helper/network';
 import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 import TouchableScale from 'react-native-touchable-scale';
+import EmptyIlustrate from '../../../../assets/icon/manifest-empty mobile.svg';
 import moment from 'moment';
 const window = Dimensions.get('screen');
 class ConnoteReportDetails extends React.Component {
@@ -84,7 +85,7 @@ class ConnoteReportDetails extends React.Component {
     if(typeof result === 'object' && result.error === undefined){
       this.setState({dataReports:result})
     } else {
-      this.props.navigation.goBack();
+      // this.props.navigation.goBack();
     }
   }
   toggleOverlay = (item)=>{
@@ -147,6 +148,14 @@ class ConnoteReportDetails extends React.Component {
       acknowledged: !this.state.acknowledged,
     });
   };
+  renderEmptyComponent = () => {
+    return (
+      <View style={{alignItems:'center', justifyContent:'center', marginTop:'30%'}}>
+                <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+                <Text style={{  ...Mixins.subtitle3,}}>No report</Text>
+    </View>
+    );
+  }
   renderPhotoProof = ({item,index})=>{
     return (<TouchableOpacity onPress={()=>this.toggleOverlay(item)}><ImageLoading 
         ref={ ref => {
@@ -327,6 +336,7 @@ class ConnoteReportDetails extends React.Component {
               }}
               data={this.state.dataReports}
               contentContainerStyle={{paddingHorizontal:10}}
+              ListEmptyComponent={this.renderEmptyComponent}
               renderItem={this.renderInner}
             />
           </View>
