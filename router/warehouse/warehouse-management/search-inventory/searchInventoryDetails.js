@@ -9,7 +9,10 @@ import {TextList, TextListBig} from '../../../../component/extend/Text-list';
 // helper
 import Format from '../../../../component/helper/format';
 import {getData} from '../../../../component/helper/network';
-import {cleanKeyString} from '../../../../component/helper/string';
+import {
+  cleanKeyString,
+  productGradeToString,
+} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
 
@@ -87,11 +90,11 @@ class SearchInventoryDetails extends React.Component {
                         title="Description"
                         value={item.product.description}
                       />
+                      <TextList title="Barcode" value={item.productBarcodes} />
                       <TextList
-                        title="Barcode"
-                        value={item.productBarcode.codeNumber}
+                        title="Grade"
+                        value={productGradeToString(item.grade)}
                       />
-                      <TextList title="Grade" value={item.grade} />
                       <TextList title="Quantity" value={item.quantity} />
                       <TextList title="UOM" value={item.productUom.packaging} />
                       <TextList
