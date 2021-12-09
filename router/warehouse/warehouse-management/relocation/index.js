@@ -15,6 +15,7 @@ import RelocationRequest from './relocationRequest';
 import RelocationRequestForm from './relocationRequestForm';
 import RelocationScanResult from './relocationScanResult';
 import RelocationRequestConfirm from './relocationRequestConfirm';
+import RelocationItemDetails from './relocationItemDetails';
 import BarcodeCamera from '../peripheral/barcodeCamera';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
@@ -95,6 +96,13 @@ class WarehouseManagement extends React.Component {
                 }}
               />
             ),
+          }}
+        />
+        <Stack.Screen
+          component={RelocationItemDetails}
+          name="RelocationItemDetails"
+          options={{
+            headerTitle: 'Item Details',
           }}
         />
         <Stack.Screen
