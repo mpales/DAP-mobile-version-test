@@ -195,7 +195,7 @@ class Example extends React.Component {
       // do something
       const {dataItem, isConfirm} = this.state;
       const {currentASN} = this.props;
-      if(dataItem !== null && isConfirm === false && test.data.state.routes[test.data.state.index].name ==='Manifest'){
+      if(dataItem !== null && isConfirm === false && (test.data.state.routes[test.data.state.index].name ==='Manifest' || test.data.state.routes[test.data.state.index].name ==='ReportManifest')){
         const result = await postData('inboundsMobile/'+currentASN+'/'+dataItem.pId+'/switch-status/1')
         console.log(result);
       }

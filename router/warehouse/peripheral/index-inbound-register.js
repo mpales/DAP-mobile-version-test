@@ -243,7 +243,7 @@ class Example extends React.Component {
                       buttonStyle={styles.navigationButton}
                       titleStyle={styles.deliverText}
                       onPress={this.onGoToList}
-                      title="Back To Attribute"
+                      title="Back To Record"
                     />
               </View>
             </View>

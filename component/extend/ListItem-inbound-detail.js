@@ -369,7 +369,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                         }
                       })
                     }}
-                    title="Record Attribute"
+                    title="Record"
                   />
                 )}
             </View>

@@ -499,6 +499,7 @@ class Acknowledge extends React.Component {
               <Input 
                   containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
                   inputContainerStyle={styles.textInput} 
+                  style={{...Mixins.body3,lineHeight:18,color:"#424141"}}
                   inputStyle={Mixins.containedInputDefaultStyle}
                   labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                   onChangeText={(text)=>{this.setState({length:text})}}
@@ -514,6 +515,7 @@ class Acknowledge extends React.Component {
               <Input 
               containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
                 inputContainerStyle={styles.textInput} 
+                style={{...Mixins.body3,lineHeight:18,color:"#424141"}}
                   inputStyle={Mixins.containedInputDefaultStyle}
                   labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                   onChangeText={(text)=>{this.setState({width:text})}}
@@ -529,6 +531,7 @@ class Acknowledge extends React.Component {
               <Input 
                 containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
                 inputContainerStyle={styles.textInput} 
+                style={{...Mixins.body3,lineHeight:18,color:"#424141"}}
                   inputStyle={Mixins.containedInputDefaultStyle}
                   labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                   onChangeText={(text)=>{this.setState({height:text})}}
@@ -544,6 +547,7 @@ class Acknowledge extends React.Component {
               <Input 
                   containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
                 inputContainerStyle={styles.textInput} 
+                style={{...Mixins.body3,lineHeight:18,color:"#424141"}}
                   inputStyle={Mixins.containedInputDefaultStyle}
                   labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                   onChangeText={(text)=>{this.setState({volweight:text})}}
@@ -558,6 +562,7 @@ class Acknowledge extends React.Component {
               <Input 
                             containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
                 inputContainerStyle={styles.textInput} 
+                style={{...Mixins.body3,lineHeight:18,color:"#424141"}}
                   inputStyle={Mixins.containedInputDefaultStyle}
                   labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                   onChangeText={(text)=>{this.setState({weight:text})}}
@@ -573,6 +578,7 @@ class Acknowledge extends React.Component {
               <Input 
                           containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
                 inputContainerStyle={styles.textInput} 
+                style={{...Mixins.body3,lineHeight:18,color:"#424141"}}
                   inputStyle={Mixins.containedInputDefaultStyle}
                   labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                   onChangeText={(text)=>{this.setState({pcscarton:text})}}
