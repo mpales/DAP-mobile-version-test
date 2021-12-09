@@ -1,10 +1,12 @@
 import React from 'react';
 import {
   FlatList,
+  Image,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import {Badge, Button, SearchBar} from 'react-native-elements';
@@ -114,9 +116,9 @@ class RelocationList extends React.Component {
   };
 
   navigateToDetails = (relocationId, status) => {
-    if (status === 'Completed') return;
     this.props.setBottomBar(false);
-    if (status === 'In Progress') {
+    if (status === 'Completed') return;
+    if (status === 'Processing') {
       this.props.navigation.navigate('ConfirmRelocation', {
         relocationId: relocationId,
       });
@@ -161,23 +163,16 @@ class RelocationList extends React.Component {
           <Loading />
         ) : (
           <>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'flex-end',
-                alignItems: 'center',
-                marginTop: 15,
-                paddingHorizontal: 20,
-              }}>
-              <Button
-                buttonStyle={{
-                  ...Mixins.bgButtonPrimary,
-                  paddingTop: 0,
-                  paddingBottom: 0,
-                }}
-                title="Request Relocation"
-                titleStyle={{...Mixins.subtitle3, lineHeight: 20}}
-                onPress={this.navigateToRequestRelocation}
+            <View style={styles.headerContainer}>
+              <View>
+                <Text style={styles.headerText}>Need move own items?</Text>
+                <TouchableOpacity onPress={this.navigateToRequestRelocation}>
+                  <Text style={styles.navigateText}>Request Relocation</Text>
+                </TouchableOpacity>
+              </View>
+              <Image
+                source={require('../../../../assets/request_relocation.png')}
+                style={styles.requestRelocation}
               />
             </View>
             <SearchBar
@@ -209,29 +204,29 @@ class RelocationList extends React.Component {
                 }
               />
               <Badge
-                value="Waiting"
-                onPress={() => this.handleFilterStatus('Waiting')}
+                value="Pending"
+                onPress={() => this.handleFilterStatus('Pending')}
                 badgeStyle={
-                  this.state.filterStatus === 'Waiting'
+                  this.state.filterStatus === 'Pending'
                     ? styles.badgeSelected
                     : styles.badge
                 }
                 textStyle={
-                  this.state.filterStatus === 'Waiting'
+                  this.state.filterStatus === 'Pending'
                     ? styles.badgeTextSelected
                     : styles.badgeText
                 }
               />
               <Badge
-                value="In Progress"
-                onPress={() => this.handleFilterStatus('In Progress')}
+                value="Processing"
+                onPress={() => this.handleFilterStatus('Processing')}
                 badgeStyle={
-                  this.state.filterStatus === 'In Progress'
+                  this.state.filterStatus === 'Processing'
                     ? styles.badgeSelected
                     : styles.badge
                 }
                 textStyle={
-                  this.state.filterStatus === 'In Progress'
+                  this.state.filterStatus === 'Processing'
                     ? styles.badgeTextSelected
                     : styles.badgeText
                 }
@@ -280,6 +275,33 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     flex: 1,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 15,
+    marginHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#F07120',
+    borderRadius: 5,
+  },
+  headerText: {
+    ...Mixins.subtitle3,
+    lineHeight: 17,
+    color: '#FFF',
+    fontSize: 10,
+  },
+  navigateText: {
+    ...Mixins.subtitle3,
+    fontSize: 16,
+    lineHeight: 23,
+    lineHeight: 20,
+    color: '#FFF',
+    textDecorationLine: 'underline',
+    textDecorationColor: '#FFF',
+  },
+  requestRelocation: {},
   searchInputText: {
     ...Mixins.subtitle3,
     lineHeight: 21,

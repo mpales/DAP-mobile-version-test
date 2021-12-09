@@ -34,12 +34,9 @@ const Manifest = ({item, navigate}) => {
             title="Job Date"
             value={Format.formatDate(item.createdOn)}
           />
-          <TextList title="Client" value={item.clientName} />
-          <TextList title="Warehouse" value={item.warehouseNameFrom} />
-          <TextList title="Item Code" value={item.itemCode} />
-          <TextList title="Description" value={item.description} />
-          <TextList title="Quantity" value={item.quantityTo} />
-          <TextList title="From Location" value={item.locationFrom} />
+          <TextList title="Client" value={item.clientNameFroms[0]} />
+          <TextList title="Warehouse" value={item.warehouseNameFroms[0]} />
+          <TextList title="From Location" value={item.locationFroms[0]} />
           <TextList title="To Location" value={item.locationTo} />
         </ListItem.Content>
         <ListItem.Chevron
