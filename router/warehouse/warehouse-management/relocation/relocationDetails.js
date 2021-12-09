@@ -5,18 +5,17 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 // component
-import {TextList, TextListBig} from '../../../../component/extend/Text-list';
+import {CustomTextList, TextList} from '../../../../component/extend/Text-list';
 import Loading from '../../../../component/loading/loading';
 import Banner from '../../../../component/banner/banner';
 // helper
 import {getData, putData} from '../../../../component/helper/network';
 import Format from '../../../../component/helper/format';
-import {
-  productGradeToString,
-  reasonCodeToString,
-} from '../../../../component/helper/string';
+import {productGradeToString} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
+// icon
+import ArrowDown from '../../../../assets/icon/arrow_down_relocation.svg';
 
 class RelocationDetails extends React.Component {
   constructor(props) {
@@ -87,6 +86,12 @@ class RelocationDetails extends React.Component {
     });
   };
 
+  navigateToItemDetails = () => {
+    this.props.navigation.navigate('RelocationItemDetails', {
+      relocationDetails: this.state.relocationDetails,
+    });
+  };
+
   render() {
     const {errorMessage, isLoading, relocationDetails, isSubmitting} =
       this.state;
@@ -108,82 +113,33 @@ class RelocationDetails extends React.Component {
             <Card containerStyle={styles.cardContainer}>
               <TextList
                 title="Warehouse"
-                value={relocationDetails.warehouseNameFrom}
+                value={relocationDetails.warehouseNameFroms[0]}
               />
               <TextList
                 title="Job Request Date"
                 value={Format.formatDate(relocationDetails.createdOn)}
               />
-              <TextList title="Client" value={relocationDetails.clientName} />
+              <TextList
+                title="Client"
+                value={relocationDetails.clientNameFroms[0]}
+              />
               <TextList
                 title="Location"
-                value={relocationDetails.locationIdFrom}
+                value={relocationDetails.locationFroms[0]}
               />
-              <TextList title="Item Code" value={relocationDetails.itemCode} />
-              <TextList
-                title="Description"
-                value={relocationDetails.description}
-              />
-              <TextList
-                title="Request By"
-                value={`${relocationDetails.createdBy.firstName} ${relocationDetails.createdBy.lastName}`}
-              />
-              <TextList
-                title="Grade"
-                value={productGradeToString(relocationDetails.productGradeFrom)}
-              />
-              <TextList
-                title="Expiry Date"
-                value={
-                  relocationDetails.attributes.expiry_date !== undefined
-                    ? Format.formatDate(
-                        relocationDetails.attributes.expiry_date,
-                      )
-                    : '-'
-                }
-              />
-              <TextList title="Batch No" value={relocationDetails.batchNo} />
-              <TextList
-                title="Reason Code"
-                value={reasonCodeToString(relocationDetails.reasonCode)}
-              />
-              <TextList
-                title="Remarks"
-                value={
-                  relocationDetails.remark !== ''
-                    ? relocationDetails.remark
-                    : '-'
-                }
-              />
-              <View style={{borderWidth: 1, borderRadius: 5, padding: 10}}>
-                <TextListBig
-                  title="Quantity"
-                  value={relocationDetails.quantityTo}
-                />
-                <TextListBig title="UOM" value={relocationDetails.uom} />
-              </View>
             </Card>
-            <View style={styles.blueContainer}>
-              <View style={{flex: 1, flexDirection: 'row'}}>
-                <View style={{flex: 1}}>
-                  <Text style={styles.blueContainerText}>Move Quantity</Text>
-                </View>
-                <View style={{flex: 1}}>
-                  <Text style={styles.blueContainerText}>
-                    {relocationDetails.quantityTo}
-                  </Text>
-                </View>
-              </View>
-              <View style={{flex: 1, flexDirection: 'row'}}>
-                <View style={{flex: 1}}>
-                  <Text style={styles.blueContainerText}>UOM</Text>
-                </View>
-                <View style={{flex: 1}}>
-                  <Text style={styles.blueContainerText}>
-                    {relocationDetails.uom}
-                  </Text>
-                </View>
-              </View>
+            <Button
+              title="See All Items"
+              titleStyle={styles.buttonText}
+              buttonStyle={styles.button}
+              disabled={isSubmitting}
+              onPress={this.navigateToItemDetails}
+              disabledStyle={{backgroundColor: '#ABABAB'}}
+              disabledTitleStyle={{color: '#FFF'}}
+            />
+            <View
+              style={{alignItems: 'center', marginTop: 15, marginBottom: 5}}>
+              <ArrowDown fill="#121C78" width="40" height="40" />
             </View>
             <Text style={styles.title}>Relocate To</Text>
             <Card containerStyle={styles.cardContainer}>
@@ -191,18 +147,10 @@ class RelocationDetails extends React.Component {
                 title="Warehouse"
                 value={relocationDetails.warehouseNameTo}
               />
-              <TextList
-                title="Location"
-                value={relocationDetails.locationIdTo}
-              />
-              <TextList title="Item Code" value={relocationDetails.itemCode} />
-              <TextList
-                title="Description"
-                value={relocationDetails.description}
-              />
-              <TextList
+              <TextList title="Location" value={relocationDetails.locationTo} />
+              <CustomTextList
                 title="Destination Grade"
-                value={productGradeToString(relocationDetails.productGradeTo)}
+                value={productGradeToString(relocationDetails.gradeTo)}
               />
             </Card>
             <Button
@@ -213,6 +161,13 @@ class RelocationDetails extends React.Component {
               onPress={this.startRelocate}
               disabledStyle={{backgroundColor: '#ABABAB'}}
               disabledTitleStyle={{color: '#FFF'}}
+            />
+            <Button
+              type="clear"
+              title="Report"
+              containerStyle={styles.reportButton}
+              titleStyle={styles.reportButtonText}
+              onPress={this.navigateToReportStockTakeCount}
             />
           </ScrollView>
         )}
@@ -248,29 +203,27 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
     elevation: 6,
   },
-  blueContainer: {
-    backgroundColor: '#414993',
-    borderRadius: 5,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    marginHorizontal: 20,
-    marginBottom: 15,
-  },
-  blueContainerText: {
-    ...Mixins.subtitle1,
-    fontSize: 18,
-    lineHeight: 25,
-    color: '#FFF',
-  },
   button: {
     ...Mixins.bgButtonPrimary,
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   buttonText: {
     ...Mixins.subtitle3,
     fontSize: 18,
     lineHeight: 25,
+  },
+  reportButton: {
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#6C6B6B',
+  },
+  reportButtonText: {
+    ...Mixins.subtitle3,
+    fontSize: 18,
+    lineHeight: 25,
+    color: '#E03B3B',
   },
 });
 

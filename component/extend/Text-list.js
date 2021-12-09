@@ -2,18 +2,23 @@ import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Mixins from '../../mixins';
 
-export const TextList = ({title, value, color}) => (
+export const TextList = ({title, value, color, isBold}) => (
   <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
     <View style={{width: 100}}>
-      <Text style={styles.titleText}>{title}</Text>
+      <Text
+        style={
+          !!isBold ? [styles.titleText, {fontWeight: '700'}] : styles.titleText
+        }>
+        {title}
+      </Text>
     </View>
+    <Text style={styles.separatorText}>:</Text>
     {!!color ? (
       <Text style={[styles.valueText, {color: color, marginLeft: 10}]}>
         {value}
       </Text>
     ) : (
       <>
-        <Text style={styles.separatorText}>:</Text>
         {title.toLowerCase() === 'barcode' ? (
           <Text style={styles.valueText}>
             {Array.isArray(value) ? (
@@ -29,7 +34,14 @@ export const TextList = ({title, value, color}) => (
             )}
           </Text>
         ) : (
-          <Text style={styles.valueText}>{!!value ? value : '-'}</Text>
+          <Text
+            style={
+              !!isBold
+                ? [styles.valueText, {fontWeight: '700'}]
+                : styles.valueText
+            }>
+            {!!value ? value : '-'}
+          </Text>
         )}
       </>
     )}
@@ -72,7 +84,14 @@ export const CustomTextList = ({title, value, separateQuantity}) => {
   return (
     <View style={{flexDirection: 'row', flexShrink: 1, marginVertical: 5}}>
       <View style={{width: 100}}>
-        <Text style={styles.titleText}>{title}</Text>
+        <Text
+          style={
+            title.includes('Grade')
+              ? [styles.titleText, {fontWeight: '700'}]
+              : styles.titleText
+          }>
+          {title}
+        </Text>
       </View>
       <Text style={styles.separatorText}>:</Text>
       {separateQuantity ? (
@@ -88,7 +107,7 @@ export const CustomTextList = ({title, value, separateQuantity}) => {
       ) : (
         <Text
           style={
-            title === 'Quantity' || title === 'Grade'
+            title.includes('Quantity') || title.includes('Grade')
               ? [styles.valueText, {color: '#E03B3B', fontWeight: 'bold'}]
               : styles.valueText
           }>

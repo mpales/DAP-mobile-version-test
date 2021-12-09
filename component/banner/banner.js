@@ -8,6 +8,8 @@ import {
 } from 'react-native';
 // icon
 import Xmark from '../../assets/icon/iconmonstr-x-mark-1 1mobile.svg';
+// style
+import Mixins from '../../mixins';
 
 const screen = Dimensions.get('window');
 
@@ -26,7 +28,7 @@ class Banner extends React.Component {
             backgroundColor: this.props.backgroundColor,
           },
         ]}>
-        <Text style={{color: '#FFF'}}>{this.props.title}</Text>
+        <Text style={styles.text}>{this.props.title}</Text>
         <TouchableOpacity
           style={styles.xButton}
           onPress={this.props.closeBanner}>
@@ -53,8 +55,16 @@ const styles = StyleSheet.create({
   },
   xButton: {
     position: 'absolute',
-    right: 30,
-    top: 20,
+    width: 20,
+    height: 20,
+    right: 20,
+    top: '50%',
+  },
+  text: {
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#FFF',
+    textAlign: 'center',
   },
 });
 
