@@ -187,14 +187,14 @@ class RelocationRequest extends React.Component {
       remarks,
     } = this.state;
     const data = {
+      selectedBy: 0,
       clientId: relocateFrom.client.id,
-      itemCode: !!relocateFrom.itemCode
+      product: !!relocateFrom.itemCode
         ? relocateFrom.itemCode
         : relocateFrom.product.item_code,
-      productId: !!relocateFrom.productId
-        ? relocateFrom.productId
-        : relocateFrom.product._id,
-      productStorageIdFrom: relocateFrom.id,
+      locationId: relocateFrom.locationId,
+      relocateEntirePallet: 0,
+      productStorageIdFroms: relocateFrom.id,
       warehouseStorageContainerIdTo: selectedLocation,
       productGradeTo: selectedGrade,
       quantityTo: quantityToTransfer,
@@ -202,6 +202,7 @@ class RelocationRequest extends React.Component {
       remark: remarks,
     };
     const result = await postData('/stocks-mobile/stock-relocations', data);
+    console.log(result);
     if (
       typeof result === 'object' &&
       result.message ===
