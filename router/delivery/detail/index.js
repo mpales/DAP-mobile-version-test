@@ -32,8 +32,8 @@ class Detail extends React.Component {
     return (
       <Stack.Navigator
         initialRouteName={routes[index].params !== undefined &&
-          routes[index].params.screen !== undefined
-            ? routes[index].params.screen
+          routes[index].params.initialScreens !== undefined
+            ? routes[index].params.initialScreens
             : 'Detail'}
         headerMode="screen"
         screenOptions={{
