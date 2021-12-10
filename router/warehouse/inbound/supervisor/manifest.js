@@ -251,14 +251,14 @@ class Warehouse extends React.Component{
             </View>
             </View>
             <SearchBar
-              placeholder="Type Here..."
+            placeholder="Search..."
               onChangeText={this.updateSearch}
               value={this.state.search}
               lightTheme={true}
-              inputStyle={{backgroundColor: '#fff'}}
+              inputStyle={{backgroundColor: '#fff', ...Mixins.body1, padding:0,margin:0}}
               placeholderTextColor="#2D2C2C"
               searchIcon={() => (
-                <IconSearchMobile height="20" width="20" fill="#2D2C2C" />
+                <IconSearchMobile height="15" width="15" fill="#2D2C2C" />
               )}
               containerStyle={{
                 backgroundColor: 'transparent',
@@ -272,7 +272,6 @@ class Warehouse extends React.Component{
                 borderWidth: 1,
                 borderBottomWidth: 1,
                 borderColor: '#D5D5D5',
-                maxHeight:40,
               }}
               leftIconContainerStyle={{backgroundColor: 'white'}}
             />
@@ -350,8 +349,8 @@ class Warehouse extends React.Component{
           </Overlay>
           <View style={styles.bottomTabContainer}>
           <Button
-              containerStyle={{flex:1, marginRight:10}}
-              buttonStyle={[styles.navigationButton, {paddingVertical: 10, backgroundColor: '#121C78'}]}
+             containerStyle={{flex:1, marginRight:10,height:'100%',flexBasis:1 }}
+              buttonStyle={[styles.navigationButton, {paddingVertical: 10, backgroundColor: '#121C78', flexGrow:1}]}
               titleStyle={styles.deliveryText}
               onPress={()=>{
                 this.props.navigation.navigate('IVASListSPV', {number:this.state.receivingNumber})
@@ -359,8 +358,8 @@ class Warehouse extends React.Component{
               title="Shipment VAS"
             />
             <Button
-              containerStyle={{flex:1}}
-              buttonStyle={[styles.navigationButton, {paddingVertical: 10}]}
+                containerStyle={{flex:1, height: '100%', flexBasis:1}}
+              buttonStyle={[styles.navigationButton, {paddingVertical: 10, flexGrow:1}]}
               titleStyle={styles.deliveryText}
               onPress={this.toggleOverlay}
               title="Confirm & Putaway"

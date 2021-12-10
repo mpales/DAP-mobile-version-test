@@ -5,7 +5,8 @@ import {
     TouchableOpacity,
     StyleSheet,
     View,
-    ScrollView
+    ScrollView,
+    PixelRatio
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { CheckBox, Input, Avatar, Button, LinearProgress} from 'react-native-elements';

@@ -382,6 +382,12 @@ class WarehouseNavigator extends React.Component {
         this.props.setBottomBar(false);
       }
       if (
+        this.props.keyStack === 'ItemProcess' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
         this.props.keyStack === 'itemDetail' &&
         this.props.indexBottomBar === 0
       ) {

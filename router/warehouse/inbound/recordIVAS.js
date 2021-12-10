@@ -258,13 +258,13 @@ class Acknowledge extends React.Component {
                 checkedIcon={this.checkedIcon()}
                 uncheckedIcon={this.uncheckedIcon()}
               />
-        <View style={styles.sectionInput}>
+        <View style={[styles.sectionInput, {paddingVertical:10}]}>
             <View style={styles.labelInput}>
              <Text style={styles.textInput}>Number Pallet</Text>
              </View>
              <Input 
-                 containerStyle={{flexShrink:1}}
-                 inputContainerStyle={[(!this.state.stuffTruck) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
+                 containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
+                 inputContainerStyle={[(!this.state.stuffTruck) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80,}]} 
                 inputStyle={(!this.state.stuffTruck) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuffTruck)}
@@ -272,12 +272,12 @@ class Acknowledge extends React.Component {
                 value={this.state.stuffTruckPallet}
             />
          </View>      
-         <View style={styles.sectionInput}>
+         <View style={[styles.sectionInput, {paddingVertical:10}]}>
             <View style={styles.labelInput}>
              <Text style={styles.textInput}>Number Cartons</Text>
              </View>
              <Input 
-                                 containerStyle={{flexShrink:1}}
+                                  containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
                                  inputContainerStyle={[(!this.state.stuffTruck) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
                                  inputStyle={(!this.state.stuffTruck) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                              
@@ -323,12 +323,12 @@ class Acknowledge extends React.Component {
                 disabled={(!this.state.stuff20Container)}
                 />
             </View>
-            <View style={styles.sectionInput}>
+            <View style={[styles.sectionInput, {paddingVertical:10}]}>
             <View style={styles.labelInput}>
              <Text style={styles.textInput}>Number Pallet</Text>
              </View>
              <Input 
-                 containerStyle={{flexShrink:1}}
+                  containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
                  inputContainerStyle={[(!this.state.stuff20Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
                 inputStyle={(!this.state.stuff20Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
@@ -337,12 +337,12 @@ class Acknowledge extends React.Component {
                 value={this.state.stuff20ContainerPallet}
             />
          </View>      
-            <View style={styles.sectionInput}>
+         <View style={[styles.sectionInput, {paddingVertical:10}]}>
             <View style={styles.labelInput}>
              <Text style={styles.textInput}>Number Cartons</Text>
              </View>
              <Input 
-                               containerStyle={{flexShrink:1}}
+                               containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
                                inputContainerStyle={[(!this.state.stuff20Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
                                inputStyle={(!this.state.stuff20Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                            
@@ -388,12 +388,12 @@ class Acknowledge extends React.Component {
                 disabled={(!this.state.stuff40Container)}
                 />
             </View>
-            <View style={styles.sectionInput}>
+            <View style={[styles.sectionInput, {paddingVertical:10}]}>
             <View style={styles.labelInput}>
              <Text style={styles.textInput}>Number Pallet</Text>
              </View>
              <Input 
-                 containerStyle={{flexShrink:1}}
+                   containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
                  inputContainerStyle={[(!this.state.stuff40Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
                 inputStyle={(!this.state.stuff40Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
@@ -402,12 +402,12 @@ class Acknowledge extends React.Component {
                 value={this.state.stuff40ContainerPallet}
             />
          </View> 
-            <View style={styles.sectionInput}>
+         <View style={[styles.sectionInput, {paddingVertical:10}]}>
             <View style={styles.labelInput}>
              <Text style={styles.textInput}>Number Cartons</Text>
              </View>
              <Input 
-                    containerStyle={{flexShrink:1}}
+                containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
                     inputContainerStyle={[(!this.state.stuff40Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
                     inputStyle={(!this.state.stuff40Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
 
@@ -432,12 +432,12 @@ class Acknowledge extends React.Component {
                 checkedIcon={this.checkedIcon()}
                 uncheckedIcon={this.uncheckedIcon()}
               />
-            <View style={styles.sectionInput}>
+               <View style={[styles.sectionInput, {paddingVertical:10}]}>
             <View style={styles.labelInput}>
              <Text style={styles.textInput}>Number SKU</Text>
              </View>
              <Input 
-                                 containerStyle={{flexShrink:1}}
+                                    containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
                                  inputContainerStyle={[(!this.state.takeCartoon) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
                                  inputStyle={(!this.state.takeCartoon) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
@@ -620,8 +620,8 @@ labelHeadInput :{
 labelInput: {
     flexShrink: 1,
     width: 120,
-    justifyContent: 'center',
-    maxHeight:35
+    justifyContent: 'flex-start',
+ 
 },
 textHeadInput :{
     ...Mixins.subtitle3,

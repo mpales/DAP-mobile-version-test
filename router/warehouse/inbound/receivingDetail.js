@@ -80,15 +80,18 @@ class Acknowledge extends React.Component {
       } else {
         this.props.navigation.goBack();
       }
+      let activeReceipt = result.inbound_receipt.find((o)=> o.current_active === true);
       const resultphoto = await getData('inboundsMobile/'+this.state.receivingNumber+'/photosIds');
       if(typeof resultphoto === 'object' && resultphoto.error === undefined){
         let submitDetail = false;
         for (let index = 0; index < resultphoto.inbound_photos.length; index++) {
-          const element = resultphoto.inbound_photos[index].photoId;
-          if(resultphoto.inbound_photos[index].status === 2 && result.status === 3){
-            submitDetail = true;
-          } else if(resultphoto.inbound_photos[index].status === 3 && result.status === 4){
-            submitDetail = true;
+          const element = resultphoto.inbound_photos[index].inbound_receipt_id;
+          if(activeReceipt.id === element){
+            if(resultphoto.inbound_photos[index].status === 2 && result.status === 3){
+              submitDetail = true;
+            } else if(resultphoto.inbound_photos[index].status === 3 && result.status === 4){
+              submitDetail = true;
+            }
           }
         }
         this.setState({submitDetail: submitDetail})
@@ -112,15 +115,18 @@ class Acknowledge extends React.Component {
     } else {
       this.props.navigation.goBack();
     }
+    let activeReceipt = result.inbound_receipt.find((o)=> o.current_active === true);
     const resultphoto = await getData('inboundsMobile/'+this.state.receivingNumber+'/photosIds');
     if(typeof resultphoto === 'object' && resultphoto.error === undefined){
       let submitDetail = false;
       for (let index = 0; index < resultphoto.inbound_photos.length; index++) {
-        const element = resultphoto.inbound_photos[index].photoId;
-        if(resultphoto.inbound_photos[index].status === 2 && result.status === 3){
-          submitDetail = true;
-        } else if(resultphoto.inbound_photos[index].status === 3 && result.status === 4){
-          submitDetail = true;
+        const element = resultphoto.inbound_photos[index].inbound_receipt_id;
+        if(activeReceipt.id === element){
+          if(resultphoto.inbound_photos[index].status === 2 && result.status === 3){
+            submitDetail = true;
+          } else if(resultphoto.inbound_photos[index].status === 3 && result.status === 4){
+            submitDetail = true;
+          }
         }
       }
       this.setState({submitDetail: submitDetail})
@@ -462,7 +468,7 @@ class Acknowledge extends React.Component {
          </View>
          <View style={{flexDirection:'row', flexShrink:1}}>
          <View style={{flexShrink:1, backgroundColor: 'transparent', paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 20}}>
-         <Text style={{...Mixins.subtitle3,lineHeight:21,}}>{data.status === 3 ? "ETA Date" : "Received Date"}</Text>
+         <Text style={{...Mixins.subtitle3,lineHeight:21,}}>{data.status === 3 ? "ETA Date" : "Received"}</Text>
          
            </View>
        
@@ -472,7 +478,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, flexDirection:'column-reverse',}} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B', marginVertical:0, paddingVertical:0}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0,marginTop:5}]}
-                value={data.status === 3 ? moment(data.eta).format("DD-MM-YYYY") : moment(data.created_on).format("DD-MM-YYYY")}
+                value={data.status === 3 ? moment(data.eta).format("DD-MM-YYYY") : moment(data.created_on).format("DD-MM-YYYY / hh.mm A")}
                 multiline={true}
                 disabled={true}
                 label=" : "

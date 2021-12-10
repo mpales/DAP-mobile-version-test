@@ -9,7 +9,8 @@ import {
   Dimensions,
   FlatList,
   Keyboard,
-  ScrollView
+  ScrollView, 
+  PixelRatio
 } from 'react-native';
 import {
 Button,
@@ -557,7 +558,7 @@ class Example extends React.Component {
                             <Text style={styles.qtyTitle}>{dataItem.is_transit === 1 ? 'Qty' : 'Document Qty'}</Text>
                           </View>
                           <View style={[styles.dividerInput,dataItem.is_transit !== 1 ? {justifyContent:'center', alignContent:'center', paddingHorizontal:40, flexShrink:1, marginBottom:30, } : null]}>
-                          <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
+                          <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: PixelRatio.get() > 2.75 ? 32 : 37}} onPress={()=>{
                            const {qty,dataItem} = this.state;
                             this.setState({qty: qty !== '' && qty > 0 ? qty-1 : qty === '' ? 0 : qty});
                           }}  
@@ -575,7 +576,7 @@ class Example extends React.Component {
                               this.setState({qty:  val});
                             }}
                             />
-                          <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
+                          <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: PixelRatio.get() > 2.75 ? 32 : 37}} onPress={()=>{
                             const {qty,dataItem} = this.state;
                             this.setState({qty:  qty !== '' ? qty+1: qty === '' ?  1 : qty});
                           }}  
