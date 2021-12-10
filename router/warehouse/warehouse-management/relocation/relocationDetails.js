@@ -134,8 +134,9 @@ class RelocationDetails extends React.Component {
             <Text style={styles.title}>Relocate From</Text>
             <TouchableWithoutFeedback
               onPress={
-                !(relocationDetails.productStorageFroms.length > 1) &&
-                this.handleExpanded
+                !(relocationDetails.productStorageFroms.length > 1)
+                  ? this.handleExpanded
+                  : null
               }>
               <Card containerStyle={[styles.cardContainer, {marginBottom: 0}]}>
                 <View style={styles.spaceBetween}>
@@ -143,10 +144,14 @@ class RelocationDetails extends React.Component {
                     title="Warehouse"
                     value={relocationDetails.warehouseNameFroms[0]}
                   />
-                  {isExpanded ? (
-                    <ChevronUp fill="#2D2C2C" width="20" height="20" />
-                  ) : (
-                    <ChevronDown fill="#2D2C2C" width="20" height="20" />
+                  {!(relocationDetails.productStorageFroms.length > 1) && (
+                    <>
+                      {isExpanded ? (
+                        <ChevronUp fill="#2D2C2C" width="20" height="20" />
+                      ) : (
+                        <ChevronDown fill="#2D2C2C" width="20" height="20" />
+                      )}
+                    </>
                   )}
                 </View>
                 <TextList
