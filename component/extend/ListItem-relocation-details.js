@@ -1,13 +1,11 @@
 import React, {useState} from 'react';
 import {Card} from 'react-native-elements';
-import {StyleSheet, Text, TouchableWithoutFeedback, View} from 'react-native';
+import {StyleSheet, TouchableWithoutFeedback, View} from 'react-native';
 import ArrowDown from '../../assets/icon/iconmonstr-arrow-66mobile-1.svg';
 import ArrowUp from '../../assets/icon/iconmonstr-arrow-66mobile-4.svg';
-import Mixins from '../../mixins';
 // component
 import {TextList} from './Text-list';
 // helper
-import Format from '../helper/format';
 import {productGradeToString, reasonCodeToString} from '../helper/string';
 
 const ExpandableCard = ({item, reasonCode, remark}) => {
