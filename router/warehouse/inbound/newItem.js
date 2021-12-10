@@ -1,6 +1,6 @@
 import React from 'react';
 import {Text, Button,Image, Input, Divider, Avatar, Overlay} from 'react-native-elements';
-import {View, Keyboard, ScrollView, TouchableOpacity, Dimensions} from 'react-native';
+import {View, Keyboard, ScrollView, TouchableOpacity, Dimensions, PixelRatio} from 'react-native';
 import {connect} from 'react-redux';
 import moment from 'moment';
 import Mixins from '../../../mixins';
@@ -493,7 +493,7 @@ class Acknowledge extends React.Component {
           </View>
           <Divider color="#D5D5D5"/>
           <View style={{flexDirection:'row', flexShrink:1, marginBottom:0, paddingHorizontal:10,marginTop:20}}>
-          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
+          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: PixelRatio.get() > 2.75 ? 160: 140  , alignItems: 'flex-start',marginRight: 20}}>
             <Text>Length ( m )</Text>
               </View>
               <Input 
@@ -509,7 +509,7 @@ class Acknowledge extends React.Component {
               />
           </View>
           <View style={{flexDirection:'row', flexShrink:1,  paddingHorizontal:10,}}>
-            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
+            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: PixelRatio.get() > 2.75 ? 160: 140, alignItems: 'flex-start',marginRight: 20}}>
             <Text>Width ( m )</Text>
             </View>
               <Input 
@@ -525,7 +525,7 @@ class Acknowledge extends React.Component {
               />
           </View>
           <View style={{flexDirection:'row', flexShrink:1,  paddingHorizontal:10,}}>
-            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
+            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: PixelRatio.get() > 2.75 ? 160: 140, alignItems: 'flex-start',marginRight: 20}}>
             <Text>Height ( m )</Text>
             </View>
               <Input 
@@ -541,7 +541,7 @@ class Acknowledge extends React.Component {
               />
           </View>
           <View style={{flexDirection:'row', flexShrink:1,  paddingHorizontal:10,}}>
-            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
+            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: PixelRatio.get() > 2.75 ? 160: 140, alignItems: 'flex-start',marginRight: 20}}>
             <Text>Vol. Weight ( m3 )</Text>
             </View>
               <Input 
@@ -556,7 +556,7 @@ class Acknowledge extends React.Component {
               />
           </View>
           <View style={{flexDirection:'row', flexShrink:1,  paddingHorizontal:10,}}>
-            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
+            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: PixelRatio.get() > 2.75 ? 160: 140, alignItems: 'flex-start',marginRight: 20}}>
             <Text>Weight ( Kg )</Text>
             </View>
               <Input 
@@ -572,7 +572,7 @@ class Acknowledge extends React.Component {
               />
           </View>
           <View style={{flexDirection:'row', flexShrink:1,  paddingHorizontal:10,}}>
-            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
+            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: PixelRatio.get() > 2.75 ? 160: 140, alignItems: 'flex-start',marginRight: 20}}>
             <Text># Pcs per carton</Text>
             </View>
               <Input 

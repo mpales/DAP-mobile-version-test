@@ -342,9 +342,9 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
             <View style={[styles.buttonContainer,{flexDirection:'column',flex: 1,width:'100%'}]}>
             <View style={{flexDirection:'row'}}>
             <Button
-              containerStyle={{flex:1, paddingVertical: 4, paddingHorizontal: 0,}}
-              buttonStyle={[styles.navigationButton]}
-              titleStyle={[styles.deliveryText,{paddingHorizontal: 10}]}
+              containerStyle={{flex:1, paddingVertical: 4, paddingHorizontal: 0,height:'100%',flexBasis:1 }}
+              buttonStyle={[styles.navigationButton, {flexGrow:1, }]}
+              titleStyle={[styles.deliveryText,{paddingHorizontal: 10,}]}
               onPress={()=>{
                 navigation.navigate({
                   name: 'ItemProcess',
@@ -354,12 +354,12 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                 })
               }}
               disabled={item.status === 1 || item.status === 2 ? false : true }
-              title="Process Item"
+              title="Process"
             />
                 {addAttribute && (
                   <Button
-                    containerStyle={{flex:1, paddingVertical: 4,alignSelf:'flex-end', marginLeft:20}}
-                    buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
+                    containerStyle={{flex:1, paddingVertical: 4,alignSelf:'flex-end', marginLeft:20, height:'100%',flexBasis:1 }}
+                    buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,flexGrow:1, }]}
                     titleStyle={[styles.deliveryText,{color:'#ffffff', paddingHorizontal: 10}]}
                     onPress={()=>{
                       navigation.navigate({

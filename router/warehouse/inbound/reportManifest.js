@@ -5,7 +5,8 @@ import {
     TouchableOpacity,
     StyleSheet,
     View,
-    ScrollView
+    ScrollView, 
+    PixelRatio
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { CheckBox, Input, Avatar, Button, LinearProgress, Badge} from 'react-native-elements';
@@ -260,7 +261,7 @@ class ReportManifest extends React.Component {
                             rightIcon={()=>{
                                 return (
                                     <View style={{flexDirection:'column', backgroundColor:'transparent', flex:1, minWidth:30, marginLeft:15}}>
-                                        <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}}  
+                                        <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: PixelRatio.get() > 2.75 ? 32 : 37}}  
                           containerStyle={{flexShrink:1, marginVertical: 5}}
                           badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
                           onPress={()=>{
@@ -275,7 +276,7 @@ class ReportManifest extends React.Component {
                             leftIcon={()=>{
                                 return (
                                     <View style={{flexDirection:'column', backgroundColor:'transparent', flex:1, minWidth:30, marginRight:15}}>
-                                        <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}}  
+                                        <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: PixelRatio.get() > 2.75 ? 32 : 37}}  
                           containerStyle={{flexShrink:1, marginVertical: 5}}
                           badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
                           onPress={()=>{
