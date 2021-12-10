@@ -5,6 +5,7 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import {Button, Card, Overlay} from 'react-native-elements';
@@ -18,12 +19,17 @@ import Loading from '../../../../component/loading/loading';
 // helper
 import {getData, putData} from '../../../../component/helper/network';
 import Format from '../../../../component/helper/format';
-import {productGradeToString} from '../../../../component/helper/string';
+import {
+  productGradeToString,
+  reasonCodeToString,
+} from '../../../../component/helper/string';
 // style
 import Mixins from '../../../../mixins';
 // icon
 import CheckmarkIcon from '../../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
 import ArrowDown from '../../../../assets/icon/arrow_down_relocation.svg';
+import ChevronDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-1.svg';
+import ChevronUp from '../../../../assets/icon/iconmonstr-arrow-66mobile-4.svg';
 
 const window = Dimensions.get('window');
 
@@ -37,6 +43,7 @@ class RelocationConfirm extends React.Component {
       errorMessage: '',
       isLoading: true,
       isSubmitting: false,
+      isExpanded: false,
     };
   }
 
@@ -92,6 +99,10 @@ class RelocationConfirm extends React.Component {
     });
   };
 
+  handleExpanded = () => {
+    this.setState({isExpanded: !this.state.isExpanded});
+  };
+
   navigateToRelocationJobList = () => {
     this.handleShowOverlay();
     this.props.setBottomBar(true);
@@ -111,8 +122,13 @@ class RelocationConfirm extends React.Component {
   };
 
   render() {
-    const {errorMessage, isLoading, isSubmitting, relocationDetails} =
-      this.state;
+    const {
+      errorMessage,
+      isLoading,
+      isSubmitting,
+      relocationDetails,
+      isExpanded,
+    } = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -131,33 +147,120 @@ class RelocationConfirm extends React.Component {
               style={styles.body}
               showsVerticalScrollIndicator={false}>
               <Text style={styles.title}>Relocate From</Text>
-              <Card containerStyle={styles.cardContainer}>
-                <TextList
-                  title="Warehouse"
-                  value={relocationDetails.warehouseNameFroms[0]}
+              <TouchableWithoutFeedback
+                onPress={
+                  !(relocationDetails.productStorageFroms.length > 1) &&
+                  this.handleExpanded
+                }>
+                <Card
+                  containerStyle={[styles.cardContainer, {marginBottom: 0}]}>
+                  <View style={styles.spaceBetween}>
+                    <TextList
+                      title="Warehouse"
+                      value={relocationDetails.warehouseNameFroms[0]}
+                    />
+                    {isExpanded ? (
+                      <ChevronUp fill="#2D2C2C" width="20" height="20" />
+                    ) : (
+                      <ChevronDown fill="#2D2C2C" width="20" height="20" />
+                    )}
+                  </View>
+                  <TextList
+                    title="Job Request Date"
+                    value={Format.formatDate(relocationDetails.createdOn)}
+                  />
+                  <TextList
+                    title="Client"
+                    value={relocationDetails.clientNameFroms[0]}
+                  />
+                  {!(relocationDetails.productStorageFroms.length > 1) && (
+                    <>
+                      <TextList
+                        title="Location"
+                        value={relocationDetails.locationFroms[0]}
+                      />
+                      <TextList
+                        title="Item Code"
+                        value={
+                          relocationDetails.productStorageFroms[0].product
+                            .item_code
+                        }
+                      />
+                      <TextList
+                        title="Description"
+                        value={
+                          relocationDetails.productStorageFroms[0].product
+                            .description
+                        }
+                      />
+                      <CustomTextList
+                        title="Quantity"
+                        value={`${
+                          relocationDetails.productStorageFroms[0].quantity
+                        }-${
+                          relocationDetails.productStorageFroms[0].quantity -
+                          relocationDetails.quantityTo
+                        }`}
+                        separateQuantity={true}
+                      />
+                      <TextList
+                        title="UOM"
+                        value={
+                          relocationDetails.productStorageFroms[0].productUom
+                            .packaging
+                        }
+                        isBold={true}
+                      />
+                      <CustomTextList
+                        title="Grade"
+                        value={productGradeToString(
+                          relocationDetails.productStorageFroms[0].grade,
+                        )}
+                      />
+                      {isExpanded && (
+                        <>
+                          <TextList
+                            title="Expiry Date"
+                            value={
+                              relocationDetails.productStorageFroms[0].product
+                                .attributes?.expiry_date
+                            }
+                          />
+                          <TextList
+                            title="Batch No"
+                            value={
+                              relocationDetails.productStorageFroms[0].product
+                                .batchNo
+                            }
+                          />
+                          <TextList
+                            title="Reason Code"
+                            value={reasonCodeToString(
+                              relocationDetails.reasonCode,
+                            )}
+                          />
+                          <TextList
+                            title="Remarks"
+                            value={relocationDetails.remark}
+                          />
+                        </>
+                      )}
+                    </>
+                  )}
+                </Card>
+              </TouchableWithoutFeedback>
+              {relocationDetails.productStorageFroms.length > 1 && (
+                <Button
+                  title="See All Items"
+                  titleStyle={styles.buttonText}
+                  buttonStyle={styles.button}
+                  containerStyle={{marginTop: 20}}
+                  disabled={isSubmitting}
+                  onPress={this.navigateToItemDetails}
+                  disabledStyle={{backgroundColor: '#ABABAB'}}
+                  disabledTitleStyle={{color: '#FFF'}}
                 />
-                <TextList
-                  title="Job Request Date"
-                  value={Format.formatDate(relocationDetails.createdOn)}
-                />
-                <TextList
-                  title="Client"
-                  value={relocationDetails.clientNameFroms[0]}
-                />
-                <TextList
-                  title="Location"
-                  value={relocationDetails.locationFroms[0]}
-                />
-              </Card>
-              <Button
-                title="See All Items"
-                titleStyle={styles.buttonText}
-                buttonStyle={styles.button}
-                disabled={isSubmitting}
-                onPress={this.navigateToItemDetails}
-                disabledStyle={{backgroundColor: '#ABABAB'}}
-                disabledTitleStyle={{color: '#FFF'}}
-              />
+              )}
               <View
                 style={{alignItems: 'center', marginTop: 15, marginBottom: 5}}>
                 <ArrowDown fill="#121C78" width="40" height="40" />
@@ -172,6 +275,32 @@ class RelocationConfirm extends React.Component {
                   title="Location"
                   value={relocationDetails.locationTo}
                 />
+                {!(relocationDetails.productStorageFroms.length > 1) && (
+                  <>
+                    <TextList
+                      title="Item Code"
+                      value={
+                        relocationDetails.productStorageFroms[0].product
+                          .item_code
+                      }
+                    />
+                    <TextList
+                      title="Description"
+                      value={
+                        relocationDetails.productStorageFroms[0].product
+                          .description
+                      }
+                    />
+                    <TextList
+                      title="UOM"
+                      value={
+                        relocationDetails.productStorageFroms[0].productUom
+                          .packaging
+                      }
+                      isBold={true}
+                    />
+                  </>
+                )}
                 <CustomTextList
                   title="Destination Grade"
                   value={productGradeToString(relocationDetails.gradeTo)}
@@ -218,14 +347,42 @@ class RelocationConfirm extends React.Component {
                 </View>
                 <View style={{padding: 20}}>
                   <Text style={styles.cardTitle}>New Location</Text>
-                  <TextList
-                    title="Warehouse"
-                    value={relocationDetails.warehouseNameTo}
-                  />
+                  {relocationDetails.productStorageFroms.length > 1 && (
+                    <TextList
+                      title="Warehouse"
+                      value={relocationDetails.warehouseNameTo}
+                    />
+                  )}
                   <TextList
                     title="Location"
                     value={relocationDetails.locationTo}
                   />
+                  {!(relocationDetails.productStorageFroms.length > 1) && (
+                    <>
+                      <TextList
+                        title="Item Code"
+                        value={
+                          relocationDetails.productStorageFroms[0].product
+                            .item_code
+                        }
+                      />
+                      <TextList
+                        title="Description"
+                        value={
+                          relocationDetails.productStorageFroms[0].product
+                            .description
+                        }
+                      />
+                      <TextList
+                        title="UOM"
+                        value={
+                          relocationDetails.productStorageFroms[0].productUom
+                            .packaging
+                        }
+                        isBold={true}
+                      />
+                    </>
+                  )}
                   <CustomTextList
                     title="Destination Grade"
                     value={productGradeToString(relocationDetails.gradeTo)}
@@ -292,6 +449,11 @@ const styles = StyleSheet.create({
     ...Mixins.subtitle3,
     fontSize: 18,
     lineHeight: 25,
+  },
+  spaceBetween: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 });
 
