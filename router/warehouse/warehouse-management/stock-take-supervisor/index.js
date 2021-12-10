@@ -36,7 +36,7 @@ class StockTakeSupervisorNavigator extends React.Component {
   render() {
     return (
       <Stack.Navigator
-        initialRouteName="SearchInventory"
+        initialRouteName="StockTakeJobList"
         screenOptions={{
           headerBackImage: () => (
             <IconArrow66Mobile height="22" width="18" fill="#FFF" />

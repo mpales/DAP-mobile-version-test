@@ -32,11 +32,8 @@ class WarehouseManagement extends React.Component {
   }
 
   setWrapperofStack = (index, key) => {
-    const {indexBottomBar} = this.props;
-    if (indexBottomBar === 0) {
-      this.props.setCurrentStackKey(key);
-      this.props.setCurrentStackIndex(index);
-    }
+    this.props.setCurrentStackKey(key);
+    this.props.setCurrentStackIndex(index);
   };
 
   render() {
