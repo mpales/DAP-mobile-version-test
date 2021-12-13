@@ -86,7 +86,7 @@ class Acknowledge extends React.Component {
         let submitDetail = false;
         for (let index = 0; index < resultphoto.inbound_photos.length; index++) {
           const element = resultphoto.inbound_photos[index].inbound_receipt_id;
-          if(activeReceipt.id === element){
+          if(activeReceipt !== undefined && activeReceipt.id === element){
             if(resultphoto.inbound_photos[index].status === 2 && result.status === 3){
               submitDetail = true;
             } else if(resultphoto.inbound_photos[index].status === 3 && result.status === 4){
@@ -121,7 +121,7 @@ class Acknowledge extends React.Component {
       let submitDetail = false;
       for (let index = 0; index < resultphoto.inbound_photos.length; index++) {
         const element = resultphoto.inbound_photos[index].inbound_receipt_id;
-        if(activeReceipt.id === element){
+        if(activeReceipt !== undefined && activeReceipt.id === element){
           if(resultphoto.inbound_photos[index].status === 2 && result.status === 3){
             submitDetail = true;
           } else if(resultphoto.inbound_photos[index].status === 3 && result.status === 4){
@@ -269,6 +269,7 @@ class Acknowledge extends React.Component {
       // custom content type
       ...FormData,
     ], this.listenToProgressUpload).then(result=>{
+     console.log(result);
       if(typeof result !== 'object'){
         this.props.addPhotoProofPostpone( null );
         this.setState({updateData:true, progressLinearVal:0, errors:result, submitDetail: true, labelerror : false,overlayProgress : false});         
@@ -347,7 +348,7 @@ class Acknowledge extends React.Component {
          <>
          <View style={{flexDirection:'row', flexShrink:1}}>
              <View style={{flexShrink:1, backgroundColor: 'transparent', paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: 130, alignItems: 'flex-start',marginRight: 0}}>
-             <Text style={{...Mixins.subtitle3,lineHeight:21,}}></Text>
+             <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Shipment Type</Text>
              </View>
             <Input 
                 containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',}}

@@ -185,7 +185,7 @@ class SupervisorInbound extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Shipment VA',
+          headerTitle: 'Shipment VAS',
         }),
       },
       IVASDetailsSPV: {
@@ -203,7 +203,7 @@ class SupervisorInbound extends React.Component {
             })
           },
           headerTintColor: '#fff',
-          headerTitle: 'Shipment VA',
+          headerTitle: 'Shipment VAS',
         }),
       },
       UpdateIVAS : {
