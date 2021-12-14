@@ -51,6 +51,7 @@ class Warehouse extends React.Component{
       filtered : 0,
       _manifest: [],
       updated: false,
+      initialRender : false,
       notifbanner : '',
       notifsuccess: false,
       renderRefresh:false,
@@ -74,37 +75,72 @@ class Warehouse extends React.Component{
   }
   async componentDidUpdate(prevProps, prevState, snapshot) {
     const {manifestList} = this.props;
-    
-    if((this.state.updated !== prevState.updated && this.state.updated === true) || (this.state.renderRefresh !== prevState.renderRefresh && this.state.renderRefresh === true)){
+    if(this.state.renderRefresh !== prevState.renderRefresh && this.state.renderRefresh === true) {
+      const {receivingNumber} = this.state;
+      const {currentASN} = this.props;
+      let inboundId = receivingNumber === null ? currentASN : receivingNumber;
+      const result = await getData('inboundsMobile/'+inboundId);
+      if(typeof result === 'object' && result.error === undefined){
+
+        let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === false) || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === false) ? this.state.filtered : null;  
+        this.props.setManifestList(result.products)
+        if(filtered === 0) {
+          this.setState({_manifest: result.products.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender: false});
+          } else if(filtered === 1){
+            this.setState({_manifest: result.products.filter((element)=>  element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender: false});
+          } else if(filtered === 2){
+            this.setState({_manifest: result.products.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender: false});
+          } 
+      
+      }
+    } else if(this.state.updated !== prevState.updated && this.state.updated === true){
       const {receivingNumber} = this.state;
       const {currentASN} = this.props;
       let inboundId = receivingNumber === null ? currentASN : receivingNumber;
   
       const result = await getData('inboundsMobile/'+inboundId+'/item-status');
       let updatedstatus = Array.from({length: manifestList.length}).map((num,index)=>{
-        let updateElement = result.products.find((o)=> o.pId === manifestList[index].pId);
-        return {
-          ...manifestList[index],
-          ...updateElement,
-        };
+        if(result !== undefined && result.products !== undefined){
+          let updateElement = result.products.find((o)=> o.pId === manifestList[index].pId);
+          return {
+            ...manifestList[index],
+            ...updateElement,
+          };
+        } else {
+          return {
+            ...manifestList[index],
+          };
+        }
       });
       this.props.setManifestList(updatedstatus)
-    }
-    let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.updated !== this.state.updated ? this.state.filtered : null;
+      let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === true) || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === false) ? this.state.filtered : null;
+      if(filtered === 0) {
+        this.setState({_manifest: updatedstatus.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        } else if(filtered === 1){
+          this.setState({_manifest: updatedstatus.filter((element)=>  element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        } else if(filtered === 2){
+          this.setState({_manifest: updatedstatus.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        } 
+    
+    } else {
+      let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === false) || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === true) ? this.state.filtered : null;
    
-    if(filtered === 0) {
-      this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
-      } else if(filtered === 1){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false});
-      } else if(filtered === 2){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
-      } 
+      if(filtered === 0) {
+        this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        } else if(filtered === 1){
+          this.setState({_manifest: manifestList.filter((element)=>  element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        } else if(filtered === 2){
+          this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        } 
+    
+    }
    
   }
   async componentDidMount() {
     const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest} = this.props;
     const {receivingNumber, _manifest, search} = this.state;
     this._unsubscribe = navigation.addListener('focus', (test) => {
+      if(receivingNumber !== null)
       this.setState({updated: true});
       // do something
     });
@@ -120,7 +156,7 @@ class Warehouse extends React.Component{
           if(typeof result === 'object' && result.error === undefined){
           
             this.props.setManifestList(result.products)
-            this.setState({receivingNumber: routes[index].params.number,inboundNumber:result.inbound_number,_manifest:result.products,companyname:result.client,remark: result.remarks, updated: true })
+            this.setState({receivingNumber: routes[index].params.number,inboundNumber:result.inbound_number,_manifest:result.products,companyname:result.client,remark: result.remarks, initialRender: true })
           } else {
             navigation.popToTop();
           }
@@ -129,7 +165,7 @@ class Warehouse extends React.Component{
           if(typeof result === 'object' && result.error === undefined){
           
             this.props.setManifestList(result.products)
-            this.setState({receivingNumber: routes[index].params.number,inboundNumber:result.inbound_number,_manifest:result.products,companyname:result.client,remark: result.remarks, updated:true})
+            this.setState({receivingNumber: routes[index].params.number,inboundNumber:result.inbound_number,_manifest:result.products,companyname:result.client,remark: result.remarks, initialRender:true})
           } else {
             navigation.popToTop();
           }
@@ -169,7 +205,7 @@ class Warehouse extends React.Component{
     this.setState({notifbanner:'', notifsuccess: false});
   }
   setFiltered = (num)=>{
-    this.setState({filtered:num});
+    this.setState({filtered:num, updated: true});
 }
  
   updateSearch = (search) => {
