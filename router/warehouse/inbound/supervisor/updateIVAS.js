@@ -164,6 +164,8 @@ class Acknowledge extends React.Component {
         stuff20Container: !this.state.stuff20Container,
         stuffTruck: false,
         stuff40Container: false,
+        stuff40ContainerDot1: false,
+        stuff40ContainerDot2: false,
     });
   };
 
@@ -172,6 +174,8 @@ class Acknowledge extends React.Component {
       stuff20Container: false,
       stuffTruck:false,
         stuff40Container: !this.state.stuff40Container,
+        stuff20ContainerDot1: false,
+        stuff20ContainerDot2: false,
     });
   };
   toggleCheckBoxTakeCartoon = () => {
@@ -319,7 +323,7 @@ class Acknowledge extends React.Component {
                 uncheckedIcon='circle-o'
                 checked={this.state.stuff20ContainerDot1}
                 onPress={()=>{
-                    this.setState({stuff20ContainerDot1: !this.state.stuff20ContainerDot1})
+                    this.setState({stuff20ContainerDot1: !this.state.stuff20ContainerDot1, stuff20ContainerDot2: false})
                 }}
                 disabled={(!this.state.stuff20Container)}
                 />
@@ -331,7 +335,7 @@ class Acknowledge extends React.Component {
                 uncheckedIcon='circle-o'
                 checked={this.state.stuff20ContainerDot2}
                 onPress={()=>{
-                    this.setState({stuff20ContainerDot2: !this.state.stuff20ContainerDot2})
+                    this.setState({stuff20ContainerDot2: !this.state.stuff20ContainerDot2, stuff20ContainerDot1: false})
                 }}
                 disabled={(!this.state.stuff20Container)}
                 />
@@ -384,7 +388,7 @@ class Acknowledge extends React.Component {
                 uncheckedIcon='circle-o'
                 checked={this.state.stuff40ContainerDot1}
                 onPress={()=>{
-                    this.setState({stuff40ContainerDot1: !this.state.stuff40ContainerDot1})
+                    this.setState({stuff40ContainerDot1: !this.state.stuff40ContainerDot1, stuff40ContainerDot2:false})
                 }}
                 disabled={(!this.state.stuff40Container)}
                 />
@@ -396,7 +400,7 @@ class Acknowledge extends React.Component {
                 uncheckedIcon='circle-o'
                 checked={this.state.stuff40ContainerDot2}
                 onPress={()=>{
-                    this.setState({stuff40ContainerDot2: !this.state.stuff40ContainerDot2})
+                    this.setState({stuff40ContainerDot2: !this.state.stuff40ContainerDot2, stuff40ContainerDot1:false})
                 }}
                 disabled={(!this.state.stuff40Container)}
                 />
