@@ -28,8 +28,11 @@ class RelocationRequest extends React.Component {
       itemCode: '',
       clientId: null,
       clientList: null,
+      productList: null,
+      selectedItemCode: null,
       searchResult: null,
       filteredClientList: null,
+      filteredProductList: null,
       searchSubmitted: false,
     };
   }
@@ -45,11 +48,35 @@ class RelocationRequest extends React.Component {
     this._unsubscribe();
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.clientId !== this.state.clientId) {
+      if (this.state.clientId !== null) {
+        this.getProductList();
+      } else {
+        this.setState({
+          productList: null,
+          filteredProductList: null,
+          selectedItemCode: null,
+        });
+      }
+    }
+  }
+
   getClientList = async () => {
     const result = await getData('/clients');
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
         clientList: result,
+      });
+    }
+  };
+
+  getProductList = async () => {
+    const {clientId} = this.state;
+    const result = await getData(`/clients/${clientId}/products`);
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        productList: result,
       });
     }
   };
@@ -96,10 +123,20 @@ class RelocationRequest extends React.Component {
         };
       }
     } else if (type === 'itemCodeList') {
-      obj = {
-        itemCode: value,
-        searchSubmitted: false,
-      };
+      if (value === '') {
+        obj = {
+          itemCode: value,
+          filteredProductList: null,
+          selectedItemCode: null,
+          searchSubmitted: false,
+        };
+      } else {
+        obj = {
+          itemCode: value,
+          filteredProductList: this.filterClientProductList(value),
+          searchSubmitted: false,
+        };
+      }
     }
     this.setState(obj);
   };
@@ -107,6 +144,12 @@ class RelocationRequest extends React.Component {
   handleSelect = (value, type) => {
     if (type === 'client') {
       obj = {client: value.name, clientId: value.id, filteredClientList: null};
+    } else if (type === 'itemCode') {
+      obj = {
+        itemCode: value.item_code,
+        filteredProductList: null,
+        selectedItemCode: value.item_code,
+      };
     }
     this.setState(obj);
   };
@@ -117,6 +160,21 @@ class RelocationRequest extends React.Component {
       return clientList.filter((client) => {
         if (client.name !== null)
           return client.name.toLowerCase().includes(value.toLowerCase());
+      });
+    }
+    return null;
+  };
+
+  filterClientProductList = (value) => {
+    const {productList} = this.state;
+    if (productList !== null) {
+      return productList.filter((product, index) => {
+        if (product.description !== null) {
+          return (
+            product.description.toLowerCase().includes(value.toLowerCase()) ||
+            product.item_code.toLowerCase().includes(value.toLowerCase())
+          );
+        }
       });
     }
     return null;
@@ -146,18 +204,19 @@ class RelocationRequest extends React.Component {
   renderItem = (item, type) => {
     return (
       <TouchableOpacity
-        key={item.id}
+        key={type === 'itemCode' ? item._id : item.id}
         style={[
           styles.inputContainer,
-          {
-            justifyContent: 'center',
-            paddingHorizontal: 10,
-          },
+          {justifyContent: 'center', paddingHorizontal: 10},
         ]}
         onPress={() => this.handleSelect(item, type)}>
-        <Text style={styles.inputText}>
-          {type === 'client' ? item.name : item.item_code}
-        </Text>
+        {type === 'itemCode' ? (
+          <Text style={styles.inputText}>
+            {`${item.item_code}-${item.description}`}
+          </Text>
+        ) : (
+          <Text style={styles.inputText}>{item.name}</Text>
+        )}
       </TouchableOpacity>
     );
   };
@@ -176,13 +235,16 @@ class RelocationRequest extends React.Component {
       client,
       clientId,
       filteredClientList,
+      filteredProductList,
       itemCode,
+      productList,
       searchSubmitted,
+      selectedItemCode,
     } = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
-        <ScrollView style={styles.body}>
+        <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
           <View style={styles.searchContainer}>
             <Text style={styles.title}>Request Relocation</Text>
             <View
@@ -239,6 +301,25 @@ class RelocationRequest extends React.Component {
                 disabled={clientId === null ? true : false}
                 disabledInputStyle={{backgroundColor: '#EFEFEF'}}
               />
+              <View style={styles.dropdownContainer}>
+                {itemCode !== '' &&
+                  selectedItemCode === null &&
+                  ((filteredProductList !== null &&
+                    filteredProductList.length === 0) ||
+                    productList === null) && (
+                    <View
+                      style={[
+                        styles.inputContainer,
+                        {justifyContent: 'center', paddingHorizontal: 10},
+                      ]}>
+                      <Text style={styles.inputText}>No Result</Text>
+                    </View>
+                  )}
+                {filteredProductList !== null &&
+                  filteredProductList
+                    .slice(0, 5)
+                    .map((product) => this.renderItem(product, 'itemCode'))}
+              </View>
             </View>
             <Button
               title="Search"
