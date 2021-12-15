@@ -1,4 +1,3 @@
- //below script is for Slack Notification, the script untested yet
 def COLOR_MAP = [
     'SUCCESS': 'good', 
     'FAILURE': 'danger',
