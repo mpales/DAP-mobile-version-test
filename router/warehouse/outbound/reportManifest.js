@@ -16,6 +16,8 @@ import Mixins from '../../../mixins';
 import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import ArrowDown from '../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
+import Incremental from '../../../assets/icon/plus-mobile.svg';
+import Decremental from '../../../assets/icon/min-mobile.svg';
 import UploadTooltip from '../../../component/include/upload-tooltip';
 import {postBlob} from '../../../component/helper/network';
 import Banner from '../../../component/banner/banner';
@@ -270,31 +272,29 @@ class ReportManifest extends React.Component {
                             value={this.state.qtyreported}
                             rightIcon={()=>{
                                 return (
-                                    <View style={{flexDirection:'column', backgroundColor:'transparent', flex:1, minWidth:30, marginLeft:15}}>
-                                        <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight:  PixelRatio.get() > 2.75 ? 32 : 37}}  
-                          containerStyle={{flexShrink:1, marginVertical: 5}}
-                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
-                          onPress={()=>{
-                            const {qtyreported} = this.state;
-                            let qty = parseInt(qtyreported)
-                            this.setState({qtyreported: (qtyreported === '' || isNaN(qty) === true) || (qty < 0) ? '0' : ''+ (qty+1) });
-                        }}
-                          />
+                                    <View style={{flexDirection:'column', backgroundColor:'transparent', flex:1, marginTop:5, marginLeft:15, justifyContent:'center', alignContent:'center',}}>
+                                        <Incremental height="30" width="30" style={{flexShrink:1,}}
+                                         onPress={()=>{
+                                            const {qtyreported} = this.state;
+                                            let qty = parseInt(qtyreported)
+                                            this.setState({qtyreported: (qtyreported === '' || isNaN(qty) === true) || (qty < 0) ? '0' : ''+ (qty+1) });
+                                        }}
+                                        />
+                                      
                                     </View>
                                 );
                             }}
                             leftIcon={()=>{
                                 return (
-                                    <View style={{flexDirection:'column', backgroundColor:'transparent', flex:1, minWidth:30, marginRight:15}}>
-                                        <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight:  PixelRatio.get() > 2.75 ? 32 : 37}}  
-                          containerStyle={{flexShrink:1, marginVertical: 5}}
-                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
-                          onPress={()=>{
-                            const {qtyreported} = this.state;
-                            let qty = parseInt(qtyreported)
-                            this.setState({qtyreported:  (qtyreported === '' || qty === NaN) || (qty <= 0) ? '0' : ''+ (qty-1) });
-                        }}
-                         />
+                                    <View style={{flexDirection:'column', backgroundColor:'transparent', flex:1,marginTop:5, marginRight:15, justifyContent:'center', alignContent:'center'}}>
+                                         <Decremental height="30" width="30" style={{flexShrink:1, }}
+                                          onPress={()=>{
+                                            const {qtyreported} = this.state;
+                                            let qty = parseInt(qtyreported)
+                                            this.setState({qtyreported:  (qtyreported === '' || isNaN(qty) === true) || (qty <= 0) ? '0' : ''+ (qty-1) });
+                                        }}
+                                        />
+                                      
                                     </View>
                                 );
                             }}
