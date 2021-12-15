@@ -38,17 +38,10 @@ pipeline {
                 //echo "Enviroment: ${buildEnv}"            
                 script {
                     if(env.VERSION != 'no-build'){
-                        if (env.DEPLOY == 'staging'){
-                            def slackResponsePre = slackSend(channel: '#dev-notice-logistic',
-                                color: "#0763a6",
-                                message: "*STARTING:* Job ${env.JOB_NAME} build <<${env.VERSION}>> is starting. More info at: <${build_url}|Log>")
+                        def slackResponsePre = slackSend(channel: '#dev-notice-logistic',
+                            color: "#0763a6",
+                            message: "*STARTING:* Job ${env.JOB_NAME} build <<${env.VERSION}>> is starting. More info at: <${build_url}|Log>")
                             slackResponsePre.addReaction("wrench")
-                        }else if (env.DEPLOY == 'production'){
-                            def slackResponsePre = slackSend(channel: '#dev-notice-logistic',
-                                color: "#0763a6",
-                                message: "*STARTING:* Job ${env.JOB_NAME} release automation <<${env.VERSION}>> is starting. More info at: <${build_url}|Log>")
-                            slackResponsePre.addReaction("rocket")
-                        }
                     }
                 }
             }
@@ -102,7 +95,7 @@ pipeline {
                 if(env.VERSION != 'no-build'){
                     def slackResponseSuccess = slackSend(channel: '#dev-notice-logistic',
                         color: COLOR_MAP[currentBuild.currentResult],
-                        message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build <<${env.VERSION}>> is success and deployed to ${env.DEPLOY} server. Download Android APK File here: <${download_url}|DAP-AndroidApp>")
+                        message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build <<${env.VERSION}>> is success. Download Android APK File here: <${download_url}|DAP-AndroidApp>")
                     slackResponseSuccess.addReaction("robot_face")
                 }
             }
