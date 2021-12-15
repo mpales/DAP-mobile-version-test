@@ -41,6 +41,8 @@ import TemplateText from '../../../component/include/template-text';
 import Banner from '../../../component/banner/banner';
 import RNFetchBlob from 'rn-fetch-blob';
 
+import Incremental from '../../../assets/icon/plus-mobile.svg';
+import Decremental from '../../../assets/icon/min-mobile.svg';
 const screen = Dimensions.get('screen');
 const grade = ["Pick", "Buffer", "Damage", "Defective", "Short Expiry", "Expired", "No Stock", "Reserve"];
 const pallet = ["PLDAP 0091", "PLDAP 0092", "PLDAP 0093", "PLDAP 0094"];
@@ -558,12 +560,11 @@ class Example extends React.Component {
                             <Text style={styles.qtyTitle}>{dataItem.is_transit === 1 ? 'Qty' : 'Document Qty'}</Text>
                           </View>
                           <View style={[styles.dividerInput,dataItem.is_transit !== 1 ? {justifyContent:'center', alignContent:'center', paddingHorizontal:40, flexShrink:1, marginBottom:30, } : null]}>
-                          <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: PixelRatio.get() > 2.75 ? 32 : 37}} onPress={()=>{
-                           const {qty,dataItem} = this.state;
-                            this.setState({qty: qty !== '' && qty > 0 ? qty-1 : qty === '' ? 0 : qty});
-                          }}  
-                          containerStyle={{flexShrink:1, marginVertical: 5}}
-                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
+                          <Decremental height="30" width="30" style={{flexShrink:1, marginVertical:5}} 
+                          onPress={()=>{
+                            const {qty,dataItem} = this.state;
+                             this.setState({qty: qty !== '' && qty > 0 ? qty-1 : qty === '' ? 0 : qty});
+                           }}  
                           />
                           <Input 
                             containerStyle={dataItem.is_transit !== 1 ? {flex: 1,paddingVertical:0, height:40} : {flex: 1,paddingVertical:0}}
@@ -576,12 +577,11 @@ class Example extends React.Component {
                               this.setState({qty:  val});
                             }}
                             />
-                          <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: PixelRatio.get() > 2.75 ? 32 : 37}} onPress={()=>{
+                        <Incremental height="30" width="30" style={{flexShrink:1, marginVertical:5}} 
+                          onPress={()=>{
                             const {qty,dataItem} = this.state;
                             this.setState({qty:  qty !== '' ? qty+1: qty === '' ?  1 : qty});
                           }}  
-                          containerStyle={{flexShrink:1, marginVertical: 5}}
-                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
                           />
                           </View>
                         </View>

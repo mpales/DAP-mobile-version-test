@@ -22,6 +22,9 @@ import Mixins from '../../../mixins';
 import moment from 'moment';
 import {postData} from '../../../component/helper/network';
 import {connect} from 'react-redux';
+
+import Incremental from '../../../assets/icon/plus-mobile.svg';
+import Decremental from '../../../assets/icon/min-mobile.svg';
 const screen = Dimensions.get('screen');
 
 class Example extends React.Component {
@@ -378,12 +381,12 @@ class Example extends React.Component {
                             <Text style={styles.qtyTitle}>Qty</Text>
                           </View>
                           <View style={styles.dividerInput}>
-                          <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
-                           const {qty,dataItem} = this.state;
-                            this.setState({qty: qty !== '' && qty > 0 ? qty-1 : qty === '' ? 0 : qty});
-                          }}  
-                          containerStyle={{flexShrink:1, marginVertical: 5}}
-                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
+                        
+                            <Decremental height="30" width="30" style={{flexShrink:1, marginVertical:5}} 
+                         onPress={()=>{
+                          const {qty,dataItem} = this.state;
+                           this.setState({qty: qty !== '' && qty > 0 ? qty-1 : qty === '' ? 0 : qty});
+                         }}  
                           />
                           <Input 
                             containerStyle={{flex: 1,paddingVertical:0}}
@@ -396,12 +399,11 @@ class Example extends React.Component {
                               this.setState({qty:  val});
                             }}
                             />
-                          <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
-                            const {qty,dataItem} = this.state;
-                            this.setState({qty:  qty !== '' ? qty+1: qty === '' ?  1 : qty});
-                          }}  
-                          containerStyle={{flexShrink:1, marginVertical: 5}}
-                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
+                              <Incremental height="30" width="30" style={{flexShrink:1, marginVertical:5}} 
+                        onPress={()=>{
+                          const {qty,dataItem} = this.state;
+                          this.setState({qty:  qty !== '' ? qty+1: qty === '' ?  1 : qty});
+                        }}  
                           />
                           </View>
                         </View>
