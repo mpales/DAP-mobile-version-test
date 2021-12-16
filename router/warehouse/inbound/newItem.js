@@ -139,7 +139,7 @@ class Acknowledge extends React.Component {
         this.setState({submitPhoto:false, overlayProgress:true});
         await this.uploadSubmittedPhoto();
       } else {
-        this.setState({submitPhoto:false,errorsphoto:'take a Photo Proof before continue process', labelerror: true})
+        this.setState({submitPhoto:false,errorsphoto:'take a Photo Proof before continue process', labelerror: true, errors: ''})
       }
 
     }
@@ -193,7 +193,7 @@ class Acknowledge extends React.Component {
     })
   };
   closeErrorBanner = ()=>{
-    this.setState({errors:''});
+    this.setState({errors:'', errorsphoto:'', labelerror:false});
   }
   submitItem = async ()=>{
     const {manifestList,currentASN} = this.props;
@@ -235,7 +235,7 @@ class Acknowledge extends React.Component {
     
     } else {
       if(updateAttr.error !== undefined){
-        this.setState({errors: updateAttr.error});
+        this.setState({errors: updateAttr.error, errorsphoto:'', labelerror:false});
       }
     }
   }
@@ -268,7 +268,7 @@ class Acknowledge extends React.Component {
       const {_inputCode} = this.state;
       const confirmPhotos = postData('/inboundsMobile/'+currentASN+'/'+_inputCode+'/confirm-photos');
       if(typeof confirmPhotos === 'object' && confirmPhotos.error !== undefined){
-        this.setState({errors: confirmPhotos.error});
+        this.setState({errors: confirmPhotos.error, errorsphoto:'', labelerror:false});
       } else {
         this.setState({recordPhoto:true});
       }
@@ -315,17 +315,17 @@ class Acknowledge extends React.Component {
     ], this.listenToProgressUpload).then(result=>{
       if(typeof result !== 'object'){
         this.props.addAttributePostpone( null );
-        this.setState({ progressLinearVal:0, errorsphoto:result, labelerror : false,overlayProgress : false,validPhoto : true});         
+        this.setState({ progressLinearVal:0, errorsphoto:result, labelerror : false,errors:'',overlayProgress : false,validPhoto : true});         
     } else {       
       if(typeof result === 'object'){
-        this.setState({errorsphoto: result.error,progressLinearVal:0, labelerror: true,overlayProgress : false,validPhoto : false});
+        this.setState({errorsphoto: result.error,progressLinearVal:0, labelerror: true,errors:'',overlayProgress : false,validPhoto : false});
       }
     }
     });
   };
   
   closePhotoErrorBanner = ()=>{
-    this.setState({errorsphoto:'', labelerror : false});
+    this.setState({errorsphoto:'', labelerror : false,errors:''});
   }
   render(){
     const {barcode, sku,description, uom, length,width,height,volweight,weight,pcscarton, _manifest} = this.state;

@@ -92,9 +92,9 @@ class ConnoteReportDetails extends React.Component {
     let data = {acknowledge:this.state.acknowledged >>> 0}
     const result = await postData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+shipmentID,data);
     if(typeof result === 'object' && result.error !== undefined){
-      this.setState({errorbanner:result.error});
+      this.setState({errorbanner:result.error, notifbanner:''});
     } else {
-      this.setState({notifbanner: result, renderAcknowledged: true});
+      this.setState({notifbanner: result, renderAcknowledged: true, errorbanner:''});
     }
   }
   uncheckedIcon = () => {
