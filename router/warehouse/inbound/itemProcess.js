@@ -553,18 +553,18 @@ class Example extends React.Component {
                       </View> */}
 
                        {this.state.dataItem.specialField.batchTracking === 1 && (
-                       <TemplateText required={1} name="Batch#" ref={(ref)=>{
+                       <TemplateText required={1} name="Batch #" ref={(ref)=>{
                             if(ref !== null)
                             this.refBatch.current = ref;
                           }}/>)}
                          
                       {this.state.dataItem.specialField.expiryDateTracking === 1 && (
-                      <TemplateDate required={this.state.dataItem.specialField.expiryDateMandatory} name="Expiry Date" ref={(ref)=>{
+                      <TemplateDate required={this.state.dataItem.specialField.expiryDateMandatory} name="Exp Date" ref={(ref)=>{
                             if(ref !== null)
                             this.refexpiryDate.current = ref
                           }}/>)}
                       {this.state.dataItem.specialField.productionDateTracking === 1 && (
-                      <TemplateDate required={1} name="Production Date" ref={(ref)=>{
+                      <TemplateDate required={1} name="Mfg Date" ref={(ref)=>{
                             if(ref !== null)
                             this.refproductionDate.current = ref
                           }}/>)}

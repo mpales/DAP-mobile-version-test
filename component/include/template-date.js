@@ -30,6 +30,14 @@ const styles = {
         fontWeight: '500',
         lineHeight: 18,
         paddingHorizontal:9,
+      },  
+      dateInfo: {
+        ...Mixins.small1,
+        color: '#424141',
+        fontWeight: '400',
+        lineHeight: 18,
+        paddingHorizontal:7,
+        textAlignVertical: 'center',
       },
 };
 const theme = {
@@ -156,6 +164,7 @@ const Manifest = React.forwardRef((props, ref) => {
                             }}
                             renderErrorMessage={false}
                         />
+                         <Text style={styles.dateInfo}>dd-MM-yy</Text>
         </View>
     </ThemeProvider>
   );
