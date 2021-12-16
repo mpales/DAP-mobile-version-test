@@ -15,6 +15,7 @@ import {connect} from 'react-redux';
 import {getData} from '../../../../component/helper/network';
 // component
 import RelocationResult from '../../../../component/extend/ListItem-relocation-result';
+import Banner from '../../../../component/banner/banner';
 // style
 import Mixins from '../../../../mixins';
 // icon
@@ -34,6 +35,7 @@ class RelocationRequest extends React.Component {
       filteredClientList: null,
       filteredProductList: null,
       searchSubmitted: false,
+      errorMessage: '',
     };
   }
 
@@ -68,6 +70,8 @@ class RelocationRequest extends React.Component {
       this.setState({
         clientList: result,
       });
+    } else {
+      this.handleRequestError(result);
     }
   };
 
@@ -78,6 +82,8 @@ class RelocationRequest extends React.Component {
       this.setState({
         productList: result,
       });
+    } else {
+      this.handleRequestError(result);
     }
   };
 
@@ -92,12 +98,14 @@ class RelocationRequest extends React.Component {
       this.setState({
         searchResult: result,
       });
+    } else {
+      this.handleRequestError(result);
     }
     this.setState({searchSubmitted: true});
   };
 
   submitSearch = () => {
-    const {client, itemCode} = this.state;
+    const {client} = this.state;
     if (client === '') {
       return;
     }
@@ -187,6 +195,25 @@ class RelocationRequest extends React.Component {
       clientId: null,
       filteredClientList: null,
       searchSubmitted: false,
+      searchResult: null,
+    });
+  };
+
+  closeBanner = () => {
+    this.setState({
+      errorMessage: '',
+    });
+  };
+
+  handleRequestError = (result) => {
+    let errorMessage = '';
+    if (!!result.error) {
+      errorMessage = result.error;
+    } else if (typeof result === 'string') {
+      errorMessage = result;
+    }
+    this.setState({
+      errorMessage: errorMessage,
     });
   };
 
@@ -231,6 +258,7 @@ class RelocationRequest extends React.Component {
 
   render() {
     const {
+      errorMessage,
       searchResult,
       client,
       clientId,
@@ -244,6 +272,13 @@ class RelocationRequest extends React.Component {
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
+        {errorMessage !== '' && (
+          <Banner
+            title={errorMessage}
+            backgroundColor="#F07120"
+            closeBanner={this.closeBanner}
+          />
+        )}
         <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
           <View style={styles.searchContainer}>
             <Text style={styles.title}>Request Relocation</Text>
