@@ -10,6 +10,7 @@ import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.s
 import IconView from '../../../assets/icon/iconmonstr-picture-1 1mobile.svg';
 import IconBarcodeMobile from '../../../assets/icon/iconmonstr-barcode-3 2mobile.svg';
 import EmptyIlustrate from '../../../assets/icon/Groupempty.svg';
+import EmptyRecord from '../../../assets/icon/manifest-empty mobile.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import UploadTooltip from '../../../component/include/upload-tooltip';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -327,7 +328,13 @@ class Acknowledge extends React.Component {
     this.setState({errorsphoto:'', labelerror : false});
   }
   render(){
-    const {barcode, sku,description, uom, length,width,height,volweight,weight,pcscarton} = this.state;
+    const {barcode, sku,description, uom, length,width,height,volweight,weight,pcscarton, _manifest} = this.state;
+    if(_manifest !== null && _manifest.record === 0) return (
+      <View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
+           <EmptyRecord height="132" width="213" style={{marginBottom:15}}/>
+                <Text style={{  ...Mixins.subtitle3,}}>No Record</Text>
+        </View>
+    );
     return (
       <>
       {this.state.errors !== '' && (<Banner
@@ -412,7 +419,7 @@ class Acknowledge extends React.Component {
             <EmptyIlustrate width="70" height="70" style={{marginHorizontal:20}}/>
          </View>
         </View>
-         {(this.state._manifest.barcode === 1 || this.state._manifest.is_new === 1) && ( <View style={{
+         {this.state._manifest.barcode === 1  && ( <View style={{
             marginHorizontal:10, marginVertical:10, 
             shadowColor: "#000",
             shadowOffset: {
@@ -472,7 +479,7 @@ class Acknowledge extends React.Component {
           </View>
         )}
         
-       { (this.state._manifest.is_new === 1 || this.state._manifest.input_basic_attributes === 1) && ( 
+       {  this.state._manifest.input_basic_attributes === 1 && ( 
        <View style={{
           marginHorizontal:10, 
           marginVertical:10, 
@@ -594,11 +601,11 @@ class Acknowledge extends React.Component {
               onPress={this.toggleCartonOverlay}
               disabledStyle={this.state.validDimensions  === true ? {backgroundColor:  '#17B055', opacity: 1, color: 'white'} : null}
               disabledTitleStyle={this.state.validDimensions  === true ? {color:'white'}: null}
-              disabled={( this.state._manifest.is_new === 1 || this.state._manifest.input_basic_attributes === 1) && this.state.validDimensions  === false && this.state.length !== '' && this.state.weight !== '' & this.state.pcscarton !== '' && this.state.volweight !== '' && this.state.width !== '' && this.state.height !== '' ? false : true}
+              disabled={ this.state._manifest.input_basic_attributes === 1 && this.state.validDimensions  === false && this.state.length !== '' && this.state.weight !== '' & this.state.pcscarton !== '' && this.state.volweight !== '' && this.state.width !== '' && this.state.height !== '' ? false : true}
               title="Update Carton Dimensions"
             />
          </View>)}
-        {this.state.keyboardState === 'hide' && (this.state._manifest.take_photo === 1 || this.state._manifest.is_new === 1) && ( 
+        {this.state.keyboardState === 'hide' && this.state._manifest.take_photo === 1 && ( 
         <View style={{
            marginHorizontal:10, 
           marginTop:10,
@@ -715,7 +722,7 @@ class Acknowledge extends React.Component {
               onPress={this.togglePhotoOverlay}
               disabledStyle={this.state.recordPhoto  === true ? {backgroundColor:  '#17B055', opacity: 1, color: 'white'} : null}
               disabledTitleStyle={this.state.recordPhoto  === true ? {color:'white'}: null}
-              disabled={( this.state._manifest.is_new === 1 || this.state._manifest.take_photo === 1) && this.state.validPhoto === true && this.state.recordPhoto === false ? false : true}
+              disabled={this.state._manifest.take_photo === 1 && this.state.validPhoto === true && this.state.recordPhoto === false ? false : true}
               title="Confirm upload photos"
             />
          </View>)}

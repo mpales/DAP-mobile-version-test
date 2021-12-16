@@ -24,6 +24,7 @@ class Acknowledge extends React.Component {
       errors: '',
       labelerror : false,
       progressLinearVal : 0,
+      ISOreceivedDate : null,
       updateData: false,
       submitPhoto:false,
       submitDetail:false,
@@ -199,9 +200,10 @@ class Acknowledge extends React.Component {
       } else {
         let uploadCategory = this.state.data.status === 3 ? 'receiving' : 'processing';
         const result = await postData('inboundsMobile/'+ receivingNumber + '/'+uploadCategory);
-        if((typeof result !== 'object' && (result === 'Inbound status changed to received' || result === 'Inbound status changed to processing')) || (typeof result === 'object' && result.msg !== undefined &&  result.msg === 'Inbound status changed to processing')){
+        console.log(result);
+        if((typeof result !== 'object' && (result === 'Inbound status changed to received' || result === 'Inbound status changed to processing')) || (typeof result === 'object' && ((result.msg !== undefined &&  result.msg === 'Inbound status changed to processing') || (result.message !== undefined &&  result.message === 'Inbound status changed to received')))){
           if(this.state.data.status === 3){
-            this.setState({updateData:true, submitDetail:false, errors: '', labelerror: false});
+            this.setState({updateData:true, submitDetail:false, errors: '', labelerror: false, ISOreceivedDate:result.receivedDate });
           } else {
             this.props.setActiveASN(receivingNumber);
             this.props.setCurrentASN(receivingNumber);
@@ -479,7 +481,7 @@ class Acknowledge extends React.Component {
                 inputContainerStyle={{borderWidth:0,borderBottomWidth:0, paddingVertical:0, marginVertical:0, flexDirection:'column-reverse',}} 
                 inputStyle={[Mixins.containedInputDefaultStyle,{...Mixins.subtitle3,fontWeight:'600',lineHeight: 21, color:'#6C6B6B', marginVertical:0, paddingVertical:0}]}
                 labelStyle={[Mixins.containedInputDefaultLabel,{...Mixins.subtitle3,marginBottom: 0,marginTop:5}]}
-                value={data.status === 3 ? moment(data.eta).format("DD-MM-YYYY") : moment(data.created_on).format("DD-MM-YYYY / hh.mm A")}
+                value={data.status === 3 ? moment(data.eta).format("DD-MM-YYYY") : this.state.ISOreceivedDate !== null ? moment(this.state.ISOreceivedDate).format("DD-MM-YYYY / hh.mm A") : moment(data.created_on).format("DD-MM-YYYY / hh.mm A")}
                 multiline={true}
                 disabled={true}
                 label=" : "
