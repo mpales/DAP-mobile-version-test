@@ -62,6 +62,7 @@ const Manifest = React.forwardRef((props, ref) => {
                           inputContainerStyle={{maxHeight:30, padding:0, margin:0, borderBottomColor: 'transparent'}} 
                             inputStyle={{...Mixins.containedInputDefaultStyle,marginHorizontal:0}}
                             labelStyle={Mixins.containedInputDefaultLabel}
+                            style={{...Mixins.small1,fontWeight:'400',lineHeight:18,color:'#424141'}}
                             value={textualVal}
                             onChangeText={handlechangeText}
                         />
