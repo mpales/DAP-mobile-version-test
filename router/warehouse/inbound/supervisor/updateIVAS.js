@@ -303,6 +303,7 @@ class Acknowledge extends React.Component {
                 style={{...Mixins.body1,lineHeight:21,color:'#6C6B6B',fontWeight:'400'}}
                 onChangeText={this.stuffTruckPalletInput}
                 value={this.state.stuffTruckPallet}
+                keyboardType="number-pad"
             />
          </View>      
          <View style={[styles.sectionInput, {paddingVertical:10}]}>
@@ -318,6 +319,7 @@ class Acknowledge extends React.Component {
                 disabled={(!this.state.stuffTruck)}
                 onChangeText={this.stuffTruckCartonInput}
                 value={this.state.stuffTruckCarton}
+                keyboardType="number-pad"
             />
          </View>
          </View> ): (
@@ -398,6 +400,7 @@ class Acknowledge extends React.Component {
                 style={{...Mixins.body1,lineHeight:21,color:'#6C6B6B',fontWeight:'400'}}
                 onChangeText={this.stuff20ContainerPalletInput}
                 value={this.state.stuff20ContainerPallet}
+                keyboardType="number-pad"
             />
         </View>      
         <View style={[styles.sectionInput, {paddingVertical:10}]}>
@@ -413,6 +416,7 @@ class Acknowledge extends React.Component {
                 disabled={(!this.state.stuff20Container)}
                 onChangeText={this.stuff20ContainerCartonInput}
                 value={this.state.stuff20ContainerCarton}
+                keyboardType="number-pad"
             />
             </View> 
             </>)}
@@ -464,6 +468,7 @@ class Acknowledge extends React.Component {
                 style={{...Mixins.body1,lineHeight:21,color:'#6C6B6B',fontWeight:'400'}}
                 onChangeText={this.stuff40ContainerPalletInput}
                 value={this.state.stuff40ContainerPallet}
+                keyboardType="number-pad"
             />
         </View> 
         <View style={[styles.sectionInput, {paddingVertical:10}]}>
@@ -479,6 +484,7 @@ class Acknowledge extends React.Component {
                 disabled={(!this.state.stuff40Container)}
                 onChangeText={this.stuff40ContainerCartonInput}
                 value={this.state.stuff40ContainerCarton}
+                keyboardType="number-pad"
             />
             </View> 
             </>
