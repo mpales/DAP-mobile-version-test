@@ -55,6 +55,7 @@ class RelocationItemDetails extends React.Component {
                 reasonCode={relocationDetails.reasonCode}
                 remark={relocationDetails.remark}
                 key={index}
+                requestBy={`${relocationDetails.createdBy.firstName} ${relocationDetails.createdBy.lastName}`}
               />
             ))}
           </View>

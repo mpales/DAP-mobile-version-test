@@ -27,7 +27,7 @@ import {connect, Provider} from 'react-redux';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 import {createCompatNavigatorFactory} from '@react-navigation/compat';
-import {createStackNavigator,Header} from '@react-navigation/stack';
+import {createStackNavigator,Header, HeaderBackButton} from '@react-navigation/stack';
 import SupervisorList from './list';
 import SupervisorManifest from './manifest';
 import PhotosDraftSPV from './photos';
@@ -38,6 +38,7 @@ import IVASListSPV from './IVASList';
 import UpdateIVAS from './updateIVAS';
 import Mixins from '../../../../mixins';
 import UpdatePhotos from '../../peripheral/updatePhoto/index';
+import Completed from './completed';
 const window = Dimensions.get('window');
 
 class SupervisorInbound extends React.Component {
@@ -96,6 +97,33 @@ class SupervisorInbound extends React.Component {
           headerTintColor: '#fff',
           // react-navigation 6 drop dangerously so its fine to use
           headerTitle: navigation.dangerouslyGetState().params !== undefined && navigation.dangerouslyGetState().params.type !== undefined ? navigation.dangerouslyGetState().params.type : 'Manifest' ,
+        }),
+      },
+      CompletedSupervisor: {
+        screen: Completed,
+        navigationOptions:  ({ navigation }) => ({
+          headerStyle: {
+            backgroundColor: '#121C78',
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+            ...Platform.select({
+              android: {
+                height: 45,
+              },
+            })
+          },
+          headerTintColor: '#fff',
+          headerLeft: (props) => {
+            return(
+              <HeaderBackButton  {...props} onPress={()=>{
+                this.props.navigation.navigate('ListSupervisor')
+              }
+            }
+            />);
+          },
+          // react-navigation 6 drop dangerously so its fine to use
+          headerTitle:'Completed' ,
         }),
       },
       PhotosDraftSPV: {
@@ -239,7 +267,7 @@ class SupervisorInbound extends React.Component {
           let key =  state.routes[state.index].name;
           let index = state.index;
           this.setWrapperofStack(index,key);
-          if(key !== 'ListSupervisor' && props.scene.descriptor.options.headerTitle.indexOf('-') === -1){
+          if((key !== 'ListSupervisor' && key !== 'CompletedSupervisor') && props.scene.descriptor.options.headerTitle.indexOf('-') === -1){
             let typeString = '';
             switch (this.props.manifestType) {
               case 1:

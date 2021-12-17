@@ -190,6 +190,7 @@ class Warehouse extends React.Component{
       // for prototype only
       const result = await postData('/inboundsMobile/'+receivingNumber+'/confirm-putaway')
       if(typeof result !== 'object'){
+        this.props.navigation.navigate('CompletedSupervisor')
         this.setState({notifbanner:result, notifsuccess: true});
       } else {
         if(result.error !== undefined) this.setState({notifbanner:result.error, notifsuccess: false});
@@ -357,7 +358,8 @@ class Warehouse extends React.Component{
                     navigation={this.props.navigation}
                     currentManifest={this.props.setCurrentManifest}
                     toReportDetail={()=>{
-                      this.props.navigation.navigate('ReportDetailsSPV',{number:this.state.receivingNumber, productID : u.pId});
+                      this.props.navigation.navigate('ReportDetailsSPV',{number:this.state.receivingNumber, productID : u.pId, isShowBannerSuccess : false,
+                        isShowBanner : '',});
                     }}
                     // for prototype only
                     // end
