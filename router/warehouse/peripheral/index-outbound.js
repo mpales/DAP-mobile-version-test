@@ -481,7 +481,7 @@ class Example extends React.Component {
                       containerStyle={{flex: 1, marginTop: 10, marginRight: 5}}
                       buttonStyle={styles.cancelButton}
                       titleStyle={styles.backText}
-                      onPress={()=>this.props.navigation.goBack()}
+                      onPress={()=>this.makeGoBackProcess()}
                       title="Back"
                     />
               <Button
@@ -797,6 +797,15 @@ class Example extends React.Component {
     return Array.from({length: qty}).map((num, index) => {
       return dataCode;
     });
+  };
+  makeGoBackProcess = ()=>{
+    const {scanItem,itemCode} = this.state;
+    if(itemCode !== null){
+      this.setState({dataCode:'0', itemCode: null});
+    } else if(scanItem !== null){
+      this.setState({dataCode:'0', scanItem:null});
+    }
+    this.props.setBarcodeScanner(true);
   };
   onSubmit = async () => {
     const {dataCode,qty, dataItem, indexData} = this.state;
