@@ -211,7 +211,6 @@ class RelocationRequest extends React.Component {
       remark: remarks,
     };
     const result = await postData('/stocks-mobile/stock-relocations', data);
-    console.log(result);
     if (
       typeof result === 'object' &&
       result.message ===
@@ -220,13 +219,19 @@ class RelocationRequest extends React.Component {
       result.errors === undefined
     ) {
       this.handleShowOverlay(true);
-    } else if (typeof result === 'string') {
-      this.setState({
-        errorMessage: result,
-      });
+    } else {
+      if (!!result.error) {
+        this.setState({
+          errorMessage: result.error,
+        });
+      } else if (typeof result === 'string') {
+        this.setState({
+          errorMessage: result,
+        });
+      }
     }
     this.setState({
-      isSubmitting: true,
+      isSubmitting: false,
     });
   };
 
