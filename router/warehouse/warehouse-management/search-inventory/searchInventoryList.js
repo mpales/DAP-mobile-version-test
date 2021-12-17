@@ -81,7 +81,7 @@ class SearchInventoryList extends React.Component {
             buttonStyle={styles.dropdownButton}
             buttonTextStyle={styles.dropdownButtonText}
             rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
-            data={['Location', 'Warehouse']}
+            data={['Location']}
             defaultValueByIndex={0}
             onSelect={(selectedItem) => {
               this.sortList(selectedItem);

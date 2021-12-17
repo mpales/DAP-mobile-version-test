@@ -8,7 +8,7 @@ import {TextList} from './Text-list';
 // helper
 import {productGradeToString, reasonCodeToString} from '../helper/string';
 
-const ExpandableCard = ({item, reasonCode, remark}) => {
+const ExpandableCard = ({item, reasonCode, remark, requestBy}) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleExpanded = () => {
@@ -36,10 +36,10 @@ const ExpandableCard = ({item, reasonCode, remark}) => {
         {isExpanded && (
           <>
             <TextList title="Description" value={item.product.description} />
-            <TextList title="Request By" value={item.client.name} />
+            <TextList title="Request By" value={requestBy} />
             <TextList title="Grade" value={productGradeToString(item.grade)} />
             <TextList
-              title="Expirty Date"
+              title="Expiry Date"
               value={item.attributes?.expiry_date}
             />
             <TextList title="Batch No" value={item.batchNo} />

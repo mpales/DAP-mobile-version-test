@@ -30,6 +30,7 @@ const window = Dimensions.get('window');
 class RelocationRequest extends React.Component {
   constructor(props) {
     super(props);
+    this.locationDropdownRef = React.createRef();
     this.state = {
       relocateFrom: this.props.selectedRequestRelocation,
       warehouseList: null,
@@ -51,18 +52,26 @@ class RelocationRequest extends React.Component {
   }
 
   componentDidMount() {
+    const {relocateFrom} = this.state;
     this.getWarehouseList();
+    this.setState({
+      selectedGrade: !!relocateFrom.productGrade
+        ? relocateFrom.productGrade
+        : relocateFrom.grade,
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.selectedWarehouse !== this.state.selectedWarehouse) {
-      if (this.state.selectedWarehouse === null) {
-        this.setState({
-          locationList: [],
-          selectedLocation: null,
-        });
-      } else {
+      if (this.state.selectedWarehouse !== null) {
         this.getLocationList();
+      }
+      this.setState({
+        locationList: [],
+        selectedLocation: null,
+      });
+      if (!!this.locationDropdownRef) {
+        this.locationDropdownRef.current.reset();
       }
     }
   }
@@ -76,7 +85,7 @@ class RelocationRequest extends React.Component {
   handlePicker = (value, type) => {
     let obj = {};
     if (type === 'warehouse') {
-      obj = {selectedWarehouse: value};
+      obj = {selectedWarehouse: value, selectedLocation: null};
     } else if (type === 'locationId') {
       obj = {selectedLocation: value};
     } else if (type === 'reasonCode') {
@@ -202,7 +211,6 @@ class RelocationRequest extends React.Component {
       remark: remarks,
     };
     const result = await postData('/stocks-mobile/stock-relocations', data);
-    console.log(result);
     if (
       typeof result === 'object' &&
       result.message ===
@@ -211,13 +219,19 @@ class RelocationRequest extends React.Component {
       result.errors === undefined
     ) {
       this.handleShowOverlay(true);
-    } else if (typeof result === 'string') {
-      this.setState({
-        errorMessage: result,
-      });
+    } else {
+      if (!!result.error) {
+        this.setState({
+          errorMessage: result.error,
+        });
+      } else if (typeof result === 'string') {
+        this.setState({
+          errorMessage: result,
+        });
+      }
     }
     this.setState({
-      isSubmitting: true,
+      isSubmitting: false,
     });
   };
 
@@ -352,6 +366,7 @@ class RelocationRequest extends React.Component {
                 </View>
               )}
               disabled={selectedWarehouse === null}
+              ref={this.locationDropdownRef}
             />
           </View>
           <View style={styles.inputFormContainer}>
@@ -442,7 +457,19 @@ class RelocationRequest extends React.Component {
               buttonTextStyle={styles.dropdownButtonText}
               rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
               data={!!gradeList ? gradeList : []}
-              defaultButtonText="Selected Reason Code"
+              defaultButtonText={
+                productGradeToString(
+                  !!relocateFrom.productGrade
+                    ? relocateFrom.productGrade
+                    : relocateFrom.grade,
+                ) !== '-'
+                  ? productGradeToString(
+                      !!relocateFrom.productGrade
+                        ? relocateFrom.productGrade
+                        : relocateFrom.grade,
+                    )
+                  : 'Selected Reason Code'
+              }
               onSelect={(selectedItem) => {
                 this.handlePicker(selectedItem.id, 'grade');
               }}
