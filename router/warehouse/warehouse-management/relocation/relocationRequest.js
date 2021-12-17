@@ -369,7 +369,7 @@ class RelocationRequest extends React.Component {
               onPress={this.submitSearch}
             />
             <Button
-              title="Scan By Barcode"
+              title="Scan Location Barcode"
               titleStyle={styles.buttonText}
               buttonStyle={[
                 styles.button,
