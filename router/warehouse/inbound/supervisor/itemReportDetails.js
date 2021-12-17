@@ -28,6 +28,7 @@ const window = Dimensions.get('screen');
 class ConnoteReportDetails extends React.Component {
   overlayThumb = null;
   arrayImageProcessingRef = {};
+  _unsubscribe = null;
   constructor(props) {
     super(props);
     this.state = {
@@ -64,7 +65,7 @@ class ConnoteReportDetails extends React.Component {
     
     return {...state};
   }
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  async componentDidUpdate(prevProps, prevState, snapshot) {
     if(prevState.dataReports !== this.state.dataReports){
       for (const [key, value] of Object.entries(this.arrayImageProcessingRef)) {
         if(value !== undefined){
@@ -77,6 +78,16 @@ class ConnoteReportDetails extends React.Component {
        this.overlayThumb.refresh();
      }
     } 
+    if(this.props.keyStack !== prevProps.keyStack && this.props.keyStack === 'ReportDetailsSPV' && prevProps.keyStack === 'ReportSingleDetailsSPV'){
+      const {receivingNumber, inboundID} = this.state;
+      const {currentASN} = this.props;
+      const result = await getData('/inboundsMobile/'+inboundID+'/'+receivingNumber+'/reports');
+      if(typeof result === 'object' && result.error === undefined){
+        this.setState({dataReports:result})
+      } else {
+        // this.props.navigation.goBack();
+      }
+    }
    }
    async componentDidMount(){
     const {receivingNumber, inboundID} = this.state;
@@ -87,6 +98,17 @@ class ConnoteReportDetails extends React.Component {
     } else {
       // this.props.navigation.goBack();
     }
+    this._unsubscribe = this.props.navigation.addListener('focus', async () => {
+      // do something
+        const {routes, index} = this.props.navigation.dangerouslyGetState();
+        if(routes[index].params !== undefined && routes[index].params.isShowBannerSuccess === true){
+          this.setState({isShowBannerSuccess: true, error: routes[index].params.isShowBanner});
+          this.props.navigation.setParams({...routes[index].params,isShowBannerSuccess: false,isShowBanner: ''});
+        }
+    });
+  }
+  componentWillUnmount(){
+    this._unsubscribe();
   }
   toggleOverlay = (item)=>{
     const {overlayImage} = this.state;
@@ -211,7 +233,7 @@ class ConnoteReportDetails extends React.Component {
       return (
         <TouchableScale
         key={item.key}
-        onPress={() => {this.setState({activeReportId:item.id, acknowledged : this.state.activeReportId === item.id ? this.state.acknowledged : false})}}
+        onPress={()=>this._onPressSingleReports(item)}
         onShowUnderlay={separators.highlight}
         onHideUnderlay={separators.unhighlight}
         activeScale={0.9}
@@ -240,7 +262,7 @@ class ConnoteReportDetails extends React.Component {
             />
             <ArrowDown fill="black" height="26" width="26" style={{flexShrink:1, transform:[{rotate:'-90deg'}]}}/>
             </View>
-            <Text style={styles.detailText}>Note</Text>
+            <Text style={styles.detailText}>Remarks</Text>
             <TextInput
               style={styles.note}
               multiline={true}
@@ -250,7 +272,7 @@ class ConnoteReportDetails extends React.Component {
               editable={false}
             />
 
-               {this.state.activeReportId === item.id && (
+               {/* {this.state.activeReportId === item.id && (
                  <>
                  <CheckBox
                       title="I Acknowledge"
@@ -271,7 +293,7 @@ class ConnoteReportDetails extends React.Component {
                     disabled={(this.state.acknowledged === false || item.acknowledged === 1)}
                   />
                   </>
-                  )}
+                  )} */}
           </View>
         </Card> 
     </TouchableScale>);
@@ -450,7 +472,7 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  return {};
+  return {  keyStack: state.originReducer.filters.keyStack,};
 };
 
 const mapDispatchToProps = (dispatch) => {

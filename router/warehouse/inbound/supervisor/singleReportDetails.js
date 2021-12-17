@@ -10,7 +10,7 @@ import {
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
-import {Card, CheckBox, Button, Overlay} from 'react-native-elements';
+import {Card, CheckBox, Button, Overlay, Input} from 'react-native-elements';
 import {connect} from 'react-redux';
 import Mixins from '../../../../mixins';
 import Checkmark from '../../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
@@ -18,6 +18,9 @@ import Checkmark from '../../../../assets/icon/iconmonstr-check-mark-7 1mobile.s
 import DetailList from '../../../../component/extend/Card-detail';
 import ImageLoading from '../../../../component/loading/image';
 import Loading from '../../../../component/loading/loading';
+import Banner from '../../../../component/banner/banner';
+import Incremental from '../../../../assets/icon/plus-mobile.svg';
+import Decremental from '../../../../assets/icon/min-mobile.svg';
 import {getData, getBlob,postData, postBlob} from '../../../../component/helper/network';
 import moment from 'moment';
 const window = Dimensions.get('screen');
@@ -41,6 +44,7 @@ class ConnoteReportDetails extends React.Component {
       overlayImageString: null,
       overlayImageFilename : null,
       error: '',
+      qtyreported : "0",
     };
     this.toggleOverlay.bind(this);
     this.renderPhotoProof.bind(this);
@@ -137,15 +141,18 @@ class ConnoteReportDetails extends React.Component {
     return <View style={styles.unchecked} />;
   };
   acknowledgedReport = async ()=>{
-    const {receivingNumber, inboundID, reportID, acknowledged,resolution} = this.state;
+    const {receivingNumber, inboundID, reportID, acknowledged,resolution, qtyreported} = this.state;
     let data = {
       acknowledge: acknowledged >>> 0,
-      resolution: resolution,
+      spvRemarks: resolution,
+      qty:  qtyreported,
     };
     let result = await postData('/inboundsMobile/'+inboundID+'/'+receivingNumber+'/reports/'+reportID,data); 
     if(result !== 'object'){
-      console.log(result);
-      this.props.navigation.goBack();
+      this.props.navigation.navigate('ReportDetailsSPV', {
+        isShowBannerSuccess : true,
+        isShowBanner : result,
+      });
     } else {
       if(result.errors !== undefined){
         let dumpError = '';
@@ -168,16 +175,46 @@ class ConnoteReportDetails extends React.Component {
       resolution: text,
     });
   };
+  closeBanner = () => {
+    this.setState({
+      isShowBannerSuccess: false,
+      error: '',
+    });
+  };
   render() {
     const {dataReports, photoData} = this.state;
+    console.log(dataReports);
     if(dataReports === null)
     return (<Loading />);
-
+    let report_title = 'Other';
+    switch (dataReports.report) {
+      case 1:
+        report_title = 'Damage Item'
+        break;
+        case 2:
+          report_title = 'Item Missing'
+          break;
+          case 3:
+            report_title = 'Excess Item'
+            break;
+            case 4:
+              report_title = 'Others'
+              break;
+              case 5:
+                report_title = 'Expired Item'
+                break;
+                        
+      default:
+        break;
+    }
     return (
       <>
         <StatusBar barStyle="dark-content" />
+        {this.state.error !== '' && (
+          <Banner title={this.state.error} closeBanner={this.closeBanner} backgroundColor="#F1811C" />
+        )}
         <ScrollView style={styles.container}>
-          <View style={[styles.header,{paddingHorizontal:10}]}>
+          <View style={[styles.header,{paddingHorizontal:10,marginTop:20}]}>
             <Text style={styles.headerTitle}>Report Details</Text>
           </View>
           <Overlay isVisible={this.state.overlayImage} onBackdropPress={this.toggleOverlay}>
@@ -204,9 +241,9 @@ class ConnoteReportDetails extends React.Component {
                   <Text
                     style={[
                       styles.headerTitle,
-                      {marginBottom: 10, color: '#E03B3B', fontSize: 20},
+                      {marginBottom: 10, color: '#E03B3B', fontSize: 20, color: dataReports.acknowledged === 1 ? '#17B055' : '#E03B3B'},
                     ]}>
-                    {dataReports.report}
+                    {report_title}
                   </Text>
                 </View>
                 <View style={styles.detail}>
@@ -219,7 +256,7 @@ class ConnoteReportDetails extends React.Component {
                         data={photoData}
                         renderItem={this.renderPhotoProof}
                   />
-                  <Text style={styles.detailText}>Note</Text>
+                  <Text style={styles.detailText}>Remarks</Text>
                   <TextInput
                     style={styles.note}
                     multiline={true}
@@ -228,10 +265,66 @@ class ConnoteReportDetails extends React.Component {
                     value={dataReports.description}
                     editable={false}
                   />
+                    {dataReports.acknowledged === 1 && (<View style={{marginVertical:20}}><Text style={styles.detailText}>Supervisor Remarks</Text>
+                  <TextInput
+                    style={styles.note}
+                    multiline={true}
+                    numberOfLines={3}
+                    textAlignVertical="top"
+                    value={dataReports.spvRemarks}
+                    editable={false}
+                  /></View>)}
                 </View>
               </Card>
-              {this.state.error !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.error}</Text>)}
-              <Text style={[styles.detailText,{paddingHorizontal:10}]}>Resolution</Text>
+              {dataReports.acknowledged === 0 && (
+              <>
+              <View style={{marginBottom:5, flexDirection:'row', paddingHorizontal:10}}>
+                    <View style={{flexDirection:'column', marginRight:35, marginTop:30}}>
+                        <Text style={{...Mixins.body1, lineHeight:20, fontWeight:'700',color:'#424141'}}>Affected Quantity</Text>
+                    </View>
+                    <Input
+                    containerStyle={{paddingHorizontal:0,marginHorizontal:0, flexShrink:1, paddingTop:15}}
+                        inputContainerStyle={{borderBottomWidth:0}}
+                            style={{...Mixins.h6, lineHeight:27, fontWeight:'700',color:'#424141',margin:0,textAlignVertical:'center',textAlign:'center'}}
+                            keyboardType='number-pad'
+                            inputStyle={{...Mixins.containedInputDefaultStyle,borderColor:'#ABABAB',borderWidth:1, borderRadius:5}}
+                            onChangeText={(val)=>{
+                                this.setState({qtyreported:  val});
+                            }}
+                            multiline={false}
+                            numberOfLines={1}
+                            value={this.state.qtyreported}
+                            rightIcon={()=>{
+                                return (
+                                    <View style={{flexDirection:'column', backgroundColor:'transparent', flex:1, marginTop:0, marginLeft:10, justifyContent:'center', alignContent:'center',}}>
+                                        <Incremental height="30" width="30" style={{flexShrink:1,}}
+                                         onPress={()=>{
+                                            const {qtyreported} = this.state;
+                                            let qty = parseInt(qtyreported)
+                                            this.setState({qtyreported: (qtyreported === '' || isNaN(qty) === true) || (qty < 0) ? '0' : ''+ (qty+1) });
+                                        }}
+                                        />
+                                      
+                                    </View>
+                                );
+                            }}
+                            leftIcon={()=>{
+                                return (
+                                    <View style={{flexDirection:'column', backgroundColor:'transparent', flex:1,marginTop:0, marginRight:10, justifyContent:'center', alignContent:'center'}}>
+                                         <Decremental height="30" width="30" style={{flexShrink:1, }}
+                                          onPress={()=>{
+                                            const {qtyreported} = this.state;
+                                            let qty = parseInt(qtyreported)
+                                            this.setState({qtyreported:  (qtyreported === '' || isNaN(qty) === true) || (qty <= 0) ? '0' : ''+ (qty-1) });
+                                        }}
+                                        />
+                                      
+                                    </View>
+                                );
+                            }}
+                        />
+                    </View>
+              <Text style={[styles.detailText,{paddingHorizontal:10}]}>Supervisor Remarks</Text>
                 <TextInput
                   style={[styles.note,{marginHorizontal:10}]}
                   multiline={true}
@@ -241,9 +334,9 @@ class ConnoteReportDetails extends React.Component {
                   value={this.state.resolution}
                 />
                 <CheckBox
-                      title="I Acknowledge"
+                      title="I Acknowledge Item Report"
                       textStyle={styles.textCheckbox}
-                      containerStyle={[styles.checkboxContainer,{paddingHorizontal:20}]}
+                      containerStyle={[styles.checkboxContainer,{paddingHorizontal:10}]}
                       checked={this.state.acknowledged}
                       onPress={this.toggleCheckBox}
                       checkedIcon={this.checkedIcon()}
@@ -257,6 +350,8 @@ class ConnoteReportDetails extends React.Component {
                     onPress={this.acknowledgedReport}
                     disabled={(this.state.acknowledged === false || this.state.resolution.length === 0)}
                   />
+                  </>
+                  )}
           </View>
          
         </ScrollView>
@@ -269,7 +364,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    paddingVertical: 20,
+    paddingVertical: 0,
     paddingHorizontal:10,
   },
   header: {
