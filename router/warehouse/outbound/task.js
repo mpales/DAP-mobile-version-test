@@ -54,29 +54,62 @@ class List extends React.Component {
         this.setState({search});
       };
     setFiltered = (num)=>{
-        this.setState({filtered:num});
+        this.setState({filtered:num, renderGoBack :true});
     }
     updateTask = async ()=>{
        // const {activeTask,completeTask, ReportedTask} = this.props;
         const result = await getData('outboundMobile/pickTask');
-        this.setState({renderGoBack: false});
         if(Array.isArray(result)){
             return result.filter((o)=> o !== null).sort((a, b) => -(String(a.delivery_date).localeCompare(String(b.delivery_date))));
         } else {
             return [];
         }
     }
-
-  
+    updateStatus = async ()=>{
+        const {outboundTask} = this.props;
+        const result = await getData('/outboundMobile/pickTask/status');
+        let updatedStatus = [];
+        for (let index = 0; index < outboundTask.length; index++) {
+            const element = outboundTask[index];
+            if(result !== undefined && result.error === undefined){
+                const elementStatus = result.find((o)=>o.id === element.id);
+                updatedStatus[index] = {
+                  ...element,
+                  ...elementStatus,  
+                };
+            } else {
+                updatedStatus[index] = {
+                    ...element,
+                  };
+            }
+        }
+       return updatedStatus;
+    }
+ 
     async componentDidUpdate(prevProps, prevState, snapshot) {
         const {outboundTask} = this.props;
         if(this.props.keyStack !== prevProps.keyStack){
-            if(this.props.keyStack === 'Task'){
+            if(this.props.keyStack === 'Task' && prevProps.keyStack !== 'WarehouseOut'){
                 this.setState({renderGoBack : true});
             }
         }
         if(prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true){
             const resultedList =  await this.updateTask();
+            this.props.setOutboundTask(resultedList);
+            let filtered =  (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.dropdown !== this.state.dropdown ? this.state.filtered : null;
+            if(filtered === 0) {
+                this.setState({list:resultedList.filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            } else if(filtered === 1){
+               this.setState({list:resultedList.filter((element)=> element.status === 4).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            } else if(filtered === 2){
+                this.setState({list:resultedList.filter((element)=> element.status === 1).filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            }else if(filtered === 3){
+                this.setState({list:resultedList.filter((element)=> element.status === 2).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            }else if(filtered === 4){
+                this.setState({list:resultedList.filter((element)=> element.status === 3).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
+            }
+        } else if(prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true){
+            const resultedList =  await this.updateStatus();
             this.props.setOutboundTask(resultedList);
             let filtered = (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.dropdown !== this.state.dropdown ? this.state.filtered : null;
             if(filtered === 0) {
@@ -91,7 +124,7 @@ class List extends React.Component {
                 this.setState({list:resultedList.filter((element)=> element.status === 3).filter((element)=>  String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
             }
         } else {
-            let filtered = (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.dropdown !== this.state.dropdown ? this.state.filtered : null;
+            let filtered =  (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.dropdown !== this.state.dropdown ? this.state.filtered : null;
             if(filtered === 0) {
                 this.setState({list:outboundTask.filter((element)=> String(element.client_id).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && ( this.state.dropdown === '' || ( this.state.dropdown !== '' && element.warehouses.includes(this.state.dropdown)))), renderGoBack:false, renderRefresh: false});
             } else if(filtered === 1){

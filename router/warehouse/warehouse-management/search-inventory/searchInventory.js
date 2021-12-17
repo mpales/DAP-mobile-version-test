@@ -1,5 +1,12 @@
 import React from 'react';
-import {ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {
+  Platform,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {Button, Input} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -20,14 +27,29 @@ class SearchInventory extends React.Component {
       warehouseName: '',
       warehouse: null,
       locationId: '',
+      locationList: null,
+      filteredLocationList: null,
     };
   }
 
   componentDidMount() {
-    this.getWarehouseList();
     this._unsubscribe = this.props.navigation.addListener('focus', () => {
+      this.getWarehouseList();
       this.props.setBottomBar(true);
     });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.warehouse !== this.state.warehouse) {
+      this.setState({
+        locationId: '',
+        locationList: null,
+        filteredLocationList: null,
+      });
+      if (this.state.warehouse !== null) {
+        this.getLocationList();
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -53,7 +75,24 @@ class SearchInventory extends React.Component {
         obj = {warehouse: value, warehouseName: selectedWarehouse.name};
       }
     } else if (type === 'locationId') {
-      obj = {locationId: value};
+      if (value === '') {
+        obj = {locationId: value, filteredLocationList: null};
+      } else {
+        obj = {
+          locationId: value,
+          filteredLocationList: this.filterLocationList(value),
+        };
+      }
+    }
+    this.setState(obj);
+  };
+
+  handleSelect = (value, type) => {
+    if (type === 'locationId') {
+      obj = {
+        locationId: value.locationId,
+        filteredLocationList: null,
+      };
     }
     this.setState(obj);
   };
@@ -65,6 +104,43 @@ class SearchInventory extends React.Component {
         warehouseList: result,
       });
     }
+  };
+
+  getLocationList = async () => {
+    const {warehouse} = this.state;
+    const result = await getData(`/warehouses/${warehouse}/containers`);
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        locationList: result,
+      });
+    }
+  };
+
+  filterLocationList = (value) => {
+    const {locationList} = this.state;
+    if (locationList !== null) {
+      return locationList.filter((location) => {
+        if (location.locationId !== null)
+          return location.locationId
+            .toLowerCase()
+            .includes(value.toLowerCase());
+      });
+    }
+    return null;
+  };
+
+  renderItem = (item, type) => {
+    return (
+      <TouchableOpacity
+        key={item.id}
+        style={[
+          styles.inputContainer,
+          {justifyContent: 'center', paddingHorizontal: 10},
+        ]}
+        onPress={() => this.handleSelect(item, type)}>
+        <Text style={styles.inputText}>{item.locationId}</Text>
+      </TouchableOpacity>
+    );
   };
 
   navigateToSearchInventoryList = () => {
@@ -83,11 +159,17 @@ class SearchInventory extends React.Component {
   };
 
   render() {
-    const {warehouseList, warehouse, locationId} = this.state;
+    const {
+      warehouseList,
+      warehouse,
+      locationId,
+      filteredLocationList,
+      locationList,
+    } = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
-        <ScrollView style={styles.body}>
+        <View style={styles.body}>
           <View style={styles.searchContainer}>
             <View style={[styles.inputWrapper, {zIndex: 2}]}>
               <Text style={styles.inputTitle}>Warehouse</Text>
@@ -116,7 +198,12 @@ class SearchInventory extends React.Component {
                 )}
               />
             </View>
-            <View style={[styles.inputWrapper, {zIndex: 1}]}>
+            <View
+              style={
+                Platform.OS === 'ios'
+                  ? [styles.inputWrapper, {zIndex: 1}]
+                  : styles.inputWrapper
+              }>
               <Text style={styles.inputTitle}>Search Location ID</Text>
               <Input
                 placeholder="Search Location ID"
@@ -126,7 +213,32 @@ class SearchInventory extends React.Component {
                 inputStyle={styles.inputText}
                 renderErrorMessage={false}
                 onChangeText={(text) => this.handleInput(text, 'locationId')}
+                onBlur={() => {
+                  this.setState({
+                    filteredLocationList: null,
+                  });
+                }}
+                disabled={warehouse === null}
+                disabledInputStyle={{backgroundColor: '#EFEFEF'}}
               />
+              <View style={styles.dropdownContainer}>
+                {locationId !== '' &&
+                  ((filteredLocationList !== null &&
+                    filteredLocationList.length === 0) ||
+                    locationList === null) && (
+                    <View
+                      style={[
+                        styles.inputContainer,
+                        {justifyContent: 'center', paddingHorizontal: 10},
+                      ]}>
+                      <Text style={styles.inputText}>No Result</Text>
+                    </View>
+                  )}
+                {filteredLocationList !== null &&
+                  filteredLocationList
+                    .slice(0, 5)
+                    .map((location) => this.renderItem(location, 'locationId'))}
+              </View>
             </View>
             <Button
               title="Search"
@@ -147,7 +259,7 @@ class SearchInventory extends React.Component {
               onPress={this.navigateToSearchInventoryBarcode}
             />
           </View>
-        </ScrollView>
+        </View>
       </SafeAreaProvider>
     );
   }
@@ -213,6 +325,14 @@ const styles = StyleSheet.create({
     color: '#424141',
     textAlign: 'left',
     paddingHorizontal: 0,
+  },
+  dropdownContainer: {
+    position: 'absolute',
+    right: 0,
+    left: 0,
+    top: 70,
+    zIndex: 3,
+    backgroundColor: '#FFF',
   },
 });
 
