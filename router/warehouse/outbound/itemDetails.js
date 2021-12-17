@@ -149,7 +149,7 @@ class ConnoteDetails extends React.Component {
                 <View style={[styles.detailSection,{paddingVertical:10}]}>
                   <Text style={styles.reportSectionTitle}>Product Category : {categoryArr[0].length > 0 ? categoryArr[0]:'-' }</Text>
                   <DetailList title="Color" value={colorFiltered[0].length > 0 ? colorFiltered[0] : '-' } />
-                  <DetailList title="EXP Date" value={moment(expFiltered[0]).format('YYYY-MM-DD HH:mm:ss')} />
+                  <DetailList title="EXP Date" value={expFiltered[0] ? moment(expFiltered[0]).format('YYYY-MM-DD HH:mm:ss') : '-'} />
                   <DetailList title="Batch" value={banchFiltered[0].length > 0 ? banchFiltered[0] : '-'} />
                 </View>
                 <View style={[styles.reportSection,{paddingHorizontal:20}]}>

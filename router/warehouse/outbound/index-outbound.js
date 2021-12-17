@@ -168,7 +168,7 @@ class WarehouseNavigator extends React.Component {
           this.props.keyStack === 'ManualInput' &&
           this.props.indexBottomBar === 0
         ) {
-          this.navigationRef.current.navigate('Outbound', {screen: 'List'});
+          this.navigationRef.current.navigate('Outbound', {screen: 'Barcode'});
           return true;
         } else if (
           this.props.keyStack === 'SingleCamera' &&
