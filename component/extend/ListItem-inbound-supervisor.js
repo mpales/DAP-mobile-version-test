@@ -101,6 +101,28 @@ lineHeight: 18,
     fontWeight:'400',
     color: '#ffffff',
   },
+  descText: {
+    ...Mixins.small1,
+    fontWeight: '500',
+    lineHeight: 18,
+    color:'#424141'
+  },
+  wrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  detailText: {
+    ...Mixins.small1,
+    color: '#424141',
+  },
+  valueText: {
+    flexGrow: 1,
+    marginLeft: 5,
+    flexWrap: 'wrap',
+    flexBasis:1,
+    maxWidth: '65%',
+  },
 };
 const theme = {
   ListItem: {
@@ -177,18 +199,58 @@ const Manifest = ({item, index, ToManifest}) => {
         </View>
           <ListItem.Content style={styles.sectionContainer}>
           <Badge value={category} status="warning" textStyle={{...Mixins.small3,fontWeight: '700',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-start', marginBottom:10}} badgeStyle={{backgroundColor: categorycolor}} />
-                    <Text style={{...Mixins.small1,lineHeight: 18,color: '#424141', fontWeight: '500'}}>
-                    {moment(item.eta).format("DD-MM-YYYY")}
-                    </Text>
-                    <Text style={{...Mixins.small1,lineHeight: 21,color: '#424141', fontWeight: '500'}}>
-                    {'Inbound ID : '+item.inbound_number}
-                    </Text>
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>ETA Date</Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+            {moment(item.eta).format("DD-MM-YYYY")}
+            </Text>
+          </View>
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>Inbound ID  </Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+            {item.inbound_number}
+            </Text>
+          </View>
                    
-                    {item.reference_id ? (
-                    <Text style={{...Mixins.small1,lineHeight: 21,color: '#424141', fontWeight: '500'}}>
-                    {item.reference_id}
-                    </Text>
-                    ) : null}
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>Ref #   </Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+              {item.reference_id ? item.reference_id : '-'}
+            </Text>
+          </View>
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>Shipment type  </Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+             {item.shipment_type === 2 ? 'FCL': 'LCL'}
+            </Text>
+          </View>
+          {item.shipment_type === 2 && (          
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>Container  #  </Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+             {item.container_no}
+            </Text>
+          </View>)}
                     <Text style={{...Mixins.small1,lineHeight: 18,color: '#424141', fontWeight: '500'}}>
                     {item.client}
                     </Text>

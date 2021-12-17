@@ -560,13 +560,13 @@ const NavigationWrapper = (props) => {
               switch (initialScreens) {
                 case 'WAREHOUSE':
                   switchLogged('Details', {
-                    screen: 'WAREHOUSE',
+                    navigator: 'WAREHOUSE',
                     role: 'Warehouse'
                   });                  
                   break;
                 case 'INBOUND':
                   switchLogged('Details', {
-                    screen: 'INBOUND',
+                    navigator: 'INBOUND',
                     role: 'Warehouse'
                   });
                   break;
@@ -574,7 +574,7 @@ const NavigationWrapper = (props) => {
                 case 'Warehouse':
                 default:
                   // changes screen to trigger on what warehouse modules using user role.
-                  setRootScreens('screen',initialScreens,'Details');
+                  setRootScreens('navigator',initialScreens,'Details');
                   setRootScreens('role','Warehouse','Details');
                   switchLogged('MenuWarehouse', {});
                 break;
@@ -584,7 +584,8 @@ const NavigationWrapper = (props) => {
               'Delivery'
             ) {
               switchLogged('Details', {
-                screen: 'Acknowledgement',
+                navigator: 'Delivery',
+                initialScreens: 'Acknowledgement',
                 role: 'Delivery',
               });
             } else {
@@ -712,7 +713,7 @@ const Root = (props) => {
   React.useEffect(() => {
     if (isRole !== null) {
       if (isRole === 'Warehouse') {
-        setInitParams({screen: initialScreens, role: 'Warehouse'});
+        setInitParams({navigator: initialScreens, role: 'Warehouse'});
         setLoading(false);
       } else if (isRole === 'Delivery') {
         // const result = await getData('cmobile/driver/acknowledge');
@@ -725,7 +726,7 @@ const Root = (props) => {
         //     setLoading(false);
         //   }
         // } else {
-          setInitParams({screen: 'Detail', role: 'Delivery'});
+          setInitParams({navigator: 'Delivery', initialScreens : 'Detail', role: 'Delivery'});
           setLoading(false);
         // }
       } else {

@@ -84,7 +84,7 @@ class Acknowledge extends React.Component {
         this.setState({submitPhoto:false, overlayProgress:true});
         await this.uploadSubmittedPhoto();
       } else {
-        this.setState({submitPhoto:false,errorsphoto:'take a Photo Proof before continue process', labelerror: true})
+        this.setState({submitPhoto:false,errorsphoto:'take a Photo Proof before continue process', labelerror: true, errors:''})
       }
 
     }
@@ -125,7 +125,7 @@ class Acknowledge extends React.Component {
     if(typeof result !== 'object'){
       this.props.navigation.navigate('Completed');
     } else {
-      if(result.error !== undefined) this.setState({errors:result.error, });
+      if(result.error !== undefined) this.setState({errors:result.error, labelerror:false,errorsphoto:'' });
     }
   }
   toggleOverlay =()=> {
@@ -174,20 +174,20 @@ class Acknowledge extends React.Component {
     ], this.listenToProgressUpload).then(result=>{
       if(typeof result !== 'object'){
         this.props.addReceivingPostpone( null );
-        this.setState({ progressLinearVal:0, errorsphoto:result, labelerror : false,overlayProgress : false,validPhoto : true});         
+        this.setState({ progressLinearVal:0, errorsphoto:result, labelerror : false,overlayProgress : false,validPhoto : true, errors:''});         
     } else {       
       if(typeof result === 'object'){
-        this.setState({errorsphoto: result.error,progressLinearVal:0, labelerror: true,overlayProgress : false,validPhoto : false});
+        this.setState({errorsphoto: result.error,progressLinearVal:0, labelerror: true,overlayProgress : false,validPhoto : false, errors:''});
       }
     }
     });
   };
   
   closeErrorBanner = ()=>{
-    this.setState({errors:''});
+    this.setState({errors:'', labelerror:false, errorsphoto:''});
   }
   closePhotoErrorBanner = ()=>{
-    this.setState({errorsphoto:'', labelerror : false});
+    this.setState({errorsphoto:'', labelerror : false, errors:''});
   }
   render(){
     const {barcode, sku,description, uom, length,width,height,volweight,weight,pcscarton} = this.state;

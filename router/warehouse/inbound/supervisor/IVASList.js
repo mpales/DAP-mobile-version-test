@@ -19,6 +19,7 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import {getData, postData} from '../../../../component/helper/network';
 import Loading from '../../../../component/loading/loading';
 import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
+import EmptyIlustrate from '../../../../assets/icon/list-empty mobile.svg';
 import TouchableScale from 'react-native-touchable-scale';
 import moment from 'moment';
 class ConnoteReportDetails extends React.Component {
@@ -57,13 +58,21 @@ class ConnoteReportDetails extends React.Component {
   async componentDidMount(){
     const {inboundID} = this.state;
     const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS');
+    if(typeof result === 'object' && result.error === undefined){
     this.setState({itemIVAS:result});
+    } else {
+      this.setState({itemIVAS:[]});
+    }
   }
   async componentDidUpdate(prevProps, prevState, snapshot) {
     const {inboundID} = this.state;
     if(prevProps.keyStack !== this.props.keyStack && this.props.keyStack  === 'IVASListSPV'){
       const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS');
-       this.setState({itemIVAS:result});
+      if(typeof result === 'object' && result.error === undefined){
+        this.setState({itemIVAS:result});
+      } else {
+        this.setState({itemIVAS:[]});
+      }
     }
   }
   renderHeaderListVAS = ()=>{
@@ -115,6 +124,14 @@ class ConnoteReportDetails extends React.Component {
     </TouchableScale>
     );
   }
+  renderEmptyComponent = () => {
+    return (
+      <View style={{alignItems:'center', justifyContent:'center', marginTop:'30%'}}>
+                <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+                <Text style={{  ...Mixins.subtitle3,}}>No shipment VAS found</Text>
+    </View>
+    );
+  }
   render() {
     const {inboundData,itemIVAS} = this.state;
     if(inboundData === null || itemIVAS === null )
@@ -128,8 +145,9 @@ class ConnoteReportDetails extends React.Component {
             horizontal={false}
             ListHeaderComponent={this.renderHeaderListVAS}
             keyExtractor={(item,index)=>index}
-            data={this.state.itemIVAS}
+            data={itemIVAS}
             contentContainerStyle={{paddingHorizontal:10}}
+            ListEmptyComponent={this.renderEmptyComponent}
             renderItem={this.renderListVAS}
             />
        

@@ -262,7 +262,20 @@ class WarehouseManagement extends React.Component {
             return <Header {...props} />;
           },
         }}>
-        <Stack.Screen component={this.managementMenu} name="ManagementMenu" />
+        <Stack.Screen
+          component={this.managementMenu}
+          name="ManagementMenu"
+          options={{
+            headerLeft: (props) => (
+              <HeaderBackButton
+                {...props}
+                onPress={() => {
+                  this.props.navigation.navigate('MenuWarehouse');
+                }}
+              />
+            ),
+          }}
+        />
         <Stack.Screen
           component={StockTakeNavigator}
           name="StockTakeNavigator"

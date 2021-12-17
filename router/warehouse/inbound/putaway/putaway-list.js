@@ -124,14 +124,14 @@ class List extends React.Component {
                 >
                         <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141', paddingHorizontal: 20, marginTop: 15}}>Search</Text>
                          <SearchBar
-              placeholder="Type Here..."
+              placeholder="Search..."
               onChangeText={this.updateSearch}
               value={this.state.search}
               lightTheme={true}
-              inputStyle={{backgroundColor: '#fff'}}
+              inputStyle={{backgroundColor: '#fff', ...Mixins.body1, padding:0,margin:0}}
               placeholderTextColor="#2D2C2C"
               searchIcon={() => (
-                <IconSearchMobile height="20" width="20" fill="#2D2C2C" />
+                <IconSearchMobile height="15" width="15" fill="#2D2C2C" />
               )}
               containerStyle={{
                 backgroundColor: 'transparent',

@@ -610,7 +610,7 @@ class HomeNavigator extends React.Component {
             },
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitle:'New Product Attributes'
+            headerTitle:'Record'
           })}
         />
              <Stack.Screen

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Text, Button,Image, Input, Divider, Avatar, Overlay} from 'react-native-elements';
-import {View, Keyboard, ScrollView, TouchableOpacity, Dimensions} from 'react-native';
+import {View, Keyboard, ScrollView, TouchableOpacity, Dimensions, PixelRatio} from 'react-native';
 import {connect} from 'react-redux';
 import moment from 'moment';
 import Mixins from '../../../mixins';
@@ -10,6 +10,7 @@ import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.s
 import IconView from '../../../assets/icon/iconmonstr-picture-1 1mobile.svg';
 import IconBarcodeMobile from '../../../assets/icon/iconmonstr-barcode-3 2mobile.svg';
 import EmptyIlustrate from '../../../assets/icon/Groupempty.svg';
+import EmptyRecord from '../../../assets/icon/manifest-empty mobile.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
 import UploadTooltip from '../../../component/include/upload-tooltip';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -138,7 +139,7 @@ class Acknowledge extends React.Component {
         this.setState({submitPhoto:false, overlayProgress:true});
         await this.uploadSubmittedPhoto();
       } else {
-        this.setState({submitPhoto:false,errorsphoto:'take a Photo Proof before continue process', labelerror: true})
+        this.setState({submitPhoto:false,errorsphoto:'take a Photo Proof before continue process', labelerror: true, errors: ''})
       }
 
     }
@@ -192,7 +193,7 @@ class Acknowledge extends React.Component {
     })
   };
   closeErrorBanner = ()=>{
-    this.setState({errors:''});
+    this.setState({errors:'', errorsphoto:'', labelerror:false});
   }
   submitItem = async ()=>{
     const {manifestList,currentASN} = this.props;
@@ -234,7 +235,7 @@ class Acknowledge extends React.Component {
     
     } else {
       if(updateAttr.error !== undefined){
-        this.setState({errors: updateAttr.error});
+        this.setState({errors: updateAttr.error, errorsphoto:'', labelerror:false});
       }
     }
   }
@@ -267,7 +268,7 @@ class Acknowledge extends React.Component {
       const {_inputCode} = this.state;
       const confirmPhotos = postData('/inboundsMobile/'+currentASN+'/'+_inputCode+'/confirm-photos');
       if(typeof confirmPhotos === 'object' && confirmPhotos.error !== undefined){
-        this.setState({errors: confirmPhotos.error});
+        this.setState({errors: confirmPhotos.error, errorsphoto:'', labelerror:false});
       } else {
         this.setState({recordPhoto:true});
       }
@@ -314,20 +315,26 @@ class Acknowledge extends React.Component {
     ], this.listenToProgressUpload).then(result=>{
       if(typeof result !== 'object'){
         this.props.addAttributePostpone( null );
-        this.setState({ progressLinearVal:0, errorsphoto:result, labelerror : false,overlayProgress : false,validPhoto : true});         
+        this.setState({ progressLinearVal:0, errorsphoto:result, labelerror : false,errors:'',overlayProgress : false,validPhoto : true});         
     } else {       
       if(typeof result === 'object'){
-        this.setState({errorsphoto: result.error,progressLinearVal:0, labelerror: true,overlayProgress : false,validPhoto : false});
+        this.setState({errorsphoto: result.error,progressLinearVal:0, labelerror: true,errors:'',overlayProgress : false,validPhoto : false});
       }
     }
     });
   };
   
   closePhotoErrorBanner = ()=>{
-    this.setState({errorsphoto:'', labelerror : false});
+    this.setState({errorsphoto:'', labelerror : false,errors:''});
   }
   render(){
-    const {barcode, sku,description, uom, length,width,height,volweight,weight,pcscarton} = this.state;
+    const {barcode, sku,description, uom, length,width,height,volweight,weight,pcscarton, _manifest} = this.state;
+    if(_manifest !== null && _manifest.record === 0) return (
+      <View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
+           <EmptyRecord height="132" width="213" style={{marginBottom:15}}/>
+                <Text style={{  ...Mixins.subtitle3,}}>No Record</Text>
+        </View>
+    );
     return (
       <>
       {this.state.errors !== '' && (<Banner
@@ -412,7 +419,7 @@ class Acknowledge extends React.Component {
             <EmptyIlustrate width="70" height="70" style={{marginHorizontal:20}}/>
          </View>
         </View>
-         {(this.state._manifest.barcode === 1 || this.state._manifest.is_new === 1) && ( <View style={{
+         {this.state._manifest.barcode === 1  && ( <View style={{
             marginHorizontal:10, marginVertical:10, 
             shadowColor: "#000",
             shadowOffset: {
@@ -472,7 +479,7 @@ class Acknowledge extends React.Component {
           </View>
         )}
         
-       { (this.state._manifest.is_new === 1 || this.state._manifest.input_basic_attributes === 1) && ( 
+       {  this.state._manifest.input_basic_attributes === 1 && ( 
        <View style={{
           marginHorizontal:10, 
           marginVertical:10, 
@@ -493,12 +500,13 @@ class Acknowledge extends React.Component {
           </View>
           <Divider color="#D5D5D5"/>
           <View style={{flexDirection:'row', flexShrink:1, marginBottom:0, paddingHorizontal:10,marginTop:20}}>
-          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
+          <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: PixelRatio.get() > 2.75 ? 160: 140  , alignItems: 'flex-start',marginRight: 20}}>
             <Text>Length ( m )</Text>
               </View>
               <Input 
                   containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
                   inputContainerStyle={styles.textInput} 
+                  style={{...Mixins.body3,lineHeight:18,color:"#424141"}}
                   inputStyle={Mixins.containedInputDefaultStyle}
                   labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                   onChangeText={(text)=>{this.setState({length:text})}}
@@ -508,12 +516,13 @@ class Acknowledge extends React.Component {
               />
           </View>
           <View style={{flexDirection:'row', flexShrink:1,  paddingHorizontal:10,}}>
-            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
+            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: PixelRatio.get() > 2.75 ? 160: 140, alignItems: 'flex-start',marginRight: 20}}>
             <Text>Width ( m )</Text>
             </View>
               <Input 
               containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
                 inputContainerStyle={styles.textInput} 
+                style={{...Mixins.body3,lineHeight:18,color:"#424141"}}
                   inputStyle={Mixins.containedInputDefaultStyle}
                   labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                   onChangeText={(text)=>{this.setState({width:text})}}
@@ -523,12 +532,13 @@ class Acknowledge extends React.Component {
               />
           </View>
           <View style={{flexDirection:'row', flexShrink:1,  paddingHorizontal:10,}}>
-            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
+            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: PixelRatio.get() > 2.75 ? 160: 140, alignItems: 'flex-start',marginRight: 20}}>
             <Text>Height ( m )</Text>
             </View>
               <Input 
                 containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
                 inputContainerStyle={styles.textInput} 
+                style={{...Mixins.body3,lineHeight:18,color:"#424141"}}
                   inputStyle={Mixins.containedInputDefaultStyle}
                   labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                   onChangeText={(text)=>{this.setState({height:text})}}
@@ -538,12 +548,13 @@ class Acknowledge extends React.Component {
               />
           </View>
           <View style={{flexDirection:'row', flexShrink:1,  paddingHorizontal:10,}}>
-            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
+            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: PixelRatio.get() > 2.75 ? 160: 140, alignItems: 'flex-start',marginRight: 20}}>
             <Text>Vol. Weight ( m3 )</Text>
             </View>
               <Input 
                   containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
                 inputContainerStyle={styles.textInput} 
+                style={{...Mixins.body3,lineHeight:18,color:"#424141"}}
                   inputStyle={Mixins.containedInputDefaultStyle}
                   labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                   onChangeText={(text)=>{this.setState({volweight:text})}}
@@ -552,12 +563,13 @@ class Acknowledge extends React.Component {
               />
           </View>
           <View style={{flexDirection:'row', flexShrink:1,  paddingHorizontal:10,}}>
-            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
+            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: PixelRatio.get() > 2.75 ? 160: 140, alignItems: 'flex-start',marginRight: 20}}>
             <Text>Weight ( Kg )</Text>
             </View>
               <Input 
                             containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
                 inputContainerStyle={styles.textInput} 
+                style={{...Mixins.body3,lineHeight:18,color:"#424141"}}
                   inputStyle={Mixins.containedInputDefaultStyle}
                   labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                   onChangeText={(text)=>{this.setState({weight:text})}}
@@ -567,12 +579,13 @@ class Acknowledge extends React.Component {
               />
           </View>
           <View style={{flexDirection:'row', flexShrink:1,  paddingHorizontal:10,}}>
-            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: 140, alignItems: 'flex-start',marginRight: 20}}>
+            <View style={{flexShrink:1, backgroundColor: 'transparent', maxHeight: 30, paddingHorizontal: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, minWidth: PixelRatio.get() > 2.75 ? 160: 140, alignItems: 'flex-start',marginRight: 20}}>
             <Text># Pcs per carton</Text>
             </View>
               <Input 
                           containerStyle={{flex: 1,paddingVertical:0, maxHeight:30,marginVertical:5}}
                 inputContainerStyle={styles.textInput} 
+                style={{...Mixins.body3,lineHeight:18,color:"#424141"}}
                   inputStyle={Mixins.containedInputDefaultStyle}
                   labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 0}]}
                   onChangeText={(text)=>{this.setState({pcscarton:text})}}
@@ -588,11 +601,11 @@ class Acknowledge extends React.Component {
               onPress={this.toggleCartonOverlay}
               disabledStyle={this.state.validDimensions  === true ? {backgroundColor:  '#17B055', opacity: 1, color: 'white'} : null}
               disabledTitleStyle={this.state.validDimensions  === true ? {color:'white'}: null}
-              disabled={( this.state._manifest.is_new === 1 || this.state._manifest.input_basic_attributes === 1) && this.state.validDimensions  === false && this.state.length !== '' && this.state.weight !== '' & this.state.pcscarton !== '' && this.state.volweight !== '' && this.state.width !== '' && this.state.height !== '' ? false : true}
+              disabled={ this.state._manifest.input_basic_attributes === 1 && this.state.validDimensions  === false && this.state.length !== '' && this.state.weight !== '' & this.state.pcscarton !== '' && this.state.volweight !== '' && this.state.width !== '' && this.state.height !== '' ? false : true}
               title="Update Carton Dimensions"
             />
          </View>)}
-        {this.state.keyboardState === 'hide' && (this.state._manifest.take_photo === 1 || this.state._manifest.is_new === 1) && ( 
+        {this.state.keyboardState === 'hide' && this.state._manifest.take_photo === 1 && ( 
         <View style={{
            marginHorizontal:10, 
           marginTop:10,
@@ -709,7 +722,7 @@ class Acknowledge extends React.Component {
               onPress={this.togglePhotoOverlay}
               disabledStyle={this.state.recordPhoto  === true ? {backgroundColor:  '#17B055', opacity: 1, color: 'white'} : null}
               disabledTitleStyle={this.state.recordPhoto  === true ? {color:'white'}: null}
-              disabled={( this.state._manifest.is_new === 1 || this.state._manifest.take_photo === 1) && this.state.validPhoto === true && this.state.recordPhoto === false ? false : true}
+              disabled={this.state._manifest.take_photo === 1 && this.state.validPhoto === true && this.state.recordPhoto === false ? false : true}
               title="Confirm upload photos"
             />
          </View>)}

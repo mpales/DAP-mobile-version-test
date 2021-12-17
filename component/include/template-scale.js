@@ -65,7 +65,7 @@ const Manifest = React.forwardRef((props, ref) => {
               <Text style={styles.dotLabel}>:</Text>
             </View>
             <View style={{ flexGrow: 1,flexBasis:1, alignItems: 'stretch', justifyContent: 'center', flexDirection: 'column' }}>
-              <View style={{flexShrink: 1, justifyContent:'center', alignItems: 'center'}}><Text style={Mixins.small3}>{scaleVal}</Text></View>
+              <View style={{flexShrink: 1, justifyContent:'center', alignItems: 'center'}}><Text style={{...Mixins.small3, color: '#424141',}}>{scaleVal}</Text></View>
             <Slider
               style={{flexShrink:1}}
               step={parseInt(props.interval)}

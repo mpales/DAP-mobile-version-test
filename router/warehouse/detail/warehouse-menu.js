@@ -87,7 +87,15 @@ class WarehouseMenu extends React.Component {
                 onPress={()=>{
                   this.props.setBottomBar(true);
                   this.props.setWarehouseModule('INBOUND');
-                  this.props.navigation.navigate('Details', {screen: 'INBOUND', role: 'Warehouse'})}}
+                  this.props.navigation.navigate('Details', 
+                  {
+                    navigator: 'INBOUND', 
+                    role: 'Warehouse',
+                    screen:'HomeDrawer',
+                    params:{
+                      screen:'Inbound',
+                    },
+                  })}}
                 buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
               />
                  
@@ -102,7 +110,14 @@ class WarehouseMenu extends React.Component {
                 onPress={()=>{
                   this.props.setBottomBar(true);
                   this.props.setWarehouseModule('OUTBOUND');
-                    this.props.navigation.navigate('Details', {screen: 'OUTBOUND', role: 'Warehouse'})}}
+                    this.props.navigation.navigate('Details', 
+                    {      
+                      screen:'HomeDrawer',
+                      params:{
+                        screen:'Outbound',
+                      },             
+                      navigator: 'OUTBOUND', role: 'Warehouse'
+                    })}}
                     buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
                     />
                  
@@ -117,7 +132,13 @@ class WarehouseMenu extends React.Component {
                 onPress={()=>{
                   this.props.setBottomBar(true);
                   this.props.setWarehouseModule('WAREHOUSE');
-                    this.props.navigation.navigate('Details', {screen: 'WAREHOUSE', role: 'Warehouse'})}}
+                    this.props.navigation.navigate('Details', {
+                      screen:'HomeDrawer',
+                      params: {
+                        screen:'Management',
+                      },
+                      navigator: 'WAREHOUSE', role: 'Warehouse'
+                    })}}
                     buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
                     />
                              
@@ -133,7 +154,13 @@ class WarehouseMenu extends React.Component {
                   // // vas navigate
                    this.props.setBottomBar(true);
                    this.props.setWarehouseModule('VAS');
-                    this.props.navigation.navigate('Details', {screen: 'VAS', role: 'Warehouse'});
+                    this.props.navigation.navigate('Details', {
+                      screen:'HomeDrawer',
+                      params:{
+                        screen:'VAS',
+                      },
+                      navigator: 'VAS', role: 'Warehouse'
+                    });
                 }}
                     buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
                     />

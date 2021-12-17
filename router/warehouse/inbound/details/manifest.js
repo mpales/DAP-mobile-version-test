@@ -36,7 +36,7 @@ import EmptyIlustrate from '../../../../assets/icon/manifest-empty mobile.svg';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component{
-
+  _unsubscribe = null;
   constructor(props) {
     super(props);
 
@@ -49,6 +49,7 @@ class Warehouse extends React.Component{
       filtered : 0,
       _manifest: [],
       updated: false,
+      initialRender : false,
       renderRefresh: false,
       remark : '',
       remarkHeight: 500,
@@ -62,53 +63,91 @@ class Warehouse extends React.Component{
     return {...state};
   }
   shouldComponentUpdate(nextProps, nextState) {
-    if(this.props.keyStack !== nextProps.keyStack){
-      if(nextProps.keyStack === 'Manifest' && this.props.keyStack ==='newItem'){
-        this.setState({updated: true});
-        return true;
-      } else if(nextProps.keyStack === 'Manifest'){
-        return true;
-      }
-    }
+   
     return true;
   }
   async componentDidUpdate(prevProps, prevState, snapshot) {
     const {manifestList} = this.props;
     
-    if((this.state.updated !== prevState.updated && this.state.updated === true) || (this.state.renderRefresh !== prevState.renderRefresh && this.state.renderRefresh === true)){
+    if(this.state.renderRefresh !== prevState.renderRefresh && this.state.renderRefresh === true) {
+      const {receivingNumber} = this.state;
+      const {currentASN} = this.props;
+      let inboundId = receivingNumber === null ? currentASN : receivingNumber;
+      const result = await getData('inboundsMobile/'+inboundId);
+      if(typeof result === 'object' && result.error === undefined){
+
+        this.props.setManifestList(result.products)
+        let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === false)  || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === false) ? this.state.filtered : null;
+        if(filtered === 0) {
+          this.setState({_manifest: result.products.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+          } else if(filtered === 1){
+            this.setState({_manifest: result.products.filter((element)=> element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+          } else if(filtered === 2){
+            this.setState({_manifest: result.products.filter((element)=>  element.status === 1).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+          }else if(filtered === 3){
+            this.setState({_manifest: result.products.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+          }else if(filtered === 4){
+            this.setState({_manifest: result.products.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+          } 
+      
+      }
+    } else if(this.state.updated !== prevState.updated && this.state.updated === true){
       const {receivingNumber} = this.state;
       const {currentASN} = this.props;
       let inboundId = receivingNumber === null ? currentASN : receivingNumber;
   
       const result = await getData('inboundsMobile/'+inboundId+'/item-status');
       let updatedstatus = Array.from({length: manifestList.length}).map((num,index)=>{
-        let updateElement = result.products.find((o)=> o.pId === manifestList[index].pId);
-        return {
-          ...manifestList[index],
-          ...updateElement,
-        };
+        if(result !== undefined && result.products !== undefined){
+          let updateElement = result.products.find((o)=> o.pId === manifestList[index].pId);
+          return {
+            ...manifestList[index],
+            ...updateElement,
+          };
+        } else {
+          return {
+            ...manifestList[index],
+          };
+        }
       });
       this.props.setManifestList(updatedstatus)
-    }
-    let filtered = (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.updated !== this.state.updated ? this.state.filtered : null;
+      let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === true)  || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === false)  ? this.state.filtered : null;
+      if(filtered === 0) {
+        this.setState({_manifest: updatedstatus.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        } else if(filtered === 1){
+          this.setState({_manifest: updatedstatus.filter((element)=> element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        } else if(filtered === 2){
+          this.setState({_manifest: updatedstatus.filter((element)=>  element.status === 1).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        }else if(filtered === 3){
+          this.setState({_manifest: updatedstatus.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        }else if(filtered === 4){
+          this.setState({_manifest: updatedstatus.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        } 
+    } else {
+    let filtered = (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === false) || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === true) ? this.state.filtered : null;
    
     if(filtered === 0) {
-      this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
+      this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
       } else if(filtered === 1){
-        this.setState({_manifest: manifestList.filter((element)=> element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=> element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
       } else if(filtered === 2){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 1).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 1).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
       }else if(filtered === 3){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
       }else if(filtered === 4){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
       } 
-   
+    }
    
   }
   async componentDidMount() {
     const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest} = this.props;
     const {receivingNumber, _manifest, search} = this.state;
+    this._unsubscribe = navigation.addListener('focus', (test) => {
+      if(receivingNumber !== null)
+      this.setState({updated: true});
+      // do something
+    });
     if(receivingNumber === null){
       const {routes, index} = navigation.dangerouslyGetState();
       // if(manifestList.length === 0 && search === ''){
@@ -124,7 +163,7 @@ class Warehouse extends React.Component{
             //   return {...manifestDummy[index],...result.inbound_products[index]}
             // });
             this.props.setManifestList(result.products)
-            this.setState({receivingNumber: routes[index].params.number,inboundNumber: result.inbound_number,_manifest:result.products,companyname:result.client,remark: result.remarks, updated: true})
+            this.setState({receivingNumber: routes[index].params.number,inboundNumber: result.inbound_number,_manifest:result.products,companyname:result.client,remark: result.remarks, initialRender: true})
           } else {
             navigation.popToTop();
           }
@@ -136,7 +175,7 @@ class Warehouse extends React.Component{
             //   return {...manifestDummy[index],...result.inbound_products[index]}
             // });
             this.props.setManifestList(result.products)
-          this.setState({receivingNumber: currentASN,inboundNumber: result.inbound_number, _manifest:result.products, companyname:result.client,remark: result.remarks, updated: true})
+          this.setState({receivingNumber: currentASN,inboundNumber: result.inbound_number, _manifest:result.products, companyname:result.client,remark: result.remarks, initialRender: true})
           } else {
             navigation.popToTop();
           }
@@ -145,8 +184,11 @@ class Warehouse extends React.Component{
         }
     }
   }
+  componentWillUnmount(){
+    this._unsubscribe();
+  }
   setFiltered = (num)=>{
-    this.setState({filtered:num});
+    this.setState({filtered:num,updated:true});
 }
  
   updateSearch = (search) => {
@@ -223,14 +265,14 @@ class Warehouse extends React.Component{
             </View>
             </View>
             <SearchBar
-              placeholder="Type Here..."
+            placeholder="Search..."
               onChangeText={this.updateSearch}
               value={this.state.search}
               lightTheme={true}
-              inputStyle={{backgroundColor: '#fff'}}
+              inputStyle={{backgroundColor: '#fff', ...Mixins.body1, padding:0,margin:0}}
               placeholderTextColor="#2D2C2C"
               searchIcon={() => (
-                <IconSearchMobile height="20" width="20" fill="#2D2C2C" />
+                <IconSearchMobile height="15" width="15" fill="#2D2C2C" />
               )}
               containerStyle={{
                 backgroundColor: 'transparent',
@@ -244,7 +286,6 @@ class Warehouse extends React.Component{
                 borderWidth: 1,
                 borderBottomWidth: 1,
                 borderColor: '#D5D5D5',
-                maxHeight:40,
               }}
               leftIconContainerStyle={{backgroundColor: 'white'}}
             />

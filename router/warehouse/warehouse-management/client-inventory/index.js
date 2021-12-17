@@ -22,11 +22,8 @@ class ClientInventoryNavigator extends React.Component {
   }
 
   setWrapperofStack = (index, key) => {
-    const {indexBottomBar} = this.props;
-    if (indexBottomBar === 0) {
-      this.props.setCurrentStackKey(key);
-      this.props.setCurrentStackIndex(index);
-    }
+    this.props.setCurrentStackKey(key);
+    this.props.setCurrentStackIndex(index);
   };
 
   render() {
@@ -67,7 +64,7 @@ class ClientInventoryNavigator extends React.Component {
         }}>
         <Stack.Screen
           component={ClientCheckInventory}
-          name="CheckInventory"
+          name="ClientCheckInventory"
           options={{
             headerTitle: 'Client Inventory',
           }}

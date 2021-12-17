@@ -9,7 +9,8 @@ import {
   Dimensions,
   FlatList,
   Keyboard,
-  ScrollView
+  ScrollView, 
+  PixelRatio
 } from 'react-native';
 import {
 Button,
@@ -37,9 +38,13 @@ import TemplateOption from '../../../component/include/template-option';
 import TemplateScale from '../../../component/include/template-scale';
 import TemplateSelect from '../../../component/include/template-select';
 import TemplateText from '../../../component/include/template-text';
+import TemplateMulti from '../../../component/include/template-multi';
+import TemplateDate from '../../../component/include/template-date';
 import Banner from '../../../component/banner/banner';
 import RNFetchBlob from 'rn-fetch-blob';
 
+import Incremental from '../../../assets/icon/plus-mobile.svg';
+import Decremental from '../../../assets/icon/min-mobile.svg';
 const screen = Dimensions.get('screen');
 const grade = ["Pick", "Buffer", "Damage", "Defective", "Short Expiry", "Expired", "No Stock", "Reserve"];
 const pallet = ["PLDAP 0091", "PLDAP 0092", "PLDAP 0093", "PLDAP 0094"];
@@ -47,6 +52,8 @@ class Example extends React.Component {
   _unsubscribe = null;
   refAttrArray = React.createRef(null);
   refBatch = React.createRef(null);
+  refexpiryDate = React.createRef(null);
+  refproductionDate = React.createRef(null);
   animatedValue = new Animated.Value(0);
   constructor(props) {
     super(props);
@@ -70,6 +77,8 @@ class Example extends React.Component {
       uploadPOSM : false,
       filterMultipleSKU : null,
       keyboardState: 'hide',
+      ISODateProductionString: null,
+      ISODateExpiryString: null,
     };
     this.refBatch.current = null;
     this.refAttrArray.current = [];
@@ -133,6 +142,8 @@ class Example extends React.Component {
         {name: 'batchNo', data: String(this.state.batchNo)},
         {name: 'qty', data: String(incrementQty)},
         {name: 'attributes', data: JSON.stringify(this.state.attrData)},
+        {name: 'expiryDate', data: String(this.state.ISODateExpiryString)},
+        {name: 'productionDate', data: String(this.state.ISODateProductionString)},
       ]).then((result)=>{
         console.log(result);
       });
@@ -557,12 +568,11 @@ class Example extends React.Component {
                             <Text style={styles.qtyTitle}>{dataItem.is_transit === 1 ? 'Qty' : 'Document Qty'}</Text>
                           </View>
                           <View style={[styles.dividerInput,dataItem.is_transit !== 1 ? {justifyContent:'center', alignContent:'center', paddingHorizontal:40, flexShrink:1, marginBottom:30, } : null]}>
-                          <Badge value="-" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
-                           const {qty,dataItem} = this.state;
-                            this.setState({qty: qty !== '' && qty > 0 ? qty-1 : qty === '' ? 0 : qty});
-                          }}  
-                          containerStyle={{flexShrink:1, marginVertical: 5}}
-                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
+                          <Decremental height="30" width="30" style={{flexShrink:1, marginVertical:5}} 
+                          onPress={()=>{
+                            const {qty,dataItem} = this.state;
+                             this.setState({qty: qty !== '' && qty > 0 ? qty-1 : qty === '' ? 0 : qty});
+                           }}  
                           />
                           <Input 
                             containerStyle={dataItem.is_transit !== 1 ? {flex: 1,paddingVertical:0, height:40} : {flex: 1,paddingVertical:0}}
@@ -575,12 +585,11 @@ class Example extends React.Component {
                               this.setState({qty:  val});
                             }}
                             />
-                          <Badge value="+" status="error" textStyle={{...Mixins.h1, fontSize:32,lineHeight: 37}} onPress={()=>{
+                        <Incremental height="30" width="30" style={{flexShrink:1, marginVertical:5}} 
+                          onPress={()=>{
                             const {qty,dataItem} = this.state;
                             this.setState({qty:  qty !== '' ? qty+1: qty === '' ?  1 : qty});
                           }}  
-                          containerStyle={{flexShrink:1, marginVertical: 5}}
-                          badgeStyle={{backgroundColor:'#F07120',width:30,height:30, justifyContent: 'center',alignItems:'center', borderRadius: 20}}
                           />
                           </View>
                         </View>
@@ -604,10 +613,22 @@ class Example extends React.Component {
                           {this.state.errorAttr}
                         </Text>
                       </View> */}
-                        <TemplateText required={1} name="Batch#" ref={(ref)=>{
+                 
+                       {this.state.dataItem.specialField.batchTracking === 1 && (
+                       <TemplateText required={1} name="Batch #" ref={(ref)=>{
                             if(ref !== null)
                             this.refBatch.current = ref;
-                          }}/>
+                          }}/>)}
+                           {this.state.dataItem.specialField.expiryDateTracking === 1 && (
+                      <TemplateDate required={this.state.dataItem.specialField.expiryDateMandatory} name="Exp Date" ref={(ref)=>{
+                            if(ref !== null)
+                            this.refexpiryDate.current = ref
+                          }}/>)}
+                      {this.state.dataItem.specialField.productionDateTracking === 1 && (
+                      <TemplateDate required={1} name="Mfg Date" ref={(ref)=>{
+                            if(ref !== null)
+                            this.refproductionDate.current = ref
+                          }}/>)}
                       {(this.state.dataItem.template !== undefined && this.state.dataItem.template !== null && this.state.dataItem.template.attributes !== undefined && this.state.dataItem.template.attributes !== null ) && this.state.dataItem.template.attributes.map((element,index)=>{
                         if(element.field_type === 'text'){
                           return <TemplateText {...element} ref={(ref)=>{
@@ -616,6 +637,11 @@ class Example extends React.Component {
                           }}/>
                         } else if (element.field_type === 'select'){
                           return <TemplateSelect {...element}  ref={(ref)=>{
+                            if(ref !== null)
+                            this.refAttrArray.current[index] = ref;
+                          }}/>
+                        } else if (element.field_type === 'multiselect'){
+                          return <TemplateMulti {...element}  ref={(ref)=>{
                             if(ref !== null)
                             this.refAttrArray.current[index] = ref;
                           }}/>
@@ -941,11 +967,18 @@ class Example extends React.Component {
   onSubmit = () => {
     const {dataCode,qty, scanItem, ItemGrade, dataItem} = this.state;
     //this.props.setBarcodeScanner(true);
+    let toEnterAttr = false;
+    if(dataItem.specialField !== undefined && dataItem.specialField !== null && (dataItem.specialField.batchTracking === 1 || dataItem.specialField.productionDateTracking === 1 || dataItem.specialField.expiryDateTracking === 1)){
+      toEnterAttr = true;
+    }
+    if(dataItem.template !== undefined && dataItem.template !== null && dataItem.template.attributes !== undefined && dataItem.template.attributes !== null){
+      toEnterAttr = true;
+    }
     this.setState({
       dataCode: '0',
       qty : qty === '' ? 0 : qty,
-      enterAttr :  true,
-      isConfirm: dataItem.is_transit === 1 ? true : false,
+      enterAttr :  toEnterAttr,
+      isConfirm:(dataItem.is_transit === 1 || toEnterAttr === false )? true : false,
       isPOSM: false,
     });
     // for prototype only
@@ -960,9 +993,17 @@ class Example extends React.Component {
     const {dataItem} = this.state;
     let attributes = [];
     let errors = [];
-    let batchAttr = this.refBatch.current.getSavedAttr();
-    if(batchAttr.error !== undefined){
+    let batchAttr = dataItem.specialField.batchTracking === 1 ? this.refBatch.current.getSavedAttr() : null;
+    if(batchAttr !== null && batchAttr.error !== undefined){
     errors.push(batchAttr.error);
+    } 
+    let ISOexpiry = dataItem.specialField.expiryDateTracking === 1 ? this.refexpiryDate.current.getSavedAttr() : null;
+    if(ISOexpiry !== null && ISOexpiry.error !== undefined){
+    errors.push(ISOexpiry.error);
+    } 
+    let ISOproduction = dataItem.specialField.productionDateTracking === 1 ? this.refproductionDate.current.getSavedAttr() : null;
+    if(ISOproduction !== null && ISOproduction.error !== undefined){
+    errors.push(ISOproduction.error);
     } 
     if(this.state.dataItem.template !== undefined && this.state.dataItem.template !== null && this.state.dataItem.template.attributes !== undefined && this.state.dataItem.template.attributes !== null){
       for (let index = 0; index < this.state.dataItem.template.attributes.length; index++) {
@@ -992,6 +1033,8 @@ class Example extends React.Component {
         attrData: attributes,
         errorAttr: '',
         batchNo: batchAttr,
+        ISODateExpiryString: ISOexpiry,
+        ISODateProductionString: ISOproduction,
       });
     } else {
       this.props.navigation.setOptions({headerShown:false});
