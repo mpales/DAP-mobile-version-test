@@ -24,6 +24,13 @@ class BarcodeCamera extends React.Component {
 
   componentDidMount() {
     this.getClientProductStorageList();
+    this._unsubscribe = this.props.navigation.addListener('focus', () => {
+      this.props.setSelectedRequestRelocation(null);
+    });
+  }
+
+  componentWillUnmount() {
+    this._unsubscribe();
   }
 
   getClientProductStorageList = async () => {
@@ -43,18 +50,19 @@ class BarcodeCamera extends React.Component {
   };
 
   navigateToRequestRelocationForm = (data) => {
-    const {barcodeResult, warehouseDetails} = this.state;
-    this.props.navigation.navigate('RequestRelocationForm', {
-      productStorage: {
-        ...data,
-        locationId: barcodeResult,
-      },
-    });
+    const {warehouseDetails} = this.state;
+    let selectedRelocation = {};
+    if (warehouseDetails !== null) {
+      selectedRelocation = {...data, ...warehouseDetails};
+    } else {
+      selectedRelocation = {...data};
+    }
+    this.props.setSelectedRequestRelocation(selectedRelocation);
+    this.props.navigation.navigate('RequestRelocationForm');
   };
 
   render() {
-    const {barcodeResult, isLoaded, scanResult, warehouseDetails} = this.state;
-
+    const {barcodeResult, isLoaded, scanResult} = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -139,7 +147,11 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {};
+  return {
+    setSelectedRequestRelocation: (data) => {
+      return dispatch({type: 'SelectedRequestRelocation', payload: data});
+    },
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(BarcodeCamera);
