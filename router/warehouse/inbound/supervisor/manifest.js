@@ -357,7 +357,8 @@ class Warehouse extends React.Component{
                     navigation={this.props.navigation}
                     currentManifest={this.props.setCurrentManifest}
                     toReportDetail={()=>{
-                      this.props.navigation.navigate('ReportDetailsSPV',{number:this.state.receivingNumber, productID : u.pId});
+                      this.props.navigation.navigate('ReportDetailsSPV',{number:this.state.receivingNumber, productID : u.pId, isShowBannerSuccess : false,
+                        isShowBanner : '',});
                     }}
                     // for prototype only
                     // end
