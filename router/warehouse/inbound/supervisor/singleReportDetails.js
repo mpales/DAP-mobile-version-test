@@ -94,7 +94,7 @@ class ConnoteReportDetails extends React.Component {
     const {currentASN} = this.props;
     const result = await getData('/inboundsMobile/'+inboundID+'/'+receivingNumber+'/reports/'+reportID);
     if(typeof result === 'object' && result.error === undefined){
-      this.setState({dataReports:result})
+      this.setState({dataReports:result, qtyreported : ''+result.qty})
     } else {
       this.props.navigation.goBack();
     }
@@ -249,6 +249,7 @@ class ConnoteReportDetails extends React.Component {
                 <View style={styles.detail}>
                   <DetailList title="Report By" value={dataReports.reported_by.firstName} />
                   <DetailList title="Date and Time" value={moment(dataReports.reported_on).format('DD/MM/YYY h:mm a')} />
+                  {dataReports.acknowledged === 1 && (<DetailList title="Affected Quantity" value={dataReports.qty} />)}
                   <DetailList title="Photo Proof" value={''} />
                   <FlatList
                         horizontal={true}
