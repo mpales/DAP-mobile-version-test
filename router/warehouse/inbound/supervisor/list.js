@@ -94,8 +94,11 @@ class List extends React.Component {
     }
     shouldComponentUpdate(nextProps, nextState) {
         if(this.props.keyStack !== nextProps.keyStack){
-        if(nextProps.keyStack === 'ListSupervisor' && this.props.keyStack === 'ManifestSupervisor'){
+        if(nextProps.keyStack === 'ListSupervisor' && this.props.keyStack === 'CompletedSupervisor'){
             this.setState({renderRefresh : true});
+            return true;
+        } else if(nextProps.keyStack === 'ListSupervisor' && this.props.keyStack === 'CompletedSupervisor'){
+            this.setState({renderGoBack : true});
             return true;
         }
         }
