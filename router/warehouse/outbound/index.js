@@ -225,7 +225,8 @@ class HomeNavigator extends React.Component {
             headerLeft: (props) => {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.navigation.navigate('List')
+                  this.props.setBottomBar(false);
+                  this.props.navigation.navigate('Barcode')
                 }
               }
               />);

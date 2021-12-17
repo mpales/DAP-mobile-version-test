@@ -282,6 +282,7 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
               titleStyle={[styles.deliveryText,{paddingHorizontal: 10}]}
               onPress={ToManifest}
               title="Scan Barcode"
+              disabled={item.status === 3 ? true : false }
             />
             <Button
               containerStyle={{flex:1, paddingVertical: 4, paddingHorizontal: 0}}
