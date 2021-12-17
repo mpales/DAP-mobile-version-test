@@ -114,7 +114,9 @@ class Acknowledge extends React.Component {
     // }
     const result = await postData('/inboundsMobile/'+this.state.receivingNumber+'/shipmentVAS', VAS);
     if(result === 'IVAS succesfully created'){
-      this.props.navigation.goBack();
+      this.props.navigation.navigate('Manifest',{
+        notifbanner : result,
+      })
     } else {
       if(result.error){
         this.setState({error:result.error})

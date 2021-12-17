@@ -167,6 +167,7 @@ class ConnoteReportDetails extends React.Component {
               onPress={()=>{
                 this.props.navigation.navigate('UpdateIVAS',{number:this.state.inboundID, shipmentID: this.state.shipmentID});
               }}
+              disabled={itemIVAS.acknowledged === 1}
               title="Edit VAS"
 
             />

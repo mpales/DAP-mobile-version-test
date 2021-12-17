@@ -211,9 +211,14 @@ class Warehouse extends React.Component{
     const {receivingNumber, _manifest, search} = this.state;
     this._unsubscribe = this.props.navigation.addListener('focus', () => {
       // do something
+      const {routes, index} = this.props.navigation.dangerouslyGetState();
       if(this.props.manifestError !== null){
         this.setState({notifbanner: this.props.manifestError, notifsuccess: false});
         this.props.setItemError(null);
+      }
+      if(routes[index].params !== undefined && routes[index].params.notifbanner !== undefined && routes[index].params.notifbanner !== ''){
+        this.setState({notifbanner: routes[index].params.notifbanner, notifsuccess: true, shipmentVAS:true});
+        this.props.navigation.setParams({...routes[index].params,notifbanner: ''});
       }
     });
     if(receivingNumber === null){
