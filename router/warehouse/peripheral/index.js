@@ -965,7 +965,7 @@ class Example extends React.Component {
     if(dataItem.specialField !== undefined && dataItem.specialField !== null && (dataItem.specialField.batchTracking === 1 || dataItem.specialField.productionDateTracking === 1 || dataItem.specialField.expiryDateTracking === 1)){
       toEnterAttr = true;
     }
-    if(dataItem.template !== undefined && dataItem.template !== null && dataItem.template.attributes !== undefined && dataItem.template.attributes !== null){
+    if(dataItem.template !== undefined && dataItem.template !== null && dataItem.template.attributes !== undefined && dataItem.template.attributes !== null && Array.isArray(dataItem.template.attributes) === true && dataItem.template.attributes.length > 0){
       toEnterAttr = true;
     }
     if(dataItem.is_transit || toEnterAttr === false){
