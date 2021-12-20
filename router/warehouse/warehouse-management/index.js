@@ -188,7 +188,7 @@ class WarehouseManagement extends React.Component {
                   ...Mixins.buttonFloatedAvatarDefaultIconStyle,
                 },
               }}
-              title="SELF RECOLLECTION"
+              title="SELF COLLECTION"
               overlayContainerStyle={
                 Mixins.buttonFloatedAvatarDefaultOverlayStyle
               }
