@@ -485,7 +485,7 @@ class Example extends React.Component {
                     {this.state.isConfirm !== true && (
                             <View style={[styles.sectionDividier,{flexDirection:dataItem.is_transit === 1 ? 'row' : 'column',marginTop:15,}]}>
                               <View style={[styles.dividerContent,dataItem.is_transit !== 1 ? {marginRight: 35, alignContent:'flex-start', justifyContent:'flex-start'} : {marginRight: 35,}]}>
-                            <Text style={styles.qtyTitle}>{dataItem.is_transit === 1 ? 'Qty' : 'Document Qty'}</Text>
+                            <Text style={styles.qtyTitle}>{dataItem.is_transit === 1 ? 'Qty' : 'Enter Qty'}</Text>
                           </View>
                           <View style={[styles.dividerInput,dataItem.is_transit !== 1 ? {justifyContent:'center', alignContent:'center', paddingHorizontal:40, marginVertical:0} : null]}>
                           <Decremental height="30" width="30" style={{flexShrink:1, marginVertical:5}} 
@@ -510,6 +510,10 @@ class Example extends React.Component {
                             value={String(this.state.qty)}
                             onChangeText={(val)=>{
                               this.setState({qty:  val});
+                            }}
+                            onBlur={(e) => this.setState({qty:isNaN(this.state.qty) === false ?  parseFloat(this.state.qty) : 0})}
+                            onEndEditing={(e)=>{
+                              this.setState({qty:isNaN(e.nativeEvent.text) === false ?  parseFloat(e.nativeEvent.text): 0})
                             }}
                             />
                           <Incremental height="30" width="30" style={{flexShrink:1, marginVertical:5}} 
@@ -815,14 +819,22 @@ class Example extends React.Component {
       toEnterAttr = true;
     }
  
-    if(dataItem.is_transit || toEnterAttr === false){
+    if(parseInt(qty) !== qty){
+      this.setState({
+        errorAttr: 'Qty only in integer',
+      });
+    } else if(this.state.ItemPallet === null){
+      this.setState({
+        errorAttr: 'Please choose item pallet, or re-process item when not showed',
+      });
+    } else if(dataItem.is_transit || toEnterAttr === false){
       let FormData = await this.getPhotoReceivingGoods();
       let incrementQty = this.state.qty;
       
       const ProcessItem = await postBlob('inboundsMobile/'+this.props.currentASN+'/'+this.state.scanItem+'/process-item', [
         ...FormData,
         {name: 'palletId', data: String(this.state.ItemPallet)},
-        {name: 'qty', data: String(incrementQty)},
+        {name: 'qty', data: String(parseInt(incrementQty))},
       ]).then((result)=>{
         if(result.error !== undefined && this.props.keyStack === 'ItemProcess'){
           this.setState({
@@ -836,6 +848,7 @@ class Example extends React.Component {
             enterAttr : toEnterAttr,
             isConfirm: true,
             isPOSM: false,
+            errorAttr: '',
           });
          }
       });
@@ -847,6 +860,7 @@ class Example extends React.Component {
       enterAttr : toEnterAttr,
       isConfirm: false,
       isPOSM: false,
+      errorAttr: '',
     });
     }
     // for prototype only
@@ -910,7 +924,7 @@ class Example extends React.Component {
         ...FormData,
         ...attributeobj,
         {name: 'palletId', data: String(this.state.ItemPallet)},
-        {name: 'qty', data: String(incrementQty)},
+        {name: 'qty', data: String(parseInt(incrementQty))},
         {name: 'attributes', data: JSON.stringify(attributes)},
       ]).then((result)=>{
         if(result.error !== undefined && this.props.keyStack === 'ItemProcess'){

@@ -226,6 +226,14 @@ class WarehouseNavigator extends React.Component {
           });
           return true;
         } else if (
+          this.props.keyStack === 'ManualPallet' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PalletScanner',
+          });
+          return true;
+        } else if (
           this.props.keyStack === 'POSMCameraMulti' &&
           this.props.indexBottomBar === 0
         ) {
@@ -427,6 +435,12 @@ class WarehouseNavigator extends React.Component {
       }
       if (
         this.props.keyStack === 'PalletScanner' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'ManualPallet' &&
         this.props.indexBottomBar === 0
       ) {
         this.props.setBottomBar(false);

@@ -74,7 +74,21 @@ class Example extends React.Component {
     } 
     return {...state, detectBarcodeToState: detectBarcode};
   }
- 
+  shouldComponentUpdate(nextProps, nextState) {
+    if(this.props.keyStack !== nextProps.keyStack){
+      if(nextProps.keyStack === 'PalletScanner' && this.props.keyStack ==='ManualPallet'){
+        const {routes, index} = nextProps.navigation.dangerouslyGetState();
+        if(routes[index].params !== undefined && routes[index].params.manualCode !== undefined){
+          //if multiple sku
+          nextProps.setBarcodeScanner(false);
+          nextProps.navigation.setParams({...routes[index].params,manualCode: undefined})
+          this.setState({dataCode: routes[index].params.manualCode});
+        }
+        return false;
+      }
+    }
+    return true;
+  }
   async componentDidUpdate(prevProps, prevState) {
     const {putawayList,detectBarcode, currentASN, navigation, setBarcodeScanner} = this.props;
     const {dataCode,scanItem,suggestionLocation, dataItem} = this.state;
@@ -326,8 +340,17 @@ class Example extends React.Component {
           //         dataCode: this.state.scanItem,
           //     }
           //   })}}
-          title="Report Item"
-        />
+          title="Report"
+        /> 
+        <Button
+        containerStyle={{flex:1, marginTop: 10,marginLeft:5,}}
+        buttonStyle={[styles.navigationButton, { borderWidth:1,
+          borderColor: '#F07120'}]}
+        titleStyle={styles.deliveryText}
+        onPress={() => {
+          this.props.navigation.navigate("ManualPallet")}}
+        title="Input Manual"
+      />
         </View>
       </View>
     </View>
@@ -349,6 +372,7 @@ class Example extends React.Component {
     this.props.navigation.navigate('PalletDetails');
   }
   closeErrorBanner = ()=>{
+    this.props.navigation.setOptions({headerShown:true});
     this.setState({errors:''});
   }
   onSubmit = async () => {
@@ -357,6 +381,7 @@ class Example extends React.Component {
     console.log(resultSubmit);
     if(typeof resultSubmit === 'object' && resultSubmit.error !== undefined){
       this.props.setBarcodeScanner(true);
+      this.props.navigation.setOptions({headerShown:false});
       this.setState({confirmScanned : false,dataCode: '0', dataItem : null, errors: resultSubmit.error });
     } else {
       this.setState({confirmScanned : true});

@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Card, Badge, Avatar} from 'react-native-elements';
+import {Card, Badge, Avatar, Divider} from 'react-native-elements';
 import {connect} from 'react-redux';
 import moment from 'moment'
 import Mixins from '../../../../mixins';
@@ -124,24 +124,47 @@ class ConnoteDetails extends React.Component {
          
           </View>
           <View style={[styles.headerBody, {flexShrink: 1}]}>
-            <Card containerStyle={[styles.cardContainer,{marginHorizontal:10}]} style={styles.card}>
-              <View style={styles.header}>
-                <View style={{flexDirection:'column', flexShrink: 1}}>
-                <Text style={{...Mixins.small1,lineHeight: 18,color: '#ABABAB', fontWeight: '400'}}>
-                {moment(_itemDetail.date).format("DD-MM-YYYY")}
-                  </Text>
-                  <Text style={{...Mixins.body1,lineHeight: 21,color: '#424141', fontWeight: '600'}}>
-                  {_itemDetail.pallet}
-                  </Text>
-                  <Text style={{...Mixins.body1,lineHeight: 21,color: '#424141', fontWeight: '600'}}>
-                  {_itemDetail.warehouse}
-                  </Text>
-                  <Text style={{...Mixins.body1,lineHeight: 21,color: '#424141', fontWeight: '600'}}>
-                  Suggested Location : {_itemDetail.suggestedLocation}
-                  </Text>
+            <Card containerStyle={[styles.cardContainer,{marginHorizontal:10, paddingHorizontal:0}]} style={styles.card}>
+              <View style={[styles.header,{paddingHorizontal:15}]}>
+                <View style={{flexDirection:'column', flex: 1}}>
+                 {(_itemDetail.type === 1 || _itemDetail.type === 3) && (
+                   <>
+                  <DetailList title="Date" value={moment(_itemDetail.date).format("DD-MM-YYYY")} labelStyle={{width:"55%"}}/>
+                  <DetailList title="Client ID" value={_itemDetail.client} labelStyle={{width:"55%"}}/>
+                  <DetailList title="Inbound Job ID" value={_itemDetail.inboundJobId} labelStyle={{width:"55%"}} />
+                  <DetailList title="Warehouse" value={_itemDetail.warehouse} labelStyle={{width:"55%"}} />
+                  <DetailList title="Pallet" value={_itemDetail.pallet} labelStyle={{width:"55%"}} />
+                  <DetailList title="Suggested Location" value={_itemDetail.suggestedLocation} labelStyle={{width:"55%"}} />
+                  </>)}
+              
+                  {_itemDetail.type === 2 && (
+                   <>
+                  <DetailList title="Inbound ID" value={_itemDetail.inboundJobId}  labelStyle={{width:"55%"}}/>
+                  <DetailList title="Warehouse" value={_itemDetail.warehouse}  labelStyle={{width:"55%"}}/>
+                  <DetailList title="Pallet" value={_itemDetail.pallet}  labelStyle={{width:"55%"}}/>
+                  <DetailList title="Suggested Location" value={_itemDetail.suggestedLocation}  labelStyle={{width:"55%"}}/>
+                  </>)}
+              
+                  {_itemDetail.type === 4 && (
+                   <>
+                  <DetailList title="Container #" value="-" />
+                  <DetailList title="No. of Pallet" value="-" />
+                  <DetailList title="No. of Carton" value="-" />
+                  <DetailList title="CBM" value="-" />
+                  <DetailList title="Weight" value="-" />
+                  </>)}
+              
                 </View>
                 <Badge value={_itemDetail.type === 1 ? 'ASN' : _itemDetail.type === 2 ? 'GRN' : _itemDetail.type === 3 ? 'OTHERS' : 'TRANSIT'} status="warning" textStyle={{...Mixins.small3,fontWeight: '700',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-start'}} badgeStyle={{backgroundColor: _itemDetail.type === 1 ? '#121C78' : _itemDetail.type === 2 ? '#F07120' : _itemDetail.type === 3 ? 'white' : '#17B055', borderColor:'#ABABAB', borderWidth:_itemDetail.type === 1 ? 0 : _itemDetail.type === 2 ? 0 : _itemDetail.type === 3 ? 1 : 0, borderRadius:5}} />
+              
               </View>
+             {_itemDetail.type === 4 && (<> <Divider style={{marginVertical:10}}/>
+              <View style={{paddingHorizontal:15, paddingTop:10, paddingBottom:20}}> 
+              <Text style={{...Mixins.body1,color:'#424141',lineHeight:21, fontWeight:'700'}}>Delivery Information</Text>
+              <View style={{paddingVertical:10}}>
+              <DetailList title="Delivery Type" value="SELF COLLECTION" />
+              </View>
+              </View></>)}
             </Card>
           </View>
           <View style={styles.body}>
