@@ -13,6 +13,7 @@ import {Badge, Button, SearchBar} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
+import SelectDropdown from 'react-native-select-dropdown';
 //component
 import Relocation from '../../../../component/extend/ListItem-relocation';
 import Loading from '../../../../component/loading/loading';
@@ -22,6 +23,7 @@ import {getData} from '../../../../component/helper/network';
 import Mixins from '../../../../mixins';
 // icon
 import SearchIcon from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
+import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 
 class RelocationList extends React.Component {
   constructor(props) {
@@ -31,6 +33,7 @@ class RelocationList extends React.Component {
       jobList: null,
       search: '',
       filterStatus: 'All',
+      selectedSortBy: 'Date Asc',
       isLoading: true,
       isRefreshing: false,
     };
@@ -49,9 +52,13 @@ class RelocationList extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (
       prevState.search !== this.state.search ||
-      prevState.filterStatus !== this.state.filterStatus
+      prevState.filterStatus !== this.state.filterStatus ||
+      prevState.jobList !== this.state.jobList
     ) {
       this.filterJoblist();
+    }
+    if (prevState.filteredJobList !== this.state.filteredJobList) {
+      this.sortJobList(this.state.selectedSortBy);
     }
   }
 
@@ -71,6 +78,7 @@ class RelocationList extends React.Component {
       this.setState({
         jobList: result,
       });
+      this.sortJobList('Date Asc');
     }
     this.setState({
       isLoading: false,
@@ -85,6 +93,33 @@ class RelocationList extends React.Component {
     this.setState({filterStatus: value});
   };
 
+  // sort job list asc or desc
+  sortJobList = (sortBy) => {
+    const {filteredJobList, filterStatus, jobList, search} = this.state;
+    this.setState({selectedSortBy: sortBy});
+    let newJobList = [];
+    if (search === '' && filterStatus === 'All') {
+      newJobList = jobList.sort((a, b) => {
+        if (sortBy === 'Date Asc') {
+          return new Date(a.createdOn) - new Date(b.createdOn);
+        } else if (sortBy === 'Date Desc') {
+          return new Date(b.createdOn) - new Date(a.createdOn);
+        }
+      });
+      this.setState({jobList: newJobList});
+    } else {
+      newJobList = filteredJobList.sort((a, b) => {
+        if (sortBy === 'Date Asc') {
+          return new Date(a.createdOn) - new Date(b.createdOn);
+        } else if (sortBy === 'Date Desc') {
+          return new Date(b.createdOn) - new Date(a.createdOn);
+        }
+      });
+      this.setState({filteredJobList: newJobList});
+    }
+    return newJobList;
+  };
+
   filterJoblist = () => {
     const {search, filterStatus} = this.state;
     const {jobList} = this.state;
@@ -93,10 +128,19 @@ class RelocationList extends React.Component {
       if (search.length > 0) {
         filteredJobList = jobList.filter((job) => {
           return (
-            job.clientName.toLowerCase().includes(search.toLowerCase()) ||
+            job.clientNameFroms
+              .toString()
+              .toLowerCase()
+              .includes(search.toLowerCase()) ||
             job.code.toLowerCase().includes(search.toLowerCase()) ||
-            job.itemCode.toLowerCase().includes(search.toLowerCase()) ||
-            job.warehouseNameFrom.toLowerCase().includes(search.toLowerCase())
+            job.itemCodeFroms
+              .toString()
+              .toLowerCase()
+              .includes(search.toLowerCase()) ||
+            job.warehouseNameFroms
+              .toString()
+              .toLowerCase()
+              .includes(search.toLowerCase())
           );
         });
         if (filterStatus !== 'All') {
@@ -117,7 +161,6 @@ class RelocationList extends React.Component {
 
   navigateToDetails = (relocationId, status) => {
     this.props.setBottomBar(false);
-    if (status === 'Completed') return;
     if (status === 'Processing') {
       this.props.navigation.navigate('ConfirmRelocation', {
         relocationId: relocationId,
@@ -175,16 +218,44 @@ class RelocationList extends React.Component {
                 style={styles.requestRelocation}
               />
             </View>
-            <SearchBar
-              placeholder="Search..."
-              onChangeText={this.updateSearch}
-              value={this.state.search}
-              lightTheme={true}
-              inputStyle={styles.searchInputText}
-              searchIcon={<SearchIcon height="20" width="20" fill="#2D2C2C" />}
-              containerStyle={styles.searchContainer}
-              inputContainerStyle={styles.searchInputContainer}
-            />
+            <View style={styles.middleContainer}>
+              <SearchBar
+                placeholder="Search..."
+                onChangeText={this.updateSearch}
+                value={this.state.search}
+                lightTheme={true}
+                inputStyle={styles.searchInputText}
+                searchIcon={
+                  <SearchIcon height="20" width="20" fill="#2D2C2C" />
+                }
+                containerStyle={styles.searchContainer}
+                inputContainerStyle={styles.searchInputContainer}
+              />
+              <SelectDropdown
+                buttonStyle={styles.dropdownButton}
+                buttonTextStyle={styles.dropdownButtonText}
+                rowTextStyle={[
+                  styles.dropdownButtonText,
+                  {textAlign: 'center'},
+                ]}
+                data={['Date Asc', 'Date Desc']}
+                defaultValueByIndex={0}
+                onSelect={(selectedItem) => {
+                  this.sortJobList(selectedItem);
+                }}
+                buttonTextAfterSelection={(selectedItem) => {
+                  return selectedItem;
+                }}
+                rowTextForSelection={(item) => {
+                  return item;
+                }}
+                renderDropdownIcon={() => (
+                  <View style={{marginRight: 10}}>
+                    <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+                  </View>
+                )}
+              />
+            </View>
             <ScrollView
               style={styles.badgeContainer}
               horizontal={true}
@@ -227,20 +298,6 @@ class RelocationList extends React.Component {
                 }
                 textStyle={
                   this.state.filterStatus === 'Processing'
-                    ? styles.badgeTextSelected
-                    : styles.badgeText
-                }
-              />
-              <Badge
-                value="Completed"
-                onPress={() => this.handleFilterStatus('Completed')}
-                badgeStyle={
-                  this.state.filterStatus === 'Completed'
-                    ? styles.badgeSelected
-                    : styles.badge
-                }
-                textStyle={
-                  this.state.filterStatus === 'Completed'
                     ? styles.badgeTextSelected
                     : styles.badgeText
                 }
@@ -292,6 +349,15 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 10,
   },
+  middleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 5,
+    marginHorizontal: 20,
+    paddingVertical: 10,
+  },
   navigateText: {
     ...Mixins.subtitle3,
     fontSize: 16,
@@ -307,18 +373,18 @@ const styles = StyleSheet.create({
     lineHeight: 21,
   },
   searchContainer: {
+    width: '48%',
     backgroundColor: 'transparent',
     borderTopWidth: 0,
     borderBottomWidth: 0,
-    paddingHorizontal: 20,
-    marginVertical: 5,
+    padding: 0,
   },
   searchInputContainer: {
     backgroundColor: 'white',
     borderWidth: 1,
     borderBottomWidth: 1,
     borderColor: '#D5D5D5',
-    height: 35,
+    height: 40,
   },
   badgeContainer: {
     flex: 1,
@@ -352,6 +418,23 @@ const styles = StyleSheet.create({
   badgeTextSelected: {
     ...Mixins.subtitle3,
     color: 'white',
+  },
+  dropdownButton: {
+    width: '48%',
+    maxHeight: 40,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#D5D5D5',
+    backgroundColor: 'white',
+    paddingHorizontal: 0,
+  },
+  dropdownButtonText: {
+    paddingHorizontal: 10,
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#424141',
+    textAlign: 'left',
+    paddingHorizontal: 0,
   },
 });
 

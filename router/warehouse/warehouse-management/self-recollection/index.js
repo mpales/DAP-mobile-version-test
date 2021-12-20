@@ -75,14 +75,14 @@ class SelfRecollectionNavigator extends React.Component {
           component={SelfRecollectionList}
           name="SelfRecollectionList"
           options={{
-            headerTitle: 'Self Recollection',
+            headerTitle: 'Self Collection',
           }}
         />
         <Stack.Screen
           component={RecollectionForm}
           name="RecollectionForm"
           options={{
-            headerTitle: 'Self Recollection',
+            headerTitle: 'Self Collection',
           }}
         />
         <Stack.Screen

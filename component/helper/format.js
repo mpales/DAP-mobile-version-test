@@ -61,7 +61,7 @@ export default class Format {
 const time2Current = (date) => {
   var hours = date.getHours();
   var minutes = date.getMinutes();
-  var ampm = hours >= 12 ? 'pm' : 'am';
+  var ampm = hours >= 12 ? 'P.M' : 'A.M';
   hours = hours % 12;
   hours = hours ? hours : 12; // the hour '0' should be '12'
   let mnt = minutes < 10 ? '0' + minutes : '' + minutes;
