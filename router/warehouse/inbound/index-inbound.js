@@ -288,11 +288,19 @@ class WarehouseNavigator extends React.Component {
           });
           return true;
         } else if (
-          this.props.keyStack === 'IVASDetailsSPV' &&
+          this.props.keyStack === 'IVASListSPV' &&
           this.props.indexBottomBar === 0
         ) {
           this.navigationRef.current.navigate('SupervisorMode', {
             screen: 'ManifestSupervisor',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'IVASDetailsSPV' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('SupervisorMode', {
+            screen: 'IVASListSPV',
           });
           return true;
         } else if (
@@ -463,6 +471,12 @@ class WarehouseNavigator extends React.Component {
 
       if (
         this.props.keyStack === 'ReportDetailsSPV' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'IVASListSPV' &&
         this.props.indexBottomBar === 0
       ) {
         this.props.setBottomBar(false);

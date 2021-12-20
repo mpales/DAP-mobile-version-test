@@ -107,6 +107,38 @@ class ConnoteReportDetails extends React.Component {
     const {inboundData,itemIVAS} = this.state;
     if(inboundData === null || itemIVAS === null )
     return (<Loading/>);
+    let shipmentopt = '';
+    switch (itemIVAS.inbound_shipment) {
+      case 1:
+        shipmentopt = 'Un-Stuffing From Truck';
+        break;
+        case 2:
+          shipmentopt = '20ft Loose';
+          break;
+          case 3:
+            shipmentopt = '40ft Loose';
+            break;
+            case 4:
+              shipmentopt = '20ft Palletized';
+              break;
+              case 5:
+                shipmentopt = '40ft Palletized';
+                break;
+                case 6:
+                  shipmentopt = '20ft High Cube Loose';
+                  break;
+                  case 7:
+                    shipmentopt = '40ft High Cube Loose';
+                    break;
+                    case 8:
+                      shipmentopt = '20ft High Cube Palletized';
+                      break;
+                      case 9:
+                        shipmentopt = '40ft High Cube Palletized';
+                        break;                                            
+      default:
+        break;
+    }
     return (
       <>
         <StatusBar barStyle="dark-content" />
@@ -128,12 +160,14 @@ class ConnoteReportDetails extends React.Component {
              
               <View style={[styles.detail]}>
                 <DetailList title="Client" value={this.state.clientVAS} />
+                <DetailList title="Ref #" value={this.state.inboundData.reference_id} />
+                <DetailList title="Shipment Type" value={this.state.inboundData.shipment_type === 2 ? "FCL" : "LCL"} />
                 <DetailList title="Recorded By" value={ itemIVAS.created_by !== undefined ? itemIVAS.created_by.firstName : null} />
                 <DetailList title="Date and Time" value={ itemIVAS.created_on  !== null ? moment(itemIVAS.created_on).format('DD/MM/YYYY h:mm a') : null}/>
                
               <View style={{marginVertical:10}}> 
               <Text style={{...Mixins.body1,lineHeight:20,fontWeight:'700',color:'#2D2C2C'}}>
-               { itemIVAS.inbound_shipment === 1 ?  'Un-Stuffing From Truck' : itemIVAS.inbound_shipment === 2 ? 'Un-Stuffing From 20’ Container' : itemIVAS.inbound_shipment === 3 ? 'Un-Stuffing From 40’ Container' : null}
+               {shipmentopt}
                 </Text>
                 </View>
                 <DetailList title="Number Pallet" value={itemIVAS.inbound_shipment_no_pallet} />

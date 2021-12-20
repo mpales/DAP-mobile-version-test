@@ -20,16 +20,11 @@ class Acknowledge extends React.Component {
       stuffTruck: false,
       stuffTruckPallet: '',
       stuffTruckCarton : '',
-      stuff20Container: false,
-      stuff20ContainerDot1: false,
-      stuff20ContainerDot2: false,
-      stuff20ContainerPallet :'',
-      stuff20ContainerCarton : '',
-      stuff40Container: false,
-      stuff40ContainerDot1: false,
-      stuff40ContainerDot2: false,
-      stuff40ContainerPallet :'',
-      stuff40ContainerCarton : '',
+      stuffContainer: 0,
+      stuffContainerDot1: false,
+      stuffContainerDot2: false,
+      stuffContainerPallet :'',
+      stuffContainerCarton : '',
       takeCartoon: false,
       takeCartonSKU : '',
       takeLabelling: false,
@@ -70,16 +65,11 @@ class Acknowledge extends React.Component {
       stuffTruck: result.inbound_shipment_va.inbound_shipment === 1 ? true : false,
       stuffTruckPallet: result.inbound_shipment_va.inbound_shipment === 1 ? ''+result.inbound_shipment_va.inbound_shipment_no_pallet : '',
       stuffTruckCarton : result.inbound_shipment_va.inbound_shipment === 1 ? ''+result.inbound_shipment_va.inbound_shipment_no_carton : '',
-      stuff20Container: result.inbound_shipment_va.inbound_shipment === 2 ? true : false,
-      stuff20ContainerDot1: result.inbound_shipment_va.inbound_shipment === 2 && (result.inbound_shipment_va.inbound_shipment_pallet === 1 || result.inbound_shipment_va.inbound_shipment_pallet === 3) ? true : false,
-      stuff20ContainerDot2: result.inbound_shipment_va.inbound_shipment === 2 && (result.inbound_shipment_va.inbound_shipment_pallet === 2 || result.inbound_shipment_va.inbound_shipment_pallet === 3) ? true : false,
-      stuff20ContainerPallet :result.inbound_shipment_va.inbound_shipment === 2 ? ''+result.inbound_shipment_va.inbound_shipment_no_pallet : '',
-      stuff20ContainerCarton : result.inbound_shipment_va.inbound_shipment === 2 ? ''+result.inbound_shipment_va.inbound_shipment_no_pallet : '',
-      stuff40Container: result.inbound_shipment_va.inbound_shipment === 3 ? true : false,
-      stuff40ContainerDot1: result.inbound_shipment_va.inbound_shipment === 3 && (result.inbound_shipment_va.inbound_shipment_pallet === 1 || result.inbound_shipment_va.inbound_shipment_pallet === 3) ? true : false,
-      stuff40ContainerDot2: result.inbound_shipment_va.inbound_shipment === 3 && (result.inbound_shipment_va.inbound_shipment_pallet === 2 || result.inbound_shipment_va.inbound_shipment_pallet === 3) ? true : false,
-      stuff40ContainerPallet :result.inbound_shipment_va.inbound_shipment === 3 ? ''+result.inbound_shipment_va.inbound_shipment_no_pallet : '',
-      stuff40ContainerCarton : result.inbound_shipment_va.inbound_shipment === 3 ? ''+result.inbound_shipment_va.inbound_shipment_no_pallet : '',
+      stuffContainer: result.inbound_shipment_va.inbound_shipment - 2,
+      stuffContainerDot1: (result.inbound_shipment_va.inbound_shipment_pallet === 1 || result.inbound_shipment_va.inbound_shipment_pallet === 3) ? true : false,
+      stuffContainerDot2:(result.inbound_shipment_va.inbound_shipment_pallet === 2 || result.inbound_shipment_va.inbound_shipment_pallet === 3) ? true : false,
+      stuffContainerPallet : ''+result.inbound_shipment_va.inbound_shipment_no_pallet,
+      stuffContainerCarton : ''+result.inbound_shipment_va.inbound_shipment_no_carton,
       takeCartoon: result.inbound_shipment_va.carton_dimension_sku !== 0 ? true : false,
       takeCartonSKU : ''+result.inbound_shipment_va.carton_dimension_sku,
       takeLabelling: false,
@@ -90,37 +80,27 @@ class Acknowledge extends React.Component {
     });
   }
   submitItem = async ()=>{
-    const {stuffTruck, stuff20Container, stuff40Container} = this.state;
-    const {stuff20ContainerDot1, stuff20ContainerDot2, stuff40ContainerDot1, stuff40ContainerDot2} = this.state;
+    const {stuffTruck, stuffContainer, stuff40Container} = this.state;
+    const {stuffContainerDot1, stuffContainerDot2, stuffContainerCarton, stuffContainerPallet, stuffTruckCarton, stuffTruckPallet} = this.state;
 
-    let shipment = stuffTruck ? 1 : stuff20Container ? 2 : stuff40Container ? 3 : 0;
+    let shipment = stuffTruck ? 1 : stuffContainer + 2;
     let shipmentpallet = 0;
-    if(stuff20Container){
-      if(stuff20ContainerDot1 && stuff20ContainerDot2){
+    if(shipment > 1 ){
+      if(stuffContainerDot1 && stuffContainerDot2){
         shipmentpallet = 3;
       } else {
-        if(stuff20ContainerDot1){
+        if(stuffContainerDot1){
           shipmentpallet = 1;
-        } else if(stuff20ContainerDot2){
+        } else if(stuffContainerDot2){
           shipmentpallet = 2;
         }
       }
-    } else if (stuff40Container){
-      if(stuff40ContainerDot1 && stuff40ContainerDot2){
-        shipmentpallet = 3;
-      } else {
-        if(stuff40ContainerDot1){
-          shipmentpallet = 1;
-        } else if(stuff40ContainerDot2){
-          shipmentpallet = 2;
-        }
-      }
-    }
+    } 
     let VAS = {
       shipment:shipment,
       shipmentPallet: shipmentpallet,
-      nCartoon : shipment === 1 ? parseInt(this.state.stuffTruckCarton) : shipment === 2 ? parseInt(this.state.stuff20ContainerCarton) : shipment === 3 ? parseInt(this.state.stuff40ContainerCarton) : 0,
-      nPallet  : shipment === 1 ? parseInt(this.state.stuffTruckPallet) : shipment === 2 ? parseInt(this.state.stuff20ContainerPallet) : shipment === 3 ? parseInt(this.state.stuff40ContainerPallet) : 0,
+      nCartoon : shipment === 1 ? parseInt(stuffTruckCarton) : parseInt(stuffContainerCarton),
+      nPallet  : shipment === 1 ? parseInt(stuffTruckPallet) : parseInt(stuffContainerPallet),
     //  cartoonDimensionSKU : this.state.takeCartonSKU === "0" ? NaN : parseInt(this.state.takeCartonSKU),
       other: this.state.takeOthersInput
     };
@@ -206,11 +186,11 @@ class Acknowledge extends React.Component {
   stuffTruckCartonInput = (text) => {
     this.setState({stuffTruckCarton:text});
   }
-  stuff20ContainerPalletInput = (text) => {
-    this.setState({stuff20ContainerPallet :text});
+  stuffContainerPalletInput = (text) => {
+    this.setState({stuffContainerPallet :text});
   }
-  stuff20ContainerCartonInput = (text) => {
-    this.setState({stuff20ContainerCarton :text});
+  stuffContainerCartonInput = (text) => {
+    this.setState({stuffContainerCarton :text});
   }
   stuff40ContainerPalletInput = (text) => {
     this.setState({stuff40ContainerPallet :text});
@@ -327,13 +307,23 @@ class Acknowledge extends React.Component {
                 <SelectDropdown
                             buttonStyle={{width:'100%',maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
                             buttonTextStyle={{...Mixins.body1, color:'#2D2C2C', lineHeight:20, fontWeight:'700',textAlign:'left',}}
-                            data={['Un-Stuffing From 20’ Container', 'Un-Stuffing From 40’ Container '] }
-                            defaultValueByIndex={this.state.stuff20Container === true ? 0 :1 }
+                            data={['20ft Loose', '40ft Loose','20ft Palletized','40ft Palletized','20ft High Cube Loose','40ft High Cube Loose','20ft High Cube Palletized','40ft High Cube Palletized'] }
+                            defaultValueByIndex={this.state.stuffContainer}
+                            disabled={this.state.stuffTruck}
                             onSelect={(selectedItem, index) => {
-                              if(index === 0){
-                                this.setState({stuff20Container:true, stuff40Container: false, stuff40ContainerDot1: false, stuff40ContainerDot2:false, stuff40ContainerPallet: '', stuff40ContainerCarton:''});
+                              const {stuffContainer} = this.state;
+                              if(index === stuffContainer) {
+                                this.setState({
+                                  stuffContainer : index,
+                                });
                               } else {
-                                this.setState({stuff40Container:true, stuff20Container: false, stuff20ContainerDot1:false, stuff20ContainerDot2:false, stuff20ContainerPallet:'', stuff20ContainerCarton:''});
+                                this.setState({
+                                  stuffContainer: index,
+                                  stuffContainerDot1: false,
+                                  stuffContainerDot2: false,
+                                  stuffContainerCarton: '',
+                                  stuffContainerPallet: '',
+                                });
                               }
                             }}
                             renderDropdownIcon={() => {
@@ -352,9 +342,15 @@ class Acknowledge extends React.Component {
                               // if data array is an array of objects then return item.property to represent item in dropdown
                               return item;
                             }}
+                            renderCustomizedRowChild={(item, index) => {
+                              return (
+                                <View style={{flex:1,paddingHorizontal:17, backgroundColor:this.state.stuffContainer === index ? '#e7e8f2' : 'transparent',paddingVertical:0,marginVertical:0, justifyContent:'center'}}>
+                                  <Text style={{...Mixins.small1,fontWeight:'400',lineHeight:18, color:'#424141'}}>{item}</Text>
+                                </View>
+                              );
+                            }}
                           />
-          
-           {this.state.stuff20Container === true && ( <>
+      
             <View style={styles.groupCheckbox}>
                 <CheckBox
                 center
@@ -365,11 +361,11 @@ class Acknowledge extends React.Component {
                 uncheckedIcon='circle-o'
                 uncheckedColor="#6C6B6B"
                 checkedColor="#2A3386"
-                checked={this.state.stuff20ContainerDot1}
+                checked={this.state.stuffContainerDot1}
                 onPress={()=>{
-                    this.setState({stuff20ContainerDot1: !this.state.stuff20ContainerDot1, stuff20ContainerDot2: false})
+                    this.setState({stuffContainerDot1: !this.state.stuffContainerDot1, stuffContainerDot2: false})
                 }}
-                disabled={(!this.state.stuff20Container)}
+                disabled={this.state.stuffTruck}
                 />
                   <CheckBox
                 center
@@ -380,11 +376,11 @@ class Acknowledge extends React.Component {
                 uncheckedIcon='circle-o'
                 uncheckedColor="#6C6B6B"
                 checkedColor="#2A3386"
-                checked={this.state.stuff20ContainerDot2}
+                checked={this.state.stuffContainerDot2}
                 onPress={()=>{
-                    this.setState({stuff20ContainerDot2: !this.state.stuff20ContainerDot2, stuff20ContainerDot1:false})
+                    this.setState({stuffContainerDot2: !this.state.stuffContainerDot2, stuffContainerDot1:false})
                 }}
-                disabled={(!this.state.stuff20Container)}
+                disabled={this.state.stuffTruck}
                 />
             </View>
             <View style={[styles.sectionInput, {paddingVertical:10}]}>
@@ -393,14 +389,14 @@ class Acknowledge extends React.Component {
             </View>
             <Input 
                   containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
-                inputContainerStyle={[(!this.state.stuff20Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80, borderColor:'#ABABAB'}]} 
-                inputStyle={(!this.state.stuff20Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
+                inputContainerStyle={[styles.containedInputDefault,{maxHeight:35, width:80, borderColor:'#ABABAB'}]} 
+                inputStyle={styles.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                disabled={(!this.state.stuff20Container)}
                 style={{...Mixins.body1,lineHeight:21,color:'#6C6B6B',fontWeight:'400'}}
-                onChangeText={this.stuff20ContainerPalletInput}
-                value={this.state.stuff20ContainerPallet}
+                onChangeText={this.stuffContainerPalletInput}
+                value={this.state.stuffContainerPallet}
                 keyboardType="number-pad"
+                disabled={this.state.stuffTruck}
             />
         </View>      
         <View style={[styles.sectionInput, {paddingVertical:10}]}>
@@ -409,86 +405,18 @@ class Acknowledge extends React.Component {
             </View>
             <Input 
                               containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
-                              inputContainerStyle={[(!this.state.stuff20Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80, borderColor:'#ABABAB'}]} 
-                              inputStyle={(!this.state.stuff20Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
+                              inputContainerStyle={[styles.containedInputDefault,{maxHeight:35, width:80, borderColor:'#ABABAB'}]} 
+                              inputStyle={styles.containedInputDefaultStyle}
                               style={{...Mixins.body1,lineHeight:21,color:'#6C6B6B',fontWeight:'400'}}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                disabled={(!this.state.stuff20Container)}
-                onChangeText={this.stuff20ContainerCartonInput}
-                value={this.state.stuff20ContainerCarton}
+                onChangeText={this.stuffContainerCartonInput}
+                value={this.state.stuffContainerCarton}
                 keyboardType="number-pad"
+                disabled={this.state.stuffTruck}
             />
             </View> 
-            </>)}
-         
-            {this.state.stuff40Container === true && (
-            <>
-            <View style={styles.groupCheckbox}>
-                <CheckBox
-                center
-                title='Palletized'
-                containerStyle={styles.checkboxContainer}
-                textStyle={{...Mixins.body1,color:'#2D2C2C',fontWeight:'400',lineHeight:20}}
-                checkedIcon='dot-circle-o'
-                uncheckedIcon='circle-o'
-                uncheckedColor="#6C6B6B"
-                checkedColor="#2A3386"
-                checked={this.state.stuff40ContainerDot1}
-                onPress={()=>{
-                    this.setState({stuff40ContainerDot1: !this.state.stuff40ContainerDot1, stuff40ContainerDot2: false,})
-                }}
-                disabled={(!this.state.stuff40Container)}
-                />
-                  <CheckBox
-                center
-                title='Loose'
-                containerStyle={styles.checkboxContainer}
-                textStyle={{...Mixins.body1,color:'#2D2C2C',fontWeight:'400',lineHeight:20}}
-                checkedIcon='dot-circle-o'
-                uncheckedIcon='circle-o'
-                uncheckedColor="#6C6B6B"
-                checkedColor="#2A3386"
-                checked={this.state.stuff40ContainerDot2}
-                onPress={()=>{
-                    this.setState({stuff40ContainerDot2: !this.state.stuff40ContainerDot2, stuff40ContainerDot1:false})
-                }}
-                disabled={(!this.state.stuff40Container)}
-                />
-            </View>
-            <View style={[styles.sectionInput, {paddingVertical:10}]}>
-            <View style={styles.labelInput}>
-            <Text style={styles.textInput}>Number Pallet</Text>
-            </View>
-            <Input 
-                  containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
-                inputContainerStyle={[(!this.state.stuff40Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80, borderColor:'#ABABAB'}]} 
-                inputStyle={(!this.state.stuff40Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                disabled={(!this.state.stuff40Container)}
-                style={{...Mixins.body1,lineHeight:21,color:'#6C6B6B',fontWeight:'400'}}
-                onChangeText={this.stuff40ContainerPalletInput}
-                value={this.state.stuff40ContainerPallet}
-                keyboardType="number-pad"
-            />
-        </View> 
-        <View style={[styles.sectionInput, {paddingVertical:10}]}>
-            <View style={styles.labelInput}>
-            <Text style={styles.textInput}>Number Cartons</Text>
-            </View>
-            <Input 
-                containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
-                    inputContainerStyle={[(!this.state.stuff40Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80, borderColor:'#ABABAB'}]} 
-                    inputStyle={(!this.state.stuff40Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
-                    style={{...Mixins.body1,lineHeight:21,color:'#6C6B6B',fontWeight:'400'}}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                disabled={(!this.state.stuff40Container)}
-                onChangeText={this.stuff40ContainerCartonInput}
-                value={this.state.stuff40ContainerCarton}
-                keyboardType="number-pad"
-            />
-            </View> 
-            </>
-            )}
+       
+          
 
           </View> 
          )} 
@@ -626,7 +554,7 @@ class Acknowledge extends React.Component {
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.submitItem}
-              disabled={ this.state.stuffTruck || this.state.stuff20Container || this.state.stuff40Container ? false : true}
+              disabled={ (this.state.stuffTruck && this.state.stuffTruckCarton && this.state.stuffTruckPallet) || (this.state.stuffContainer >=0 && this.state.stuffContainerCarton && this.state.stuffContainerPallet) ? false : true}
               title="Update"
             />
         </ScrollView>

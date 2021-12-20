@@ -155,7 +155,7 @@ const Manifest = React.forwardRef((props, ref) => {
                         <Input 
                           containerStyle={{...styles.textInput,flexGrow: 1, maxHeight:30, flexBasis:1}}
                           inputContainerStyle={{maxHeight:30, padding:0, margin:0, borderBottomColor: 'transparent'}} 
-                            inputStyle={{...Mixins.containedInputDefaultStyle,marginHorizontal:0}}
+                            inputStyle={{...Mixins.containedInputDefaultStyle,marginHorizontal:0, paddingHorizontal:0}}
                             style={{...Mixins.small1,fontWeight:'400',lineHeight:18,color:'#424141'}}
                             labelStyle={Mixins.containedInputDefaultLabel}
                             placeholderTextColor="#424141"
