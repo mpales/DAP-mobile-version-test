@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {Button, Card, Overlay} from 'react-native-elements';
+import {Button, Card} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
@@ -101,6 +101,13 @@ class RelocationConfirm extends React.Component {
 
   handleExpanded = () => {
     this.setState({isExpanded: !this.state.isExpanded});
+  };
+
+  navigateToConfirmRelocationBarcode = () => {
+    const {relocationId} = this.state;
+    this.props.navigation.navigate('ConfirmRelocationBarcode', {
+      relocationId: relocationId,
+    });
   };
 
   navigateToRelocationJobList = () => {
@@ -202,7 +209,7 @@ class RelocationConfirm extends React.Component {
                         title="Quantity"
                         value={`${
                           relocationDetails.productStorageFroms[0].quantity
-                        }-${
+                        }/${
                           relocationDetails.productStorageFroms[0].quantity -
                           relocationDetails.quantityTo
                         }`}
@@ -315,95 +322,12 @@ class RelocationConfirm extends React.Component {
                 title="Confirm Relocation"
                 titleStyle={styles.buttonText}
                 buttonStyle={styles.button}
-                onPress={this.confirmRelocation}
+                onPress={this.navigateToConfirmRelocationBarcode}
                 disabled={isSubmitting}
                 disabledStyle={{backgroundColor: '#ABABAB'}}
                 disabledTitleStyle={{color: '#FFF'}}
               />
             </ScrollView>
-            <Overlay
-              overlayStyle={{borderRadius: 10, padding: 0}}
-              isVisible={this.state.showOverlay}>
-              <View
-                style={{
-                  flexShrink: 1,
-                  width: window.width * 0.9,
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderBottomWidth: 1,
-                    borderBottomColor: '#ABABAB',
-                    paddingVertical: 15,
-                  }}>
-                  <CheckmarkIcon height="24" width="24" fill="#17B055" />
-                  <Text
-                    style={{
-                      ...Mixins.subtitle3,
-                      fontSize: 18,
-                      lineHeight: 25,
-                      marginLeft: 10,
-                      color: '#17B055',
-                    }}>
-                    Relocation Successful
-                  </Text>
-                </View>
-                <View style={{padding: 20}}>
-                  <Text style={styles.cardTitle}>New Location</Text>
-                  {relocationDetails.productStorageFroms.length > 1 && (
-                    <TextList
-                      title="Warehouse"
-                      value={relocationDetails.warehouseNameTo}
-                    />
-                  )}
-                  <TextList
-                    title="Location"
-                    value={relocationDetails.locationTo}
-                  />
-                  {!(relocationDetails.productStorageFroms.length > 1) && (
-                    <>
-                      <TextList
-                        title="Item Code"
-                        value={
-                          relocationDetails.productStorageFroms[0].product
-                            .item_code
-                        }
-                      />
-                      <TextList
-                        title="Description"
-                        value={
-                          relocationDetails.productStorageFroms[0].product
-                            .description
-                        }
-                      />
-                      <TextList
-                        title="UOM"
-                        value={
-                          relocationDetails.productStorageFroms[0].productUom
-                            .packaging
-                        }
-                        isBold={true}
-                      />
-                    </>
-                  )}
-                  <CustomTextList
-                    title="Destination Grade"
-                    value={productGradeToString(relocationDetails.gradeTo)}
-                  />
-                  <Button
-                    title="Back To List"
-                    titleStyle={styles.buttonText}
-                    buttonStyle={[
-                      styles.button,
-                      {marginHorizontal: 0, marginTop: 20},
-                    ]}
-                    onPress={this.navigateToRelocationJobList}
-                  />
-                </View>
-              </View>
-            </Overlay>
           </>
         )}
       </SafeAreaProvider>
@@ -437,13 +361,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.27,
     shadowRadius: 4.65,
     elevation: 6,
-  },
-  cardTitle: {
-    ...Mixins.subtitle1,
-    fontSize: 18,
-    lineHeight: 25,
-    color: '#2A3386',
-    marginBottom: 5,
   },
   button: {
     ...Mixins.bgButtonPrimary,
