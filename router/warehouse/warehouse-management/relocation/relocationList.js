@@ -49,7 +49,8 @@ class RelocationList extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (
       prevState.search !== this.state.search ||
-      prevState.filterStatus !== this.state.filterStatus
+      prevState.filterStatus !== this.state.filterStatus ||
+      prevState.jobList !== this.state.jobList
     ) {
       this.filterJoblist();
     }
@@ -93,10 +94,19 @@ class RelocationList extends React.Component {
       if (search.length > 0) {
         filteredJobList = jobList.filter((job) => {
           return (
-            job.clientName.toLowerCase().includes(search.toLowerCase()) ||
+            job.clientNameFroms
+              .toString()
+              .toLowerCase()
+              .includes(search.toLowerCase()) ||
             job.code.toLowerCase().includes(search.toLowerCase()) ||
-            job.itemCode.toLowerCase().includes(search.toLowerCase()) ||
-            job.warehouseNameFrom.toLowerCase().includes(search.toLowerCase())
+            job.itemCodeFroms
+              .toString()
+              .toLowerCase()
+              .includes(search.toLowerCase()) ||
+            job.warehouseNameFroms
+              .toString()
+              .toLowerCase()
+              .includes(search.toLowerCase())
           );
         });
         if (filterStatus !== 'All') {
