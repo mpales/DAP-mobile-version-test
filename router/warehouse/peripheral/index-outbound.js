@@ -801,6 +801,8 @@ class Example extends React.Component {
   makeGoBackProcess = ()=>{
     const {scanItem,itemCode} = this.state;
     if(itemCode !== null){
+      const {routes, index} = this.props.navigation.dangerouslyGetState();
+      this.props.navigation.setParams({...routes[index].params,manualCode: undefined, indexData: undefined, inputCode: this.state.indexData});
       this.setState({dataCode:'0', itemCode: null});
     } else if(scanItem !== null){
       this.setState({dataCode:'0', scanItem:null});
