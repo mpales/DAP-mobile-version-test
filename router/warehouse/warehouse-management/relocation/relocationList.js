@@ -127,7 +127,6 @@ class RelocationList extends React.Component {
 
   navigateToDetails = (relocationId, status) => {
     this.props.setBottomBar(false);
-    if (status === 'Completed') return;
     if (status === 'Processing') {
       this.props.navigation.navigate('ConfirmRelocation', {
         relocationId: relocationId,
@@ -237,20 +236,6 @@ class RelocationList extends React.Component {
                 }
                 textStyle={
                   this.state.filterStatus === 'Processing'
-                    ? styles.badgeTextSelected
-                    : styles.badgeText
-                }
-              />
-              <Badge
-                value="Completed"
-                onPress={() => this.handleFilterStatus('Completed')}
-                badgeStyle={
-                  this.state.filterStatus === 'Completed'
-                    ? styles.badgeSelected
-                    : styles.badge
-                }
-                textStyle={
-                  this.state.filterStatus === 'Completed'
                     ? styles.badgeTextSelected
                     : styles.badgeText
                 }
