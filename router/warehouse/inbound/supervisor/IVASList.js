@@ -86,7 +86,38 @@ class ConnoteReportDetails extends React.Component {
     this.props.navigation.navigate('IVASDetailsSPV',{number:this.state.inboundID, shipmentID: item.inbound_shipment_va.id, clientVAS : item.inbound.client});
   }
   renderListVAS = ({item,index, separators})=>{
-    
+    let shipmentopt = '';
+    switch ( item.inbound_shipment_va.inbound_shipment) {
+      case 1:
+        shipmentopt = 'Un-Stuffing From Truck';
+        break;
+        case 2:
+          shipmentopt = '20ft Loose';
+          break;
+          case 3:
+            shipmentopt = '40ft Loose';
+            break;
+            case 4:
+              shipmentopt = '20ft Palletized';
+              break;
+              case 5:
+                shipmentopt = '40ft Palletized';
+                break;
+                case 6:
+                  shipmentopt = '20ft High Cube Loose';
+                  break;
+                  case 7:
+                    shipmentopt = '40ft High Cube Loose';
+                    break;
+                    case 8:
+                      shipmentopt = '20ft High Cube Palletized';
+                      break;
+                      case 9:
+                        shipmentopt = '40ft High Cube Palletized';
+                        break;                                            
+      default:
+        break;
+    }
     return (
       <TouchableScale
       key={item.key}
@@ -103,13 +134,15 @@ class ConnoteReportDetails extends React.Component {
        
         <View style={styles.detail}>
           <DetailList title="Client" value={item.inbound.client} />
+          <DetailList title="Ref #" value={this.state.inboundData.reference_id} />
+          <DetailList title="Shipment Type" value={this.state.inboundData.shipment_type === 2 ? "FCL" : "LCL"} />
           <DetailList title="Recorded By" value={item.inbound_shipment_va.created_by  !== undefined ? item.inbound_shipment_va.created_by.firstName : null} />
           <DetailList title="Date and Time" value={item.inbound_shipment_va.created_on  !== undefined && item.inbound_shipment_va.created_on  !== null ? moment(item.inbound_shipment_va.created_on).format('DD/MM/YYYY h:mm a') : null}/>
          
         <View style={{marginVertical:10, flexDirection:'row'}}> 
         <View style={{flex:1, alignContent:'flex-start'}}>        
         <Text style={{...Mixins.body1,lineHeight:20,fontWeight:'700',color:'#2D2C2C'}}>
-        { item.inbound_shipment_va.inbound_shipment === 1 ?  'Un-Stuffing From Truck' : item.inbound_shipment_va.inbound_shipment === 2 ? 'Un-Stuffing From 20’ Container' : item.inbound_shipment_va.inbound_shipment === 3 ? 'Un-Stuffing From 40’ Container' : null}  
+        { shipmentopt}  
       </Text>
       </View>
 

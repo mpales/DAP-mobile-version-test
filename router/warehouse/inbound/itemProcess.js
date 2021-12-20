@@ -102,11 +102,11 @@ class Example extends React.Component {
     return {...state};
   }
   shouldComponentUpdate(nextProps, nextState) {
-    if((this.state.ItemPallet !== nextState.ItemPallet) && nextState.dataItem === this.state.dataItem && nextState.PalletArray === this.state.PalletArray){
-      return false;
-    } else if(nextState.isPOSM === true && nextState.dataItem === null){
-      return false;
-    }
+    // if((this.state.ItemPallet !== nextState.ItemPallet) && nextState.dataItem === this.state.dataItem && nextState.PalletArray === this.state.PalletArray){
+    //   return false;
+    // } else if(nextState.isPOSM === true && nextState.dataItem === null){
+    //   return false;
+    // }
     return true;
   }
   async componentDidUpdate(prevProps, prevState) {
@@ -120,20 +120,7 @@ class Example extends React.Component {
       }
     }
     if(prevState.isConfirm !== this.state.isConfirm && this.state.isConfirm === true ){
-      let FormData = await this.getPhotoReceivingGoods();
-      let incrementQty = this.state.qty;
-      
-      const ProcessItem = await postBlob('inboundsMobile/'+this.props.currentASN+'/'+this.state.scanItem+'/process-item', [
-        ...FormData,
-        {name: 'palletId', data: String(this.state.ItemPallet)},
-        {name: 'batchNo', data: String(this.state.batchNo)},
-        {name: 'qty', data: String(incrementQty)},
-        {name: 'attributes', data: JSON.stringify(this.state.attrData)},
-        {name: 'expiryDate', data: String(this.state.ISODateExpiryString)},
-        {name: 'productionDate', data: String(this.state.ISODateProductionString)},
-      ]).then((result)=>{
-        console.log(result);
-      });
+    
 
     }
     if(prevState.uploadPOSM !== this.state.uploadPOSM && this.state.uploadPOSM === true){
@@ -442,6 +429,14 @@ class Example extends React.Component {
                               // if data array is an array of objects then return item.property to represent item in dropdown
                               return item.pallet_no
                             }}
+                            renderCustomizedRowChild={(item, index) => {
+                              let findPallet  = this.state.PalletArray.find((o)=>o.pallet_no === item);
+                              return (
+                                <View style={{flex:1,paddingHorizontal:27, backgroundColor:(findPallet !== undefined && findPallet.palete_id === this.state.ItemPallet )? '#e7e8f2' : 'transparent',paddingVertical:0,marginVertical:0, justifyContent:'center'}}>
+                                  <Text style={{...Mixins.small1,fontWeight:'400',lineHeight:18, color:'#424141'}}>{item}</Text>
+                                </View>
+                              );
+                            }}
                           />
                         </View>)}
                       </View>
@@ -706,7 +701,7 @@ class Example extends React.Component {
                       buttonStyle={styles.cancelButton}
                       titleStyle={styles.reportText}
                       onPress={() => {
-                        this.props.setBottomBar(true);
+                        this.props.setBottomBar(false);
                         this.props.navigation.navigate({
                           name: 'ReportManifest',
                           params: {
@@ -764,7 +759,7 @@ class Example extends React.Component {
           buttonStyle={styles.cancelButton}
                       titleStyle={styles.reportText}
           onPress={() => {
-            this.props.setBottomBar(true);
+            this.props.setBottomBar(false);
             this.props.navigation.navigate({
               name: 'ReportManifest',
               params: {
@@ -809,7 +804,7 @@ class Example extends React.Component {
       return dataCode;
     });
   };
-  onSubmit = () => {
+  onSubmit = async () => {
     const {dataCode,qty, scanItem, ItemGrade, dataItem} = this.state;
     //this.props.setBarcodeScanner(true);
     let toEnterAttr = false;
@@ -819,18 +814,41 @@ class Example extends React.Component {
     if(dataItem.template !== undefined && dataItem.template !== null && dataItem.template.attributes !== undefined && dataItem.template.attributes !== null){
       toEnterAttr = true;
     }
-    if(toEnterAttr){
-      this.props.navigation.setOptions({headerTitle: 'Item Attribute'});
+ 
+    if(dataItem.is_transit || toEnterAttr === false){
+      let FormData = await this.getPhotoReceivingGoods();
+      let incrementQty = this.state.qty;
+      
+      const ProcessItem = await postBlob('inboundsMobile/'+this.props.currentASN+'/'+this.state.scanItem+'/process-item', [
+        ...FormData,
+        {name: 'palletId', data: String(this.state.ItemPallet)},
+        {name: 'qty', data: String(incrementQty)},
+      ]).then((result)=>{
+        if(result.error !== undefined && this.props.keyStack === 'ItemProcess'){
+          this.setState({
+            errorAttr: result.error,
+          });
+         } else {
+          this.props.navigation.setOptions({headerTitle: 'Item Processed'});
+          this.setState({
+            dataCode: '0',
+            qty : qty === '' ? 0 : qty,
+            enterAttr : toEnterAttr,
+            isConfirm: true,
+            isPOSM: false,
+          });
+         }
+      });
     } else {
-      this.props.navigation.setOptions({headerTitle: 'Item Processed'});
-    }
+      this.props.navigation.setOptions({headerTitle: 'Item Attribute'});
      this.setState({
       dataCode: '0',
       qty : qty === '' ? 0 : qty,
       enterAttr : toEnterAttr,
-      isConfirm: (dataItem.is_transit === 1 || toEnterAttr === false )? true : false,
+      isConfirm: false,
       isPOSM: false,
     });
+    }
     // for prototype only
     let arr = this.makeScannedItem(scanItem,qty);
     console.log(arr);
@@ -839,7 +857,7 @@ class Example extends React.Component {
     this.props.setBottomBar(false);
     //this.props.navigation.navigate('Manifest');
   }
-  onUpdateAttr = ()=>{
+  onUpdateAttr = async ()=>{
     const {dataItem} = this.state;
     let attributes = [];
     let errors = [];
@@ -876,15 +894,41 @@ class Example extends React.Component {
       }
     }
     if(errors.length === 0){
-      this.props.navigation.setOptions({headerTitle: 'Item Processed'});
-      this.setState({
-        dataCode: '0',
-        isConfirm: true,
-        attrData: attributes,
-        errorAttr: '',
-        batchNo: batchAttr,
-        ISODateExpiryString: ISOexpiry,
-        ISODateProductionString: ISOproduction,
+      let FormData = await this.getPhotoReceivingGoods();
+      let incrementQty = this.state.qty;
+      let attributeobj = [];
+      if(batchAttr !== null){
+        attributeobj.push({name: 'batchNo', data: String(batchAttr)})
+      }
+      if(ISOexpiry !== null){
+        attributeobj.push({name: 'expiryDate', data:  String(ISOexpiry) });
+      }
+      if(ISOproduction !== null){
+        attributeobj.push({name: 'productionDate', data: String(ISOproduction) });
+      }
+      const ProcessItem = await postBlob('inboundsMobile/'+this.props.currentASN+'/'+this.state.scanItem+'/process-item', [
+        ...FormData,
+        ...attributeobj,
+        {name: 'palletId', data: String(this.state.ItemPallet)},
+        {name: 'qty', data: String(incrementQty)},
+        {name: 'attributes', data: JSON.stringify(attributes)},
+      ]).then((result)=>{
+        if(result.error !== undefined && this.props.keyStack === 'ItemProcess'){
+          this.setState({
+            errorAttr: result.error,
+          });
+         } else {
+          this.props.navigation.setOptions({headerTitle: 'Item Processed'});
+          this.setState({
+            dataCode: '0',
+            isConfirm: true,
+            attrData: attributes,
+            errorAttr: '',
+            batchNo: batchAttr,
+            ISODateExpiryString: ISOexpiry,
+            ISODateProductionString: ISOproduction,
+          });
+         }
       });
     } else {
       this.setState({
