@@ -32,7 +32,7 @@ const Manifest = ({item, navigate}) => {
           <TextList title="Job ID" value={item.code} />
           <TextList
             title="Job Date"
-            value={Format.formatDate(item.createdOn)}
+            value={Format.formatDateTime(item.createdOn)}
           />
           <TextList title="Client" value={item.clientNameFroms.toString()} />
           <TextList
