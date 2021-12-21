@@ -212,7 +212,7 @@ class Acknowledge extends React.Component {
           />)}
        <View style={[styles.sectionInput,{paddingHorizontal: 30,paddingTop: 40, paddingBottom:10}]}>
             <View style={styles.labelHeadInput}>
-             <Text style={styles.textHeadInput}>Client</Text>
+             <Text style={styles.textHeadInput}>Client ID</Text>
              </View>
              <Text style={styles.dotLabelStyle}>:</Text>
              <Text style={styles.textHeadInput}>{this.state.inboundData.client}</Text>

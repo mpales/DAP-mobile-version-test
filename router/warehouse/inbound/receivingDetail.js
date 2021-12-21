@@ -301,7 +301,7 @@ class Acknowledge extends React.Component {
         <ScrollView style={{flexGrow: 1, flexDirection:'column', backgroundColor: 'white', paddingHorizontal: 22,paddingVertical: 25}}>
          <View style={{flexDirection:'row', flexShrink:1}}>
              <View style={{flexShrink:1, backgroundColor: 'transparent',  paddingLeft: 15, paddingVertical: 6, marginVertical:0,borderRadius: 5, width: data.status === 3 ? 140 : 110, alignItems: 'flex-start',marginRight: 0}}>
-                 <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Client</Text>
+                 <Text style={{...Mixins.subtitle3,lineHeight:21,}}>Client ID</Text>
              </View>
              <Input 
                 containerStyle={{flex: 1,paddingVertical:0, marginVertical:0, flexDirection:'row',}}
