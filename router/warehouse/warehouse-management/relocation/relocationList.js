@@ -73,7 +73,7 @@ class RelocationList extends React.Component {
   };
 
   getRelocatonJobList = async () => {
-    const result = await getData('/stocks/stock-relocations');
+    const result = await getData('/stocks/stock-relocations/mobile');
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
         jobList: result,
