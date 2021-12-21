@@ -96,7 +96,10 @@ class List extends React.Component {
     }
     shouldComponentUpdate(nextProps, nextState) {
         if(this.props.keyStack !== nextProps.keyStack){
-        if(nextProps.keyStack === 'List'){
+        if(this.props.keyStack === 'Completed' && nextProps.keyStack === 'List'){
+            this.setState({renderRefresh : true});
+            return true;
+        } else if(nextProps.keyStack === 'List'){
             this.setState({renderGoBack : true});
             return true;
         }

@@ -139,6 +139,18 @@ class WarehouseNavigator extends React.Component {
           this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'});
           return true;
         } else if (
+          this.props.keyStack === 'CompleteReceiving' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'});
+          return true;
+        } else if (
+          this.props.keyStack === 'Completed' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'List'});
+          return true;
+        } else if (
           prevProps.keyStack === 'WarehouseIn' &&
           this.props.keyStack === 'Barcode' &&
           this.props.indexBottomBar === 0
@@ -217,6 +229,16 @@ class WarehouseNavigator extends React.Component {
             params: {submitPhoto: false},
           });
           return true;
+        }  else if (
+          prevProps.keyStack === 'CompleteReceiving' &&
+          this.props.keyStack === 'SingleCamera' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'CompleteReceiving',
+            params: {submitPhoto: false},
+          });
+          return true;
         } else if (
           this.props.keyStack === 'PalletScanner' &&
           this.props.indexBottomBar === 0
@@ -272,15 +294,15 @@ class WarehouseNavigator extends React.Component {
         ) {
           return false;
         } else if (
-          this.props.keyStack === 'PhotosDraftSPV' &&
+          this.props.keyStack === 'CompletedSupervisor' &&
           this.props.indexBottomBar === 0
         ) {
           this.navigationRef.current.navigate('SupervisorMode', {
-            screen: 'ManifestSupervisor',
+            screen: 'ListSupervisor',
           });
           return true;
-        } else if (
-          this.props.keyStack === 'UpdatePhotosSPV' &&
+        }  else if (
+          this.props.keyStack === 'PhotosDraftSPV' &&
           this.props.indexBottomBar === 0
         ) {
           this.navigationRef.current.navigate('SupervisorMode', {
@@ -293,6 +315,14 @@ class WarehouseNavigator extends React.Component {
         ) {
           this.navigationRef.current.navigate('SupervisorMode', {
             screen: 'ManifestSupervisor',
+          });
+          return true;
+        }  else if (
+          this.props.keyStack === 'ReportSingleDetailsSPV' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('SupervisorMode', {
+            screen: 'ReportDetailsSPV',
           });
           return true;
         } else if (
@@ -475,14 +505,30 @@ class WarehouseNavigator extends React.Component {
       ) {
         this.props.setBottomBar(false);
       }
-
       if (
-        this.props.keyStack === 'UpdatePhotosSPV' &&
+        this.props.keyStack === 'CompleteReceiving' &&
         this.props.indexBottomBar === 0
       ) {
         this.props.setBottomBar(false);
       }
-
+      if (
+        this.props.keyStack === 'Completed' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'CompletedSupervisor' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'ReportSingleDetailsSPV' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
       if (
         this.props.keyStack === 'ReportDetailsSPV' &&
         this.props.indexBottomBar === 0
@@ -524,6 +570,18 @@ class WarehouseNavigator extends React.Component {
       }
       if (
         this.props.keyStack === 'enlargeImage' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'EnlargeImage' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'SingleCamera' &&
         this.props.indexBottomBar === 0
       ) {
         this.props.setBottomBar(false);
