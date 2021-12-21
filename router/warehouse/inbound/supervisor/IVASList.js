@@ -92,29 +92,17 @@ class ConnoteReportDetails extends React.Component {
         shipmentopt = 'Un-Stuffing From Truck';
         break;
         case 2:
-          shipmentopt = '20ft Loose';
+          shipmentopt = '20ft';
           break;
           case 3:
-            shipmentopt = '40ft Loose';
+            shipmentopt = '40ft';
             break;
             case 4:
-              shipmentopt = '20ft Palletized';
+              shipmentopt = '20ft High Cube';
               break;
               case 5:
-                shipmentopt = '40ft Palletized';
-                break;
-                case 6:
-                  shipmentopt = '20ft High Cube Loose';
-                  break;
-                  case 7:
-                    shipmentopt = '40ft High Cube Loose';
-                    break;
-                    case 8:
-                      shipmentopt = '20ft High Cube Palletized';
-                      break;
-                      case 9:
-                        shipmentopt = '40ft High Cube Palletized';
-                        break;                                            
+                shipmentopt = '40ft High Cube';
+                break;                                        
       default:
         break;
     }
