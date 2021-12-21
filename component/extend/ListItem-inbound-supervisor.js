@@ -210,6 +210,17 @@ const Manifest = ({item, index, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>Client ID  </Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+            {item.client}
+            </Text>
+          </View>
+                   
+          <View style={styles.wrapper}>
             <Text style={[styles.detailText, {width: '55%'}]}>Inbound ID  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
@@ -251,9 +262,7 @@ const Manifest = ({item, index, ToManifest}) => {
              {item.container_no}
             </Text>
           </View>)}
-                    <Text style={{...Mixins.small1,lineHeight: 18,color: '#424141', fontWeight: '500'}}>
-                    {item.client}
-                    </Text>
+   
                     <Text style={{...Mixins.small1,lineHeight: 18,color: '#424141', fontWeight: '500'}}>
                     {item.total_product_processed+'/'+item.total_product+' Lines Complete'}
                     </Text>

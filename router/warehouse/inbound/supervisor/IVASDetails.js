@@ -147,7 +147,7 @@ class ConnoteReportDetails extends React.Component {
             <Card containerStyle={styles.cardContainer} style={styles.card}>
              
               <View style={[styles.detail]}>
-                <DetailList title="Client" value={this.state.clientVAS} />
+                <DetailList title="Client ID" value={this.state.clientVAS} />
                 <DetailList title="Ref #" value={this.state.inboundData.reference_id} />
                 <DetailList title="Shipment Type" value={this.state.inboundData.shipment_type === 2 ? "FCL" : "LCL"} />
                 <DetailList title="Recorded By" value={ itemIVAS.created_by !== undefined ? itemIVAS.created_by.firstName : null} />
