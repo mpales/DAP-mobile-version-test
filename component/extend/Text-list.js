@@ -76,7 +76,7 @@ export const CustomTextList = ({title, value, separateQuantity}) => {
   let quantityArr = [];
   if (separateQuantity) {
     if (typeof value === 'string') {
-      quantityArr = value.split('-');
+      quantityArr = value.split('/');
     } else {
       quantityArr = value.toString().split('-');
     }
