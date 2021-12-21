@@ -13,6 +13,7 @@ import {productGradeToString} from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
 // icon
+import XMarkIcon from '../../../../assets/icon/iconmonstr-x-mark-7mobile.svg';
 import CheckmarkIcon from '../../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
 
 const screen = Dimensions.get('window');
@@ -86,9 +87,23 @@ class ConfirmRelocationBarcode extends React.Component {
   };
 
   renderBarcode = async (barcode) => {
+    const {relocationDetails} = this.state;
     if (barcode.length > 0 && barcode[0].data !== '') {
-      this.confirmRelocation();
+      if (barcode[0].data === relocationDetails.locationTo) {
+        this.confirmRelocation();
+      } else {
+        this.setState({
+          errorMessage: 'Location Id is not match',
+        });
+      }
     }
+  };
+
+  handleRescan = () => {
+    this.props.setBarcodeScanner(true);
+    this.setState({
+      errorMessage: '',
+    });
   };
 
   handleShowSuccessOverlay = () => {
@@ -105,6 +120,12 @@ class ConfirmRelocationBarcode extends React.Component {
     this.props.navigation.navigate('RelocationList');
   };
 
+  navigateToManualInput = () => {
+    this.props.navigation.navigate('ManualInput', {
+      relocationId: this.state.relocationId,
+    });
+  };
+
   closeBanner = () => {
     this.setState({
       errorMessage: '',
@@ -119,15 +140,14 @@ class ConfirmRelocationBarcode extends React.Component {
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
         <Barcode renderBarcode={this.renderBarcode} />
-        {!isLoading && errorMessage !== '' && (
-          <View style={{position: 'absolute', top: 50, left: 0, right: 0}}>
-            <Banner
-              title={errorMessage}
-              backgroundColor="#F07120"
-              closeBanner={this.closeBanner}
-            />
-          </View>
-        )}
+        <View style={styles.manualInputContainer}>
+          <Button
+            title="Manual Input"
+            titleStyle={styles.buttonText}
+            buttonStyle={[styles.button, {marginBottom: 0}]}
+            onPress={this.navigateToManualInput}
+          />
+        </View>
         {!isLoading && (
           <Overlay
             overlayStyle={{borderRadius: 10, padding: 0}}
@@ -213,6 +233,39 @@ class ConfirmRelocationBarcode extends React.Component {
             </View>
           </Overlay>
         )}
+        <Overlay
+          isVisible={errorMessage !== ''}
+          overlayStyle={{borderRadius: 13}}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <XMarkIcon height="24" width="24" fill="#E03B3B" />
+              <Text style={[styles.modalHeaderText, {color: '#E03B3B'}]}>
+                Confirm Failed
+              </Text>
+            </View>
+            <Divider color="#D5D5D5" style={{marginBottom: 20}} />
+            <View style={{paddingHorizontal: 10}}>
+              <Text style={[styles.modalHeaderText, {color: '#E03B3B'}]}>
+                {errorMessage}
+              </Text>
+            </View>
+            <View style={styles.buttonSheetContainer}>
+              <View style={styles.buttonSheet}>
+                <Button
+                  containerStyle={{
+                    flex: 1,
+                    marginTop: 10,
+                    marginRight: 5,
+                  }}
+                  buttonStyle={styles.cancelButton}
+                  titleStyle={styles.backText}
+                  onPress={this.handleRescan}
+                  title="Try Again"
+                />
+              </View>
+            </View>
+          </View>
+        </Overlay>
       </SafeAreaProvider>
     );
   }
@@ -271,6 +324,12 @@ const styles = StyleSheet.create({
     ...Mixins.subtitle3,
     fontSize: 18,
     lineHeight: 25,
+  },
+  manualInputContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 20,
   },
 });
 
