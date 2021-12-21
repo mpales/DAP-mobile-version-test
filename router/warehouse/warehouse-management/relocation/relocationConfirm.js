@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import {CommonActions} from '@react-navigation/native';
 import {Button, Card} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -48,6 +49,14 @@ class RelocationConfirm extends React.Component {
   }
 
   componentDidMount() {
+    this.props.navigation.dispatch((state) => {
+      const routes = state.routes.filter((r) => r.name !== 'RelocationDetails');
+      return CommonActions.reset({
+        ...state,
+        routes,
+        index: routes.length - 1,
+      });
+    });
     this.getRelocationJobDetails();
   }
 
