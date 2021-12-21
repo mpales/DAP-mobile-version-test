@@ -18,6 +18,7 @@ import RelocationRequestConfirm from './relocationRequestConfirm';
 import RelocationItemDetails from './relocationItemDetails';
 import BarcodeCamera from '../peripheral/barcodeCamera';
 import ConfirmRelocationBarcode from '../peripheral/confirmRelocationBarcode';
+import ManualInput from './manualInput';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -170,6 +171,13 @@ class WarehouseManagement extends React.Component {
           options={{
             headerTitle: '',
             headerTransparent: true,
+          }}
+        />
+        <Stack.Screen
+          component={ManualInput}
+          name="ManualInput"
+          options={{
+            headerTitle: '',
           }}
         />
       </Stack.Navigator>
