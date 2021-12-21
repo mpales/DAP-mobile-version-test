@@ -307,7 +307,7 @@ class Acknowledge extends React.Component {
                 <SelectDropdown
                             buttonStyle={{width:'100%',maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
                             buttonTextStyle={{...Mixins.body1, color:'#2D2C2C', lineHeight:20, fontWeight:'700',textAlign:'left',}}
-                            data={['20ft Loose', '40ft Loose','20ft Palletized','40ft Palletized','20ft High Cube Loose','40ft High Cube Loose','20ft High Cube Palletized','40ft High Cube Palletized'] }
+                            data={['20ft', '40ft','20ft High Cube','40ft High Cube'] }
                             defaultValueByIndex={this.state.stuffContainer}
                             disabled={this.state.stuffTruck}
                             onSelect={(selectedItem, index) => {
