@@ -43,7 +43,6 @@ class ManualInput extends React.Component {
     const result = await getData(
       `/stocks/stock-relocations/${relocationId}/details`,
     );
-    console.log(result);
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
         relocationDetails: result,
@@ -81,7 +80,6 @@ class ManualInput extends React.Component {
   };
 
   confirmValidation = () => {
-    this.handleShowOverlay(true);
     const {manualInputValue, relocationDetails} = this.state;
     if (
       manualInputValue.toLowerCase() !==
