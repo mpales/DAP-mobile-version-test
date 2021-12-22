@@ -545,12 +545,16 @@ class Details extends React.Component {
     let Navigate;
     const {visible} = this.state;
     const {routes, index} = this.props.navigation.dangerouslyGetState();
-    if ( routes[index].params !== undefined &&
+    if (
+      routes[index].params !== undefined &&
       routes[index].params.role !== undefined &&
-      routes[index].params.role === 'Warehouse') {
-      if (  routes[index].params !== undefined &&
-        routes[index].params.screen !== undefined &&
-        routes[index].params.screen === 'INBOUND') {
+      routes[index].params.role === 'Warehouse'
+    ) {
+      if (
+        routes[index].params !== undefined &&
+        routes[index].params.navigator !== undefined &&
+        routes[index].params.navigator === 'INBOUND'
+      ) {
         Navigate = (
           <>
             <WarehouseInNavigator />
@@ -608,9 +612,11 @@ class Details extends React.Component {
             </Overlay>
           </>
         );
-      } else if (  routes[index].params !== undefined &&
-        routes[index].params.screen !== undefined &&
-        routes[index].params.screen === 'OUTBOUND') {
+      } else if (
+        routes[index].params !== undefined &&
+        routes[index].params.navigator !== undefined &&
+        routes[index].params.navigator === 'OUTBOUND'
+      ) {
         Navigate = (
           <>
             <WarehouseOutNavigator />
@@ -668,9 +674,11 @@ class Details extends React.Component {
             </Overlay>
           </>
         );
-      } else if ( routes[index].params !== undefined &&
-        routes[index].params.screen !== undefined &&
-        routes[index].params.screen === 'WAREHOUSE') {
+      } else if (
+        routes[index].params !== undefined &&
+        routes[index].params.navigator !== undefined &&
+        routes[index].params.navigator === 'WAREHOUSE'
+      ) {
         Navigate = (
           <>
             <WarehouseNavigator />
@@ -728,9 +736,11 @@ class Details extends React.Component {
             </Overlay>
           </>
         );
-      } else if (  routes[index].params !== undefined &&
-        routes[index].params.screen !== undefined &&
-        routes[index].params.screen === 'VAS') {
+      } else if (
+        routes[index].params !== undefined &&
+        routes[index].params.navigator !== undefined &&
+        routes[index].params.navigator === 'VAS'
+      ) {
         Navigate = (
           <>
             <VASNavigator />
@@ -792,9 +802,11 @@ class Details extends React.Component {
         this.props.navigation.navigate('MenuWarehouse');
         Navigate = <></>;
       }
-    } else if ( routes[index].params !== undefined &&
+    } else if (
+      routes[index].params !== undefined &&
       routes[index].params.role !== undefined &&
-      routes[index].params.role === 'Warehouse') {
+      routes[index].params.role === 'Delivery'
+    ) {
       Navigate = (
         <>
           <DeliveryNavigator />
