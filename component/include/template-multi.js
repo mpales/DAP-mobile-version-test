@@ -4,7 +4,6 @@ import {View} from 'react-native';
 import {ThemeProvider, Input, Text, CheckBox} from 'react-native-elements';
 import Mixins from '../../mixins';
 import Checkmark from '../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
-
 const styles = {
     dividerContent: {
         flexDirection: 'row',
@@ -121,19 +120,16 @@ const Manifest = React.forwardRef((props, ref) => {
                     center
                     title={num}
                     containerStyle={styles.checkboxContainer}
-                    checkedIcon={ () => {
-                      return (
+                    checkedIcon={(
                         <View
                           style={
                             styles.checked
                           }>
                           <Checkmark height="14" width="14" fill="#FFFFFF" />
                         </View>
-                      );
-                    }}
-                    uncheckedIcon={() => {
-                      return <View style={styles.unchecked} />;
-                    }}
+                      )
+                    }
+                    uncheckedIcon={<View style={styles.unchecked} />}
                     checked={indexOption[index] === true ? true : false}
                     onPress={()=>{
                       toggleChangeMultiSelect(index);
