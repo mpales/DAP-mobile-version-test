@@ -579,7 +579,7 @@ class Example extends React.Component {
                             if(ref !== null)
                             this.refAttrArray.current[index] = ref;
                           }}/>
-                        } else if (element.field_type === 'multiselect'){
+                        } else if (element.field_type === 'multi select'){
                           return <TemplateMulti {...element}  ref={(ref)=>{
                             if(ref !== null)
                             this.refAttrArray.current[index] = ref;
