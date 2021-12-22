@@ -14,7 +14,6 @@ class BarcodeCamera extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      warehouseDetails: null,
       scanResult: null,
       barcodeResult: this.props.route.params?.barcodeResult ?? null,
       isLoaded: false,
@@ -36,12 +35,11 @@ class BarcodeCamera extends React.Component {
   getClientProductStorageList = async () => {
     const {barcodeResult} = this.state;
     const result = await getData(
-      `/stocks-mobile/product-storage/location-id/${barcodeResult}`,
+      `/stocks/product-storage/location-id/${barcodeResult}`,
     );
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
-        scanResult: result.productStorage,
-        warehouseDetails: result.warehouse,
+        scanResult: result,
       });
     }
     this.setState({
@@ -50,14 +48,8 @@ class BarcodeCamera extends React.Component {
   };
 
   navigateToRequestRelocationForm = (data) => {
-    const {warehouseDetails} = this.state;
-    let selectedRelocation = {};
-    if (warehouseDetails !== null) {
-      selectedRelocation = {...data, ...warehouseDetails};
-    } else {
-      selectedRelocation = {...data};
-    }
-    this.props.setSelectedRequestRelocation(selectedRelocation);
+    this.props.setSelectedRequestRelocation([data]);
+    this.props.setSelectedLocationId(this.state.barcodeResult);
     this.props.navigation.navigate('RequestRelocationForm');
   };
 
@@ -150,6 +142,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     setSelectedRequestRelocation: (data) => {
       return dispatch({type: 'SelectedRequestRelocation', payload: data});
+    },
+    setSelectedLocationId: (data) => {
+      return dispatch({type: 'SelectedLocationId', payload: data});
     },
   };
 };
