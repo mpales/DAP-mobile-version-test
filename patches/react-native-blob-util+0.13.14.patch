@@ -1,5 +1,50 @@
+diff --git a/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtil.java b/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtil.java
+index e4b9ca3..038e39c 100644
+--- a/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtil.java
++++ b/node_modules/react-native-blob-util/android/src/main/java/com/ReactNativeBlobUtil/ReactNativeBlobUtil.java
+@@ -366,12 +366,12 @@ public class ReactNativeBlobUtil extends ReactContextBaseJavaModule {
+     }
+ 
+     @ReactMethod
+-    public void fetchBlob(ReadableMap options, String taskId, String method, String url, ReadableMap headers, String body, final Callback callback) {
++    public void fetchBlobUtil(ReadableMap options, String taskId, String method, String url, ReadableMap headers, String body, final Callback callback) {
+         new ReactNativeBlobUtilReq(options, taskId, method, url, headers, body, null, mClient, callback).run();
+     }
+ 
+     @ReactMethod
+-    public void fetchBlobForm(ReadableMap options, String taskId, String method, String url, ReadableMap headers, ReadableArray body, final Callback callback) {
++    public void fetchBlobFormUtil(ReadableMap options, String taskId, String method, String url, ReadableMap headers, ReadableArray body, final Callback callback) {
+         new ReactNativeBlobUtilReq(options, taskId, method, url, headers, null, body, mClient, callback).run();
+     }
+ 
+diff --git a/node_modules/react-native-blob-util/fetch.js b/node_modules/react-native-blob-util/fetch.js
+index f0244b2..1a8a55f 100644
+--- a/node_modules/react-native-blob-util/fetch.js
++++ b/node_modules/react-native-blob-util/fetch.js
+@@ -184,7 +184,7 @@ export function fetch(...args: any): Promise {
+         promiseResolve = resolve;
+         promiseReject = reject;
+ 
+-        let nativeMethodName = Array.isArray(body) ? 'fetchBlobForm' : 'fetchBlob';
++        let nativeMethodName = Array.isArray(body) ? 'fetchBlobFormUtil' : 'fetchBlobUtil';
+ 
+         // on progress event listener
+         subscription = emitter.addListener('ReactNativeBlobUtilProgress', (e) => {
+diff --git a/node_modules/react-native-blob-util/index.js b/node_modules/react-native-blob-util/index.js
+index fe0f762..2a44ea6 100644
+--- a/node_modules/react-native-blob-util/index.js
++++ b/node_modules/react-native-blob-util/index.js
+@@ -46,7 +46,7 @@ if (Platform.OS === 'ios') {
+ }
+ 
+ // Show warning if native module not detected
+-if (!ReactNativeBlobUtil || !ReactNativeBlobUtil.fetchBlobForm || !ReactNativeBlobUtil.fetchBlob) {
++if (!ReactNativeBlobUtil || !ReactNativeBlobUtil.fetchBlobFormUtil || !ReactNativeBlobUtil.fetchBlobUtil) {
+     console.warn(
+         'react-native-blob-util could not find valid native module.',
+         'please make sure you have linked native modules using `rnpm link`,',
 diff --git a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.m b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.m
-index 9a8328c..415c530 100644
+index 9a8328c..54e3392 100644
 --- a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.m
 +++ b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.m
 @@ -12,9 +12,9 @@
@@ -50,6 +95,42 @@ index 9a8328c..415c530 100644
      [ReactNativeBlobUtilNetwork emitExpiredTasks];
      return self;
  }
+@@ -80,7 +80,7 @@ RCT_EXPORT_MODULE();
+ }
+ 
+ // Fetch blob data request
+-RCT_EXPORT_METHOD(fetchBlobForm:(NSDictionary *)options
++RCT_EXPORT_METHOD(fetchBlobFormUtil:(NSDictionary *)options
+                   taskId:(NSString *)taskId
+                   method:(NSString *)method
+                   url:(NSString *)url
+@@ -100,7 +100,7 @@ RCT_EXPORT_METHOD(fetchBlobForm:(NSDictionary *)options
+         // something went wrong when building the request body
+         if(req == nil)
+         {
+-            callback(@[@"ReactNativeBlobUtil.fetchBlobForm failed to create request body"]);
++            callback(@[@"ReactNativeBlobUtil.fetchBlobFormUtil failed to create request body"]);
+         }
+         // send HTTP request
+         else
+@@ -118,7 +118,7 @@ RCT_EXPORT_METHOD(fetchBlobForm:(NSDictionary *)options
+ 
+ 
+ // Fetch blob data request
+-RCT_EXPORT_METHOD(fetchBlob:(NSDictionary *)options
++RCT_EXPORT_METHOD(fetchBlobUtil:(NSDictionary *)options
+                   taskId:(NSString *)taskId
+                   method:(NSString *)method
+                   url:(NSString *)url
+@@ -136,7 +136,7 @@ RCT_EXPORT_METHOD(fetchBlob:(NSDictionary *)options
+         // something went wrong when building the request body
+         if(req == nil)
+         {
+-            callback(@[@"ReactNativeBlobUtil.fetchBlob failed to create request body"]);
++            callback(@[@"ReactNativeBlobUtil.fetchBlobUtil failed to create request body"]);
+         }
+         // send HTTP request
+         else
 @@ -530,7 +530,7 @@ RCT_EXPORT_METHOD(readStream:(NSString *)path withEncoding:(NSString *)encoding
              bufferSize = 4096;
      }
@@ -134,3 +215,73 @@ index 7b5cdbe..ea8196b 100644
      }
  }
  
+diff --git a/node_modules/react-native-blob-util/types.js b/node_modules/react-native-blob-util/types.js
+index e168872..41023bd 100644
+--- a/node_modules/react-native-blob-util/types.js
++++ b/node_modules/react-native-blob-util/types.js
+@@ -15,7 +15,7 @@ export type ReactNativeBlobUtilConfig = {
+ 
+ export type ReactNativeBlobUtilNative = {
+   // API for fetch octet-stream data
+-  fetchBlob : (
++  fetchBlobUtil : (
+     options:fetchConfig,
+     taskId:string,
+     method:string,
+@@ -25,7 +25,7 @@ export type ReactNativeBlobUtilNative = {
+     callback:(err:any, ...data:any) => void
+   ) => void,
+   // API for fetch form data
+-  fetchBlobForm : (
++  fetchBlobFormUtil : (
+     options:fetchConfig,
+     taskId:string,
+     method:string,
+diff --git a/node_modules/react-native-blob-util/windows/ReactNativeBlobUtil/ReactNativeBlobUtil.cpp b/node_modules/react-native-blob-util/windows/ReactNativeBlobUtil/ReactNativeBlobUtil.cpp
+index af67613..21c27ba 100644
+--- a/node_modules/react-native-blob-util/windows/ReactNativeBlobUtil/ReactNativeBlobUtil.cpp
++++ b/node_modules/react-native-blob-util/windows/ReactNativeBlobUtil/ReactNativeBlobUtil.cpp
+@@ -1048,7 +1048,7 @@ IAsyncAction setTimeout(std::chrono::seconds time) {
+ 	co_await time;
+ }
+ 
+-winrt::fire_and_forget ReactNativeBlobUtil::fetchBlob(
++winrt::fire_and_forget ReactNativeBlobUtil::fetchBlobUtil(
+ 	winrt::Microsoft::ReactNative::JSValueObject options,
+ 	std::string taskId,
+ 	std::string method,
+@@ -1230,7 +1230,7 @@ winrt::fire_and_forget ReactNativeBlobUtil::fetchBlob(
+ 	}
+ }
+ 
+-winrt::fire_and_forget ReactNativeBlobUtil::fetchBlobForm(
++winrt::fire_and_forget ReactNativeBlobUtil::fetchBlobFormUtil(
+ 	winrt::Microsoft::ReactNative::JSValueObject options,
+ 	std::string taskId,
+ 	std::string method,
+diff --git a/node_modules/react-native-blob-util/windows/ReactNativeBlobUtil/ReactNativeBlobUtil.h b/node_modules/react-native-blob-util/windows/ReactNativeBlobUtil/ReactNativeBlobUtil.h
+index de839df..4247edf 100644
+--- a/node_modules/react-native-blob-util/windows/ReactNativeBlobUtil/ReactNativeBlobUtil.h
++++ b/node_modules/react-native-blob-util/windows/ReactNativeBlobUtil/ReactNativeBlobUtil.h
+@@ -271,8 +271,8 @@ public:
+ 		uint32_t end,
+ 		winrt::Microsoft::ReactNative::ReactPromise<std::string> promise) noexcept;
+ 
+-	REACT_METHOD(fetchBlob);
+-	winrt::fire_and_forget fetchBlob(
++	REACT_METHOD(fetchBlobUtil);
++	winrt::fire_and_forget fetchBlobUtil(
+ 		winrt::Microsoft::ReactNative::JSValueObject options,
+ 		std::string taskId,
+ 		std::string method,
+@@ -281,8 +281,8 @@ public:
+ 		std::string body,
+ 		std::function<void(std::string, std::string, std::string)> callback) noexcept;
+ 
+-	REACT_METHOD(fetchBlobForm);
+-	winrt::fire_and_forget  fetchBlobForm(
++	REACT_METHOD(fetchBlobFormUtil);
++	winrt::fire_and_forget  fetchBlobFormUtil(
+ 		winrt::Microsoft::ReactNative::JSValueObject options,
+ 		std::string taskId,
+ 		std::string method,
