@@ -217,7 +217,25 @@ class WarehouseNavigator extends React.Component {
         this.props.setBottomBar(false);
       }
       if (
+        this.props.keyStack === 'ItemReportDetail' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
         this.props.keyStack === 'newItem' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'SingleCamera' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'EnlargeImage' &&
         this.props.indexBottomBar === 0
       ) {
         this.props.setBottomBar(false);

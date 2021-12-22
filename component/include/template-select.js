@@ -82,6 +82,13 @@ const Manifest = React.forwardRef((props, ref) => {
                               // if data array is an array of objects then return item.property to represent item in dropdown
                               return item
                             }}
+                            renderCustomizedRowChild={(item, index) => {
+                              return (
+                                <View style={{flex:1,paddingHorizontal:27, backgroundColor:selectVal === item ? '#e7e8f2' : 'transparent',paddingVertical:0,marginVertical:0, justifyContent:'center'}}>
+                                  <Text style={{...Mixins.small1,fontWeight:'400',lineHeight:18, color:'#424141'}}>{item}</Text>
+                                </View>
+                              );
+                            }}
                           />
         </View>
     </ThemeProvider>
