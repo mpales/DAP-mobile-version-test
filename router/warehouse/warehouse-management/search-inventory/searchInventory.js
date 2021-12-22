@@ -98,7 +98,7 @@ class SearchInventory extends React.Component {
   };
 
   getWarehouseList = async () => {
-    const result = await getData('/warehouses');
+    const result = await getData('/warehouses/names');
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
         warehouseList: result,

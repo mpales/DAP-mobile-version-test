@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Button, Input} from 'react-native-elements';
+import {Button, Input, Divider} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
@@ -25,15 +25,11 @@ class RelocationRequest extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      client: '',
-      itemCode: '',
-      clientId: null,
-      clientList: null,
-      productList: null,
-      selectedItemCode: null,
+      location: '',
+      locationId: null,
+      locationList: null,
       searchResult: null,
-      filteredClientList: null,
-      filteredProductList: null,
+      filteredLocationList: null,
       searchSubmitted: false,
       errorMessage: '',
     };
@@ -41,8 +37,9 @@ class RelocationRequest extends React.Component {
 
   componentDidMount() {
     this._unsubscribe = this.props.navigation.addListener('focus', () => {
-      this.getClientList();
+      this.getLocationList();
       this.props.setSelectedRequestRelocation(null);
+      this.props.setSelectedLocationId(null);
     });
   }
 
@@ -50,49 +47,21 @@ class RelocationRequest extends React.Component {
     this._unsubscribe();
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.clientId !== this.state.clientId) {
-      if (this.state.clientId !== null) {
-        this.getProductList();
-      } else {
-        this.setState({
-          productList: null,
-          filteredProductList: null,
-          selectedItemCode: null,
-        });
-      }
-    }
-  }
-
-  getClientList = async () => {
-    const result = await getData('/clients');
+  getLocationList = async () => {
+    const result = await getData('/warehouses/containers/all');
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
-        clientList: result,
+        locationList: result,
       });
     } else {
       this.handleRequestError(result);
     }
   };
 
-  getProductList = async () => {
-    const {clientId} = this.state;
-    const result = await getData(`/clients/${clientId}/products`);
-    if (typeof result === 'object' && result.error === undefined) {
-      this.setState({
-        productList: result,
-      });
-    } else {
-      this.handleRequestError(result);
-    }
-  };
-
-  getClientProductList = async () => {
-    const {clientId, itemCode} = this.state;
+  getLocationProductList = async () => {
+    const {locationId} = this.state;
     const result = await getData(
-      `/stocks/product-storage/client/${clientId}/item-code/${
-        !!itemCode ? itemCode : 0
-      }`,
+      `/stocks/product-storage/location-id/${locationId}`,
     );
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
@@ -105,44 +74,29 @@ class RelocationRequest extends React.Component {
   };
 
   submitSearch = () => {
-    const {client} = this.state;
-    if (client === '') {
+    const {location} = this.state;
+    if (location === '') {
       return;
     }
-    this.getClientProductList();
+    this.getLocationProductList();
   };
 
   handleInput = (value, type) => {
     let obj = {};
-    if (type === 'clientList') {
+    if (type === 'locationList') {
       if (value === '') {
         obj = {
-          client: value,
-          filteredClientList: null,
-          clientId: null,
-          itemCode: '',
+          location: value,
+          filteredLocationList: null,
           searchSubmitted: false,
+          searchResult: null,
         };
       } else {
         obj = {
-          client: value,
-          filteredClientList: this.filterClientList(value),
+          location: value,
+          filteredLocationList: this.filterLocationList(value),
           searchSubmitted: false,
-        };
-      }
-    } else if (type === 'itemCodeList') {
-      if (value === '') {
-        obj = {
-          itemCode: value,
-          filteredProductList: null,
-          selectedItemCode: null,
-          searchSubmitted: false,
-        };
-      } else {
-        obj = {
-          itemCode: value,
-          filteredProductList: this.filterClientProductList(value),
-          searchSubmitted: false,
+          searchResult: null,
         };
       }
     }
@@ -150,39 +104,24 @@ class RelocationRequest extends React.Component {
   };
 
   handleSelect = (value, type) => {
-    if (type === 'client') {
-      obj = {client: value.name, clientId: value.id, filteredClientList: null};
-    } else if (type === 'itemCode') {
+    if (type === 'location') {
       obj = {
-        itemCode: value.item_code,
-        filteredProductList: null,
-        selectedItemCode: value.item_code,
+        location: value.locationId,
+        locationId: value.locationId,
+        filteredLocationList: null,
       };
     }
     this.setState(obj);
   };
 
-  filterClientList = (value) => {
-    const {clientList} = this.state;
-    if (clientList !== null) {
-      return clientList.filter((client) => {
-        if (client.name !== null)
-          return client.name.toLowerCase().includes(value.toLowerCase());
-      });
-    }
-    return null;
-  };
-
-  filterClientProductList = (value) => {
-    const {productList} = this.state;
-    if (productList !== null) {
-      return productList.filter((product, index) => {
-        if (product.description !== null) {
-          return (
-            product.description.toLowerCase().includes(value.toLowerCase()) ||
-            product.item_code.toLowerCase().includes(value.toLowerCase())
-          );
-        }
+  filterLocationList = (value) => {
+    const {locationList} = this.state;
+    if (locationList !== null) {
+      return locationList.filter((location) => {
+        if (location.locationId !== null)
+          return location.locationId
+            .toLowerCase()
+            .includes(value.toLowerCase());
       });
     }
     return null;
@@ -190,10 +129,9 @@ class RelocationRequest extends React.Component {
 
   resetInput = () => {
     this.setState({
-      client: '',
-      itemCode: '',
-      clientId: null,
-      filteredClientList: null,
+      location: '',
+      locationId: null,
+      filteredLocationList: null,
       searchSubmitted: false,
       searchResult: null,
     });
@@ -218,9 +156,8 @@ class RelocationRequest extends React.Component {
   };
 
   navigateToRequestRelocationForm = (data) => {
-    const {client, clientId} = this.state;
-    const selectedRelocation = {...data, client: {id: clientId, name: client}};
-    this.props.setSelectedRequestRelocation(selectedRelocation);
+    this.props.setSelectedRequestRelocation([data]);
+    this.props.setSelectedLocationId(this.state.locationId);
     this.props.navigation.navigate('RequestRelocationForm');
   };
 
@@ -231,19 +168,13 @@ class RelocationRequest extends React.Component {
   renderItem = (item, type) => {
     return (
       <TouchableOpacity
-        key={type === 'itemCode' ? item._id : item.id}
+        key={item.id}
         style={[
           styles.inputContainer,
           {justifyContent: 'center', paddingHorizontal: 10},
         ]}
         onPress={() => this.handleSelect(item, type)}>
-        {type === 'itemCode' ? (
-          <Text style={styles.inputText}>
-            {`${item.item_code}-${item.description}`}
-          </Text>
-        ) : (
-          <Text style={styles.inputText}>{item.name}</Text>
-        )}
+        <Text style={styles.inputText}>{item.locationId}</Text>
       </TouchableOpacity>
     );
   };
@@ -260,14 +191,10 @@ class RelocationRequest extends React.Component {
     const {
       errorMessage,
       searchResult,
-      client,
-      clientId,
-      filteredClientList,
-      filteredProductList,
-      itemCode,
-      productList,
+      location,
+      locationId,
+      filteredLocationList,
       searchSubmitted,
-      selectedItemCode,
     } = this.state;
     return (
       <SafeAreaProvider>
@@ -281,142 +208,119 @@ class RelocationRequest extends React.Component {
         )}
         <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
           <View style={styles.searchContainer}>
-            <Text style={styles.title}>Request Relocation</Text>
-            <View
-              style={
-                Platform.OS === 'ios'
-                  ? [styles.inputWrapper, {zIndex: 2}]
-                  : styles.inputWrapper
-              }>
-              <Text style={styles.inputTitle}>Client</Text>
-              <Input
-                placeholder="Select Client"
-                value={client}
-                containerStyle={{paddingHorizontal: 0}}
-                inputContainerStyle={styles.inputContainer}
-                inputStyle={styles.inputText}
-                rightIcon={clientId === null ? null : this.renderTimesIcon()}
-                renderErrorMessage={false}
-                onChangeText={(text) => this.handleInput(text, 'clientList')}
-              />
-              <View style={styles.dropdownContainer}>
-                {client !== '' &&
-                  clientId === null &&
-                  filteredClientList !== null &&
-                  filteredClientList.length === 0 && (
-                    <View
-                      style={[
-                        styles.inputContainer,
-                        {justifyContent: 'center', paddingHorizontal: 10},
-                      ]}>
-                      <Text style={styles.inputText}>No Result</Text>
-                    </View>
-                  )}
-                {filteredClientList !== null &&
-                  filteredClientList
-                    .slice(0, 5)
-                    .map((client) => this.renderItem(client, 'client'))}
-              </View>
-            </View>
-            <View
-              style={
-                Platform.OS === 'ios'
-                  ? [styles.inputWrapper, {zIndex: 1}]
-                  : styles.inputWrapper
-              }>
-              <Text style={styles.inputTitle}>Item Code</Text>
-              <Input
-                placeholder="Enter Item Code"
-                value={itemCode}
-                containerStyle={{paddingHorizontal: 0}}
-                inputContainerStyle={styles.inputContainer}
-                inputStyle={styles.inputText}
-                renderErrorMessage={false}
-                onChangeText={(text) => this.handleInput(text, 'itemCodeList')}
-                disabled={clientId === null ? true : false}
-                disabledInputStyle={{backgroundColor: '#EFEFEF'}}
-              />
-              <View style={styles.dropdownContainer}>
-                {itemCode !== '' &&
-                  selectedItemCode === null &&
-                  ((filteredProductList !== null &&
-                    filteredProductList.length === 0) ||
-                    productList === null) && (
-                    <View
-                      style={[
-                        styles.inputContainer,
-                        {justifyContent: 'center', paddingHorizontal: 10},
-                      ]}>
-                      <Text style={styles.inputText}>No Result</Text>
-                    </View>
-                  )}
-                {filteredProductList !== null &&
-                  filteredProductList
-                    .slice(0, 5)
-                    .map((product) => this.renderItem(product, 'itemCode'))}
-              </View>
-            </View>
-            <Button
-              title="Search"
-              titleStyle={styles.buttonText}
-              buttonStyle={[
-                styles.button,
-                {marginHorizontal: 0, marginTop: 20},
-              ]}
-              disabled={clientId === null}
-              disabledStyle={{backgroundColor: '#ABABAB'}}
-              disabledTitleStyle={{color: '#FFF'}}
-              onPress={this.submitSearch}
-            />
-            <Button
-              title="Scan Location Barcode"
-              titleStyle={styles.buttonText}
-              buttonStyle={[
-                styles.button,
-                {marginHorizontal: 0, marginVertical: 20},
-              ]}
-              onPress={this.navigateToRequestRelocationBarcode}
-            />
-          </View>
-          {searchSubmitted && (
-            <View style={styles.resultContainer}>
+            <View style={{paddingHorizontal: 20}}>
+              <Text style={styles.title}>Request Relocation</Text>
               <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
-                <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap'}}>
-                  <Text style={[styles.title, {marginRight: 20}]}>Results</Text>
-                  <Text
-                    style={[styles.title, styles.textBlue, {flexWrap: 'wrap'}]}>
-                    {`${client} ${itemCode}`}
-                  </Text>
+                style={
+                  Platform.OS === 'ios'
+                    ? [styles.inputWrapper, {zIndex: 2}]
+                    : styles.inputWrapper
+                }>
+                <Text style={styles.inputTitle}>Location ID</Text>
+                <Input
+                  placeholder="Select Location Id"
+                  value={location}
+                  containerStyle={{paddingHorizontal: 0}}
+                  inputContainerStyle={styles.inputContainer}
+                  inputStyle={styles.inputText}
+                  rightIcon={
+                    locationId === null ? null : this.renderTimesIcon()
+                  }
+                  renderErrorMessage={false}
+                  onChangeText={(text) =>
+                    this.handleInput(text, 'locationList')
+                  }
+                />
+                <View style={styles.dropdownContainer}>
+                  {location !== '' &&
+                    locationId === null &&
+                    filteredLocationList !== null &&
+                    filteredLocationList.length === 0 && (
+                      <View
+                        style={[
+                          styles.inputContainer,
+                          {justifyContent: 'center', paddingHorizontal: 10},
+                        ]}>
+                        <Text style={styles.inputText}>No Result</Text>
+                      </View>
+                    )}
+                  {filteredLocationList !== null &&
+                    filteredLocationList
+                      .slice(0, 4)
+                      .map((location) => this.renderItem(location, 'location'))}
                 </View>
-                <Text style={[styles.text, styles.textBlue]}>{`${
-                  searchResult === null ? 0 : searchResult.length
-                } Result`}</Text>
               </View>
-              {searchResult !== null &&
-                searchResult.map((item, index) => (
-                  <RelocationResult
-                    key={index}
-                    item={item}
-                    navigate={this.navigateToRequestRelocationForm}
-                  />
-                ))}
-              {searchResult === null && (
+              <Button
+                title="Search"
+                titleStyle={styles.buttonText}
+                buttonStyle={[
+                  styles.button,
+                  {marginHorizontal: 0, marginTop: 20},
+                ]}
+                disabled={locationId === null}
+                disabledStyle={{backgroundColor: '#ABABAB'}}
+                disabledTitleStyle={{color: '#FFF'}}
+                onPress={this.submitSearch}
+              />
+              <Button
+                title="Scan Location Barcode"
+                titleStyle={styles.buttonText}
+                buttonStyle={[
+                  styles.button,
+                  {marginHorizontal: 0, marginVertical: 20},
+                ]}
+                onPress={this.navigateToRequestRelocationBarcode}
+              />
+            </View>
+            <Divider color="#ABABAB" style={{marginVertical: 10}} />
+            {searchSubmitted && (
+              <View style={styles.resultContainer}>
                 <View
                   style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginTop: '40%',
                   }}>
-                  <Text style={styles.title}>No Result</Text>
+                  <View
+                    style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap'}}>
+                    <Text style={[styles.title, {marginRight: 20}]}>
+                      Results
+                    </Text>
+                    <Text
+                      style={[
+                        styles.title,
+                        styles.textBlue,
+                        {flexWrap: 'wrap'},
+                      ]}>
+                      {`${locationId}`}
+                    </Text>
+                  </View>
+                  <Text style={[styles.text, styles.textBlue]}>{`${
+                    searchResult === null ? 0 : searchResult.length
+                  } Result`}</Text>
                 </View>
-              )}
-            </View>
-          )}
+                {searchResult !== null &&
+                  searchResult.map((item, index) => (
+                    <RelocationResult
+                      key={index}
+                      item={item}
+                      navigate={this.navigateToRequestRelocationForm}
+                    />
+                  ))}
+                {searchResult === null ||
+                  (Array.isArray(searchResult) && !searchResult.length > 0 && (
+                    <View
+                      style={{
+                        alignItems: 'center',
+                        marginTop: '40%',
+                      }}>
+                      <Text style={styles.title}>No Result</Text>
+                    </View>
+                  ))}
+              </View>
+            )}
+          </View>
         </ScrollView>
       </SafeAreaProvider>
     );
@@ -431,15 +335,14 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flexShrink: 1,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ABABAB',
-    paddingHorizontal: 20,
     paddingTop: 10,
     overflow: 'visible',
   },
   resultContainer: {
     flexShrink: 1,
-    padding: 20,
+    paddingTop: 10,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
   },
   inputWrapper: {
     marginTop: 10,
@@ -500,6 +403,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     setSelectedRequestRelocation: (data) => {
       return dispatch({type: 'SelectedRequestRelocation', payload: data});
+    },
+    setSelectedLocationId: (data) => {
+      return dispatch({type: 'SelectedLocationId', payload: data});
     },
   };
 };

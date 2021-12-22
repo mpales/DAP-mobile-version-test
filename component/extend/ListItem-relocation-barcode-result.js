@@ -26,7 +26,7 @@ const ListItemRelocationResult = ({item, navigate}) => {
           <TextList title="Item Code" value={item.product.item_code} />
           <TextList title="Description" value={item.product.description} />
           <TextList title="Quantity" value={item.quantity} />
-          <TextList title="UOM" value={item.uom.packaging} />
+          <TextList title="UOM" value={item.productUom.packaging} />
           <TextList title="Grade" value={productGradeToString(item.grade)} />
         </ListItem.Content>
         <ListItem.Chevron
