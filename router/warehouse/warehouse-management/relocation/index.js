@@ -19,6 +19,7 @@ import RelocationItemDetails from './relocationItemDetails';
 import BarcodeCamera from '../peripheral/barcodeCamera';
 import ConfirmRelocationBarcode from '../peripheral/confirmRelocationBarcode';
 import ManualInput from './manualInput';
+import SelectRelocateItem from './selectRelocateItem';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -148,6 +149,13 @@ class WarehouseManagement extends React.Component {
           name="RequestRelocationForm"
           options={{
             headerTitle: 'Warehouse Relocation',
+          }}
+        />
+        <Stack.Screen
+          component={SelectRelocateItem}
+          name="SelectRelocateItem"
+          options={{
+            headerTitle: 'Select Items',
           }}
         />
         <Stack.Screen
