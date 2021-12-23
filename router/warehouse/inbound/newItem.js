@@ -115,7 +115,7 @@ class Acknowledge extends React.Component {
         this.setState({sku:''});
      }
     } else if (prevState.recordPhoto !== this.state.recordPhoto && this.state.recordPhoto === true){
-      setTimeout(() => {
+      setTimeout(async () => {
         const result = await getData('inboundsMobile/'+currentASN);
         if(typeof result === 'object' && result.error === undefined){
           this.props.setManifestList(result.products);
