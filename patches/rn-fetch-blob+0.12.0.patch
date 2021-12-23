@@ -1,0 +1,17 @@
+diff --git a/node_modules/rn-fetch-blob/ios/RNFetchBlobRequest.m b/node_modules/rn-fetch-blob/ios/RNFetchBlobRequest.m
+index cdbe6b1..b15aef0 100644
+--- a/node_modules/rn-fetch-blob/ios/RNFetchBlobRequest.m
++++ b/node_modules/rn-fetch-blob/ios/RNFetchBlobRequest.m
+@@ -161,8 +161,10 @@ typedef NS_ENUM(NSUInteger, ResponseFormat) {
+         respFile = NO;
+     }
+ 
+-    self.task = [session dataTaskWithRequest:req];
+-    [self.task resume];
++    NSURLSessionDataTask *task = [session dataTaskWithRequest:req];
++    [task resume];
++    self.task = task;
++
+ 
+     // network status indicator
+     if ([[options objectForKey:CONFIG_INDICATOR] boolValue]) {
