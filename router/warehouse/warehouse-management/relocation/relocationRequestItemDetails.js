@@ -21,7 +21,7 @@ class RelocationRequestItemDetails extends React.Component {
         <StatusBar barStyle="dark-content" />
         <ScrollView style={styles.body}>
           {this.props.selectedRequestRelocation.map((item) => (
-            <Card containerStyle={styles.cardContainer}>
+            <Card containerStyle={styles.cardContainer} key={item.id}>
               <TextList title="Warehouse" value={item.warehouse.warehouse} />
               <TextList title="Location" value={item.warehouse.locationId} />
               <TextList title="Client" value={item.client.name} />
