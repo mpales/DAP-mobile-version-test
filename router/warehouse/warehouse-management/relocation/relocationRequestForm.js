@@ -184,7 +184,6 @@ class RelocationRequest extends React.Component {
     await selectedRequestRelocation.forEach((element) => {
       productStorageId.push(element.id);
     });
-    console.log(productStorageId);
     const {
       relocateFrom,
       selectedLocation,
@@ -606,29 +605,47 @@ class RelocationRequest extends React.Component {
               <View style={{padding: 20}}>
                 <Text style={styles.cardTitle}>New Location</Text>
                 <TextList
+                  title="Warehouse"
+                  value={
+                    !!warehouseList &&
+                    !!selectedWarehouse &&
+                    warehouseList.find((el) => el.id === selectedWarehouse).name
+                  }
+                />
+                <TextList
                   title="Location"
                   value={
+                    !!locationList &&
+                    !!selectedLocation &&
                     locationList.find((el) => el.id === selectedLocation)
                       .locationId
                   }
                 />
-                <TextList
-                  title="Item Code"
-                  value={relocateFrom[0].product.item_code}
-                />
-                <TextList
-                  title="Description"
-                  value={relocateFrom[0].description}
-                />
-                <CustomTextList title="Quantity" value={quantityToTransfer} />
-                <TextList
-                  title="UOM"
-                  value={relocateFrom[0].productUom.packaging}
-                />
-                <CustomTextList
-                  title="Grade"
-                  value={productGradeToString(selectedGrade)}
-                />
+                {!!selectedRequestRelocation &&
+                  !selectedRequestRelocation.length > 1 && (
+                    <>
+                      <TextList
+                        title="Item Code"
+                        value={relocateFrom[0].product.item_code}
+                      />
+                      <TextList
+                        title="Description"
+                        value={relocateFrom[0].description}
+                      />
+                      <CustomTextList
+                        title="Quantity"
+                        value={quantityToTransfer}
+                      />
+                      <TextList
+                        title="UOM"
+                        value={relocateFrom[0].productUom.packaging}
+                      />
+                      <CustomTextList
+                        title="Grade"
+                        value={productGradeToString(selectedGrade)}
+                      />
+                    </>
+                  )}
                 <Button
                   title="Back To List"
                   titleStyle={styles.buttonText}

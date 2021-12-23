@@ -5,6 +5,8 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 // component
 import Barcode from '../../../../component/camera/filter-barcode';
+// helper
+import {getData} from '../../../../component/helper/network';
 //style
 import Mixins from '../../../../mixins';
 // icon
@@ -33,19 +35,28 @@ class BarcodeCamera extends React.Component {
   renderBarcode = async (barcode) => {
     if (barcode.length > 0 && barcode[0].data !== '') {
       if (this.props.route.params?.relocateTo === true) {
-        // need to fetch get barcode data and if failed show modal
-        // this.setState({
-        //   isShowOverlay: true,
-        //   canDetectBarcode: false,
-        // });
-        this.props.navigation.navigate('RelocationRequestConfirm', {
-          barcodeResult: barcode[0].data,
-        });
+        await this.getWarehouseLocationData(barcode[0].data);
       } else {
         this.props.navigation.navigate('RelocationScanResult', {
           barcodeResult: barcode[0].data,
         });
       }
+    }
+  };
+
+  getWarehouseLocationData = async (barcodeResult) => {
+    const result = await getData(
+      `/warehouses/containers/location-id/${barcodeResult}`,
+    );
+    if (typeof result === 'object' && result.error === undefined) {
+      this.props.navigation.navigate('RelocationRequestConfirm', {
+        warehouseStorageContainerIdTo: result.id,
+        barcodeResult: barcodeResult,
+      });
+    } else {
+      this.setState({
+        isShowOverlay: true,
+      });
     }
   };
 
@@ -58,7 +69,7 @@ class BarcodeCamera extends React.Component {
   };
 
   render() {
-    const {isShowOverlay, canDetectBarcode} = this.state;
+    const {isShowOverlay} = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -68,7 +79,7 @@ class BarcodeCamera extends React.Component {
             <View style={styles.modalHeader}>
               <XMarkIcon height="24" width="24" fill="#E03B3B" />
               <Text style={[styles.modalHeaderText, {color: '#E03B3B'}]}>
-                Barcode Not Found
+                Location Not Found
               </Text>
             </View>
             <Divider color="#D5D5D5" style={{marginBottom: 20}} />

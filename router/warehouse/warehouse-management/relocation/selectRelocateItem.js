@@ -185,7 +185,7 @@ class SelectRelocateItem extends React.Component {
 
   navigateToRequestRelocationForm = () => {
     this.props.setSelectedRequestRelocation(this.state.selectedProduct);
-    this.props.navigation.navigate('RequestRelocationForm');
+    this.props.navigation.goBack();
   };
 
   renderItem = (item, key) => {
