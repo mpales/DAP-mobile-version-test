@@ -622,7 +622,7 @@ class RelocationRequest extends React.Component {
                   }
                 />
                 {!!selectedRequestRelocation &&
-                  !selectedRequestRelocation.length > 1 && (
+                  selectedRequestRelocation.length === 1 && (
                     <>
                       <TextList
                         title="Item Code"

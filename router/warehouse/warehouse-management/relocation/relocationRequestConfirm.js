@@ -228,6 +228,7 @@ class RelocationRequestConfirm extends React.Component {
       reasonCodeList,
       remarks,
       relocateFrom,
+      selectedGrade,
       showOverlay,
       sliderValue,
     } = this.state;
@@ -492,7 +493,7 @@ class RelocationRequestConfirm extends React.Component {
               <Text style={styles.cardTitle}>New Location</Text>
               <TextList title="Location" value={barcodeResult} />
               {!!selectedRequestRelocation &&
-                !selectedRequestRelocation.length > 1 && (
+                selectedRequestRelocation.length === 1 && (
                   <>
                     <TextList
                       title="Item Code"
