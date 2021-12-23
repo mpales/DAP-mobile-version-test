@@ -108,31 +108,20 @@ class Acknowledge extends React.Component {
   }
   async componentDidUpdate(prevProps, prevState, snapshot){
     const {currentASN, manifestList} = this.props;
-    if((prevState.barcode !== this.state.barcode && this.state.barcode !== '') || (prevState.recordPhoto !== this.state.recordPhoto && this.state.recordPhoto === true) || (prevState.validDimensions !== this.state.validDimensions && this.state.validDimensions === true)){
-       const result = await getData('inboundsMobile/'+currentASN);
-       if(typeof result === 'object' && result.error === undefined){
-         this.props.setManifestList(result.products);
-         this.setState({sku:''});
-      }
-      // const updatedBarcodes = await getData('inboundsMobile/'+currentASN+'/item-barcode');
-      // if(updatedBarcodes.error !== undefined){
-      //   this.props.navigation.goBack();
-      // } else {
-      //   let updatedManifest = [];
-      //   for (let index = 0; index < manifestList.length; index++) {
-      //     const element = manifestList[index];
-      //     let findBarcode = updatedBarcodes.products.find((o)=> o.pId === element.pId);
-      //     if(findBarcode !== undefined){
-      //       updatedManifest[index] = {
-      //         ...manifestList[index],
-      //         barcodes: findBarcode.barcodes,
-      //       }
-      //     } else {
-      //       updatedManifest[index] = manifestList[index];
-      //     }
-      //   }
-      // this.props.setManifestList(updatedManifest);
-      //}
+    if((prevState.barcode !== this.state.barcode && this.state.barcode !== '') || (prevState.validDimensions !== this.state.validDimensions && this.state.validDimensions === true)){
+      const result = await getData('inboundsMobile/'+currentASN);
+      if(typeof result === 'object' && result.error === undefined){
+        this.props.setManifestList(result.products);
+        this.setState({sku:''});
+     }
+    } else if (prevState.recordPhoto !== this.state.recordPhoto && this.state.recordPhoto === true){
+      setTimeout(() => {
+        const result = await getData('inboundsMobile/'+currentASN);
+        if(typeof result === 'object' && result.error === undefined){
+          this.props.setManifestList(result.products);
+          this.setState({sku:''});
+       }
+      }, 8000); 
     }
     if(prevState.submitPhoto !== this.state.submitPhoto && this.state.submitPhoto === true){
       if(this.props.attributePhotoPostpone !== null){
