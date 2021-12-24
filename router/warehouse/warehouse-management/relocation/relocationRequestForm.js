@@ -161,10 +161,8 @@ class RelocationRequest extends React.Component {
     this.props.navigation.navigate('RelocationList');
   };
 
-  navigateToRequestRelocationBarcode = () => {
-    this.props.navigation.navigate('RequestRelocationBarcode', {
-      relocateTo: true,
-    });
+  navigateToRequestRelocateToBarcode = () => {
+    this.props.navigation.navigate('RequestRelocateToBarcode');
   };
 
   navigateToSelectRelocateItem = () => {
@@ -571,7 +569,7 @@ class RelocationRequest extends React.Component {
             title="Relocate By Barcode"
             titleStyle={styles.buttonText}
             buttonStyle={[styles.button, {backgroundColor: '#121C78'}]}
-            onPress={this.navigateToRequestRelocationBarcode}
+            onPress={this.navigateToRequestRelocateToBarcode}
           />
         </ScrollView>
         {this.state.showOverlay && (

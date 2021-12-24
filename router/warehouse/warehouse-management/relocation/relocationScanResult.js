@@ -1,5 +1,12 @@
 import React from 'react';
-import {ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {
+  Dimensions,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
@@ -9,6 +16,8 @@ import {getData} from '../../../../component/helper/network';
 import RelocationBarcodeResult from '../../../../component/extend/ListItem-relocation-barcode-result';
 //style
 import Mixins from '../../../../mixins';
+
+const window = Dimensions.get('window');
 
 class BarcodeCamera extends React.Component {
   constructor(props) {
@@ -73,7 +82,8 @@ class BarcodeCamera extends React.Component {
                   scanResult === null ? 0 : scanResult.length
                 } Result`}</Text>
               </View>
-              {scanResult === null ? (
+              {scanResult === null ||
+              (!!scanResult && scanResult.length === 0) ? (
                 <View style={styles.noResultContainer}>
                   <Text style={styles.title}>No result found</Text>
                 </View>
@@ -107,8 +117,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   noResultContainer: {
-    flex: 1,
-    flexDirection: 'column',
+    marginTop: window.height * 0.4,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
