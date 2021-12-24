@@ -78,7 +78,7 @@ class RelocationList extends React.Component {
       this.setState({
         jobList: result,
       });
-      this.sortJobList('Date Asc');
+      this.sortJobList(this.state.selectedSortBy);
     }
     this.setState({
       isLoading: false,
