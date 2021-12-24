@@ -57,7 +57,7 @@ class ClientCheckInventory extends React.Component {
   }
 
   getClientList = async () => {
-    const result = await getData('/clients');
+    const result = await getData('/clients/name');
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
         clientList: result,

@@ -19,6 +19,9 @@ import RelocationItemDetails from './relocationItemDetails';
 import BarcodeCamera from '../peripheral/barcodeCamera';
 import ConfirmRelocationBarcode from '../peripheral/confirmRelocationBarcode';
 import ManualInput from './manualInput';
+import SelectRelocateItem from './selectRelocateItem';
+import RelocationRequestItemDetails from './relocationRequestItemDetails';
+import RequestRelocateToBarcode from '../peripheral/requestRelocateToBarcode';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -151,6 +154,20 @@ class WarehouseManagement extends React.Component {
           }}
         />
         <Stack.Screen
+          component={SelectRelocateItem}
+          name="SelectRelocateItem"
+          options={{
+            headerTitle: 'Select Items',
+          }}
+        />
+        <Stack.Screen
+          component={RelocationRequestItemDetails}
+          name="RelocationRequestItemDetails"
+          options={{
+            headerTitle: 'Items Detail',
+          }}
+        />
+        <Stack.Screen
           component={RelocationRequestConfirm}
           name="RelocationRequestConfirm"
           options={{
@@ -160,6 +177,14 @@ class WarehouseManagement extends React.Component {
         <Stack.Screen
           component={BarcodeCamera}
           name="RequestRelocationBarcode"
+          options={{
+            headerTitle: '',
+            headerTransparent: true,
+          }}
+        />
+        <Stack.Screen
+          component={RequestRelocateToBarcode}
+          name="RequestRelocateToBarcode"
           options={{
             headerTitle: '',
             headerTransparent: true,
