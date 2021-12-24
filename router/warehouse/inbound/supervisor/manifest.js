@@ -21,9 +21,21 @@ import {
   ActivityIndicator,
   PixelRatio,
 } from 'react-native';
-import {Avatar, Card, Overlay, Button, SearchBar, Badge, Input, Tooltip} from 'react-native-elements';
+import {
+  Avatar,
+  Card,
+  Overlay,
+  Button,
+  SearchBar,
+  Badge,
+  Input,
+  Tooltip,
+} from 'react-native-elements';
 
-import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {
+  SafeAreaProvider,
+  SafeAreaInsetsContext,
+} from 'react-native-safe-area-context';
 import {connect, Provider} from 'react-redux';
 import Mixins from '../../../../mixins';
 import InboundSupervisorDetail from '../../../../component/extend/ListItem-inbound-supervisor-detail';
@@ -37,25 +49,25 @@ import BlankList from '../../../../assets/icon/Group 5122blanklist.svg';
 import EmptyIlustrate from '../../../../assets/icon/manifest-empty mobile.svg';
 const window = Dimensions.get('window');
 
-class Warehouse extends React.Component{
+class Warehouse extends React.Component {
   _unsubscribe = null;
   constructor(props) {
     super(props);
 
     this.state = {
-     _visibleOverlay : false,
+      _visibleOverlay: false,
       receivingNumber: null,
-      inboundNumber : null,
-      companyname : null,
+      inboundNumber: null,
+      companyname: null,
       search: '',
-      filtered : 0,
+      filtered: 0,
       _manifest: [],
       updated: false,
-      initialRender : false,
-      notifbanner : '',
+      initialRender: false,
+      notifbanner: '',
       notifsuccess: false,
-      renderRefresh:false,
-      remark : '',
+      renderRefresh: false,
+      remark: '',
       remarkHeight: 500,
     };
 
@@ -65,344 +77,691 @@ class Warehouse extends React.Component{
     this.toggleOverlay.bind(this);
     this.handleConfirm.bind(this);
   }
-  static getDerivedStateFromProps(props,state){
-
+  static getDerivedStateFromProps(props, state) {
     return {...state};
   }
   shouldComponentUpdate(nextProps, nextState) {
-  
     return true;
   }
   async componentDidUpdate(prevProps, prevState, snapshot) {
     const {manifestList} = this.props;
-    if(this.state.renderRefresh !== prevState.renderRefresh && this.state.renderRefresh === true) {
+    if (
+      this.state.renderRefresh !== prevState.renderRefresh &&
+      this.state.renderRefresh === true
+    ) {
       const {receivingNumber} = this.state;
       const {currentASN} = this.props;
       let inboundId = receivingNumber === null ? currentASN : receivingNumber;
-      const result = await getData('inboundsMobile/'+inboundId);
-      if(typeof result === 'object' && result.error === undefined){
-
-        let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === false) || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === false) ? this.state.filtered : null;  
-        this.props.setManifestList(result.products)
-        if(filtered === 0) {
-          this.setState({_manifest: result.products.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender: false});
-          } else if(filtered === 1){
-            this.setState({_manifest: result.products.filter((element)=>  element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender: false});
-          } else if(filtered === 2){
-            this.setState({_manifest: result.products.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender: false});
-          } 
-      
-      }
-    } else if(this.state.updated !== prevState.updated && this.state.updated === true){
-      const {receivingNumber} = this.state;
-      const {currentASN} = this.props;
-      let inboundId = receivingNumber === null ? currentASN : receivingNumber;
-  
-      const result = await getData('inboundsMobile/'+inboundId+'/item-status');
-      let updatedstatus = Array.from({length: manifestList.length}).map((num,index)=>{
-        if(result !== undefined && result.products !== undefined){
-          let updateElement = result.products.find((o)=> o.pId === manifestList[index].pId);
-          return {
-            ...manifestList[index],
-            ...updateElement,
-          };
-        } else {
-          return {
-            ...manifestList[index],
-          };
+      const result = await getData('inboundsMobile/' + inboundId);
+      if (typeof result === 'object' && result.error === undefined) {
+        let filtered =
+          (prevState.renderRefresh !== this.state.renderRefresh &&
+            this.state.renderRefresh === true) ||
+          prevState.filtered !== this.state.filtered ||
+          prevState.search !== this.state.search ||
+          (prevState.updated !== this.state.updated &&
+            this.state.updated === false) ||
+          (prevState.initialRender !== this.state.initialRender &&
+            this.state.initialRender === false)
+            ? this.state.filtered
+            : null;
+        this.props.setManifestList(result.products);
+        if (filtered === 0) {
+          this.setState({
+            _manifest: result.products.filter(
+              (element) =>
+                (element.item_code !== undefined &&
+                  String(element.item_code)
+                    .toLowerCase()
+                    .indexOf(this.state.search.toLowerCase()) > -1) ||
+                element.is_transit === 1,
+            ),
+            updated: false,
+            renderRefresh: false,
+            initialRender: false,
+          });
+        } else if (filtered === 1) {
+          this.setState({
+            _manifest: result.products
+              .filter((element) => element.status === 4)
+              .filter(
+                (element) =>
+                  (element.item_code !== undefined &&
+                    String(element.item_code)
+                      .toLowerCase()
+                      .indexOf(this.state.search.toLowerCase()) > -1) ||
+                  element.is_transit === 1,
+              ),
+            updated: false,
+            renderRefresh: false,
+            initialRender: false,
+          });
+        } else if (filtered === 2) {
+          this.setState({
+            _manifest: result.products
+              .filter((element) => element.status === 3)
+              .filter(
+                (element) =>
+                  (element.item_code !== undefined &&
+                    String(element.item_code)
+                      .toLowerCase()
+                      .indexOf(this.state.search.toLowerCase()) > -1) ||
+                  element.is_transit === 1,
+              ),
+            updated: false,
+            renderRefresh: false,
+            initialRender: false,
+          });
         }
-      });
-      this.props.setManifestList(updatedstatus)
-      let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === true) || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === false) ? this.state.filtered : null;
-      if(filtered === 0) {
-        this.setState({_manifest: updatedstatus.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
-        } else if(filtered === 1){
-          this.setState({_manifest: updatedstatus.filter((element)=>  element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
-        } else if(filtered === 2){
-          this.setState({_manifest: updatedstatus.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
-        } 
-    
+      }
+    } else if (
+      this.state.updated !== prevState.updated &&
+      this.state.updated === true
+    ) {
+      const {receivingNumber} = this.state;
+      const {currentASN} = this.props;
+      let inboundId = receivingNumber === null ? currentASN : receivingNumber;
+
+      const result = await getData(
+        'inboundsMobile/' + inboundId + '/item-status',
+      );
+      let updatedstatus = Array.from({length: manifestList.length}).map(
+        (num, index) => {
+          if (result !== undefined && result.products !== undefined) {
+            let updateElement = result.products.find(
+              (o) => o.pId === manifestList[index].pId,
+            );
+            return {
+              ...manifestList[index],
+              ...updateElement,
+            };
+          } else {
+            return {
+              ...manifestList[index],
+            };
+          }
+        },
+      );
+      this.props.setManifestList(updatedstatus);
+      let filtered =
+        (prevState.renderRefresh !== this.state.renderRefresh &&
+          this.state.renderRefresh === false) ||
+        prevState.filtered !== this.state.filtered ||
+        prevState.search !== this.state.search ||
+        (prevState.updated !== this.state.updated &&
+          this.state.updated === true) ||
+        (prevState.initialRender !== this.state.initialRender &&
+          this.state.initialRender === false)
+          ? this.state.filtered
+          : null;
+      if (filtered === 0) {
+        this.setState({
+          _manifest: updatedstatus.filter(
+            (element) =>
+              (element.item_code !== undefined &&
+                String(element.item_code)
+                  .toLowerCase()
+                  .indexOf(this.state.search.toLowerCase()) > -1) ||
+              element.is_transit === 1,
+          ),
+          updated: false,
+          renderRefresh: false,
+          initialRender: false,
+        });
+      } else if (filtered === 1) {
+        this.setState({
+          _manifest: updatedstatus
+            .filter((element) => element.status === 4)
+            .filter(
+              (element) =>
+                (element.item_code !== undefined &&
+                  String(element.item_code)
+                    .toLowerCase()
+                    .indexOf(this.state.search.toLowerCase()) > -1) ||
+                element.is_transit === 1,
+            ),
+          updated: false,
+          renderRefresh: false,
+          initialRender: false,
+        });
+      } else if (filtered === 2) {
+        this.setState({
+          _manifest: updatedstatus
+            .filter((element) => element.status === 3)
+            .filter(
+              (element) =>
+                (element.item_code !== undefined &&
+                  String(element.item_code)
+                    .toLowerCase()
+                    .indexOf(this.state.search.toLowerCase()) > -1) ||
+                element.is_transit === 1,
+            ),
+          updated: false,
+          renderRefresh: false,
+          initialRender: false,
+        });
+      }
     } else {
-      let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === false) || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === true) ? this.state.filtered : null;
-   
-      if(filtered === 0) {
-        this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
-        } else if(filtered === 1){
-          this.setState({_manifest: manifestList.filter((element)=>  element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
-        } else if(filtered === 2){
-          this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
-        } 
-    
+      let filtered =
+        (prevState.renderRefresh !== this.state.renderRefresh &&
+          this.state.renderRefresh === false) ||
+        prevState.filtered !== this.state.filtered ||
+        prevState.search !== this.state.search ||
+        (prevState.updated !== this.state.updated &&
+          this.state.updated === false) ||
+        (prevState.initialRender !== this.state.initialRender &&
+          this.state.initialRender === true)
+          ? this.state.filtered
+          : null;
+
+      if (filtered === 0) {
+        this.setState({
+          _manifest: manifestList.filter(
+            (element) =>
+              (element.item_code !== undefined &&
+                String(element.item_code)
+                  .toLowerCase()
+                  .indexOf(this.state.search.toLowerCase()) > -1) ||
+              element.is_transit === 1,
+          ),
+          updated: false,
+          renderRefresh: false,
+          initialRender: false,
+        });
+      } else if (filtered === 1) {
+        this.setState({
+          _manifest: manifestList
+            .filter((element) => element.status === 4)
+            .filter(
+              (element) =>
+                (element.item_code !== undefined &&
+                  String(element.item_code)
+                    .toLowerCase()
+                    .indexOf(this.state.search.toLowerCase()) > -1) ||
+                element.is_transit === 1,
+            ),
+          updated: false,
+          renderRefresh: false,
+          initialRender: false,
+        });
+      } else if (filtered === 2) {
+        this.setState({
+          _manifest: manifestList
+            .filter((element) => element.status === 3)
+            .filter(
+              (element) =>
+                (element.item_code !== undefined &&
+                  String(element.item_code)
+                    .toLowerCase()
+                    .indexOf(this.state.search.toLowerCase()) > -1) ||
+                element.is_transit === 1,
+            ),
+          updated: false,
+          renderRefresh: false,
+          initialRender: false,
+        });
+      }
     }
-   
   }
   async componentDidMount() {
-    const {navigation,manifestList, currentASN,barcodeScanned, ReportedManifest} = this.props;
+    const {
+      navigation,
+      manifestList,
+      currentASN,
+      barcodeScanned,
+      ReportedManifest,
+    } = this.props;
     const {receivingNumber, _manifest, search} = this.state;
     this._unsubscribe = navigation.addListener('focus', (test) => {
-      if(receivingNumber !== null)
-      this.setState({updated: true});
+      if (receivingNumber !== null) this.setState({updated: true});
       // do something
     });
-    if(receivingNumber === null){
+    if (receivingNumber === null) {
       const {routes, index} = navigation.dangerouslyGetState();
       // if(manifestList.length === 0 && search === ''){
       //   let manifest = manifestDummy.filter((element)=>element.name.indexOf(search) > -1);
       //   props.setManifestList(manifest);
       //   return {...state, _manifest : manifest};
       // } else
-        if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
-          const result = await getData('inboundsMobile/'+routes[index].params.number);
-          if(typeof result === 'object' && result.error === undefined){
-          
-            this.props.setManifestList(result.products)
-            this.setState({receivingNumber: routes[index].params.number,inboundNumber:result.inbound_number,_manifest:result.products,companyname:result.client,remark: result.remarks, initialRender: true })
-          } else {
-            navigation.popToTop();
-          }
-        } else if(currentASN !== null) {
-          const result = await getData('inboundsMobile/'+currentASN);
-          if(typeof result === 'object' && result.error === undefined){
-          
-            this.props.setManifestList(result.products)
-            this.setState({receivingNumber: routes[index].params.number,inboundNumber:result.inbound_number,_manifest:result.products,companyname:result.client,remark: result.remarks, initialRender:true})
-          } else {
-            navigation.popToTop();
-          }
+      if (
+        routes[index].params !== undefined &&
+        routes[index].params.number !== undefined
+      ) {
+        const result = await getData(
+          'inboundsMobile/' + routes[index].params.number,
+        );
+        if (typeof result === 'object' && result.error === undefined) {
+          this.props.setManifestList(result.products);
+          this.setState({
+            receivingNumber: routes[index].params.number,
+            inboundNumber: result.inbound_number,
+            _manifest: result.products,
+            companyname: result.client,
+            remark: result.remarks,
+            initialRender: true,
+          });
         } else {
           navigation.popToTop();
         }
+      } else if (currentASN !== null) {
+        const result = await getData('inboundsMobile/' + currentASN);
+        if (typeof result === 'object' && result.error === undefined) {
+          this.props.setManifestList(result.products);
+          this.setState({
+            receivingNumber: routes[index].params.number,
+            inboundNumber: result.inbound_number,
+            _manifest: result.products,
+            companyname: result.client,
+            remark: result.remarks,
+            initialRender: true,
+          });
+        } else {
+          navigation.popToTop();
+        }
+      } else {
+        navigation.popToTop();
+      }
     }
   }
-  componentWillUnmount(){
+  componentWillUnmount() {
     this._unsubscribe();
   }
-  toggleOverlay =()=> {
+  toggleOverlay = () => {
     const {_visibleOverlay} = this.state;
-    this.setState({_visibleOverlay: !_visibleOverlay})
-  }
+    this.setState({_visibleOverlay: !_visibleOverlay});
+  };
 
   handleConfirm = async ({action}) => {
     const {receivingNumber} = this.state;
     const {currentASN} = this.props;
     this.toggleOverlay();
-    if(action) {
+    if (action) {
       // for prototype only
-      const result = await postData('/inboundsMobile/'+receivingNumber+'/confirm-putaway')
-      if(typeof result !== 'object'){
-        this.props.navigation.navigate('CompletedSupervisor')
-        this.setState({notifbanner:result, notifsuccess: true});
+      const result = await postData(
+        '/inboundsMobile/' + receivingNumber + '/confirm-putaway',
+      );
+      if (typeof result !== 'object') {
+        this.props.navigation.navigate('CompletedSupervisor');
+        this.setState({notifbanner: result, notifsuccess: true});
       } else {
-        if(result.error !== undefined) this.setState({notifbanner:result.error, notifsuccess: false});
+        if (result.error !== undefined)
+          this.setState({notifbanner: result.error, notifsuccess: false});
       }
       this.props.addCompleteASN(currentASN);
       this.props.completedInboundList.push(this.state.inboundCode);
       // end
 
-     // this.props.navigation.navigate('containerDetail');
+      // this.props.navigation.navigate('containerDetail');
     }
-  }
-  closeNotifBanner = ()=>{
-    this.setState({notifbanner:'', notifsuccess: false});
-  }
-  setFiltered = (num)=>{
-    this.setState({filtered:num, updated: true});
-}
- 
+  };
+  closeNotifBanner = () => {
+    this.setState({notifbanner: '', notifsuccess: false});
+  };
+  setFiltered = (num) => {
+    this.setState({filtered: num, updated: true});
+  };
+
   updateSearch = (search) => {
     this.setState({search});
   };
   _onRefresh = () => {
     this.setState({renderRefresh: true});
-}
+  };
   render() {
-    const {_visibleOverlay, _manifest,receivingNumber} = this.state;
+    const {_visibleOverlay, _manifest, receivingNumber} = this.state;
     const {inboundList} = this.props;
     return (
       <>
-        <StatusBar barStyle="dark-content" /> 
+        <StatusBar barStyle="dark-content" />
         <SafeAreaProvider>
-        {this.state.notifbanner !== '' && (<Banner
-            title={this.state.notifbanner}
-            backgroundColor={this.state.notifsuccess === true ? "#17B055" : "#F1811C"}
-            closeBanner={this.closeNotifBanner}
-          />)}
-          <ScrollView 
-            refreshControl={<RefreshControl
-                      colors={["#9Bd35A", "#689F38"]}
-                      refreshing={this.state.renderRefresh}
-                      onRefresh={this._onRefresh.bind(this)}
-                  />
+          {this.state.notifbanner !== '' && (
+            <Banner
+              title={this.state.notifbanner}
+              backgroundColor={
+                this.state.notifsuccess === true ? '#17B055' : '#F1811C'
               }
-          style={styles.body}>
-            <View style={[styles.sectionContent,{marginTop: 20}]}>
-            <View style={[styles.sectionContentTitle, {flexDirection: 'row'}]}>
-            <View style={[styles.titleHead,{flex :1, paddingRight:20, flexDirection:'column', justifyContent:'flex-end', alignContent:'flex-end'}]}>
-            <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141',}}>{this.state.inboundNumber}</Text>
-            <Tooltip 
-            withPointer={false} 
-            backgroundColor="#FFFFFF"
-            skipAndroidStatusBar ={true}  
-            popover={<View onLayout={(e)=>{ 
-              if(this.state.remarkHeight > e.nativeEvent.layout.height && (this.state.remarkHeight - e.nativeEvent.layout.height) > 30){
-                this.setState({remarkHeight: e.nativeEvent.layout.height + 30});
-              }
-            }}><Text style={[Mixins.body3,{color:'black'}]}>{this.state.remark}</Text></View>} 
-            width={300} 
-            height={this.state.remarkHeight}
-            containerStyle={{
-              left: (Dimensions.get('screen').width / 8),
-              top: (Dimensions.get('screen').height / 4),
-              shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            
-            elevation: 5,}}
-            >
-            <Button
-              containerStyle={{width: '100%',justifyContent: 'center', marginTop:9,}}
-              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0, backgroundColor:'#121C78'}]}
-              titleStyle={[styles.deliveryText,{lineHeight:36,fontWeight:'400'}]}
-              title="Remarks"
-              disabledTitleStyle={[styles.deliveryText,{lineHeight:36,fontWeight:'400'}]}
-              disabledStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0, backgroundColor:'#121C78'}]}
-              disabled={true}
+              closeBanner={this.closeNotifBanner}
             />
-            </Tooltip>
-            </View>
-            <View style={[styles.contentHead,{flex: 1,alignSelf:'flex-end',  flexDirection:'column', justifyContent:'flex-end', alignContent:'flex-end'}]}>
-            <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141'}}>{this.state.companyname}</Text>
-            <Button
-              containerStyle={{width: '100%',justifyContent: 'center',marginTop:9}}
-              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,paddingVertical:0}]}
-              titleStyle={[styles.deliveryText,{lineHeight:36,fontWeight:'400'}]}
-              onPress={()=>{
-                this.props.navigation.navigate('PhotosDraftSPV', {number:this.state.receivingNumber})
-              }}
-              title="Inbound Photos"
-            />
-            </View>
-            </View>
-            <SearchBar
-            placeholder="Search..."
-              onChangeText={this.updateSearch}
-              value={this.state.search}
-              lightTheme={true}
-              inputStyle={{backgroundColor: '#fff', ...Mixins.body1, padding:0,margin:0}}
-              placeholderTextColor="#2D2C2C"
-              searchIcon={() => (
-                <IconSearchMobile height="15" width="15" fill="#2D2C2C" />
-              )}
-              containerStyle={{
-                backgroundColor: 'transparent',
-                borderTopWidth: 0,
-                borderBottomWidth: 0,
-                paddingHorizontal: 0,
-                marginVertical: 5,
-              }}
-              inputContainerStyle={{
-                backgroundColor: 'white',
-                borderWidth: 1,
-                borderBottomWidth: 1,
-                borderColor: '#D5D5D5',
-              }}
-              leftIconContainerStyle={{backgroundColor: 'white'}}
-            />
-             <View style={{flexDirection:'row',marginVertical: 10}}>
-            <Badge
-                    value="All"
-                    containerStyle={styles.badgeSort}
-                    onPress={()=> this.setFiltered(0)}
-                    badgeStyle={this.state.filtered === 0 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : styles.badgeInactiveTint }
+          )}
+          <ScrollView
+            refreshControl={
+              <RefreshControl
+                colors={['#9Bd35A', '#689F38']}
+                refreshing={this.state.renderRefresh}
+                onRefresh={this._onRefresh.bind(this)}
+              />
+            }
+            style={styles.body}>
+            <View style={[styles.sectionContent, {marginTop: 20}]}>
+              <View
+                style={[styles.sectionContentTitle, {flexDirection: 'row'}]}>
+                <View
+                  style={[
+                    styles.titleHead,
+                    {
+                      flex: 1,
+                      paddingRight: 20,
+                      flexDirection: 'column',
+                      justifyContent: 'flex-end',
+                      alignContent: 'flex-end',
+                    },
+                  ]}>
+                  <Text
+                    style={{
+                      ...Mixins.subtitle1,
+                      lineHeight: 21,
+                      color: '#424141',
+                    }}>
+                    {this.state.inboundNumber}
+                  </Text>
+                  <Tooltip
+                    withPointer={false}
+                    backgroundColor="#FFFFFF"
+                    skipAndroidStatusBar={true}
+                    popover={
+                      <View
+                        onLayout={(e) => {
+                          if (
+                            this.state.remarkHeight >
+                              e.nativeEvent.layout.height &&
+                            this.state.remarkHeight -
+                              e.nativeEvent.layout.height >
+                              30
+                          ) {
+                            this.setState({
+                              remarkHeight: e.nativeEvent.layout.height + 30,
+                            });
+                          }
+                        }}>
+                        <Text style={[Mixins.body3, {color: 'black'}]}>
+                          {this.state.remark}
+                        </Text>
+                      </View>
+                    }
+                    width={300}
+                    height={this.state.remarkHeight}
+                    containerStyle={{
+                      left: Dimensions.get('screen').width / 8,
+                      top: Dimensions.get('screen').height / 4,
+                      shadowColor: '#000',
+                      shadowOffset: {
+                        width: 0,
+                        height: 2,
+                      },
+                      shadowOpacity: 0.25,
+                      shadowRadius: 3.84,
+
+                      elevation: 5,
+                    }}>
+                    <Button
+                      containerStyle={{
+                        width: '100%',
+                        justifyContent: 'center',
+                        marginTop: 9,
+                      }}
+                      buttonStyle={[
+                        styles.navigationButton,
+                        {
+                          paddingHorizontal: 0,
+                          paddingVertical: 0,
+                          backgroundColor: '#121C78',
+                        },
+                      ]}
+                      titleStyle={[
+                        styles.deliveryText,
+                        {lineHeight: 36, fontWeight: '400'},
+                      ]}
+                      title="Remarks"
+                      disabledTitleStyle={[
+                        styles.deliveryText,
+                        {lineHeight: 36, fontWeight: '400'},
+                      ]}
+                      disabledStyle={[
+                        styles.navigationButton,
+                        {
+                          paddingHorizontal: 0,
+                          paddingVertical: 0,
+                          backgroundColor: '#121C78',
+                        },
+                      ]}
+                      disabled={true}
                     />
-                      <Badge
-                    value="Reported"
-                    containerStyle={styles.badgeSort}
-                    onPress={()=> this.setFiltered(1)}
-                    badgeStyle={this.state.filtered === 1 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : styles.badgeInactiveTint }
-                    />
-                          <Badge
-                    value="Processed"
-                    containerStyle={styles.badgeSort}
-                    onPress={()=> this.setFiltered(2)}
-                    badgeStyle={this.state.filtered === 2 ? styles.badgeActive : styles.badgeInactive }
-                    textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : styles.badgeInactiveTint }
-                    />
-                   
-            </View>
-         
-              <Card containerStyle={styles.cardContainer}>
-                {_manifest.length === 0 ? 
-                (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
-                  {this.state.receivingNumber === null ? (    <ActivityIndicator 
-                    size={50} 
-                    color="#121C78"
-                />) :  this.props.manifestType === 2 ? (
-                  <BlankList height="185" width="213"/>
-                  ) : (<>
-                  <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
-                  <Text style={{  ...Mixins.subtitle3,}}>Empty Product</Text>
-                  </>)}
-                  </View>)
-                : _manifest.map((u, i) => (
-                  <InboundSupervisorDetail 
-                    key={i} 
-                    index={i} 
-                    item={u} 
-                    navigation={this.props.navigation}
-                    currentManifest={this.props.setCurrentManifest}
-                    toReportDetail={()=>{
-                      this.props.navigation.navigate('ReportDetailsSPV',{number:this.state.receivingNumber, productID : u.pId, isShowBannerSuccess : false,
-                        isShowBanner : '',});
+                  </Tooltip>
+                </View>
+                <View
+                  style={[
+                    styles.contentHead,
+                    {
+                      flex: 1,
+                      alignSelf: 'flex-end',
+                      flexDirection: 'column',
+                      justifyContent: 'flex-end',
+                      alignContent: 'flex-end',
+                    },
+                  ]}>
+                  <Text
+                    style={{
+                      ...Mixins.subtitle1,
+                      lineHeight: 21,
+                      color: '#424141',
+                    }}>
+                    {this.state.companyname}
+                  </Text>
+                  <Button
+                    containerStyle={{
+                      width: '100%',
+                      justifyContent: 'center',
+                      marginTop: 9,
                     }}
-                    // for prototype only
-                    // end
+                    buttonStyle={[
+                      styles.navigationButton,
+                      {paddingHorizontal: 0, paddingVertical: 0},
+                    ]}
+                    titleStyle={[
+                      styles.deliveryText,
+                      {lineHeight: 36, fontWeight: '400'},
+                    ]}
+                    onPress={() => {
+                      this.props.navigation.navigate('PhotosDraftSPV', {
+                        number: this.state.receivingNumber,
+                      });
+                    }}
+                    title="Inbound Photos"
                   />
-                ))}
+                </View>
+              </View>
+              <SearchBar
+                placeholder="Search..."
+                onChangeText={this.updateSearch}
+                value={this.state.search}
+                lightTheme={true}
+                inputStyle={{
+                  backgroundColor: '#fff',
+                  ...Mixins.body1,
+                  padding: 0,
+                  margin: 0,
+                }}
+                placeholderTextColor="#2D2C2C"
+                searchIcon={() => (
+                  <IconSearchMobile height="15" width="15" fill="#2D2C2C" />
+                )}
+                containerStyle={{
+                  backgroundColor: 'transparent',
+                  borderTopWidth: 0,
+                  borderBottomWidth: 0,
+                  paddingHorizontal: 0,
+                  marginVertical: 5,
+                }}
+                inputContainerStyle={{
+                  backgroundColor: 'white',
+                  borderWidth: 1,
+                  borderBottomWidth: 1,
+                  borderColor: '#D5D5D5',
+                }}
+                leftIconContainerStyle={{backgroundColor: 'white'}}
+              />
+              <View style={{flexDirection: 'row', marginVertical: 10}}>
+                <Badge
+                  value="All"
+                  containerStyle={styles.badgeSort}
+                  onPress={() => this.setFiltered(0)}
+                  badgeStyle={
+                    this.state.filtered === 0
+                      ? styles.badgeActive
+                      : styles.badgeInactive
+                  }
+                  textStyle={
+                    this.state.filtered === 0
+                      ? styles.badgeActiveTint
+                      : styles.badgeInactiveTint
+                  }
+                />
+                <Badge
+                  value="Reported"
+                  containerStyle={styles.badgeSort}
+                  onPress={() => this.setFiltered(1)}
+                  badgeStyle={
+                    this.state.filtered === 1
+                      ? styles.badgeActive
+                      : styles.badgeInactive
+                  }
+                  textStyle={
+                    this.state.filtered === 1
+                      ? styles.badgeActiveTint
+                      : styles.badgeInactiveTint
+                  }
+                />
+                <Badge
+                  value="Processed"
+                  containerStyle={styles.badgeSort}
+                  onPress={() => this.setFiltered(2)}
+                  badgeStyle={
+                    this.state.filtered === 2
+                      ? styles.badgeActive
+                      : styles.badgeInactive
+                  }
+                  textStyle={
+                    this.state.filtered === 2
+                      ? styles.badgeActiveTint
+                      : styles.badgeInactiveTint
+                  }
+                />
+              </View>
+
+              <Card containerStyle={styles.cardContainer}>
+                {_manifest.length === 0 ? (
+                  <View
+                    style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: 100,
+                    }}>
+                    {this.state.receivingNumber === null ? (
+                      <ActivityIndicator size={50} color="#121C78" />
+                    ) : this.props.manifestType === 2 ? (
+                      <BlankList height="185" width="213" />
+                    ) : (
+                      <>
+                        <EmptyIlustrate
+                          height="132"
+                          width="213"
+                          style={{marginBottom: 15}}
+                        />
+                        <Text style={{...Mixins.subtitle3}}>Empty Product</Text>
+                      </>
+                    )}
+                  </View>
+                ) : (
+                  _manifest.map((u, i) => (
+                    <InboundSupervisorDetail
+                      key={i}
+                      index={i}
+                      item={u}
+                      navigation={this.props.navigation}
+                      currentManifest={this.props.setCurrentManifest}
+                      toReportDetail={() => {
+                        this.props.navigation.navigate('ReportDetailsSPV', {
+                          number: this.state.receivingNumber,
+                          productID: u.pId,
+                          isShowBannerSuccess: false,
+                          isShowBanner: '',
+                        });
+                      }}
+                      // for prototype only
+                      // end
+                    />
+                  ))
+                )}
               </Card>
             </View>
           </ScrollView>
-          <Overlay fullScreen={false} overlayStyle={styles.overlayContainerStyle} isVisible={_visibleOverlay} onBackdropPress={this.toggleOverlay}>
-            <Text style={styles.confirmText}>Are you sure you want to Submit ?</Text>
+          <Overlay
+            fullScreen={false}
+            overlayStyle={styles.overlayContainerStyle}
+            isVisible={_visibleOverlay}
+            onBackdropPress={this.toggleOverlay}>
+            <Text style={styles.confirmText}>
+              Are you sure you want to Submit ?
+            </Text>
             <View style={styles.cancelButtonContainer}>
-              <TouchableOpacity 
-                style={[styles.cancelButton, {borderWidth: 1, borderColor: '#ABABAB'}]}
-                onPress={() => this.handleConfirm({action: false})}
-              >
-              <Text style={[styles.cancelText, {color: '#6C6B6B'}]}>No</Text>
+              <TouchableOpacity
+                style={[
+                  styles.cancelButton,
+                  {borderWidth: 1, borderColor: '#ABABAB'},
+                ]}
+                onPress={() => this.handleConfirm({action: false})}>
+                <Text style={[styles.cancelText, {color: '#6C6B6B'}]}>No</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.cancelButton, {backgroundColor: '#F07120'}]}
-                onPress={() => this.handleConfirm({action: true})}
-              >
+                onPress={() => this.handleConfirm({action: true})}>
                 <Text style={[styles.cancelText, {color: '#fff'}]}>Yes</Text>
               </TouchableOpacity>
             </View>
           </Overlay>
-          <View style={styles.bottomTabContainer}>
-          <Button
-             containerStyle={{flex:1, marginRight:10,height:'100%',flexBasis:1 }}
-              buttonStyle={[styles.navigationButton, {paddingVertical: 10, backgroundColor: '#121C78', flexGrow:1}]}
-              titleStyle={styles.deliveryText}
-              onPress={()=>{
-                this.props.navigation.navigate('IVASListSPV', {number:this.state.receivingNumber})
-              }}
-              title="Shipment VAS"
-            />
-            <Button
-                containerStyle={{flex:1, height: '100%', flexBasis:1}}
-              buttonStyle={[styles.navigationButton, {paddingVertical: 10, flexGrow:1}]}
-              titleStyle={styles.deliveryText}
-              onPress={this.toggleOverlay}
-              title="Confirm & Putaway"
-            />
-          </View>
+          <SafeAreaInsetsContext.Consumer>
+            {(inset) => (
+              <View
+                style={[
+                  styles.bottomTabContainer,
+                  {paddingBottom: 10 + inset.bottom},
+                ]}>
+                <Button
+                  containerStyle={{
+                    flex: 1,
+                    marginRight: 10,
+                    height: '100%',
+                    flexBasis: 1,
+                  }}
+                  buttonStyle={[
+                    styles.navigationButton,
+                    {
+                      paddingVertical: 10,
+                      backgroundColor: '#121C78',
+                      flexGrow: 1,
+                    },
+                  ]}
+                  titleStyle={styles.deliveryText}
+                  onPress={() => {
+                    this.props.navigation.navigate('IVASListSPV', {
+                      number: this.state.receivingNumber,
+                    });
+                  }}
+                  title="Shipment VAS"
+                />
+                <Button
+                  containerStyle={{flex: 1, height: '100%', flexBasis: 1}}
+                  buttonStyle={[
+                    styles.navigationButton,
+                    {paddingVertical: 10, flexGrow: 1},
+                  ]}
+                  titleStyle={styles.deliveryText}
+                  onPress={this.toggleOverlay}
+                  title="Confirm & Putaway"
+                />
+              </View>
+            )}
+          </SafeAreaInsetsContext.Consumer>
         </SafeAreaProvider>
       </>
     );
@@ -416,31 +775,30 @@ const styles = StyleSheet.create({
   badgeSort: {
     marginRight: 5,
   },
-  badgeActive: {    
+  badgeActive: {
     backgroundColor: '#F1811C',
     borderWidth: 1,
     borderColor: '#F1811C',
     paddingHorizontal: 12,
     height: 20,
-  
-    },
-    badgeActiveTint: {
-      ...Mixins.small3,
-      lineHeight: 12,
-      color: '#ffffff'
-    },
-    badgeInactive: {
-      backgroundColor: '#ffffff',
-      borderWidth: 1,
-      borderColor: '#121C78',
-      paddingHorizontal: 12,
-      height: 20,
-    },
-    badgeInactiveTint: {
-      ...Mixins.small3,
-      lineHeight: 12,
-      color: '#121C78'
-    },
+  },
+  badgeActiveTint: {
+    ...Mixins.small3,
+    lineHeight: 12,
+    color: '#ffffff',
+  },
+  badgeInactive: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#121C78',
+    paddingHorizontal: 12,
+    height: 20,
+  },
+  badgeInactiveTint: {
+    ...Mixins.small3,
+    lineHeight: 12,
+    color: '#121C78',
+  },
   code: {
     fontSize: 20,
     color: '#424141',
@@ -461,9 +819,9 @@ const styles = StyleSheet.create({
   },
   buttonSticky: {
     position: 'absolute',
-    bottom:60,
-    left:0,
-    right:0,
+    bottom: 60,
+    left: 0,
+    right: 0,
     elevation: 10,
     zIndex: 10,
   },
@@ -490,12 +848,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   alert: {
-    flex:1,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   buttonDivider: {
-    flex:1,
+    flex: 1,
   },
   navigationButton: {
     backgroundColor: '#F07120',
@@ -505,15 +863,15 @@ const styles = StyleSheet.create({
     ...Mixins.subtitle3,
     lineHeight: 21,
     color: '#ffffff',
-    fontSize: PixelRatio.get() > 2.75 ? 12 : 14,   
+    fontSize: PixelRatio.get() > 2.75 ? 12 : 14,
   },
   overlayContainerStyle: {
-    position:'absolute',
-    bottom:0,
-    right:0,
-    left:0,
-    height:window.height * 0.3,
-    borderTopRightRadius: 20, 
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    left: 0,
+    height: window.height * 0.3,
+    borderTopRightRadius: 20,
     borderTopLeftRadius: 20,
     flexDirection: 'column',
     justifyContent: 'space-evenly',
@@ -544,15 +902,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    paddingBottom:10,
-    paddingTop:40,
+    paddingBottom: 10,
+    paddingTop: 40,
   },
   reportButton: {
     backgroundColor: '#FFF',
     borderWidth: 1,
     borderRadius: 5,
     borderColor: '#ABABAB',
-  }
+  },
 });
 
 const manifestDummy = [
@@ -560,145 +918,145 @@ const manifestDummy = [
     code: '9780312205195',
     total_package: 2,
     name: 'Bear Brand Milk',
-    color:'white',
+    color: 'white',
     category: '[N-BR1B]',
     timestamp: moment().unix(),
     scanned: 1,
-    CBM: 20.10,
+    CBM: 20.1,
     weight: 115,
     status: 'onProgress',
     sku: '221314123',
-    grade: 'Pick'
+    grade: 'Pick',
   },
   {
     code: '9780312205195',
     total_package: 5,
     name: 'Lotte Milkis',
     category: '',
-    color:'blue',
+    color: 'blue',
     timestamp: moment().unix(),
     scanned: 0,
-    CBM: 10.10,
+    CBM: 10.1,
     weight: 70,
     sku: '412321412',
-    grade: 'Pick'
+    grade: 'Pick',
   },
   {
     code: '9780312205195',
     total_package: 5,
     name: 'LG TwinWash',
     category: '[A-CCR1]',
-    color:'grey',
+    color: 'grey',
     timestamp: moment().unix(),
     scanned: 0,
-    CBM: 15.10,
+    CBM: 15.1,
     weight: 90,
     sku: '1241231231',
-    grade: 'Pick'
+    grade: 'Pick',
   },
   {
     code: '9780312205195',
     total_package: 5,
     name: 'Midea U Inverter',
     category: '[A-DD1B]',
-    color:'white',
+    color: 'white',
     timestamp: moment().unix(),
     scanned: 0,
-    CBM: 20.10,
+    CBM: 20.1,
     weight: 115,
-    sku : '12454634545',
-    grade: 'Pick'
+    sku: '12454634545',
+    grade: 'Pick',
   },
   {
     code: '9780312205195',
     total_package: 5,
     name: 'TEODORES',
     category: '[G-CCD1]',
-    color:'white',
+    color: 'white',
     timestamp: moment().unix(),
     scanned: 0,
-    CBM: 10.10,
+    CBM: 10.1,
     weight: 90,
     sku: '430344390',
-    grade: 'Pick'
+    grade: 'Pick',
   },
   {
     code: '9780312205195',
     total_package: 5,
     name: 'FIXA 7.2V',
     category: '[A-CCR1]',
-    color:'black',
+    color: 'black',
     timestamp: moment().unix(),
     scanned: 0,
-    CBM: 15.10,
+    CBM: 15.1,
     weight: 70,
     sku: '430958095',
-    grade: 'Pick'
+    grade: 'Pick',
   },
   {
     code: '9780312205195',
     total_package: 5,
     name: 'Hock Stove Gas',
     category: '[D-RR1B]',
-    color:'black',
+    color: 'black',
     timestamp: moment().unix(),
     scanned: 0,
-    CBM: 20.10,
+    CBM: 20.1,
     weight: 115,
     sku: '430950345',
-    grade: 'Pick'
+    grade: 'Pick',
   },
   {
     code: '9780099582113',
     total_package: 5,
     name: 'Philips Bulb E27',
     category: '[D-BB1B]',
-    color:'white',
+    color: 'white',
     timestamp: moment().unix(),
     scanned: 0,
-    CBM: 20.10,
+    CBM: 20.1,
     weight: 115,
     sku: '250345345',
-    grade: 'Pick'
+    grade: 'Pick',
   },
   {
     code: '13140026927112',
     total_package: 5,
     name: 'bosch gws 5-100',
     category: '[A-DD1B]',
-    color:'blue',
+    color: 'blue',
     timestamp: moment().unix(),
     scanned: 0,
-    CBM: 20.10,
+    CBM: 20.1,
     weight: 115,
     sku: '4309583049',
-    grade: 'Pick'
+    grade: 'Pick',
   },
   {
     code: '13140026927113',
     total_package: 5,
     name: 'Bosch Xenon H11',
     category: '[D-BR1B]',
-    color:'blue',
+    color: 'blue',
     timestamp: moment().unix(),
     scanned: 0,
-    CBM: 20.10,
+    CBM: 20.1,
     weight: 115,
     sku: '3405934095',
-    grade: 'Pick'
+    grade: 'Pick',
   },
   {
     code: '13140026927114',
     total_package: 5,
-    color:'black',
+    color: 'black',
     name: '4 Way Terminal',
     category: '[D-CC2B]',
     timestamp: moment().unix(),
     scanned: 0,
-    CBM: 20.10,
+    CBM: 20.1,
     weight: 115,
     sku: '4059304034',
-    grade: 'Pick'
+    grade: 'Pick',
   },
 ];
 
@@ -715,10 +1073,10 @@ function mapStateToProps(state) {
     barcodeScanned: state.originReducer.filters.barcodeScanned,
     barcodeGrade: state.originReducer.filters.barcodeGrade,
     completedInboundList: state.originReducer.completedInboundList,
-    currentASN : state.originReducer.filters.currentASN,
-    ReportedManifest : state.originReducer.filters.ReportedManifest,
+    currentASN: state.originReducer.filters.currentASN,
+    ReportedManifest: state.originReducer.filters.ReportedManifest,
     keyStack: state.originReducer.filters.keyStack,
-    manifestType : state.originReducer.filters.currentManifestType,
+    manifestType: state.originReducer.filters.currentManifestType,
     // end
   };
 }
@@ -745,20 +1103,20 @@ const mapDispatchToProps = (dispatch) => {
     setManifestList: (data) => {
       return dispatch({type: 'ManifestList', payload: data});
     },
-    addCompleteASN : (data)=>{
-      return dispatch({type:'addCompleteASN', payload: data})
+    addCompleteASN: (data) => {
+      return dispatch({type: 'addCompleteASN', payload: data});
     },
-    setItemScanned : (item) => {
+    setItemScanned: (item) => {
       return dispatch({type: 'BarcodeScanned', payload: item});
     },
     setReportedManifest: (data) => {
-      return dispatch({type:'ReportedManifest', payload: data});
+      return dispatch({type: 'ReportedManifest', payload: data});
     },
     setCurrentManifest: (data) => {
-      return dispatch({type:'setCurrentManifest', payload: data});
+      return dispatch({type: 'setCurrentManifest', payload: data});
     },
-    setItemGrade : (grade)=>{
-      return dispatch({type:'BarcodeGrade', payload: grade});
+    setItemGrade: (grade) => {
+      return dispatch({type: 'BarcodeGrade', payload: grade});
     },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };

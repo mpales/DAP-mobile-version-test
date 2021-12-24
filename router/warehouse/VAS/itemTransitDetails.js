@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
   View,
   ScrollView,
-  Dimensions
+  Dimensions,
 } from 'react-native';
 import {Card, Divider, Button, Avatar} from 'react-native-elements';
+import {SafeAreaInsetsContext} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 import mixins from '../../../mixins';
 // component
@@ -23,34 +24,46 @@ class ConnoteDetails extends React.Component {
     super(props);
     this.state = {
       sortBy: 'Name',
-      dataCode : '0',
+      dataCode: '0',
       _itemDetail: null,
     };
   }
-  static getDerivedStateFromProps(props,state){
+  static getDerivedStateFromProps(props, state) {
     const {navigation, VASList} = props;
     const {dataCode, _itemDetail} = state;
-    if(dataCode === '0'){
+    if (dataCode === '0') {
       const {routes, index} = navigation.dangerouslyGetState();
-      if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-        if( VASList.some((element)=> element.number === routes[index].params.dataCode)){
-          let manifest = VASList.find((element)=>element.number === routes[index].params.dataCode);
-          return {...state, dataCode: routes[index].params.dataCode, _itemDetail:manifest};    
+      if (
+        routes[index].params !== undefined &&
+        routes[index].params.dataCode !== undefined
+      ) {
+        if (
+          VASList.some(
+            (element) => element.number === routes[index].params.dataCode,
+          )
+        ) {
+          let manifest = VASList.find(
+            (element) => element.number === routes[index].params.dataCode,
+          );
+          return {
+            ...state,
+            dataCode: routes[index].params.dataCode,
+            _itemDetail: manifest,
+          };
         }
         return {...state, dataCode: routes[index].params.dataCode};
       }
       return {...state};
-    } 
-    
+    }
+
     return {...state};
   }
   componentDidUpdate(prevProps, prevState) {
-    if(this.props.VASList !== prevProps.VASList){
-     this.setState({dataCode:'0'});
+    if (this.props.VASList !== prevProps.VASList) {
+      this.setState({dataCode: '0'});
     }
   }
-  componentDidMount(){
-  }
+  componentDidMount() {}
   navigateSeeReport = () => {
     this.props.navigation.navigate('ItemReportDetail');
   };
@@ -93,7 +106,13 @@ class ConnoteDetails extends React.Component {
     return (
       <>
         <StatusBar barStyle="dark-content" />
-        <View style={styles.buttonSticky}>
+        <SafeAreaInsetsContext.Consumer>
+          {(inset) => (
+            <View
+              style={[
+                styles.buttonSticky,
+                {height: Dimensions.get('screen').height * 0.06 + inset.bottom},
+              ]}>
               <Avatar
                 size={75}
                 ImageComponent={() => (
@@ -105,86 +124,114 @@ class ConnoteDetails extends React.Component {
                   },
                 }}
                 overlayContainerStyle={styles.barcodeButton}
-                onPress={() => {
-               
-                }}
+                onPress={() => {}}
                 activeOpacity={0.7}
-                containerStyle={{position:'absolute',  left: (Dimensions.get('screen').width / 2) - 40, bottom:(Dimensions.get('screen').height * 0.025) -10}}
+                containerStyle={{
+                  position: 'absolute',
+                  left: Dimensions.get('screen').width / 2 - 40,
+                  bottom:
+                    Dimensions.get('screen').height * 0.025 - 10 + inset.bottom,
+                }}
               />
             </View>
+          )}
+        </SafeAreaInsetsContext.Consumer>
         <ScrollView style={styles.container}>
           <View style={styles.body}>
             <Card containerStyle={styles.cardContainer} style={{}}>
-              <View style={{...styles.detail,paddingHorizontal:20, marginBottom:10}}>
-              <DetailList title="Client" value={_itemDetail.transport} />
-              <DetailList title="Warehouse" value={_itemDetail.desc} />
-              <DetailList title="Location" value={_itemDetail.ref} />
-              <DetailList title="Item Code" value={_itemDetail.number} />
-              <DetailList title="Description" value={_itemDetail.rcpt} />
+              <View
+                style={{
+                  ...styles.detail,
+                  paddingHorizontal: 20,
+                  marginBottom: 10,
+                }}>
+                <DetailList title="Client" value={_itemDetail.transport} />
+                <DetailList title="Warehouse" value={_itemDetail.desc} />
+                <DetailList title="Location" value={_itemDetail.ref} />
+                <DetailList title="Item Code" value={_itemDetail.number} />
+                <DetailList title="Description" value={_itemDetail.rcpt} />
               </View>
               <Divider />
-              <View style={{...styles.detail,paddingHorizontal:20, marginTop:10}}>
+              <View
+                style={{
+                  ...styles.detail,
+                  paddingHorizontal: 20,
+                  marginTop: 10,
+                }}>
                 <DetailList title="Job Type" value="Re-Labeling" />
                 <DetailList title="Labeling Required" value="40" />
                 <DetailList title="UOM" value="PCS" />
-                </View>
+              </View>
             </Card>
-{ (_itemDetail.status === 'progress' || _itemDetail.status === 'pending') ? (            
-<>
-<Button
-              containerStyle={{flexShrink:1, marginVertical: 10,}}
-              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
-              titleStyle={styles.deliveryText}
-              onPress={()=>{
-                if(_itemDetail.status === 'pending'){
-                  this.props.navigation.navigate({
-                    name:"Barcode",
-                    params: {
-                      inputCode : _itemDetail.number,
-                    },
-                  });
-                } else {
-                  this.props.setCompleteVAS( _itemDetail.number);
-                  this.props.navigation.navigate('List');
-                }
-              }}
-              title={_itemDetail.status === 'pending' ? "Start Job" : 'Complete Job'}
-            />
-          <Button
-              containerStyle={{flexShrink:1, marginBottom: 10,}}
-              buttonStyle={[styles.reportButton, {paddingHorizontal: 0}]}
-              titleStyle={{...styles.deliveryText,color:'#E03B3B'}}
-              onPress={()=>{
-                this.props.navigation.navigate({
-                  name:"ReportManifest",
-                  params: {
-                    dataCode : _itemDetail.number,
-                    submitPhoto: false,
-                  },
-                })
-              }}
-              title="Report"
-        
-            />
-  </>          ) : (
-       <Button
-       containerStyle={{flexShrink:1, marginBottom: 10,}}
-       buttonStyle={[styles.reportButton, {paddingHorizontal: 0}]}
-       titleStyle={{...styles.deliveryText,color:'#E03B3B'}}
-       onPress={()=>{
-         this.props.navigation.navigate('ItemReportDetail')
-       }}
-       title="See Report Detail"
- 
-     />
-  ) }
+            {_itemDetail.status === 'progress' ||
+            _itemDetail.status === 'pending' ? (
+              <>
+                <Button
+                  containerStyle={{flexShrink: 1, marginVertical: 10}}
+                  buttonStyle={[
+                    styles.navigationButton,
+                    {paddingHorizontal: 0},
+                  ]}
+                  titleStyle={styles.deliveryText}
+                  onPress={() => {
+                    if (_itemDetail.status === 'pending') {
+                      this.props.navigation.navigate({
+                        name: 'Barcode',
+                        params: {
+                          inputCode: _itemDetail.number,
+                        },
+                      });
+                    } else {
+                      this.props.setCompleteVAS(_itemDetail.number);
+                      this.props.navigation.navigate('List');
+                    }
+                  }}
+                  title={
+                    _itemDetail.status === 'pending'
+                      ? 'Start Job'
+                      : 'Complete Job'
+                  }
+                />
+                <Button
+                  containerStyle={{flexShrink: 1, marginBottom: 10}}
+                  buttonStyle={[styles.reportButton, {paddingHorizontal: 0}]}
+                  titleStyle={{...styles.deliveryText, color: '#E03B3B'}}
+                  onPress={() => {
+                    this.props.navigation.navigate({
+                      name: 'ReportManifest',
+                      params: {
+                        dataCode: _itemDetail.number,
+                        submitPhoto: false,
+                      },
+                    });
+                  }}
+                  title="Report"
+                />
+              </>
+            ) : (
+              <Button
+                containerStyle={{flexShrink: 1, marginBottom: 10}}
+                buttonStyle={[styles.reportButton, {paddingHorizontal: 0}]}
+                titleStyle={{...styles.deliveryText, color: '#E03B3B'}}
+                onPress={() => {
+                  this.props.navigation.navigate('ItemReportDetail');
+                }}
+                title="See Report Detail"
+              />
+            )}
 
-            <View style={{flexDirection:'column',flexShrink:1, marginVertical:20}}>
-              <Text style={{...mixins.subtitle3,lineHeight:21}}>Remarks</Text>
+            <View
+              style={{
+                flexDirection: 'column',
+                flexShrink: 1,
+                marginVertical: 20,
+              }}>
+              <Text style={{...mixins.subtitle3, lineHeight: 21}}>Remarks</Text>
               <View style={styles.remark}>
-              <Text style={styles.remarkText}>
-              Lorem ipsum      Lorem ipsum      Lorem ipsum      Lorem ipsum     Lorem ipsum      Lorem ipsum
-              </Text>
+                <Text style={styles.remarkText}>
+                  Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum
+                  Lorem ipsum
+                </Text>
               </View>
             </View>
           </View>
@@ -198,7 +245,7 @@ const styles = StyleSheet.create({
   deliveryText: {
     ...mixins.h6,
     lineHeight: 27,
-    fontWeight:'600',
+    fontWeight: '600',
     color: '#ffffff',
   },
   navigationButton: {
@@ -209,26 +256,26 @@ const styles = StyleSheet.create({
   reportButton: {
     backgroundColor: '#fff',
     borderRadius: 5,
-    borderWidth:1,
-    borderColor:'#424141'
+    borderWidth: 1,
+    borderColor: '#424141',
   },
   container: {
     flex: 1,
     backgroundColor: '#FFF',
     padding: 20,
   },
-  
-  remarkText:{
+
+  remarkText: {
     ...mixins.body3,
-    lineHeight:18,
-    color:'black',
+    lineHeight: 18,
+    color: 'black',
   },
-  remark : {
+  remark: {
     borderRadius: 5,
     backgroundColor: 'white',
     shadowColor: '#000',
-    marginVertical:15,
-    marginHorizontal:5,
+    marginVertical: 15,
+    marginHorizontal: 5,
     padding: 20,
     shadowOffset: {
       width: 0,
@@ -236,9 +283,9 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
-    flexDirection:'row',
-    flexShrink:1,
-    minWidth:320,
+    flexDirection: 'row',
+    flexShrink: 1,
+    minWidth: 320,
     elevation: 2,
   },
   header: {
@@ -271,7 +318,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#fff',
     marginHorizontal: 0,
-    paddingHorizontal:0,
+    paddingHorizontal: 0,
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: {
@@ -323,21 +370,21 @@ const styles = StyleSheet.create({
   },
   buttonSticky: {
     position: 'absolute',
-    bottom:0,
-    left:0,
-    right:0,
+    bottom: 0,
+    left: 0,
+    right: 0,
     elevation: 10,
     zIndex: 10,
-    height:Dimensions.get('screen').height * 0.06,
-    backgroundColor:'white',
-    shadowColor: "#000",
+    height: Dimensions.get('screen').height * 0.06,
+    backgroundColor: 'white',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 7,
     },
     shadowOpacity: 0.41,
     shadowRadius: 9.11,
-    
+
     elevation: 14,
   },
   barcodeButton: {
@@ -356,8 +403,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     setCompleteVAS: (data) => {
-      return dispatch({type:'completeVAS', payload: data});
-  },
+      return dispatch({type: 'completeVAS', payload: data});
+    },
   };
 };
 

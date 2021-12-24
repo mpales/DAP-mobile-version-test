@@ -1070,69 +1070,73 @@ class Warehouse extends React.Component {
               </TouchableOpacity>
             </View>
           </Overlay>
-          <View style={styles.buttonSticky}>
-            <Avatar
-              size={75}
-              ImageComponent={() => (
-                <IconBarcodeMobile height="40" width="37" fill="#fff" />
-              )}
-              imageProps={{
-                containerStyle: {
-                  ...Mixins.buttonAvatarDefaultIconStyle,
-                },
-              }}
-              overlayContainerStyle={styles.barcodeButton}
-              onPress={() => {
-                this.props.setBarcodeScanner(true);
-                this.props.navigation.navigate({
-                  name: 'Barcode',
-                });
-              }}
-              activeOpacity={0.7}
-              containerStyle={Mixins.buttonAvatarDefaultContainerStyle}
-            />
-          </View>
+
           <SafeAreaInsetsContext.Consumer>
             {(inset) => (
-              <View
-                style={[
-                  styles.bottomTabContainer,
-                  {marginBottom: inset.bottom},
-                ]}>
-                <Button
-                  containerStyle={{
-                    flex: 1,
-                    marginRight: 10,
-                    height: '100%',
-                    flexBasis: 1,
-                  }}
-                  buttonStyle={[
-                    styles.navigationButton,
-                    {
-                      paddingVertical: 10,
-                      backgroundColor: '#121C78',
-                      flexGrow: 1,
-                    },
-                  ]}
-                  titleStyle={styles.deliveryText}
-                  onPress={this.goToIVAS}
-                  disabled={
-                    this.state.shipmentVAS === true ||
-                    this.state.receiptid === null
-                  }
-                  title="Shipment VAS"
-                />
-                <Button
-                  containerStyle={{flex: 1, height: '100%', flexBasis: 1}}
-                  buttonStyle={[
-                    styles.navigationButton,
-                    {paddingVertical: 10, flexGrow: 1},
-                  ]}
-                  titleStyle={styles.deliveryText}
-                  onPress={this.toggleOverlay}
-                  title="Complete Receiving"
-                />
-              </View>
+              <>
+                <View
+                  style={[styles.buttonSticky, {bottom: 60 + inset.bottom}]}>
+                  <Avatar
+                    size={75}
+                    ImageComponent={() => (
+                      <IconBarcodeMobile height="40" width="37" fill="#fff" />
+                    )}
+                    imageProps={{
+                      containerStyle: {
+                        ...Mixins.buttonAvatarDefaultIconStyle,
+                      },
+                    }}
+                    overlayContainerStyle={styles.barcodeButton}
+                    onPress={() => {
+                      this.props.setBarcodeScanner(true);
+                      this.props.navigation.navigate({
+                        name: 'Barcode',
+                      });
+                    }}
+                    activeOpacity={0.7}
+                    containerStyle={Mixins.buttonAvatarDefaultContainerStyle}
+                  />
+                </View>
+                <View
+                  style={[
+                    styles.bottomTabContainer,
+                    {paddingBottom: 10 + inset.bottom},
+                  ]}>
+                  <Button
+                    containerStyle={{
+                      flex: 1,
+                      marginRight: 10,
+                      height: '100%',
+                      flexBasis: 1,
+                    }}
+                    buttonStyle={[
+                      styles.navigationButton,
+                      {
+                        paddingVertical: 10,
+                        backgroundColor: '#121C78',
+                        flexGrow: 1,
+                      },
+                    ]}
+                    titleStyle={styles.deliveryText}
+                    onPress={this.goToIVAS}
+                    disabled={
+                      this.state.shipmentVAS === true ||
+                      this.state.receiptid === null
+                    }
+                    title="Shipment VAS"
+                  />
+                  <Button
+                    containerStyle={{flex: 1, height: '100%', flexBasis: 1}}
+                    buttonStyle={[
+                      styles.navigationButton,
+                      {paddingVertical: 10, flexGrow: 1},
+                    ]}
+                    titleStyle={styles.deliveryText}
+                    onPress={this.toggleOverlay}
+                    title="Complete Receiving"
+                  />
+                </View>
+              </>
             )}
           </SafeAreaInsetsContext.Consumer>
         </SafeAreaProvider>
