@@ -1,7 +1,11 @@
 import React from 'react';
 import {Image, Text, TouchableOpacity, View, Platform} from 'react-native';
-import {createStackNavigator, HeaderBackButton, Header} from '@react-navigation/stack';
-import {CommonActions} from '@react-navigation/native'
+import {
+  createStackNavigator,
+  HeaderBackButton,
+  Header,
+} from '@react-navigation/stack';
+import {CommonActions} from '@react-navigation/native';
 import {connect} from 'react-redux';
 import {Button} from 'react-native-elements';
 import IconDelivery8Mobile from '../../../assets/icon/iconmonstr-delivery-8 1mobile.svg';
@@ -54,42 +58,52 @@ class HomeNavigator extends React.Component {
     };
     this.setWrapperofStack.bind(this);
   }
-  static getDerivedStateFromProps(props,state){
+  static getDerivedStateFromProps(props, state) {
     const {navigation} = props;
-    const {routes,index} =  navigation.dangerouslyGetState();
-    if(routes[index].params !== undefined && routes[index].params.type !== undefined){
-      return {...state, type:routes[index].params.type  }
+    const {routes, index} = navigation.dangerouslyGetState();
+    if (
+      routes[index].params !== undefined &&
+      routes[index].params.type !== undefined
+    ) {
+      return {...state, type: routes[index].params.type};
     }
     return {...state};
   }
-  setWrapperofStack = (index,key) => {
+  setWrapperofStack = (index, key) => {
     const {indexBottomBar} = this.props;
-    if(indexBottomBar === 0 && key !== 'SupervisorMode' && key !== 'POSMPhoto' && key !== 'DetailsDraft'){
+    if (
+      indexBottomBar === 0 &&
+      key !== 'SupervisorMode' &&
+      key !== 'POSMPhoto' &&
+      key !== 'DetailsDraft'
+    ) {
       this.props.setCurrentStackKey(key);
       this.props.setCurrentStackIndex(index);
     }
-  }
+  };
   render() {
     return (
-      <Stack.Navigator initialRouteName="WarehouseIn" screenOptions={{
-        headerBackImage:({tintColor})=>(<IconArrow66Mobile height="22" width="18" fill={tintColor}/>),
-        headerBackTitleVisible:true,
-        headerBackTitle:'Back',
-        headerTitleAlign:'center',
-        headerLeftContainerStyle:  Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
-        header: (props) => {
-          let state = props.navigation.dangerouslyGetState();
-          let key =  state.routes[state.index].name;
-          let index = state.index;
-           const {options} = props.scene.descriptor;
-          this.setWrapperofStack(index,key);
-          return (
-        
-            <Header {...props} />
-          );
-        },
-        }}>     
-         <Stack.Screen
+      <Stack.Navigator
+        initialRouteName="WarehouseIn"
+        screenOptions={{
+          headerBackImage: ({tintColor}) => (
+            <IconArrow66Mobile height="22" width="18" fill={tintColor} />
+          ),
+          headerBackTitleVisible: true,
+          headerBackTitle: 'Back',
+          headerTitleAlign: 'center',
+          headerLeftContainerStyle:
+            Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
+          header: (props) => {
+            let state = props.navigation.dangerouslyGetState();
+            let key = state.routes[state.index].name;
+            let index = state.index;
+            const {options} = props.scene.descriptor;
+            this.setWrapperofStack(index, key);
+            return <Header {...props} />;
+          },
+        }}>
+        <Stack.Screen
           name="WarehouseIn"
           component={WarehouseIn}
           options={{
@@ -102,7 +116,7 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerShown: true,
             headerTitle: '',
@@ -110,19 +124,21 @@ class HomeNavigator extends React.Component {
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar(true)
-                  this.props.navigation.navigate('MenuWarehouse');
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(true);
+                    this.props.navigation.navigate('MenuWarehouse');
+                  }}
+                />
+              );
             },
           }}
         />
         <Stack.Screen
           name="List"
-          initialParams={{type:this.state.type}}
+          initialParams={{type: this.state.type}}
           component={List}
           options={{
             headerStyle: {
@@ -134,19 +150,21 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: this.state.type.toUpperCase(),
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar(true)
-                  this.props.navigation.navigate('WarehouseIn');
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(true);
+                    this.props.navigation.navigate('WarehouseIn');
+                  }}
+                />
+              );
             },
           }}
         />
@@ -163,24 +181,26 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: this.state.type.toUpperCase(),
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
+
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar(true)
-                  this.props.navigation.navigate('List');
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(true);
+                    this.props.navigation.navigate('List');
+                  }}
+                />
+              );
             },
           })}
         />
-          <Stack.Screen
+        <Stack.Screen
           name="PalletList"
           component={PalletList}
           options={() => ({
@@ -193,19 +213,21 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: 'Put-Away',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar(true)
-                  this.props.navigation.navigate('WarehouseIn');
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(true);
+                    this.props.navigation.navigate('WarehouseIn');
+                  }}
+                />
+              );
             },
           })}
         />
@@ -222,20 +244,22 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: 'Pallet Details',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
+
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar(false)
-                  this.props.navigation.navigate('PalletList');
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(false);
+                    this.props.navigation.navigate('PalletList');
+                  }}
+                />
+              );
             },
           })}
         />
@@ -252,24 +276,26 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: 'Product Details',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
+
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar(false)
-                  this.props.navigation.navigate('Manifest');
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(false);
+                    this.props.navigation.navigate('Manifest');
+                  }}
+                />
+              );
             },
           })}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="ItemTransitDetail"
           component={ItemTransitDetail}
           options={() => ({
@@ -282,24 +308,26 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: 'Transit Item Details',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
+
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar(false)
-                  this.props.navigation.navigate('Manifest');
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(false);
+                    this.props.navigation.navigate('Manifest');
+                  }}
+                />
+              );
             },
           })}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="ItemReportDetail"
           component={itemReportDetail}
           options={() => ({
@@ -312,20 +340,22 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: 'Report Details',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
+
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar(false)
-                  this.props.navigation.goBack();
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(false);
+                    this.props.navigation.goBack();
+                  }}
+                />
+              );
             },
           })}
         />
@@ -342,9 +372,9 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
-            headerTitle:'',
+            headerTitle: '',
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
@@ -363,9 +393,9 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
-            headerTitle:'Process Item',
+            headerTitle: 'Process Item',
             headerTransparent: false,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
@@ -384,15 +414,15 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
-            headerTitle:'',
+            headerTitle: '',
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
           })}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="PalletScanner"
           component={PalletScanner}
           options={() => ({
@@ -405,9 +435,9 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
-            headerTitle:'',
+            headerTitle: '',
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
@@ -426,20 +456,22 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: 'Manual Barcode',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
+
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar(false);
-                  this.props.navigation.navigate('Barcode')
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(false);
+                    this.props.navigation.navigate('Barcode');
+                  }}
+                />
+              );
             },
           })}
         />
@@ -456,24 +488,26 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: 'Manual Register',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
+
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar(false);
-                  this.props.navigation.navigate('RegisterBarcode')
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(false);
+                    this.props.navigation.navigate('RegisterBarcode');
+                  }}
+                />
+              );
             },
           })}
         />
-            <Stack.Screen
+        <Stack.Screen
           name="ManualPallet"
           component={ManualPallet}
           options={() => ({
@@ -486,20 +520,22 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: 'Manual Register',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
+
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.setBottomBar(false);
-                  this.props.navigation.navigate('PalletScanner')
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(false);
+                    this.props.navigation.navigate('PalletScanner');
+                  }}
+                />
+              );
             },
           })}
         />
@@ -516,30 +552,31 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerLeft: (props) => {
-              const {routes,index} = navigation.dangerouslyGetState();
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  if(routes[index-1].name === 'SupervisorMode'){
-                    navigation.navigate('SupervisorMode');
-                  } else {
-                    this.props.navigation.navigate('Manifest')
-                  }
-                }
-              }
-              />);
+              const {routes, index} = navigation.dangerouslyGetState();
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    if (routes[index - 1].name === 'SupervisorMode') {
+                      navigation.navigate('SupervisorMode');
+                    } else {
+                      this.props.navigation.navigate('Manifest');
+                    }
+                  }}
+                />
+              );
             },
             headerTintColor: '#fff',
             headerTitle: 'Report',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
           })}
         />
-          <Stack.Screen
+        <Stack.Screen
           name="DetailsDraft"
-          initialParams={{type:this.state.type}}
+          initialParams={{type: this.state.type}}
           component={DetailsDraft}
           options={() => ({
             headerStyle: {
@@ -551,16 +588,15 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
-            headerShown:false,
+            headerShown: false,
             headerTintColor: '#fff',
             headerTitle: 'Back',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
           })}
         />
-            <Stack.Screen
+        <Stack.Screen
           name="SupervisorMode"
           component={SupervisorMode}
           options={() => ({
@@ -573,16 +609,15 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
-            headerShown:false,
+            headerShown: false,
             headerTintColor: '#fff',
             headerTitle: 'Back',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
           })}
         />
-               <Stack.Screen
+        <Stack.Screen
           name="ReceivingDetail"
           component={ReceivingDetail}
           options={() => ({
@@ -595,15 +630,14 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: this.state.type.toUpperCase(),
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
           })}
         />
-          <Stack.Screen
+        <Stack.Screen
           name="containerDetail"
           component={containerDetail}
           options={() => ({
@@ -616,15 +650,14 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitle: 'Back',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
           })}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="newItem"
           component={newItem}
           options={() => ({
@@ -637,14 +670,14 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitle:'Record'
+            headerTitle: 'Record',
           })}
         />
-             <Stack.Screen
+        <Stack.Screen
           name="newIVAS"
           component={newIVAS}
           options={() => ({
@@ -657,14 +690,13 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
           })}
         />
-            <Stack.Screen
+        <Stack.Screen
           name="RecordIVAS"
           component={recordIVAS}
           options={() => ({
@@ -677,81 +709,84 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.navigation.navigate('Manifest')
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.navigation.navigate('Manifest');
+                  }}
+                />
+              );
             },
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-            headerTitle:'Shipment VAS'
-        
+            headerTitle: 'Shipment VAS',
           })}
-        />   
+        />
         <Stack.Screen
-        name="CompleteReceiving"
-        component={completeReceiving}
-        options={() => ({
-          headerStyle: {
-            backgroundColor: '#121C78',
-            elevation: 0,
-            shadowOpacity: 0,
-            borderBottomWidth: 0,
-            ...Platform.select({
-              android: {
-                height: 45,
-              },
-            })
-          },
-          headerLeft: (props) => {
-            return(
-              <HeaderBackButton  {...props} onPress={()=>{
-                this.props.navigation.navigate('Manifest')
-              }
-            }
-            />);
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-          headerTitle:'Complete Receiving'
-      
-        })}
-      />
+          name="CompleteReceiving"
+          component={completeReceiving}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              }),
+            },
+            headerLeft: (props) => {
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.navigation.navigate('Manifest');
+                  }}
+                />
+              );
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+            headerTitle: 'Complete Receiving',
+          })}
+        />
         <Stack.Screen
-        name="Completed"
-        component={Completed}
-        options={() => ({
-          headerStyle: {
-            backgroundColor: '#121C78',
-            elevation: 0,
-            shadowOpacity: 0,
-            borderBottomWidth: 0,
-            ...Platform.select({
-              android: {
-                height: 45,
-              },
-            })
-          },
-          headerLeft: (props) => {
-            return(
-              <HeaderBackButton  {...props} onPress={()=>{
-                this.props.navigation.navigate('List')
-              }
-            }
-            />);
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-          headerTitle:'Completed'
-      
-        })}
-      />
-           <Stack.Screen
+          name="Completed"
+          component={Completed}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              }),
+            },
+            headerLeft: (props) => {
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.navigation.navigate('List');
+                  }}
+                />
+              );
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+            headerTitle: 'Completed',
+          })}
+        />
+        <Stack.Screen
           name="IVAS"
           component={IVAS}
           options={() => ({
@@ -764,22 +799,23 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.navigation.navigate('Manifest')
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.navigation.navigate('Manifest');
+                  }}
+                />
+              );
             },
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
           })}
         />
-          <Stack.Screen
+        <Stack.Screen
           name="detailIVAS"
           component={detailIVAS}
           options={() => ({
@@ -792,22 +828,23 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerLeft: (props) => {
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  this.props.navigation.navigate('IVAS')
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.navigation.navigate('IVAS');
+                  }}
+                />
+              );
             },
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
           })}
         />
-          <Stack.Screen
+        <Stack.Screen
           name="SingleCamera"
           component={SingleCamera}
           options={({navigation}) => ({
@@ -820,38 +857,45 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
             headerLeft: (props) => {
               const {routes, index} = navigation.dangerouslyGetState();
-              return(
-                <HeaderBackButton  {...props} onPress={()=>{
-                  navigation.navigate(routes[index-1].name,{ submitPhoto: false });
-                }
-              }
-              />);
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    navigation.navigate(routes[index - 1].name, {
+                      submitPhoto: false,
+                    });
+                  }}
+                />
+              );
             },
             headerRight: () => {
               const {routes, index} = navigation.dangerouslyGetState();
               return (
-              <Button
-                type="clear"
-                title="Submit"
-                buttonStyle={{paddingHorizontal: 20, margin: 0}}
-                iconContainerStyle={{padding: 0, margin: 0}}
-                titleStyle={{padding: 0, margin: 0, color: '#fff'}}
-                onPress={() =>
-                  navigation.navigate(routes[index-1].name,{ submitPhoto: true })}
-              />
-            )},
-            headerTitle:'',
+                <Button
+                  type="clear"
+                  title="Submit"
+                  buttonStyle={{paddingHorizontal: 20, margin: 0}}
+                  iconContainerStyle={{padding: 0, margin: 0}}
+                  titleStyle={{padding: 0, margin: 0, color: '#fff'}}
+                  onPress={() =>
+                    navigation.navigate(routes[index - 1].name, {
+                      submitPhoto: true,
+                    })
+                  }
+                />
+              );
+            },
+            headerTitle: '',
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
           })}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="EnlargeImage"
           component={EnlargeImage}
           options={() => ({
@@ -864,16 +908,15 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
-            headerTitle:'',
+            headerTitle: '',
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
           })}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="EnlargePhoto"
           component={EnlargePhoto}
           options={() => ({
@@ -886,16 +929,15 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
-            headerTitle:'',
+            headerTitle: '',
             headerTransparent: true,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
           })}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="ViewPhotoAttributes"
           component={viewPhoto}
           options={() => ({
@@ -908,13 +950,12 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
-            headerTitle:'Photo',
+            headerTitle: 'Photo',
             headerTransparent: false,
             headerTintColor: '#fff',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
           })}
         />
         <Stack.Screen
@@ -930,13 +971,12 @@ class HomeNavigator extends React.Component {
                 android: {
                   height: 45,
                 },
-              })
+              }),
             },
-            headerShown:false,
+            headerShown: false,
             headerTintColor: '#fff',
             headerTitle: 'Back',
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
-        
           })}
         />
       </Stack.Navigator>
@@ -946,8 +986,8 @@ class HomeNavigator extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    indexBottomBar : state.originReducer.filters.indexBottomBar,
-    keyBottomBar : state.originReducer.filters.keyBottomBar,
+    indexBottomBar: state.originReducer.filters.indexBottomBar,
+    keyBottomBar: state.originReducer.filters.keyBottomBar,
   };
 }
 

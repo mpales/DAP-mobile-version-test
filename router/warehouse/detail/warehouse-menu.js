@@ -1,6 +1,15 @@
 import React from 'react';
-import {Text, Button,Image, Avatar} from 'react-native-elements';
-import {TextInput, View, Dimensions,TouchableOpacity, BackHandler, InteractionManager, Platform, ScrollView} from 'react-native';
+import {Text, Button, Image, Avatar} from 'react-native-elements';
+import {
+  TextInput,
+  View,
+  Dimensions,
+  TouchableOpacity,
+  BackHandler,
+  InteractionManager,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import Inbound from '../../../assets/icon/iconmonstr-shipping-box-8mobile.svg';
 import Outbound from '../../../assets/icon/iconmonstr-shipping-box-9mobile.svg';
@@ -24,13 +33,14 @@ import {
   NavigationContext,
 } from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import {SafeAreaInsetsContext} from 'react-native-safe-area-context';
 import IconHome7Mobile from '../../../assets/icon/iconmonstr-home-7mobile.svg';
 import WarehouseDrawer from '../../../assets/icon/warehouse-bottom-drawer-mobile.svg';
 import IconBubble26Mobile from '../../../assets/icon/iconmonstr-speech-bubble-26mobile.svg';
 import IconGear2Mobile from '../../../assets/icon/iconmonstr-gear-2mobile.svg';
 import IconBell2Mobile from '../../../assets/icon/iconmonstr-bell-2mobile.svg';
 import IconMenu from '../../../assets/icon/iconmonstr-menu-6 1mobile.svg';
-import IconTime17Mobile from '../../../assets/icon/iconmonstr-time-17 1mobile.svg';  
+import IconTime17Mobile from '../../../assets/icon/iconmonstr-time-17 1mobile.svg';
 import IconVAS from '../../../assets/icon/iconmonstr-delivery-15mobile.svg';
 import LogoSmall from '../../../assets/dap_logo_hires1-e1544435829468 5small.svg';
 import {popToLogout} from '../../../component/helper/persist-login';
@@ -66,105 +76,164 @@ class WarehouseMenu extends React.Component {
   }
   renderView = () => {
     return (
-      <ScrollView style={{flex: 1, flexDirection:'column', backgroundColor: '#121C78', paddingHorizontal: 22,}}>
-          <IconMenu fill="white" height="24" width="24" style={{position:'absolute', top: screen.height * 0.05}}
-          onPress={()=>{
-            this.props.toggleDrawer(true);
-          }}
-          />
-          <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginVertical: 100}}>
-             <LogoSmall width="135" height="70" style={{alignSelf:'center'}}/>
-          </View>
-           
-          <Button
-                containerStyle={ {marginVertical: 10, borderRadius: 10}}
-                icon={() => (
-                    <Inbound height="60" width="60" fill="#ABABAB" />
-                )}
-                iconContainerStyle={[Mixins.rectDefaultButtonIconStyle]}
-                title="INBOUND"
-                titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
-                onPress={()=>{
-                  this.props.setBottomBar(true);
-                  this.props.setWarehouseModule('INBOUND');
-                  this.props.navigation.navigate('Details', 
-                  {
-                    navigator: 'INBOUND', 
-                    role: 'Warehouse',
-                    screen:'HomeDrawer',
-                    params:{
-                      screen:'Inbound',
-                    },
-                  })}}
-                buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
+      <SafeAreaInsetsContext.Consumer>
+        {(insets) => (
+          <ScrollView
+            style={{
+              flex: 1,
+              flexDirection: 'column',
+              backgroundColor: '#121C78',
+              paddingHorizontal: 22,
+              paddingBottom: insets.bottom,
+              paddingTop: insets.top,
+            }}
+            showsVerticalScrollIndicator={false}>
+            <IconMenu
+              fill="white"
+              height="24"
+              width="24"
+              style={{position: 'absolute', top: screen.height * 0.05}}
+              onPress={() => {
+                this.props.toggleDrawer(true);
+              }}
+            />
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'column',
+                marginVertical: 100,
+              }}>
+              <LogoSmall
+                width="135"
+                height="70"
+                style={{alignSelf: 'center'}}
               />
-                 
-          <Button
-               containerStyle={ {marginVertical: 10, borderRadius: 10}}
-                 icon={() => (
-                    <Outbound height="60" width="60" fill="#ABABAB" />
-                )}
-                iconContainerStyle={Mixins.rectDefaultButtonIconStyle}
-                title="OUTBOUND"
-                titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
-                onPress={()=>{
-                  this.props.setBottomBar(true);
-                  this.props.setWarehouseModule('OUTBOUND');
-                    this.props.navigation.navigate('Details', 
-                    {      
-                      screen:'HomeDrawer',
-                      params:{
-                        screen:'Outbound',
-                      },             
-                      navigator: 'OUTBOUND', role: 'Warehouse'
-                    })}}
-                    buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
-                    />
-                 
-          <Button
-          containerStyle={ {marginVertical: 10, borderRadius: 10}}
-            icon={() => (
-                    <Warehouse height="60" width="60" fill="#ABABAB" />
-                )}
-                iconContainerStyle={[Mixins.rectDefaultButtonIconStyle,{}]}
-                title="WAREHOUSE"
-                titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
-                onPress={()=>{
-                  this.props.setBottomBar(true);
-                  this.props.setWarehouseModule('WAREHOUSE');
-                    this.props.navigation.navigate('Details', {
-                      screen:'HomeDrawer',
-                      params: {
-                        screen:'Management',
-                      },
-                      navigator: 'WAREHOUSE', role: 'Warehouse'
-                    })}}
-                    buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
-                    />
-                             
-          <Button
-          containerStyle={ {marginVertical: 10, borderRadius: 10}}
-            icon={() => (
-                    <IconVAS height="60" width="60" fill="#ABABAB" />
-                )}
-                iconContainerStyle={[Mixins.rectDefaultButtonIconStyle,{}]}
-                title="VAS"
-                titleStyle={{color: '#6C6B6B', ...Mixins.h1, lineHeight: 36,flex:1}}
-                onPress={()=>{
-                  // // vas navigate
-                   this.props.setBottomBar(true);
-                   this.props.setWarehouseModule('VAS');
-                    this.props.navigation.navigate('Details', {
-                      screen:'HomeDrawer',
-                      params:{
-                        screen:'VAS',
-                      },
-                      navigator: 'VAS', role: 'Warehouse'
-                    });
-                }}
-                    buttonStyle={{backgroundColor: '#FFFFFF',paddingVertical:15, paddingHorizontal: 35}}
-                    />
-        </ScrollView>
+            </View>
+
+            <Button
+              containerStyle={{marginVertical: 10, borderRadius: 10}}
+              icon={() => <Inbound height="60" width="60" fill="#ABABAB" />}
+              iconContainerStyle={[Mixins.rectDefaultButtonIconStyle]}
+              title="INBOUND"
+              titleStyle={{
+                color: '#6C6B6B',
+                ...Mixins.h1,
+                lineHeight: 36,
+                flex: 1,
+              }}
+              onPress={() => {
+                this.props.setBottomBar(true);
+                this.props.setWarehouseModule('INBOUND');
+                this.props.navigation.navigate('Details', {
+                  navigator: 'INBOUND',
+                  role: 'Warehouse',
+                  screen: 'HomeDrawer',
+                  params: {
+                    screen: 'Inbound',
+                  },
+                });
+              }}
+              buttonStyle={{
+                backgroundColor: '#FFFFFF',
+                paddingVertical: 15,
+                paddingHorizontal: 35,
+              }}
+            />
+
+            <Button
+              containerStyle={{marginVertical: 10, borderRadius: 10}}
+              icon={() => <Outbound height="60" width="60" fill="#ABABAB" />}
+              iconContainerStyle={Mixins.rectDefaultButtonIconStyle}
+              title="OUTBOUND"
+              titleStyle={{
+                color: '#6C6B6B',
+                ...Mixins.h1,
+                lineHeight: 36,
+                flex: 1,
+              }}
+              onPress={() => {
+                this.props.setBottomBar(true);
+                this.props.setWarehouseModule('OUTBOUND');
+                this.props.navigation.navigate('Details', {
+                  screen: 'HomeDrawer',
+                  params: {
+                    screen: 'Outbound',
+                  },
+                  navigator: 'OUTBOUND',
+                  role: 'Warehouse',
+                });
+              }}
+              buttonStyle={{
+                backgroundColor: '#FFFFFF',
+                paddingVertical: 15,
+                paddingHorizontal: 35,
+              }}
+            />
+
+            <Button
+              containerStyle={{marginVertical: 10, borderRadius: 10}}
+              icon={() => <Warehouse height="60" width="60" fill="#ABABAB" />}
+              iconContainerStyle={[Mixins.rectDefaultButtonIconStyle, {}]}
+              title="WAREHOUSE"
+              titleStyle={{
+                color: '#6C6B6B',
+                ...Mixins.h1,
+                lineHeight: 36,
+                flex: 1,
+              }}
+              onPress={() => {
+                this.props.setBottomBar(true);
+                this.props.setWarehouseModule('WAREHOUSE');
+                this.props.navigation.navigate('Details', {
+                  screen: 'HomeDrawer',
+                  params: {
+                    screen: 'Management',
+                  },
+                  navigator: 'WAREHOUSE',
+                  role: 'Warehouse',
+                });
+              }}
+              buttonStyle={{
+                backgroundColor: '#FFFFFF',
+                paddingVertical: 15,
+                paddingHorizontal: 35,
+              }}
+            />
+
+            <Button
+              containerStyle={{marginVertical: 10, borderRadius: 10}}
+              icon={() => <IconVAS height="60" width="60" fill="#ABABAB" />}
+              iconContainerStyle={[Mixins.rectDefaultButtonIconStyle, {}]}
+              title="VAS"
+              titleStyle={{
+                color: '#6C6B6B',
+                ...Mixins.h1,
+                lineHeight: 36,
+                flex: 1,
+              }}
+              onPress={() => {
+                // // vas navigate
+                this.props.setBottomBar(true);
+                this.props.setWarehouseModule('VAS');
+                this.props.navigation.navigate('Details', {
+                  screen: 'HomeDrawer',
+                  params: {
+                    screen: 'VAS',
+                  },
+                  navigator: 'VAS',
+                  role: 'Warehouse',
+                });
+              }}
+              buttonStyle={{
+                backgroundColor: '#FFFFFF',
+                paddingVertical: 15,
+                paddingHorizontal: 35,
+              }}
+            />
+          </ScrollView>
+        )}
+      </SafeAreaInsetsContext.Consumer>
     );
   };
   drawerLogout = async () => {
@@ -201,8 +270,7 @@ class WarehouseMenu extends React.Component {
               rounded
               containerStyle={styles.drawerAvatar}
               source={{
-                uri:
-                  'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
+                uri: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
               }}></Avatar>
             <Text style={styles.drawerText}>Operator Name</Text>
           </View>

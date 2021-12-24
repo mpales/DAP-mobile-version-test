@@ -226,8 +226,7 @@ class WarehouseNavigator extends React.Component {
               rounded
               containerStyle={styles.drawerAvatar}
               source={{
-                uri:
-                  'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
+                uri: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
               }}></Avatar>
             <Text style={styles.drawerText}>Driver Name</Text>
           </View>
@@ -259,10 +258,8 @@ class WarehouseNavigator extends React.Component {
     const focusedRoute = state.routes[state.index];
     const focusedDescriptor = descriptors[focusedRoute.key];
     const focusedOptions = focusedDescriptor.options;
-    const {
-      tabBarActiveBackgroundColor,
-      tabBarInactiveBackgroundColor,
-    } = focusedOptions;
+    const {tabBarActiveBackgroundColor, tabBarInactiveBackgroundColor} =
+      focusedOptions;
     const tabBarActiveTintColor = props.activeTintColor;
     const tabBarInactiveTintColor = props.inactiveTintColor;
     this.setWrapperofNavigation(
@@ -328,7 +325,7 @@ class WarehouseNavigator extends React.Component {
             options.tabBarAccessibilityLabel !== undefined
               ? options.tabBarAccessibilityLabel
               : typeof label === 'string' && Platform.OS === 'ios'
-              ? `${label}, tab, ${index + 1} of ${route.length}`
+              ? `${label}, tab, ${index + 1} of ${state.routes.length}`
               : undefined;
           return (
             <NavigationContext.Provider
@@ -469,7 +466,7 @@ class WarehouseNavigator extends React.Component {
           labelStyle: Mixins.button,
           itemStyle: Mixins.verticalBarMargin,
         }}>
-            <Drawer.Screen
+        <Drawer.Screen
           name="HomeDrawer"
           component={this.deliveryTab}
           options={{

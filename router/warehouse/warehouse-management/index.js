@@ -8,6 +8,7 @@ import {Avatar} from 'react-native-elements';
 import {ScrollView, View} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
+import {SafeAreaInsetsContext} from 'react-native-safe-area-context';
 // module navigator
 import StockTakeNavigator from './stock-take';
 import StockTakeSupervisorNavigator from './stock-take-supervisor';
@@ -46,197 +47,230 @@ class WarehouseManagement extends React.Component {
 
   managementMenu = () => {
     return (
-      <ScrollView
-        style={styles.menuContainer}
-        showsVerticalScrollIndicator={false}>
-        <View style={styles.logoContainer}>
-          <LogoSmall width="135" height="70" style={{alignSelf: 'center'}} />
-        </View>
-        <View style={styles.menuButtonContainer}>
-          <View style={styles.sectionContainer}>
-            <Avatar
-              size={140}
-              ImageComponent={() => (
-                <StockTakeIcon height="70" width="70" fill="#6C6B6B" />
-              )}
-              imageProps={{
-                containerStyle: {
-                  ...Mixins.buttonFloatedAvatarDefaultIconStyle,
-                },
-              }}
-              title="STOCK TAKE"
-              overlayContainerStyle={
-                Mixins.buttonFloatedAvatarDefaultOverlayStyle
-              }
-              onPress={() => {
-                this.props.navigation.navigate('StockTakeNavigator');
-              }}
-              activeOpacity={0.7}
-              containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
-              placeholderStyle={
-                Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
-              }
-              titleStyle={[
-                Mixins.buttonFloatedAvatarDefaultTitleStyle,
-                styles.buttonTitle,
-              ]}
-            />
-          </View>
-          <View style={styles.sectionContainer}>
-            <Avatar
-              size={140}
-              ImageComponent={() => (
-                <StockTakeSupervisorIcon
-                  height="70"
-                  width="70"
-                  fill="#6C6B6B"
+      <SafeAreaInsetsContext.Consumer>
+        {(insets) => (
+          <ScrollView
+            style={[
+              styles.menuContainer,
+              {paddingTop: insets.top, paddingBottom: insets.bottom},
+            ]}
+            showsVerticalScrollIndicator={false}>
+            <View style={styles.logoContainer}>
+              <LogoSmall
+                width="135"
+                height="70"
+                style={{alignSelf: 'center'}}
+              />
+            </View>
+            <View style={styles.menuButtonContainer}>
+              <View style={styles.sectionContainer}>
+                <Avatar
+                  size={140}
+                  ImageComponent={() => (
+                    <StockTakeIcon height="70" width="70" fill="#6C6B6B" />
+                  )}
+                  imageProps={{
+                    containerStyle: {
+                      ...Mixins.buttonFloatedAvatarDefaultIconStyle,
+                    },
+                  }}
+                  title="STOCK TAKE"
+                  overlayContainerStyle={
+                    Mixins.buttonFloatedAvatarDefaultOverlayStyle
+                  }
+                  onPress={() => {
+                    this.props.navigation.navigate('StockTakeNavigator');
+                  }}
+                  activeOpacity={0.7}
+                  containerStyle={
+                    Mixins.buttonFloatedAvatarDefaultContainerStyle
+                  }
+                  placeholderStyle={
+                    Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
+                  }
+                  titleStyle={[
+                    Mixins.buttonFloatedAvatarDefaultTitleStyle,
+                    styles.buttonTitle,
+                  ]}
                 />
-              )}
-              imageProps={{
-                containerStyle: {
-                  ...Mixins.buttonFloatedAvatarDefaultIconStyle,
-                },
-              }}
-              title="STOCK TAKE SUPERVISOR"
-              overlayContainerStyle={
-                Mixins.buttonFloatedAvatarDefaultOverlayStyle
-              }
-              onPress={() => {
-                this.props.navigation.navigate('StockTakeSupervisorNavigator');
-              }}
-              activeOpacity={0.7}
-              containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
-              placeholderStyle={
-                Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
-              }
-              titleStyle={[
-                Mixins.buttonFloatedAvatarDefaultTitleStyle,
-                styles.buttonTitle,
-              ]}
-            />
-          </View>
-          <View style={styles.sectionContainer}>
-            <Avatar
-              size={140}
-              ImageComponent={() => (
-                <WarehouseRelocationIcon
-                  height="70"
-                  width="70"
-                  fill="#6C6B6B"
+              </View>
+              <View style={styles.sectionContainer}>
+                <Avatar
+                  size={140}
+                  ImageComponent={() => (
+                    <StockTakeSupervisorIcon
+                      height="70"
+                      width="70"
+                      fill="#6C6B6B"
+                    />
+                  )}
+                  imageProps={{
+                    containerStyle: {
+                      ...Mixins.buttonFloatedAvatarDefaultIconStyle,
+                    },
+                  }}
+                  title="STOCK TAKE SUPERVISOR"
+                  overlayContainerStyle={
+                    Mixins.buttonFloatedAvatarDefaultOverlayStyle
+                  }
+                  onPress={() => {
+                    this.props.navigation.navigate(
+                      'StockTakeSupervisorNavigator',
+                    );
+                  }}
+                  activeOpacity={0.7}
+                  containerStyle={
+                    Mixins.buttonFloatedAvatarDefaultContainerStyle
+                  }
+                  placeholderStyle={
+                    Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
+                  }
+                  titleStyle={[
+                    Mixins.buttonFloatedAvatarDefaultTitleStyle,
+                    styles.buttonTitle,
+                  ]}
                 />
-              )}
-              imageProps={{
-                containerStyle: {
-                  ...Mixins.buttonFloatedAvatarDefaultIconStyle,
-                },
-              }}
-              title="WAREHOUSE RELOCATION"
-              overlayContainerStyle={
-                Mixins.buttonFloatedAvatarDefaultOverlayStyle
-              }
-              onPress={() => {
-                this.props.navigation.navigate('RelocationNavigator');
-              }}
-              activeOpacity={0.7}
-              containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
-              placeholderStyle={
-                Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
-              }
-              titleStyle={[
-                Mixins.buttonFloatedAvatarDefaultTitleStyle,
-                styles.buttonTitle,
-              ]}
-            />
-          </View>
-          <View style={styles.sectionContainer}>
-            <Avatar
-              size={140}
-              ImageComponent={() => (
-                <CheckInventoryIcon height="70" width="70" fill="#6C6B6B" />
-              )}
-              imageProps={{
-                containerStyle: {
-                  ...Mixins.buttonFloatedAvatarDefaultIconStyle,
-                },
-              }}
-              title="SEARCH INVENTORY"
-              overlayContainerStyle={
-                Mixins.buttonFloatedAvatarDefaultOverlayStyle
-              }
-              onPress={() =>
-                this.props.navigation.navigate('SearchInventoryNavigator')
-              }
-              activeOpacity={0.7}
-              containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
-              placeholderStyle={
-                Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
-              }
-              titleStyle={[
-                Mixins.buttonFloatedAvatarDefaultTitleStyle,
-                styles.buttonTitle,
-              ]}
-            />
-          </View>
-          <View style={styles.sectionContainer}>
-            <Avatar
-              size={140}
-              ImageComponent={() => (
-                <SelfRecollectionIcon height="70" width="70" fill="#6C6B6B" />
-              )}
-              imageProps={{
-                containerStyle: {
-                  ...Mixins.buttonFloatedAvatarDefaultIconStyle,
-                },
-              }}
-              title="SELF COLLECTION"
-              overlayContainerStyle={
-                Mixins.buttonFloatedAvatarDefaultOverlayStyle
-              }
-              onPress={() =>
-                this.props.navigation.navigate('SelfRecollectionNavigator')
-              }
-              activeOpacity={0.7}
-              containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
-              placeholderStyle={
-                Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
-              }
-              titleStyle={[
-                Mixins.buttonFloatedAvatarDefaultTitleStyle,
-                styles.buttonTitle,
-              ]}
-            />
-          </View>
-          <View style={styles.sectionContainer}>
-            <Avatar
-              size={140}
-              ImageComponent={() => (
-                <ClientInventoryIcon height="70" width="70" fill="#6C6B6B" />
-              )}
-              imageProps={{
-                containerStyle: {
-                  ...Mixins.buttonFloatedAvatarDefaultIconStyle,
-                },
-              }}
-              title="CLIENT INVENTORY"
-              overlayContainerStyle={
-                Mixins.buttonFloatedAvatarDefaultOverlayStyle
-              }
-              onPress={() =>
-                this.props.navigation.navigate('ClientInventoryNavigator')
-              }
-              activeOpacity={0.7}
-              containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
-              placeholderStyle={
-                Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
-              }
-              titleStyle={[
-                Mixins.buttonFloatedAvatarDefaultTitleStyle,
-                styles.buttonTitle,
-              ]}
-            />
-          </View>
-        </View>
-      </ScrollView>
+              </View>
+              <View style={styles.sectionContainer}>
+                <Avatar
+                  size={140}
+                  ImageComponent={() => (
+                    <WarehouseRelocationIcon
+                      height="70"
+                      width="70"
+                      fill="#6C6B6B"
+                    />
+                  )}
+                  imageProps={{
+                    containerStyle: {
+                      ...Mixins.buttonFloatedAvatarDefaultIconStyle,
+                    },
+                  }}
+                  title="WAREHOUSE RELOCATION"
+                  overlayContainerStyle={
+                    Mixins.buttonFloatedAvatarDefaultOverlayStyle
+                  }
+                  onPress={() => {
+                    this.props.navigation.navigate('RelocationNavigator');
+                  }}
+                  activeOpacity={0.7}
+                  containerStyle={
+                    Mixins.buttonFloatedAvatarDefaultContainerStyle
+                  }
+                  placeholderStyle={
+                    Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
+                  }
+                  titleStyle={[
+                    Mixins.buttonFloatedAvatarDefaultTitleStyle,
+                    styles.buttonTitle,
+                  ]}
+                />
+              </View>
+              <View style={styles.sectionContainer}>
+                <Avatar
+                  size={140}
+                  ImageComponent={() => (
+                    <CheckInventoryIcon height="70" width="70" fill="#6C6B6B" />
+                  )}
+                  imageProps={{
+                    containerStyle: {
+                      ...Mixins.buttonFloatedAvatarDefaultIconStyle,
+                    },
+                  }}
+                  title="SEARCH INVENTORY"
+                  overlayContainerStyle={
+                    Mixins.buttonFloatedAvatarDefaultOverlayStyle
+                  }
+                  onPress={() =>
+                    this.props.navigation.navigate('SearchInventoryNavigator')
+                  }
+                  activeOpacity={0.7}
+                  containerStyle={
+                    Mixins.buttonFloatedAvatarDefaultContainerStyle
+                  }
+                  placeholderStyle={
+                    Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
+                  }
+                  titleStyle={[
+                    Mixins.buttonFloatedAvatarDefaultTitleStyle,
+                    styles.buttonTitle,
+                  ]}
+                />
+              </View>
+              <View style={styles.sectionContainer}>
+                <Avatar
+                  size={140}
+                  ImageComponent={() => (
+                    <SelfRecollectionIcon
+                      height="70"
+                      width="70"
+                      fill="#6C6B6B"
+                    />
+                  )}
+                  imageProps={{
+                    containerStyle: {
+                      ...Mixins.buttonFloatedAvatarDefaultIconStyle,
+                    },
+                  }}
+                  title="SELF COLLECTION"
+                  overlayContainerStyle={
+                    Mixins.buttonFloatedAvatarDefaultOverlayStyle
+                  }
+                  onPress={() =>
+                    this.props.navigation.navigate('SelfRecollectionNavigator')
+                  }
+                  activeOpacity={0.7}
+                  containerStyle={
+                    Mixins.buttonFloatedAvatarDefaultContainerStyle
+                  }
+                  placeholderStyle={
+                    Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
+                  }
+                  titleStyle={[
+                    Mixins.buttonFloatedAvatarDefaultTitleStyle,
+                    styles.buttonTitle,
+                  ]}
+                />
+              </View>
+              <View style={styles.sectionContainer}>
+                <Avatar
+                  size={140}
+                  ImageComponent={() => (
+                    <ClientInventoryIcon
+                      height="70"
+                      width="70"
+                      fill="#6C6B6B"
+                    />
+                  )}
+                  imageProps={{
+                    containerStyle: {
+                      ...Mixins.buttonFloatedAvatarDefaultIconStyle,
+                    },
+                  }}
+                  title="CLIENT INVENTORY"
+                  overlayContainerStyle={
+                    Mixins.buttonFloatedAvatarDefaultOverlayStyle
+                  }
+                  onPress={() =>
+                    this.props.navigation.navigate('ClientInventoryNavigator')
+                  }
+                  activeOpacity={0.7}
+                  containerStyle={
+                    Mixins.buttonFloatedAvatarDefaultContainerStyle
+                  }
+                  placeholderStyle={
+                    Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
+                  }
+                  titleStyle={[
+                    Mixins.buttonFloatedAvatarDefaultTitleStyle,
+                    styles.buttonTitle,
+                  ]}
+                />
+              </View>
+            </View>
+          </ScrollView>
+        )}
+      </SafeAreaInsetsContext.Consumer>
     );
   };
 

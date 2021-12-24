@@ -295,7 +295,7 @@ class WarehouseNavigator extends React.Component {
     };
     return (
       <DrawerContentScrollView
-      {...filteredProps}
+        {...filteredProps}
         contentContainerStyle={{
           paddingTop: 0,
           flex: 1,
@@ -307,13 +307,12 @@ class WarehouseNavigator extends React.Component {
               rounded
               containerStyle={styles.drawerAvatar}
               source={{
-                uri:
-                  'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
+                uri: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
               }}></Avatar>
             <Text style={styles.drawerText}>Operator Name</Text>
           </View>
         </SafeAreaView>
-        <DrawerItemList  {...filteredProps} />
+        <DrawerItemList {...filteredProps} />
         <DrawerItem label="Logout" onPress={this.drawerLogout} />
         <Text style={styles.versionText}>
           {`Version ${DeviceInfo.getVersion()}`}
@@ -343,10 +342,8 @@ class WarehouseNavigator extends React.Component {
     const focusedRoute = state.routes[state.index];
     const focusedDescriptor = descriptors[focusedRoute.key];
     const focusedOptions = focusedDescriptor.options;
-    const {
-      tabBarActiveBackgroundColor,
-      tabBarInactiveBackgroundColor,
-    } = focusedOptions;
+    const {tabBarActiveBackgroundColor, tabBarInactiveBackgroundColor} =
+      focusedOptions;
     const tabBarActiveTintColor = props.activeTintColor;
     const tabBarInactiveTintColor = props.inactiveTintColor;
     this.setWrapperofNavigation(
@@ -412,7 +409,7 @@ class WarehouseNavigator extends React.Component {
             options.tabBarAccessibilityLabel !== undefined
               ? options.tabBarAccessibilityLabel
               : typeof label === 'string' && Platform.OS === 'ios'
-              ? `${label}, tab, ${index + 1} of ${route.length}`
+              ? `${label}, tab, ${index + 1} of ${state.routes.length}`
               : undefined;
           return (
             <NavigationContext.Provider
@@ -555,7 +552,7 @@ class WarehouseNavigator extends React.Component {
           labelStyle: Mixins.button,
           itemStyle: Mixins.verticalBarMargin,
         }}>
-          <Drawer.Screen
+        <Drawer.Screen
           name="HomeDrawer"
           component={this.deliveryTab}
           options={{

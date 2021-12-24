@@ -6,9 +6,9 @@ platform :ios, '11.0'
 pod 'Firebase/Analytics'
 pod 'Firebase/Auth'
 pod 'Firebase/Firestore'
-pod 'Firebase/Core'
-pod 'Firebase/MLVision'
-pod 'Firebase/MLVisionBarcodeModel' 
+# pod 'Firebase/Core'
+# pod 'Firebase/MLVision'
+# pod 'Firebase/MLVisionBarcodeModel' 
 
 target 'transportApp' do
   
@@ -43,6 +43,10 @@ target 'transportApp' do
   pod '@darron1217_react-native-background-geolocation', :path => '../node_modules/@darron1217/react-native-background-geolocation'
 
   pod 'react-native-splash-screen', :path => '../node_modules/react-native-splash-screen'
+
+  pod 'react-native-blob-util', :path => '../node_modules/react-native-blob-util'
+
+  pod 'rn-fetch-blob', :path => '../node_modules/rn-fetch-blob'
 
   target 'transportAppTests' do
     inherit! :complete

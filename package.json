@@ -52,7 +52,7 @@
     "react-dom": "17.0.1",
     "react-native": "0.64.1",
     "react-native-asset": "^2.0.1",
-    "react-native-blob-util": "^0.13.14",
+    "react-native-blob-util": "0.13.14",
     "react-native-camera": "^3.43.0",
     "react-native-carousel-view": "^0.5.1",
     "react-native-device-info": "^8.1.4",
