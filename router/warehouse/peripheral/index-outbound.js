@@ -7,6 +7,8 @@ import {
   TouchableWithoutFeedback,
   View,
   Dimensions,
+  ScrollView,
+  Keyboard
 } from 'react-native';
 import {
 Button,
@@ -17,18 +19,22 @@ Divider
 import { Modalize } from 'react-native-modalize';
 import BarCode from '../../../component/camera/filter-barcode';
 import CheckmarkIcon from '../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
+import {SafeAreaInsetsContext} from 'react-native-safe-area-context'
 import XMarkIcon from '../../../assets/icon/iconmonstr-x-mark-7mobile.svg';
 import Mixins from '../../../mixins';
 import moment from 'moment';
 import {postData} from '../../../component/helper/network';
 import {connect} from 'react-redux';
-
+import {default as Reanimated, useAnimatedScrollHandler} from 'react-native-reanimated';
+import BottomSheet from 'reanimated-bottom-sheet';
 import Incremental from '../../../assets/icon/plus-mobile.svg';
 import Decremental from '../../../assets/icon/min-mobile.svg';
+import Banner from '../../../component/banner/float-banner';
 const screen = Dimensions.get('screen');
 
 class Example extends React.Component {
   animatedValue = new Animated.Value(0);
+  callbackNode = new Reanimated.Value(1);
   constructor(props) {
     super(props);
     this.state = {
@@ -39,6 +45,9 @@ class Example extends React.Component {
       bayCode : null,
       itemCode : null,
       scanItem: null,
+      keyboardState: 'hide',
+      heightBottom: 320,
+      errorAttr:'',
     };
     this.handleResetAnimation.bind(this);
     this.handleZoomInAnimation.bind(this);
@@ -118,6 +127,12 @@ class Example extends React.Component {
     }
     
   }
+  keyboardDidShowHandle = () => {
+    this.setState({keyboardState: 'show'});
+  };
+  keyboardDidHideHandle = () => {
+    this.setState({keyboardState: 'hide'});
+  };
   handleResetAnimation = () => {
     Animated.timing(this.animatedValue, {
       toValue: 0,
@@ -132,13 +147,22 @@ class Example extends React.Component {
       useNativeDriver: false,
     }).start();
   };
+  
+  componentDidMount(){
+    Keyboard.addListener('keyboardDidShow', this.keyboardDidShowHandle);
+    Keyboard.addListener('keyboardDidHide', this.keyboardDidHideHandle);
+  }
+  componentWillUnmount(){
+    Keyboard.removeListener('keyboardDidShow', this.keyboardDidShowHandle);
+    Keyboard.removeListener('keyboardDidHide', this.keyboardDidHideHandle);
+  }
 
-  renderModal = () => {
+  renderModal = (props) => {
     const {dataItem, dataCode, qty, itemCode} = this.state;
     
   let gradeArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
     if(dataItem.detail[index].grade === undefined)
-    return [];
+    return null;
   return dataItem.detail[index].grade;
 });
   // let grade = '';
@@ -179,58 +203,67 @@ class Example extends React.Component {
 
   let uomArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
       if(dataItem.detail[index].uom === undefined)
-      return [];
+      return null;
     return dataItem.detail[index].uom;
   });
-  let uomFiltered = uomArr;
+  let uomFiltered = uomArr.filter((o)=> o !== null);;
 
 
   let packagingArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
       if(dataItem.detail[index].attributes.packaging === undefined)
-      return [];
+      return null;
     return dataItem.detail[index].attributes.packaging;
   });
-  let packagingFiltered = packagingArr;
+  let packagingFiltered = packagingArr.filter((o)=> o !== null);;
 
   let qtyPickArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
       if(dataItem.detail[index].attributes.qtyToPick === undefined)
-      return [];
+      return null;
     return dataItem.detail[index].attributes.qtyToPick;
   });
-  let qtyPickArrFiltered = qtyPickArr;
+  let qtyPickArrFiltered = qtyPickArr.filter((o)=> o !== null);;
   
   let wholeArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
-    if(dataItem.detail[index].attributes.wholeqty === undefined)
-    return [];
-    return dataItem.detail[index].attributes.wholeqty;
+    if(dataItem.detail[index].quantity === undefined)
+    return null;
+    return dataItem.detail[index].quantity;
   });
-  let wholeFiltered = wholeArr;
+  let wholeFiltered = wholeArr.filter((o)=> o !== null);;
 
   
   let categoryArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
     if(dataItem.detail[index].attributes.category === undefined)
-    return [];
+    return null;
     return dataItem.detail[index].attributes.category;
   });
-  let categoryFiltered = categoryArr;
+  let categoryFiltered = categoryArr.filter((o)=> o !== null);;
   
   let banchArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
     if(dataItem.detail[index].batch_no === undefined)
-    return [];
+    return null;
     return dataItem.detail[index].batch_no;
   });
-  let banchFiltered =banchArr;
+  let banchFiltered =banchArr.filter((o)=> o !== null);;
 
   let expArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
       if(dataItem.detail[index].attributes.expiry_date === undefined)
-      return [];
+      return null;
     return dataItem.detail[index].attributes.expiry_date;
   });
-  let expFiltered = expArr;
+  let expFiltered = expArr.filter((o)=> o !== null);
 
-  
+  const {inset} = props;  
     return (
-      <View style={styles.modalOverlay}>
+      <ScrollView style={styles.modalOverlay}
+      contentContainerStyle={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop:
+          this.state.keyboardState === 'hide'
+            ? itemCode !== null ? 60 + inset.top : 120 + inset.top
+            : 0 + inset.top,
+      }}
+      >
         <Animated.View
           style={
             itemCode !== null
@@ -322,56 +355,56 @@ class Example extends React.Component {
                   <Text style={styles.labelNotFound}>Stock Grade </Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
                   <Text style={styles.dotLabel}>:</Text>
-                  <Text style={styles.infoNotFound}>{gradeArr[0].length > 0 ? gradeArr[0] : '-'}</Text>
+                  <Text style={styles.infoNotFound}>{gradeArr.length > 0 ? gradeArr[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>UOM</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
                   <Text style={styles.dotLabel}>:</Text>
-                  <Text style={styles.infoNotFound}>{uomFiltered[0].length > 0 ? uomFiltered[0] : '-'}</Text>
+                  <Text style={styles.infoNotFound}>{uomFiltered.length > 0 ? uomFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Packaging </Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
                   <Text style={styles.dotLabel}>:</Text>
-                  <Text style={styles.infoNotFound}>{packagingFiltered[0].length > 0 ? packagingFiltered[0] : '-'}</Text>
+                  <Text style={styles.infoNotFound}>{packagingFiltered.length > 0 ? packagingFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Qty to pick</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
                   <Text style={styles.dotLabel}>:</Text>
-                  <Text style={styles.infoNotFound}>{qtyPickArrFiltered[0].length > 0 ? qtyPickArrFiltered[0] : '-'}</Text>
+                  <Text style={styles.infoNotFound}>{dataItem.qtytoPick}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Whole Qty</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
                   <Text style={styles.dotLabel}>:</Text>
-                  <Text style={styles.infoNotFound}>{wholeFiltered[0].length > 0 ? wholeFiltered[0] : '-'}</Text>
+                  <Text style={styles.infoNotFound}>{wholeFiltered.length > 0 ? wholeFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Category</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
                   <Text style={styles.dotLabel}>:</Text>
-                  <Text style={styles.infoNotFound}>{categoryFiltered[0].length > 0 ? categoryFiltered[0] : '-'}</Text>
+                  <Text style={styles.infoNotFound}>{categoryFiltered.length > 0 ? categoryFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Batch Number</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
                   <Text style={styles.dotLabel}>:</Text>
-                  <Text style={styles.infoNotFound}>{banchFiltered[0].length > 0 ? banchFiltered[0] : '-'}</Text>
+                  <Text style={styles.infoNotFound}>{banchFiltered.length > 0 ? banchFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>EXP Date</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
                   <Text style={styles.dotLabel}>:</Text>
-                  <Text style={styles.infoNotFound}>{expFiltered[0].length > 0 ? moment(expFiltered[0]).format('DD/MM/YY') : '-'}</Text>
+                  <Text style={styles.infoNotFound}>{expFiltered.length > 0 ? moment(expFiltered[0]).format('DD/MM/YY') : '-'}</Text>
                   </View>
                 </View>
                      
@@ -397,6 +430,22 @@ class Example extends React.Component {
                             value={String(this.state.qty)}
                             onChangeText={(val)=>{
                               this.setState({qty:  val});
+                            }}
+                            onBlur={(e) =>
+                              this.setState({
+                                qty:
+                                this.state.qty !== '' && isNaN(this.state.qty) === false
+                                    ? parseFloat(this.state.qty)
+                                    : 0,
+                              })
+                            }
+                            onEndEditing={(e) => {
+                              this.setState({
+                                qty:
+                                e.nativeEvent.text !== '' && isNaN(e.nativeEvent.text) === false
+                                    ? parseFloat(e.nativeEvent.text)
+                                    : 0,
+                              });
                             }}
                             />
                               <Incremental height="30" width="30" style={{flexShrink:1, marginVertical:5}} 
@@ -450,7 +499,7 @@ class Example extends React.Component {
                   <Text style={styles.labelNotFound}>Category</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
                   <Text style={styles.dotLabel}>:</Text>
-                  <Text style={styles.infoNotFound}>{categoryFiltered[0].length > 0 ? categoryFiltered[0] : '-'}</Text>
+                  <Text style={styles.infoNotFound}>{categoryFiltered.length > 0 ? categoryFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 </View>
@@ -504,7 +553,7 @@ class Example extends React.Component {
             </View>
           </View>
         </Animated.View>
-      </View>
+      </ScrollView>
     );
   };
 
@@ -512,7 +561,7 @@ class Example extends React.Component {
     const {dataItem} = this.state;
     let gradeArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
       if(dataItem.detail[index].grade === undefined)
-      return [];
+      return null;
     return dataItem.detail[index].grade;
   });
   // let grade = '';
@@ -553,56 +602,58 @@ class Example extends React.Component {
 
   let uomArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
       if(dataItem.detail[index].uom === undefined)
-      return [];
+      return null;
     return dataItem.detail[index].uom;
   });
-  let uomFiltered = uomArr;
+  let uomFiltered = uomArr.filter((o)=> o !== null);;
   let packagingArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
       if(dataItem.detail[index].attributes.packaging === undefined)
-      return [];
+      return null;
     return dataItem.detail[index].attributes.packaging;
   });
-  let packagingFiltered = packagingArr;
+  let packagingFiltered = packagingArr.filter((o)=> o !== null);;
 
   let qtyPickArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
       if(dataItem.detail[index].attributes.qtyToPick === undefined)
-      return [];
+      return null;
     return dataItem.detail[index].attributes.qtyToPick;
   });
-  let qtyPickArrFiltered = qtyPickArr;
+  let qtyPickArrFiltered = qtyPickArr.filter((o)=> o !== null);;
   
   let wholeArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
-    if(dataItem.detail[index].attributes.wholeqty === undefined)
-    return [];
-    return dataItem.detail[index].attributes.wholeqty;
+    if(dataItem.detail[index].quantity === undefined)
+    return null;
+    return dataItem.detail[index].quantity;
   });
-  let wholeFiltered = wholeArr;
+  let wholeFiltered = wholeArr.filter((o)=> o !== null);;
 
   
   let categoryArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
     if(dataItem.detail[index].attributes.category === undefined)
-    return [];
+    return null;
     return dataItem.detail[index].attributes.category;
   });
-  let categoryFiltered = categoryArr;
+  let categoryFiltered = categoryArr.filter((o)=> o !== null);;
   
   let banchArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
     if(dataItem.detail[index].batch_no === undefined)
-    return [];
+    return null;
     return dataItem.detail[index].batch_no;
   });
-  let banchFiltered = banchArr;
+  let banchFiltered = banchArr.filter((o)=> o !== null);;
   let expArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
       if(dataItem.detail[index].attributes.expiry_date === undefined)
-      return [];
+      return null;
     return dataItem.detail[index].attributes.expiry_date;
   });
-  let expFiltered =expArr;
+  let expFiltered =expArr.filter((o)=> o !== null);;
 
 
     return (
-    <View style={styles.sheetContainer}>
-      <View style={styles.sectionSheetDetail}>
+    <View style={styles.sheetContainer}
+    onLayout={(e)=>this.setState({heightBottom:  e.nativeEvent.layout.height})}
+    >
+      <View style={[styles.sectionSheetDetail,{marginBottom:40}]}>
         <View style={styles.sheetPackages}>
             <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                 {this.state.scanItem !== null ? (<>
@@ -610,7 +661,7 @@ class Example extends React.Component {
                   <Text style={styles.labelNotFound}>Pallet</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
                     <Text style={styles.dotLabel}>:</Text>
-                  <Text style={styles.infoNotFound}>-</Text>
+                  <Text style={styles.infoNotFound}>s</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
@@ -640,28 +691,35 @@ class Example extends React.Component {
                       <Text style={styles.labelNotFound}>Stock Grade</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
                       <Text style={styles.dotLabel}>:</Text>
-                      <Text style={styles.infoNotFound}>{gradeArr[0].length > 0 ? gradeArr[0] : '-'}</Text>
+                      <Text style={styles.infoNotFound}>{gradeArr.length > 0 ? gradeArr[0] : '-'}</Text>
                       </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>UOM</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
                       <Text style={styles.dotLabel}>:</Text>
-                      <Text style={styles.infoNotFound}>{uomFiltered[0].length > 0 ? uomFiltered[0] : '-'}</Text>
+                      <Text style={styles.infoNotFound}>{uomFiltered.length > 0 ? uomFiltered[0] : '-'}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.dividerContent}>
+                      <Text style={styles.labelNotFound}>QTY</Text>
+                      <View style={{flexDirection:'row', flexShrink:1}}>
+                      <Text style={styles.dotLabel}>:</Text>
+                      <Text style={styles.infoNotFound}>{wholeFiltered.length > 0 ? wholeFiltered[0] : '-'}</Text>
                       </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>Packaging</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
                       <Text style={styles.dotLabel}>:</Text>
-                      <Text style={styles.infoNotFound}>{packagingFiltered[0].length > 0 ? packagingFiltered[0] : '-'}</Text>
+                      <Text style={styles.infoNotFound}>{packagingFiltered.length > 0 ? packagingFiltered[0] : '-'}</Text>
                       </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>Category</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
                       <Text style={styles.dotLabel}>:</Text>
-                      <Text style={styles.infoNotFound}>{categoryFiltered[0].length > 0 ? categoryFiltered[0] : '-'}</Text>
+                      <Text style={styles.infoNotFound}>{categoryFiltered.length > 0 ? categoryFiltered[0] : '-'}</Text>
                       </View>
                     </View>
                   </View>
@@ -670,14 +728,14 @@ class Example extends React.Component {
                       <Text style={styles.labelNotFound}>Batch Number</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
                       <Text style={styles.dotLabel}>:</Text>
-                      <Text style={styles.infoNotFound}>{banchFiltered[0].length > 0 ? banchFiltered[0] : '-'}</Text>
+                      <Text style={styles.infoNotFound}>{banchFiltered.length > 0 ? banchFiltered[0] : '-'}</Text>
                       </View>
                     </View>
                     <View style={styles.dividerContent}>
                       <Text style={styles.labelNotFound}>EXP Date</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
                       <Text style={styles.dotLabel}>:</Text>
-                      <Text style={styles.infoNotFound}>{expFiltered[0].length > 0 ? moment(expFiltered[0]).format('DD/MM/YY') : '-'}</Text>
+                      <Text style={styles.infoNotFound}>{expFiltered.length > 0 ? moment(expFiltered[0]).format('DD/MM/YY') : '-'}</Text>
                       </View>
                     </View>
                   </View>
@@ -723,7 +781,7 @@ class Example extends React.Component {
                   <Text style={styles.labelNotFound}>Category</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
                   <Text style={styles.dotLabel}>:</Text>
-                  <Text style={styles.infoNotFound}>{categoryFiltered[0].length > 0 ? categoryFiltered[0] : '-'}</Text>
+                  <Text style={styles.infoNotFound}>{categoryFiltered.length > 0 ? categoryFiltered[0] : '-'}</Text>
                   </View>
                 </View>
                 </>) : null}
@@ -784,7 +842,9 @@ class Example extends React.Component {
 
   renderHeader = () => (
     <View style={styles.header}>
-      <View style={styles.panelHeader} />
+     <View style={styles.panelHeader}>
+      <View style={styles.panelHandle} />
+    </View>
     </View>
   );
 
@@ -812,14 +872,22 @@ class Example extends React.Component {
   onSubmit = async () => {
     const {dataCode,qty, dataItem, indexData} = this.state;
     const {currentTask} = this.props;
-    let getConfirmation = await postData('/outboundMobile/pickTask/'+currentTask+'/product/'+indexData+'/confirm',{quantity: qty});
-    if(typeof getConfirmation === 'object' && getConfirmation.error !== undefined){
-      this.props.setItemError(getConfirmation.error);
+    if (parseInt(qty) !== qty) {
+      this.props.navigation.setOptions({headerShown: false});
+      this.setState({
+        errorAttr: 'Qty only in integer',
+      });
     } else {
-      this.props.setItemSuccess(getConfirmation);
+      let getConfirmation = await postData('/outboundMobile/pickTask/'+currentTask+'/product/'+indexData+'/confirm',{quantity: qty});
+      if(typeof getConfirmation === 'object' && getConfirmation.error !== undefined){
+        this.props.setItemError(getConfirmation.error);
+      } else {
+        this.props.setItemSuccess(getConfirmation);
+      }
+      this.props.setBarcodeScanner(true);
+      this.props.navigation.navigate('List');
     }
-    this.props.setBarcodeScanner(true);
-    this.props.navigation.navigate('List');
+  
   }
 
   render() {
@@ -827,19 +895,47 @@ class Example extends React.Component {
     const {detectBarcode} = this.props;
     return (
       <View style={styles.container}>
+         {this.state.errorAttr !== '' && (
+          <Banner
+            title={this.state.errorAttr}
+            backgroundColor="#F1811C"
+            closeBanner={() => {
+              this.props.navigation.setOptions({headerShown: true});
+              this.setState({errorAttr: ''});
+            }}
+          />
+        )}
         {detectBarcode === false ? (
-          <this.renderModal/>
-        ) : (          <Modalize 
-          ref={this.modalizeRef}
-          handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
-          handlePosition={'inside'}
-          disableScrollIfPossible={false}
-          modalHeight={this.state.scanItem !== null ? 320 : 280}
-          alwaysOpen={this.state.scanItem !== null ? 320 : 280}
-          HeaderComponent={<this.renderHeader />}
-        >
-          <this.renderInner />
-        </Modalize>)}
+              <SafeAreaInsetsContext.Consumer>
+          {(inset)=>(<this.renderModal inset={inset}/>)}
+          </SafeAreaInsetsContext.Consumer>
+        ) : (         
+          <>
+           {/* <Reanimated.Code
+                exec={() =>
+                  Reanimated.onChange(
+                    this.callbackNode,
+                    Reanimated.block([
+                      Reanimated.call([this.callbackNode], ([callback]) =>
+                        this.fadeAnimation(callback),
+                      ),
+                    ]),
+                  )
+                }
+              /> */}
+                    <BottomSheet
+                      ref={this.modalizeRef}
+                      initialSnap={2}
+                      snapPoints={[30,110, this.state.heightBottom] }
+                      enabledBottomClamp={false}
+                      enabledContentTapInteraction={false}
+                      renderContent={this.renderInner}
+                      renderHeader={this.renderHeader}
+                      callbackNode={this.callbackNode}
+                      enabledInnerScrolling={false}
+                      enabledBottomInitialAnimation={false}
+                    />
+            </>)}
         <TouchableWithoutFeedback onPress={() => {}}>
         <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} useManualMenu={false} barcodeContext={this.state.scanItem === null ? "Scan bay barcode Here" : "Scan Item Barcode Here"}/>
         </TouchableWithoutFeedback>
@@ -864,8 +960,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
     zIndex: 10,
   },
   search: {
@@ -896,20 +990,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#f7f5eee8',
   },
   header: {
-    backgroundColor: '#ffffff',
-    shadowColor: '#000000',
-    paddingTop: 20,
+    backgroundColor: 'white',
+    height: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    paddingBottom:0,
+    marginBottom:-1,
+    borderBottomColor:'white',
+    borderBottomWidth:0,
   },
   panelHeader: {
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 11,
   },
   panelHandle: {
     width: 120,
     height: 7,
     backgroundColor: '#C4C4C4',
-    marginBottom: 10,
   },
   photo: {
     width: '100%',
