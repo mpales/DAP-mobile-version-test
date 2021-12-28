@@ -443,6 +443,19 @@ class List extends React.Component {
     this.setState({renderRefresh: true});
   };
   render() {
+    const {outboundTask} = this.props;
+    let arrayWarehouses = Array.from({
+      length: outboundTask.length,
+    }).map((num, index) => {
+      if (outboundTask[index].warehouses !== undefined) {
+        return outboundTask[index].warehouses.join();
+      }
+      return null;
+    });
+    let stringWarehouses = arrayWarehouses.filter((o)=> o !== null).join();
+    let Warehouses = [
+      ...new Set(String('All' + (stringWarehouses.length > 0 ? ',' + stringWarehouses : '')).split(',')),
+    ];
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -457,42 +470,11 @@ class List extends React.Component {
             />
           }>
           <View style={[styles.headingCard, {paddingVertical: 10}]}>
-            <Input
-              containerStyle={{flex: 1}}
-              inputContainerStyle={{
-                borderWidth: 0,
-                maxHeight: 30,
-                borderBottomColor: 'transparent',
-                borderBottomWidth: 0,
-                backgroundColor: '#fff',
-              }}
-              inputStyle={Mixins.containedInputDefaultStyle}
-              labelStyle={[
-                {
-                  ...Mixins.containedInputDefaultLabel,
-                  color: this.context._Scheme7,
-                },
-                {marginBottom: 5},
-              ]}
-              label="Warehouse"
-              InputComponent={() => {
-                const {outboundTask} = this.props;
-                let arrayWarehouses = Array.from({
-                  length: outboundTask.length,
-                }).map((num, index) => {
-                  if (outboundTask[index].warehouses !== undefined) {
-                    return outboundTask[index].warehouses.join();
-                  }
-                  return [];
-                });
-                let stringWarehouses = arrayWarehouses.join();
-                let Warehouses = [
-                  ...new Set(String('All,' + stringWarehouses).split(',')),
-                ];
-                return (
-                  <SelectDropdown
+            <View style={{flex:1, flexDirection:'column', paddingVertical:0}}>
+              <Text style={{...Mixins.body1,fontWeight:'700',lineHeight:21,color:'black', marginBottom:5}}>Warehouse</Text>
+          <SelectDropdown
                     buttonStyle={{
-                      width: '100%',
+                     width:'100%',
                       maxHeight: 30,
                       borderRadius: 5,
                       borderWidth: 1,
@@ -507,7 +489,7 @@ class List extends React.Component {
                       textAlign: 'left',
                     }}
                     data={Warehouses}
-                    defaultValueByIndex={0}
+                    defaultValueByIndex={this.state.dropdown === '' ? 0 : Warehouses.findIndex((o)=> o === this.state.dropdown)}
                     onSelect={(selectedItem, index) => {
                       this.setState({
                         dropdown: selectedItem === 'All' ? '' : selectedItem,
@@ -562,10 +544,7 @@ class List extends React.Component {
                       );
                     }}
                   />
-                );
-              }}
-              placeholder=""
-            />
+                  </View>
             <Input
               leftIcon={
                 <IconSearchMobile
@@ -586,8 +565,10 @@ class List extends React.Component {
               ]}
               labelStyle={[
                 {
+                  ...Mixins.body1,
                   ...Mixins.containedInputDefaultLabel,
-                  color: this.context._Scheme7,
+                  color: this.context._Scheme7
+                  ,fontWeight:'700',lineHeight:21,color:'black',
                 },
                 {marginBottom: 5},
               ]}
