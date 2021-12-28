@@ -130,7 +130,7 @@ class List extends React.Component {
       } else if (filtered === 1) {
         this.setState({
           list: resultedList
-            .filter((element) => element.status === 4)
+            .filter((element) => element.status === 5)
             .filter(
               (element) =>
                 String(element.client_id)
@@ -146,7 +146,7 @@ class List extends React.Component {
       } else if (filtered === 2) {
         this.setState({
           list: resultedList
-            .filter((element) => element.status === 1)
+            .filter((element) => element.status === 2)
             .filter(
               (element) =>
                 String(element.client_id)
@@ -162,7 +162,7 @@ class List extends React.Component {
       } else if (filtered === 3) {
         this.setState({
           list: resultedList
-            .filter((element) => element.status === 2)
+            .filter((element) => element.status === 3)
             .filter(
               (element) =>
                 String(element.client_id)
@@ -178,7 +178,7 @@ class List extends React.Component {
       } else if (filtered === 4) {
         this.setState({
           list: resultedList
-            .filter((element) => element.status === 3)
+            .filter((element) => element.status === 4)
             .filter(
               (element) =>
                 String(element.client_id)
@@ -225,7 +225,7 @@ class List extends React.Component {
       } else if (filtered === 1) {
         this.setState({
           list: resultedList
-            .filter((element) => element.status === 4)
+            .filter((element) => element.status === 5)
             .filter(
               (element) =>
                 String(element.client_id)
@@ -241,7 +241,7 @@ class List extends React.Component {
       } else if (filtered === 2) {
         this.setState({
           list: resultedList
-            .filter((element) => element.status === 1)
+            .filter((element) => element.status === 2)
             .filter(
               (element) =>
                 String(element.client_id)
@@ -257,7 +257,7 @@ class List extends React.Component {
       } else if (filtered === 3) {
         this.setState({
           list: resultedList
-            .filter((element) => element.status === 2)
+            .filter((element) => element.status === 3)
             .filter(
               (element) =>
                 String(element.client_id)
@@ -273,7 +273,7 @@ class List extends React.Component {
       } else if (filtered === 4) {
         this.setState({
           list: resultedList
-            .filter((element) => element.status === 3)
+            .filter((element) => element.status === 4)
             .filter(
               (element) =>
                 String(element.client_id)
@@ -313,7 +313,7 @@ class List extends React.Component {
       } else if (filtered === 1) {
         this.setState({
           list: outboundTask
-            .filter((element) => element.status === 4)
+            .filter((element) => element.status === 5)
             .filter(
               (element) =>
                 String(element.client_id)
@@ -329,7 +329,7 @@ class List extends React.Component {
       } else if (filtered === 2) {
         this.setState({
           list: outboundTask
-            .filter((element) => element.status === 1)
+            .filter((element) => element.status === 2)
             .filter(
               (element) =>
                 String(element.client_id)
@@ -345,7 +345,7 @@ class List extends React.Component {
       } else if (filtered === 3) {
         this.setState({
           list: outboundTask
-            .filter((element) => element.status === 2)
+            .filter((element) => element.status === 3)
             .filter(
               (element) =>
                 String(element.client_id)
@@ -361,7 +361,7 @@ class List extends React.Component {
       } else if (filtered === 4) {
         this.setState({
           list: outboundTask
-            .filter((element) => element.status === 3)
+            .filter((element) => element.status === 4)
             .filter(
               (element) =>
                 String(element.client_id)
@@ -396,7 +396,7 @@ class List extends React.Component {
     } else if (filtered === 1) {
       this.setState({
         list: resultedList
-          .filter((element) => element.status === 4)
+          .filter((element) => element.status === 5)
           .filter(
             (element) =>
               String(element.client_id)
@@ -407,7 +407,7 @@ class List extends React.Component {
     } else if (filtered === 2) {
       this.setState({
         list: resultedList
-          .filter((element) => element.status === 1)
+          .filter((element) => element.status === 2)
           .filter(
             (element) =>
               String(element.client_id)
@@ -418,7 +418,7 @@ class List extends React.Component {
     } else if (filtered === 3) {
       this.setState({
         list: resultedList
-          .filter((element) => element.status === 2)
+          .filter((element) => element.status === 3)
           .filter(
             (element) =>
               String(element.client_id)
@@ -429,7 +429,7 @@ class List extends React.Component {
     } else if (filtered === 4) {
       this.setState({
         list: resultedList
-          .filter((element) => element.status === 3)
+          .filter((element) => element.status === 4)
           .filter(
             (element) =>
               String(element.client_id)
