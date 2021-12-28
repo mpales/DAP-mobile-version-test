@@ -105,19 +105,19 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
   let status = 'grey';
   let textstatus = 'waiting';
   switch (item.status) {
-    case 3:
+    case 4:
       status = 'green';
       textstatus = 'Complete'
       break;
-      case 2:
+      case 3:
         status = 'orange';
         textstatus = 'In Progress'
         break;
-        case 1:
+        case 2:
           status = 'grey';
           textstatus = 'Waiting'
           break;
-          case 4:
+          case 5:
             status = 'red';
             textstatus = 'Reported'
             break;
