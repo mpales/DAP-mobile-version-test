@@ -139,6 +139,18 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
     return [];
     return item.detail[index].attributes.category;
   });
+  let wholeArr = Array.from({length:item.detail.length}).map((num,index)=>{
+    if(item.detail[index].quantity === undefined)
+    return null;
+    return item.detail[index].quantity;
+  });
+  let wholeFiltered = wholeArr.filter((o)=> o !== null);
+  let uomArr = Array.from({length:item.detail.length}).map((num,index)=>{
+    if(item.detail[index].uom === undefined)
+    return null;
+  return item.detail[index].uom;
+});
+let uomFiltered = uomArr.filter((o)=> o !== null);;
 
   return (
     <ThemeProvider theme={theme}>
@@ -178,24 +190,6 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
 
        
 
-          <View style={{flexDirection: 'row',flex:1}}>
-              <View style={{width:100, flexDirection:'row'}}>
-              <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
-              Pallet
-              </Text>
-              <View style={{flex:1, alignItems:'flex-end'}}>
-              <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
-              </View>
-              </View>
-
-              <View style={{flexDirection:'row', flexShrink:1}}>
-              <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-              -
-              </Text>
-              </View>
-            </View>
-
-
             <View style={{flexDirection: 'row',flex:1}}>
               <View style={{width:100, flexDirection:'row'}}>
               <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
@@ -231,6 +225,42 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
               </View>
             </View>
     
+
+            <View style={{flexDirection: 'row',flex:1}}>
+              <View style={{width:100, flexDirection:'row'}}>
+              <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
+              UOM
+              </Text>
+              <View style={{flex:1, alignItems:'flex-end'}}>
+              <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
+              </View>
+              </View>
+
+              <View style={{flexDirection:'row', flexShrink:1}}>
+              <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
+              {uomFiltered.length > 0 ? uomFiltered[0] : '-'}
+              </Text>
+              </View>
+            </View>
+            
+            <View style={{flexDirection: 'row',flex:1}}>
+              <View style={{width:100, flexDirection:'row'}}>
+              <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
+              QTY
+              </Text>
+              <View style={{flex:1, alignItems:'flex-end'}}>
+              <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
+              </View>
+              </View>
+
+              <View style={{flexDirection:'row', flexShrink:1}}>
+              <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
+              {wholeFiltered.length > 0 ? wholeFiltered[0] : '-'}
+              </Text>
+              </View>
+            </View>
+
+
             <View style={{flexDirection: 'row',flex:1}}>
               <View style={{width:100, flexDirection:'row'}}>
               <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
