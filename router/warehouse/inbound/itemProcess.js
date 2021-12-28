@@ -953,7 +953,7 @@ class Example extends React.Component {
                       onBlur={(e) =>
                         this.setState({
                           qty:
-                            isNaN(this.state.qty) === false
+                          this.state.qty !== '' && isNaN(this.state.qty) === false
                               ? parseFloat(this.state.qty)
                               : 0,
                         })
@@ -961,7 +961,7 @@ class Example extends React.Component {
                       onEndEditing={(e) => {
                         this.setState({
                           qty:
-                            isNaN(e.nativeEvent.text) === false
+                          e.nativeEvent.text !== '' && isNaN(e.nativeEvent.text) === false
                               ? parseFloat(e.nativeEvent.text)
                               : 0,
                         });
