@@ -227,6 +227,30 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
              {item.container_no}
             </Text>
           </View>)}
+          {item.type === 2 && (
+            <>          
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>No. of Pallet  </Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+             -
+            </Text>
+          </View>
+             
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>No. of Carton  </Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+           -
+            </Text>
+          </View>
+          </>)}
         <Text style={styles.descText}>{item.total_product_processed+'/'+item.total_product+' Lines Complete'}</Text>
         </ListItem.Content>
         <View style={styles.labelContainer}>
