@@ -109,7 +109,7 @@ class ConnoteDetails extends React.Component {
                     />
                     <DetailList
                       title="Suggested Location"
-                      value={_itemDetail.suggestedLocation}
+                      value={_itemDetail.suggestedLocation.join("\r\n")}
                       labelStyle={{width: '55%'}}
                     />
                   </>
