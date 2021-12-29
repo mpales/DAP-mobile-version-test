@@ -196,6 +196,37 @@ class SearchInventory extends React.Component {
                     <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
                   </View>
                 )}
+                renderCustomizedRowChild={(item, index) => {
+                  let selectedWarehouse = warehouseList.find(
+                    (warehouse) => warehouse.name === item,
+                  );
+                  return (
+                    <View
+                      style={{
+                        flex: 1,
+                        paddingHorizontal: 27,
+                        backgroundColor:
+                          !!selectedWarehouse &&
+                          selectedWarehouse.id === warehouse
+                            ? '#e7e8f2'
+                            : 'transparent',
+                        paddingVertical: 0,
+                        marginVertical: 0,
+                        justifyContent: 'center',
+                      }}>
+                      <Text
+                        style={{
+                          ...Mixins.small1,
+                          fontWeight: '400',
+                          lineHeight: 18,
+                          color: '#424141',
+                          textAlign: 'center',
+                        }}>
+                        {item}
+                      </Text>
+                    </View>
+                  );
+                }}
               />
             </View>
             <View

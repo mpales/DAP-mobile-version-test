@@ -332,6 +332,37 @@ class RelocationRequestConfirm extends React.Component {
                   <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
                 </View>
               )}
+              renderCustomizedRowChild={(item, index) => {
+                let selectedReasonCode = reasonCodeList.find(
+                  (reasonCode) => reasonCode.code === item,
+                );
+                return (
+                  <View
+                    style={{
+                      flex: 1,
+                      paddingHorizontal: 27,
+                      backgroundColor:
+                        !!selectedReasonCode &&
+                        selectedReasonCode.id === this.state.selectedReasonCode
+                          ? '#e7e8f2'
+                          : 'transparent',
+                      paddingVertical: 0,
+                      marginVertical: 0,
+                      justifyContent: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        ...Mixins.small1,
+                        fontWeight: '400',
+                        lineHeight: 18,
+                        color: '#424141',
+                        textAlign: 'center',
+                      }}>
+                      {item}
+                    </Text>
+                  </View>
+                );
+              }}
             />
           </View>
           <View style={styles.inputFormContainer}>
@@ -448,6 +479,37 @@ class RelocationRequestConfirm extends React.Component {
                 (!!selectedRequestRelocation &&
                   selectedRequestRelocation.length > 1)
               }
+              renderCustomizedRowChild={(item, index) => {
+                let selectedGrade = gradeList.find(
+                  (grade) => grade.grade === item,
+                );
+                return (
+                  <View
+                    style={{
+                      flex: 1,
+                      paddingHorizontal: 27,
+                      backgroundColor:
+                        !!selectedGrade &&
+                        selectedGrade.id === this.state.selectedGrade
+                          ? '#e7e8f2'
+                          : 'transparent',
+                      paddingVertical: 0,
+                      marginVertical: 0,
+                      justifyContent: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        ...Mixins.small1,
+                        fontWeight: '400',
+                        lineHeight: 18,
+                        color: '#424141',
+                        textAlign: 'center',
+                      }}>
+                      {item}
+                    </Text>
+                  </View>
+                );
+              }}
             />
           </View>
           <Button

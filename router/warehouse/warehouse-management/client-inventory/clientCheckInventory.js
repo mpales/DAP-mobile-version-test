@@ -306,7 +306,7 @@ class ClientCheckInventory extends React.Component {
                 styles.button,
                 {marginHorizontal: 0, marginTop: 20},
               ]}
-              disabled={client === '' || product === ''}
+              disabled={clientId === null || productId === null}
               disabledStyle={{backgroundColor: '#ABABAB'}}
               disabledTitleStyle={{color: '#FFF'}}
               onPress={this.submitSearch}
