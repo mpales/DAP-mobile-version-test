@@ -68,7 +68,7 @@ class Example extends React.Component {
         if(routes[index].params.productIndex !== undefined){
           products = item.products[routes[index].params.productIndex]
         }
-        return {...state, scanItem: routes[index].params.inputCode, suggestionLocation :item.suggestedLocation,  locationItem: item.warehouse, detectBarcodeToState: true, elementProduct : routes[index].params.productIndex !== undefined ? products : null};
+        return {...state, scanItem: routes[index].params.inputCode, suggestionLocation :item.suggestedLocation.join("\r\n"),  locationItem: item.warehouse, detectBarcodeToState: true, elementProduct : routes[index].params.productIndex !== undefined ? products : null};
       } 
       return {...state, detectBarcodeToState: true};
     } 
@@ -198,9 +198,12 @@ class Example extends React.Component {
                       </View>
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Location</Text>
+                        <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                         <Text style={styles.infoPackage}>
                         {this.state.dataCode}
                         </Text>
+                        </View>
                       </View>
               
                     </View>
@@ -283,41 +286,52 @@ class Example extends React.Component {
               <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                <View style={styles.dividerContent}>
                <Text style={styles.labelNotFound}>Warehouse</Text>
+               <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.locationItem}</Text>
+                  </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Location</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.suggestionLocation}</Text>
+                  </View>
                 </View>
                 </View>) : (
                   <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Item Code</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.elementProduct.itemCode}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Description</Text>
-                <View style={{flexDirection:'row', flexShrink:1}}>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.elementProduct.description}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Stock Grade</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.elementProduct.grade}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>UOM</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.elementProduct.uom}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Qty</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.elementProduct.qty}</Text>
                   </View>
                 </View>
@@ -638,7 +652,14 @@ const styles = StyleSheet.create({
   backText: {
     color: '#F1811C',
   },
-  
+  dotLabel: {
+    ...Mixins.small1,
+    color: '#6C6B6B',
+    fontWeight: '500',
+    lineHeight: 18,
+    paddingRight:0,
+    paddingLeft:0,
+  },
 });
 
 function mapStateToProps(state) {
