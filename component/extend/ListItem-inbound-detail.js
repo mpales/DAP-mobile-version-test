@@ -131,6 +131,9 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
   const isCurrentManifest = useSelector(
     (state) => state.originReducer.filters.currentManifest,
   );
+  const isCurrentManifestType = useSelector(
+    (state) => state.originReducer.filters.currentManifestType,
+  );
   let addAttribute = item.is_transit === undefined && item.record === 0  ? false : item.is_transit !== undefined ? false : true;
   let status = 'grey';
   let textstatus = 'pending';
@@ -303,7 +306,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
                         <View style={{flexDirection:'row', flex: 1}}> 
                         <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400', flexShrink: 1}}>
-                        {item.qty_processed+ '/' +item.qty}
+                        {isCurrentManifestType === 2 ? item.qty_processed : item.qty_processed+ '/' +item.qty}
                         </Text>
                         </View>
                     </View>
