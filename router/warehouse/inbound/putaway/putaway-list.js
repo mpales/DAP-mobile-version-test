@@ -22,6 +22,8 @@ import IconSearchMobile from '../../../../assets/icon/iconmonstr-search-thinmobi
 import moment from 'moment';
 import {getData} from '../../../../component/helper/network';
 import EmptyIlustrate from '../../../../assets/icon/Groupempty.svg';
+import SelectDropdown from 'react-native-select-dropdown';
+import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
 const window = Dimensions.get('window');
 
 class List extends React.Component {
@@ -29,6 +31,7 @@ class List extends React.Component {
     super(props);
     this.state = {
       search: '',
+      dropdown: '',
       filtered: 0,
       list: [],
       renderGoBack: false,
@@ -69,83 +72,179 @@ class List extends React.Component {
       prevState.renderRefresh !== this.state.renderRefresh &&
       this.state.renderRefresh === true
     ) {
+      const {filtered} = this.state;
       const resultedList = await this.updateASN();
       this.props.setPutawayList(resultedList);
+      if (filtered === 0) {
+        this.setState({
+          list: resultedList.filter(
+            (element) =>
+              String(element.client)
+                .toLowerCase()
+                .indexOf(this.state.search.toLowerCase()) > -1 &&
+                (this.state.dropdown === '' ||
+                  (this.state.dropdown !== '' &&
+                    moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+          ),
+          renderGoBack: false,
+          renderRefresh: false,
+        });
+      } else if (filtered === 1) {
+        this.setState({
+          list: resultedList
+            .filter((element) => element.type === 1)
+            .filter(
+              (element) =>
+                String(element.client)
+                  .toLowerCase()
+                  .indexOf(this.state.search.toLowerCase()) > -1 &&
+                  (this.state.dropdown === '' ||
+                    (this.state.dropdown !== '' &&
+                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+            ),
+          renderGoBack: false,
+          renderRefresh: false,
+        });
+      } else if (filtered === 2) {
+        this.setState({
+          list: resultedList
+            .filter((element) => element.type === 2)
+            .filter(
+              (element) =>
+                String(element.client)
+                  .toLowerCase()
+                  .indexOf(this.state.search.toLowerCase()) > -1 &&
+                  (this.state.dropdown === '' ||
+                    (this.state.dropdown !== '' &&
+                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+            ),
+          renderGoBack: false,
+          renderRefresh: false,
+        });
+      } else if (filtered === 3) {
+        this.setState({
+          list: resultedList
+            .filter((element) => element.type === 3)
+            .filter(
+              (element) =>
+                String(element.client)
+                  .toLowerCase()
+                  .indexOf(this.state.search.toLowerCase()) > -1 &&
+                  (this.state.dropdown === '' ||
+                    (this.state.dropdown !== '' &&
+                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+            ),
+          renderGoBack: false,
+          renderRefresh: false,
+        });
+      } else if (filtered === 4) {
+        this.setState({
+          list: resultedList
+            .filter((element) => element.type === 4)
+            .filter(
+              (element) =>
+                String(element.client)
+                  .toLowerCase()
+                  .indexOf(this.state.search.toLowerCase()) > -1 &&
+                  (this.state.dropdown === '' ||
+                    (this.state.dropdown !== '' &&
+                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+            ),
+          renderGoBack: false,
+          renderRefresh: false,
+        });
+      }
+    } else {
+      const {putawayList} = this.props;
+      let filtered =
+        (prevState.renderGoBack !== this.state.renderGoBack &&
+          this.state.renderGoBack === true) ||
+        prevState.filtered !== this.state.filtered ||
+        prevState.search !== this.state.search ||
+        prevState.dropdown !== this.state.dropdown
+          ? this.state.filtered
+          : null;
+      if (filtered === 0) {
+        this.setState({
+          list: putawayList.filter(
+            (element) =>
+              String(element.client)
+                .toLowerCase()
+                .indexOf(this.state.search.toLowerCase()) > -1 &&
+                (this.state.dropdown === '' ||
+                  (this.state.dropdown !== '' &&
+                    moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+          ),
+          renderGoBack: false,
+          renderRefresh: false,
+        });
+      } else if (filtered === 1) {
+        this.setState({
+          list: putawayList
+            .filter((element) => element.type === 1)
+            .filter(
+              (element) =>
+                String(element.client)
+                  .toLowerCase()
+                  .indexOf(this.state.search.toLowerCase()) > -1 &&
+                  (this.state.dropdown === '' ||
+                    (this.state.dropdown !== '' &&
+                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+            ),
+          renderGoBack: false,
+          renderRefresh: false,
+        });
+      } else if (filtered === 2) {
+        this.setState({
+          list: putawayList
+            .filter((element) => element.type === 2)
+            .filter(
+              (element) =>
+                String(element.client)
+                  .toLowerCase()
+                  .indexOf(this.state.search.toLowerCase()) > -1 &&
+                  (this.state.dropdown === '' ||
+                    (this.state.dropdown !== '' &&
+                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+            ),
+          renderGoBack: false,
+          renderRefresh: false,
+        });
+      } else if (filtered === 3) {
+        this.setState({
+          list: putawayList
+            .filter((element) => element.type === 3)
+            .filter(
+              (element) =>
+                String(element.client)
+                  .toLowerCase()
+                  .indexOf(this.state.search.toLowerCase()) > -1 &&
+                  (this.state.dropdown === '' ||
+                    (this.state.dropdown !== '' &&
+                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+            ),
+          renderGoBack: false,
+          renderRefresh: false,
+        });
+      } else if (filtered === 4) {
+        this.setState({
+          list: putawayList
+            .filter((element) => element.type === 4)
+            .filter(
+              (element) =>
+                String(element.client)
+                  .toLowerCase()
+                  .indexOf(this.state.search.toLowerCase()) > -1 &&
+                  (this.state.dropdown === '' ||
+                    (this.state.dropdown !== '' &&
+                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+            ),
+          renderGoBack: false,
+          renderRefresh: false,
+        });
+      }
     }
-    const {putawayList} = this.props;
-    let filtered =
-      (prevState.renderGoBack !== this.state.renderGoBack &&
-        this.state.renderGoBack === true) ||
-      (prevState.renderRefresh !== this.state.renderRefresh &&
-        this.state.renderRefresh === true) ||
-      prevState.filtered !== this.state.filtered ||
-      prevState.search !== this.state.search
-        ? this.state.filtered
-        : null;
-    if (filtered === 0) {
-      this.setState({
-        list: putawayList.filter(
-          (element) =>
-            String(element.pallet)
-              .toLowerCase()
-              .indexOf(this.state.search.toLowerCase()) > -1,
-        ),
-        renderGoBack: false,
-        renderRefresh: false,
-      });
-    } else if (filtered === 1) {
-      this.setState({
-        list: putawayList
-          .filter((element) => element.type === 1)
-          .filter(
-            (element) =>
-              String(element.pallet)
-                .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1,
-          ),
-        renderGoBack: false,
-        renderRefresh: false,
-      });
-    } else if (filtered === 2) {
-      this.setState({
-        list: putawayList
-          .filter((element) => element.type === 2)
-          .filter(
-            (element) =>
-              String(element.pallet)
-                .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1,
-          ),
-        renderGoBack: false,
-        renderRefresh: false,
-      });
-    } else if (filtered === 3) {
-      this.setState({
-        list: putawayList
-          .filter((element) => element.type === 3)
-          .filter(
-            (element) =>
-              String(element.pallet)
-                .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1,
-          ),
-        renderGoBack: false,
-        renderRefresh: false,
-      });
-    } else if (filtered === 4) {
-      this.setState({
-        list: putawayList
-          .filter((element) => element.type === 4)
-          .filter(
-            (element) =>
-              String(element.pallet)
-                .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1,
-          ),
-        renderGoBack: false,
-        renderRefresh: false,
-      });
-    }
+  
   }
   async componentDidMount() {
     const resultedList = await this.updateASN();
@@ -155,9 +254,12 @@ class List extends React.Component {
       this.setState({
         list: resultedList.filter(
           (element) =>
-            String(element.pallet)
+            String(element.client)
               .toLowerCase()
-              .indexOf(this.state.search.toLowerCase()) > -1,
+              .indexOf(this.state.search.toLowerCase()) > -1 &&
+              (this.state.dropdown === '' ||
+                (this.state.dropdown !== '' &&
+                  moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
         ),
       });
     } else if (filtered === 1) {
@@ -166,9 +268,12 @@ class List extends React.Component {
           .filter((element) => element.type === 1)
           .filter(
             (element) =>
-              String(element.pallet)
+              String(element.client)
                 .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1,
+                .indexOf(this.state.search.toLowerCase()) > -1 &&
+                (this.state.dropdown === '' ||
+                  (this.state.dropdown !== '' &&
+                    moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
           ),
       });
     } else if (filtered === 2) {
@@ -177,9 +282,12 @@ class List extends React.Component {
           .filter((element) => element.type === 2)
           .filter(
             (element) =>
-              String(element.pallet)
+              String(element.client)
                 .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1,
+                .indexOf(this.state.search.toLowerCase()) > -1 &&
+                (this.state.dropdown === '' ||
+                  (this.state.dropdown !== '' &&
+                    moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
           ),
       });
     } else if (filtered === 3) {
@@ -188,9 +296,12 @@ class List extends React.Component {
           .filter((element) => element.type === 3)
           .filter(
             (element) =>
-              String(element.pallet)
+              String(element.client)
                 .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1,
+                .indexOf(this.state.search.toLowerCase()) > -1 &&
+                (this.state.dropdown === '' ||
+                  (this.state.dropdown !== '' &&
+                    moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
           ),
       });
     } else if (filtered === 4) {
@@ -199,9 +310,12 @@ class List extends React.Component {
           .filter((element) => element.type === 4)
           .filter(
             (element) =>
-              String(element.pallet)
+              String(element.client)
                 .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1,
+                .indexOf(this.state.search.toLowerCase()) > -1 &&
+                (this.state.dropdown === '' ||
+                  (this.state.dropdown !== '' &&
+                    moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
           ),
       });
     }
@@ -210,6 +324,19 @@ class List extends React.Component {
     this.setState({renderRefresh: true});
   };
   render() {
+    const {putawayList} = this.props;
+    let arrayDate = Array.from({
+      length: putawayList.length,
+    }).map((num, index) => {
+      if (putawayList[index].date !== undefined && putawayList[index].date !== 0) {
+        return moment(putawayList[index].date).format("DD-MM-YYYY");
+      }
+      return null;
+    });
+    let stringDate = arrayDate.filter((o)=> o !== null).join();
+    let DateOption = [
+      ...new Set(String('All' + (stringDate.length > 0 ? ',' + stringDate : '')).split(',')),
+    ];
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -223,46 +350,125 @@ class List extends React.Component {
             />
           }
           showsVerticalScrollIndicator={false}>
-          <Text
+          <View style={{flexDirection:'row',flexShrink:1, alignItems:'flex-start', justifyContent:'flex-start', paddingHorizontal:10,marginTop:15}}>
+            <View style={{marginRight:15, flex:1}}>
+         
+          <Input
+              leftIcon={
+                <IconSearchMobile
+                  height="20"
+                  width="20"
+                  fill="#ABABAB"
+                  style={{marginLeft: 5}}
+                />
+              }
+              containerStyle={{flex: 1}}
+              inputContainerStyle={{
+                ...styles.textInput,
+                backgroundColor: '#fff',
+              }}
+              inputStyle={[
+                Mixins.containedInputDefaultStyle,
+                {marginHorizontal: 0},
+              ]}
+              labelStyle={[
+                {
+                  ...Mixins.body1,
+                  ...Mixins.containedInputDefaultLabel
+                  ,fontWeight:'700',lineHeight:21,color:'black',
+                },
+                {marginBottom: 5},
+              ]}
+              label="Search"
+              onChangeText={this.updateSearch}
+              value={this.state.search}
+            />
+            </View>
+            <View style={{flex:1, alignItems:'flex-start', justifyContent:'flex-start'}}>
+            <Text
             style={{
               ...Mixins.subtitle1,
               lineHeight: 21,
               color: '#424141',
-              paddingHorizontal: 20,
-              marginTop: 15,
+              marginBottom:5,
             }}>
-            Search
+            Date
           </Text>
-          <SearchBar
-            placeholder="Search..."
-            onChangeText={this.updateSearch}
-            value={this.state.search}
-            lightTheme={true}
-            inputStyle={{
-              backgroundColor: '#fff',
-              ...Mixins.body1,
-              padding: 0,
-              margin: 0,
-            }}
-            placeholderTextColor="#2D2C2C"
-            searchIcon={() => (
-              <IconSearchMobile height="15" width="15" fill="#2D2C2C" />
-            )}
-            containerStyle={{
-              backgroundColor: 'transparent',
-              borderTopWidth: 0,
-              borderBottomWidth: 0,
-              paddingHorizontal: 20,
-              marginVertical: 5,
-            }}
-            inputContainerStyle={{
-              backgroundColor: 'white',
-              borderWidth: 1,
-              borderBottomWidth: 1,
-              borderColor: '#D5D5D5',
-            }}
-            leftIconContainerStyle={{backgroundColor: 'white'}}
-          />
+            <SelectDropdown
+                    buttonStyle={{
+                     width:'100%',
+                      maxHeight: 30,
+                      borderRadius: 5,
+                      borderWidth: 1,
+                      borderColor: '#D5D5D5',
+                      backgroundColor: 'white',
+                    }}
+                    buttonTextStyle={{
+                      ...Mixins.small1,
+                      fontWeight: '400',
+                      lineHeight: 18,
+                      color: '#424141',
+                      textAlign: 'left',
+                    }}
+                    data={DateOption}
+                    defaultValueByIndex={this.state.dropdown === '' ? 0 : DateOption.findIndex((o)=> o === this.state.dropdown)}
+                    onSelect={(selectedItem, index) => {
+                      this.setState({
+                        dropdown: selectedItem === 'All' ? '' : selectedItem,
+                      });
+                    }}
+                    renderDropdownIcon={() => {
+                      return (
+                        <IconArrow66Mobile
+                          fill="#2D2C2C"
+                          height="15"
+                          width="15"
+                          style={{transform: [{rotate: '90deg'}]}}
+                        />
+                      );
+                    }}
+                    dropdownIconPosition="right"
+                    buttonTextAfterSelection={(selectedItem, index) => {
+                      // text represented after item is selected
+                      // if data array is an array of objects then return selectedItem.property to render after item is selected
+                      return selectedItem;
+                    }}
+                    rowTextForSelection={(item, index) => {
+                      // text represented for each item in dropdown
+                      // if data array is an array of objects then return item.property to represent item in dropdown
+                      return item;
+                    }}
+                    renderCustomizedRowChild={(item, index) => {
+                      return (
+                        <View
+                          style={{
+                            flex: 1,
+                            paddingHorizontal: 27,
+                            backgroundColor:
+                              item === this.state.dropdown ||
+                              (item === 'All' && this.state.dropdown === '')
+                                ? '#e7e8f2'
+                                : 'transparent',
+                            paddingVertical: 0,
+                            marginVertical: 0,
+                            justifyContent: 'center',
+                          }}>
+                          <Text
+                            style={{
+                              ...Mixins.small1,
+                              fontWeight: '400',
+                              lineHeight: 18,
+                              color: '#424141',
+                            }}>
+                            {item}
+                          </Text>
+                        </View>
+                      );
+                    }}
+                  />
+            </View>
+          </View>
+       
           <View style={styles.sectionContent}>
             <Card containerStyle={styles.cardContainer}>
               <View style={styles.headingCard}>
@@ -312,7 +518,7 @@ class List extends React.Component {
                   }
                 />
                 <Badge
-                  value="OTHERS"
+                  value="TRANSIT"
                   containerStyle={styles.badgeSort}
                   onPress={() => this.setFiltered(3)}
                   badgeStyle={
@@ -326,7 +532,7 @@ class List extends React.Component {
                       : styles.badgeInactiveTint
                   }
                 />
-                <Badge
+                {/* <Badge
                   value="TRANSIT"
                   containerStyle={styles.badgeSort}
                   onPress={() => this.setFiltered(4)}
@@ -340,7 +546,7 @@ class List extends React.Component {
                       ? styles.badgeActiveTint
                       : styles.badgeInactiveTint
                   }
-                />
+                /> */}
               </View>
               {this.state.list.length === 0 ? (
                 <View
