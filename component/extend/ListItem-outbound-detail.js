@@ -112,19 +112,19 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
   let status = 'grey';
   let textstatus = 'pending';
   switch (item.status) {
-    case 2:
+    case 1:
       status = '#ABABAB';
       textstatus = 'Waiting';
       break;
-      case 3:
+      case 2:
       status = '#F1811C';
       textstatus = 'In Progress';
       break;
-      case 4:
+      case 3:
         status = '#17B055';
       textstatus = 'Completed';
       break;
-      case 5:
+      case 4:
       status = '#E03B3B';
       textstatus = 'Reported';
       break;
