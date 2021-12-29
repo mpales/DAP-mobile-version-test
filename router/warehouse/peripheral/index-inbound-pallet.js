@@ -26,6 +26,8 @@ import moment from 'moment';
 import {postData} from '../../../component/helper/network';
 import {connect} from 'react-redux';
 import MultipleSKUList from '../../../component/extend/ListItem-inbound-multiple-sku';
+import {default as Reanimated, useAnimatedScrollHandler} from 'react-native-reanimated';
+import BottomSheet from 'reanimated-bottom-sheet';
 import Banner from '../../../component/banner/banner';
 const screen = Dimensions.get('screen');
 const grade = ["Pick", "Buffer", "Damage", "Defective", "Short Expiry", "Expired", "No Stock", "Reserve"];
@@ -280,7 +282,7 @@ class Example extends React.Component {
     <View style={styles.sheetContainer}>
       <View style={styles.sectionSheetDetail}>
         <View style={styles.sheetPackages}
-        onLayout={(e)=> this.setState({dynamicheight:e.nativeEvent.layout.height+180})}
+        onLayout={(e)=> this.setState({dynamicheight:e.nativeEvent.layout.height+160})}
         >
                { this.state.elementProduct === null ? ( 
               <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
@@ -369,10 +371,11 @@ class Example extends React.Component {
       </View>
     </View>
   );
-
   renderHeader = () => (
     <View style={styles.header}>
-      <View style={styles.panelHeader} />
+     <View style={styles.panelHeader}>
+      <View style={styles.panelHandle} />
+    </View>
     </View>
   );
 
@@ -414,17 +417,17 @@ class Example extends React.Component {
           />)}
         {detectBarcodeToState === false ? (
           <this.renderModal/>
-        ) : (          <Modalize 
+        ) : (          <BottomSheet
           ref={this.modalizeRef}
-          handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
-          handlePosition={'inside'}
-          disableScrollIfPossible={true}
-          modalHeight={this.state.dynamicheight}
-          alwaysOpen={this.state.dynamicheight}
-          HeaderComponent={<this.renderHeader />}
-        >
-          <this.renderInner />
-        </Modalize>)}
+          initialSnap={2}
+          snapPoints={[30,110, this.state.dynamicheight] }
+          enabledBottomClamp={false}
+          enabledContentTapInteraction={false}
+          renderContent={this.renderInner}
+          renderHeader={this.renderHeader}
+          enabledInnerScrolling={false}
+          enabledBottomInitialAnimation={false}
+        />)}
         <TouchableWithoutFeedback onPress={() => {}}>
           <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} useManualMenu={false} barcodeContext={"Scan barcode Here"}/>
         </TouchableWithoutFeedback>
@@ -481,20 +484,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#f7f5eee8',
   },
   header: {
-    backgroundColor: '#ffffff',
-    shadowColor: '#000000',
-    paddingTop: 20,
+    backgroundColor: 'white',
+    height: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    paddingBottom:0,
+    marginBottom:-1,
+    borderBottomColor:'white',
+    borderBottomWidth:0,
   },
   panelHeader: {
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 11,
   },
   panelHandle: {
     width: 120,
     height: 7,
     backgroundColor: '#C4C4C4',
-    marginBottom: 10,
   },
   photo: {
     width: '100%',
