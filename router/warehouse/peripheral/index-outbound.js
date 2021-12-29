@@ -166,41 +166,42 @@ class Example extends React.Component {
     return null;
   return dataItem.detail[index].grade;
 });
-  // let grade = '';
-  //   switch (gradeArr[0]) {
-  //     case 1:
-  //       grade = 'Pick'
-  //       break;
-  //       case 2:
-  //         grade = 'Buffer'
-  //         break;
-  //         case 3:
-  //           grade = 'Damage'
-  //           break;
-  //           case 4:
-  //             grade = 'Defective'
-  //             break;
-  //             case 5:
-  //               grade = 'Short Expiry'
-  //               break;
-  //               case 6:
-  //                 grade = 'Expired'
-  //                 break;
-  //                 case 7:
-  //                   grade = 'No Stock'
-  //                   break;
-  //                   case 8:
-  //                     grade = 'Reserve'
-  //                     break;
-  //                     case 9:
-  //                       grade = 'SIT'
-  //                       break;
-  //                       case 10:
-  //                         grade = 'Rework'
-  //                         break;
-  //     default:
-  //       break;
-  //   }
+  let gradeFiltered = gradeArr.filter((o)=> o !== null);
+   let grade = '';
+    switch (gradeFiltered[0]) {
+     case 1:
+        grade = 'Pick'
+        break;
+        case 2:
+          grade = 'Buffer'
+         break;
+          case 3:
+            grade = 'Damage'
+           break;
+           case 4:
+             grade = 'Defective'
+             break;
+             case 5:
+               grade = 'Short Expiry'
+               break;
+                case 6:
+                  grade = 'Expired'
+                  break;
+                 case 7:
+                   grade = 'No Stock'
+                   break;
+                   case 8:
+                       grade = 'Reserve'
+                     break;
+                     case 9:
+                         grade = 'SIT'
+                       break;
+                       case 10:
+                         grade = 'Rework'
+                         break;
+      default:
+       break;
+   }
 
   let uomArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
       if(dataItem.detail[index].uom === undefined)
@@ -363,7 +364,7 @@ class Example extends React.Component {
                   <Text style={styles.labelNotFound}>Stock Grade </Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
                   <Text style={styles.dotLabel}>:</Text>
-                  <Text style={styles.infoNotFound}>{gradeArr.length > 0 ? gradeArr[0] : '-'}</Text>
+                  <Text style={styles.infoNotFound}>{grade ? grade : '-'}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
@@ -579,41 +580,42 @@ class Example extends React.Component {
       return null;
     return dataItem.detail[index].grade;
   });
-  // let grade = '';
-  //   switch (gradeArr[0]) {
-  //     case 1:
-  //       grade = 'Pick'
-  //       break;
-  //       case 2:
-  //         grade = 'Buffer'
-  //         break;
-  //         case 3:
-  //           grade = 'Damage'
-  //           break;
-  //           case 4:
-  //             grade = 'Defective'
-  //             break;
-  //             case 5:
-  //               grade = 'Short Expiry'
-  //               break;
-  //               case 6:
-  //                 grade = 'Expired'
-  //                 break;
-  //                 case 7:
-  //                   grade = 'No Stock'
-  //                   break;
-  //                   case 8:
-  //                     grade = 'Reserve'
-  //                     break;
-  //                     case 9:
-  //                       grade = 'SIT'
-  //                       break;
-  //                       case 10:
-  //                         grade = 'Rework'
-  //                         break;
-  //     default:
-  //       break;
-  //   }
+  let gradeFiltered = gradeArr.filter((o)=> o !== null );
+  let grade = '';
+    switch (gradeFiltered[0]) {
+      case 1:
+        grade = 'Pick'
+         break;
+        case 2:
+          grade = 'Buffer'
+          break;
+         case 3:
+           grade = 'Damage'
+           break;
+            case 4:
+             grade = 'Defective'
+             break;
+             case 5:
+               grade = 'Short Expiry'
+               break;
+               case 6:
+                 grade = 'Expired'
+                 break;
+                 case 7:
+                   grade = 'No Stock'
+                  break;
+                   case 8:
+                      grade = 'Reserve'
+                     break;
+                     case 9:
+                       grade = 'SIT'
+                       break;
+                        case 10:
+                         grade = 'Rework'
+                          break;
+     default:
+       break;
+   }
 
   let uomArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
       if(dataItem.detail[index].uom === undefined)
@@ -720,7 +722,7 @@ class Example extends React.Component {
                       <Text style={styles.labelNotFound}>Stock Grade</Text>
                       <View style={{flexDirection:'row', flexShrink:1}}>
                       <Text style={styles.dotLabel}>:</Text>
-                      <Text style={styles.infoNotFound}>{gradeArr.length > 0 ? gradeArr[0] : '-'}</Text>
+                      <Text style={styles.infoNotFound}>{grade ? grade : '-'}</Text>
                       </View>
                     </View>
              

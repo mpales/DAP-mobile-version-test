@@ -75,55 +75,55 @@ class ConnoteDetails extends React.Component {
     let totalQty = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
       return _itemDetail.detail[index].quantity;
     });
-    console.log(totalQty);
     let expArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
         if(_itemDetail.detail[index].attributes.expiry_date === undefined)
-        return [];
+        return null;
       return _itemDetail.detail[index].attributes.expiry_date;
     });
-    let expFiltered = expArr;
+    let expFiltered = expArr.filter((o)=> o !== null);
 
     let colorArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
         if(_itemDetail.detail[index].attributes.color === undefined)
-        return [];
+        return null;
       return _itemDetail.detail[index].attributes.color;
     });
-    let colorFiltered =colorArr;
+    let colorFiltered =colorArr.filter((o)=> o !== null);;
     
     let weightArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
       if(_itemDetail.detail[index].attributes.weight === undefined)
-      return [];
+      return null;
       return _itemDetail.detail[index].attributes.weight;
     });
-    let weightFiltered = weightArr;
+    let weightFiltered = weightArr.filter((o)=> o !== null);;
 
     
     let volumeArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
       if(_itemDetail.detail[index].attributes.volume === undefined)
-      return [];
+      return null;
       return _itemDetail.detail[index].attributes.volume;
     });
-    let volumeFiltered = volumeArr;
+    let volumeFiltered = volumeArr.filter((o)=> o !== null);;
     
        
     let classArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
       if(_itemDetail.detail[index].attributes.class === undefined)
-      return [];
+      return null;
       return _itemDetail.detail[index].attributes.class;
     });
-    let classFiltered = classArr;
+    let classFiltered = classArr.filter((o)=> o !== null);;
 
     let banchArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
       if(_itemDetail.detail[index].batch_no === undefined)
-      return [];
+      return null;
       return _itemDetail.detail[index].batch_no;
     });
-    let banchFiltered = banchArr;
+    let banchFiltered = banchArr.filter((o)=> o !== null);;
     let categoryArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
       if(_itemDetail.detail[index].attributes.category === undefined)
-      return [];
+      return null;
       return _itemDetail.detail[index].attributes.category;
     });
+    categoryFiltered = categoryArr.filter((o)=> o !== null);
     return (
       <>
       <Card containerStyle={[styles.cardContainer,{paddingHorizontal:0,paddingVertical:10}]} style={styles.card}>
@@ -141,16 +141,16 @@ class ConnoteDetails extends React.Component {
                 <DetailList title="Barcode" value={_itemDetail.product.item_code} />
                 <DetailList title="UOM" value={_itemDetail.product.uom} />
                 <DetailList title="Quantity" value={totalQty.length > 0 ? String(totalQty.reduce((p,n)=>p+n)) : "0"}/>
-                <DetailList title="Product Class" value={classFiltered[0].length > 0 ? classFiltered[0] : '-'  } />
-                <DetailList title="CBM" value={volumeFiltered[0].length > 0 ? volumeFiltered[0] : '-'} />
-                <DetailList title="Weight" value={weightFiltered[0].length > 0 ? weightFiltered[0] : '-'} />
+                <DetailList title="Product Class" value={classFiltered.length > 0 ? classFiltered[0] : '-'  } />
+                <DetailList title="CBM" value={volumeFiltered.length > 0 ? volumeFiltered[0] : '-'} />
+                <DetailList title="Weight" value={weightFiltered.length > 0 ? weightFiltered[0] : '-'} />
                 </View>
                 <Divider/>
                 <View style={[styles.detailSection,{paddingVertical:10}]}>
-                  <Text style={styles.reportSectionTitle}>Product Category : {categoryArr[0].length > 0 ? categoryArr[0]:'-' }</Text>
-                  <DetailList title="Color" value={colorFiltered[0].length > 0 ? colorFiltered[0] : '-' } />
-                  <DetailList title="EXP Date" value={expFiltered[0] ? moment(expFiltered[0]).format('YYYY-MM-DD HH:mm:ss') : '-'} />
-                  <DetailList title="Batch" value={banchFiltered[0].length > 0 ? banchFiltered[0] : '-'} />
+                  <Text style={styles.reportSectionTitle}>Product Category : {categoryFiltered.length > 0 ? categoryFiltered[0]:'-' }</Text>
+                  <DetailList title="Color" value={colorFiltered.length > 0 ? colorFiltered[0] : '-' } />
+                  <DetailList title="EXP Date" value={expFiltered.length > 0 && expFiltered[0] ? moment(expFiltered[0]).format('YYYY-MM-DD HH:mm:ss') : '-'} />
+                  <DetailList title="Batch" value={banchFiltered.length > 0 ? banchFiltered[0] : '-'} />
                 </View>
                 <View style={[styles.reportSection,{paddingHorizontal:20}]}>
                   <Text style={styles.reportSectionTitle}>Report:</Text>
