@@ -84,10 +84,10 @@ export const stockTakeJobStatusColor = (status) => {
     case 'Completed':
       color = '#17B055';
       break;
-    case 'Waiting':
+    case 'Pending':
       color = '#ABABAB';
       break;
-    case 'In Progress':
+    case 'Processing':
       color = '#F07120';
       break;
     case 'Recount':
@@ -98,6 +98,9 @@ export const stockTakeJobStatusColor = (status) => {
       break;
     case 'Reported':
       color = '#E03B3B';
+      break;
+    case 'Processed':
+      color = '#17B055';
       break;
     default:
       color = '#ABABAB';
