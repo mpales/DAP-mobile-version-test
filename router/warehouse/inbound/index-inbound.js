@@ -139,6 +139,18 @@ class WarehouseNavigator extends React.Component {
           this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'});
           return true;
         } else if (
+          this.props.keyStack === 'CompleteReceiving' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'});
+          return true;
+        } else if (
+          this.props.keyStack === 'Completed' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {screen: 'List'});
+          return true;
+        } else if (
           prevProps.keyStack === 'WarehouseIn' &&
           this.props.keyStack === 'Barcode' &&
           this.props.indexBottomBar === 0
@@ -218,11 +230,48 @@ class WarehouseNavigator extends React.Component {
           });
           return true;
         } else if (
+          prevProps.keyStack === 'CompleteReceiving' &&
+          this.props.keyStack === 'SingleCamera' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'CompleteReceiving',
+            params: {submitPhoto: false},
+          });
+          return true;
+        } else if (
+          prevProps.keyStack === 'PalletDetails' &&
           this.props.keyStack === 'PalletScanner' &&
           this.props.indexBottomBar === 0
         ) {
           this.navigationRef.current.navigate('Inbound', {
             screen: 'PalletDetails',
+          });
+          return true;
+        } else if (
+          prevProps.keyStack === 'PutawayItemDetails' &&
+          this.props.keyStack === 'PalletScanner' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PutawayItemDetails',
+          });
+          return true;
+        } else if (
+          prevProps.keyStack === 'PutawayTransitDetails' &&
+          this.props.keyStack === 'PalletScanner' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PutawayTransitDetails',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'ManualPallet' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PalletScanner',
           });
           return true;
         } else if (
@@ -236,6 +285,38 @@ class WarehouseNavigator extends React.Component {
           return true;
         } else if (
           this.props.keyStack === 'PalletDetails' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PutawayPallet',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'PutawayTransitDetails' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PalletList',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'PutawayItemDetails' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PutawayItem',
+          });
+          return true;
+        }else if (
+          this.props.keyStack === 'PutawayItem' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PalletList',
+          });
+          return true;
+        }else if (
+          this.props.keyStack === 'PutawayPallet' &&
           this.props.indexBottomBar === 0
         ) {
           this.navigationRef.current.navigate('Inbound', {
@@ -264,15 +345,15 @@ class WarehouseNavigator extends React.Component {
         ) {
           return false;
         } else if (
-          this.props.keyStack === 'PhotosDraftSPV' &&
+          this.props.keyStack === 'CompletedSupervisor' &&
           this.props.indexBottomBar === 0
         ) {
           this.navigationRef.current.navigate('SupervisorMode', {
-            screen: 'ManifestSupervisor',
+            screen: 'ListSupervisor',
           });
           return true;
         } else if (
-          this.props.keyStack === 'UpdatePhotosSPV' &&
+          this.props.keyStack === 'PhotosDraftSPV' &&
           this.props.indexBottomBar === 0
         ) {
           this.navigationRef.current.navigate('SupervisorMode', {
@@ -288,11 +369,27 @@ class WarehouseNavigator extends React.Component {
           });
           return true;
         } else if (
-          this.props.keyStack === 'IVASDetailsSPV' &&
+          this.props.keyStack === 'ReportSingleDetailsSPV' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('SupervisorMode', {
+            screen: 'ReportDetailsSPV',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'IVASListSPV' &&
           this.props.indexBottomBar === 0
         ) {
           this.navigationRef.current.navigate('SupervisorMode', {
             screen: 'ManifestSupervisor',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'IVASDetailsSPV' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('SupervisorMode', {
+            screen: 'IVASListSPV',
           });
           return true;
         } else if (
@@ -382,6 +479,12 @@ class WarehouseNavigator extends React.Component {
         this.props.setBottomBar(false);
       }
       if (
+        this.props.keyStack === 'ItemProcess' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
         this.props.keyStack === 'itemDetail' &&
         this.props.indexBottomBar === 0
       ) {
@@ -418,7 +521,37 @@ class WarehouseNavigator extends React.Component {
         this.props.setBottomBar(false);
       }
       if (
+        this.props.keyStack === 'ManualPallet' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
         this.props.keyStack === 'PalletDetails' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'PutawayTransitDetails' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'PutawayItemDetails' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'PutawayItem' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'PutawayPallet' &&
         this.props.indexBottomBar === 0
       ) {
         this.props.setBottomBar(false);
@@ -447,16 +580,38 @@ class WarehouseNavigator extends React.Component {
       ) {
         this.props.setBottomBar(false);
       }
-
       if (
-        this.props.keyStack === 'UpdatePhotosSPV' &&
+        this.props.keyStack === 'CompleteReceiving' &&
         this.props.indexBottomBar === 0
       ) {
         this.props.setBottomBar(false);
       }
-
+      if (
+        this.props.keyStack === 'Completed' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'CompletedSupervisor' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'ReportSingleDetailsSPV' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
       if (
         this.props.keyStack === 'ReportDetailsSPV' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'IVASListSPV' &&
         this.props.indexBottomBar === 0
       ) {
         this.props.setBottomBar(false);
@@ -490,6 +645,18 @@ class WarehouseNavigator extends React.Component {
       }
       if (
         this.props.keyStack === 'enlargeImage' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'EnlargeImage' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'SingleCamera' &&
         this.props.indexBottomBar === 0
       ) {
         this.props.setBottomBar(false);
@@ -546,14 +713,25 @@ class WarehouseNavigator extends React.Component {
     } else {
       this.props.toggleDrawer(isDrawerOpen);
     }
-
+    const filteredProps = {
+      ...props,
+      state: {
+        ...props.state,
+        routeNames: props.state.routeNames.filter((routeName) => {
+          routeName !== 'HomeDrawer';
+        }),
+        routes: props.state.routes.filter(
+          (route) => route.name !== 'HomeDrawer',
+        ),
+      },
+    };
     return (
       <DrawerContentScrollView
+        {...filteredProps}
         contentContainerStyle={{
           paddingTop: 0,
           flex: 1,
-        }}
-        {...props}>
+        }}>
         <SafeAreaView edges={['top']} style={{backgroundColor: '#F1811C'}}>
           <View style={styles.drawerHead}>
             <Avatar
@@ -561,13 +739,12 @@ class WarehouseNavigator extends React.Component {
               rounded
               containerStyle={styles.drawerAvatar}
               source={{
-                uri:
-                  'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
+                uri: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
               }}></Avatar>
-            <Text style={styles.drawerText}>Driver Name</Text>
+            <Text style={styles.drawerText}>Operator Name</Text>
           </View>
         </SafeAreaView>
-        <DrawerItemList {...props} />
+        <DrawerItemList {...filteredProps} />
         <DrawerItem label="Logout" onPress={this.drawerLogout} />
         <Text style={styles.versionText}>
           {`Version ${DeviceInfo.getVersion()}`}
@@ -597,10 +774,8 @@ class WarehouseNavigator extends React.Component {
     const focusedRoute = state.routes[state.index];
     const focusedDescriptor = descriptors[focusedRoute.key];
     const focusedOptions = focusedDescriptor.options;
-    const {
-      tabBarActiveBackgroundColor,
-      tabBarInactiveBackgroundColor,
-    } = focusedOptions;
+    const {tabBarActiveBackgroundColor, tabBarInactiveBackgroundColor} =
+      focusedOptions;
     const tabBarActiveTintColor = props.activeTintColor;
     const tabBarInactiveTintColor = props.inactiveTintColor;
     this.setWrapperofNavigation(
@@ -666,7 +841,7 @@ class WarehouseNavigator extends React.Component {
             options.tabBarAccessibilityLabel !== undefined
               ? options.tabBarAccessibilityLabel
               : typeof label === 'string' && Platform.OS === 'ios'
-              ? `${label}, tab, ${index + 1} of ${routes.length}`
+              ? `${label}, tab, ${index + 1} of ${state.routes.length}`
               : undefined;
           return (
             <NavigationContext.Provider
@@ -770,7 +945,7 @@ class WarehouseNavigator extends React.Component {
       tabBar: (props) => {
         return this._CustomBottomTabContent(props);
       },
-      initialRouteName: 'Home',
+      initialRouteName: 'Inbound',
       tabBarOptions: {
         shifting: false,
         showLabel: false,
@@ -797,7 +972,7 @@ class WarehouseNavigator extends React.Component {
   render() {
     return (
       <Drawer.Navigator
-        initialRouteName="Home"
+        initialRouteName="HomeDrawer"
         drawerStyle={Mixins.verticalBarExpand}
         drawerContent={this._CustomDrawerContent}
         contentContainerStyle={styles.drawerContainer}
@@ -809,6 +984,15 @@ class WarehouseNavigator extends React.Component {
           labelStyle: Mixins.button,
           itemStyle: Mixins.verticalBarMargin,
         }}>
+        <Drawer.Screen
+          name="HomeDrawer"
+          component={this.deliveryTab}
+          options={{
+            drawerIcon: ({focused, color, size}) => (
+              <IconBell2Mobile height="20" width="17" fill="#2D2C2C" />
+            ),
+          }}
+        />
         <Drawer.Screen
           name="Notifications"
           component={this.deliveryTab}

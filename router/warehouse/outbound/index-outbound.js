@@ -168,7 +168,7 @@ class WarehouseNavigator extends React.Component {
           this.props.keyStack === 'ManualInput' &&
           this.props.indexBottomBar === 0
         ) {
-          this.navigationRef.current.navigate('Outbound', {screen: 'List'});
+          this.navigationRef.current.navigate('Outbound', {screen: 'Barcode'});
           return true;
         } else if (
           this.props.keyStack === 'SingleCamera' &&
@@ -217,7 +217,25 @@ class WarehouseNavigator extends React.Component {
         this.props.setBottomBar(false);
       }
       if (
+        this.props.keyStack === 'ItemReportDetail' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
         this.props.keyStack === 'newItem' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'SingleCamera' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'EnlargeImage' &&
         this.props.indexBottomBar === 0
       ) {
         this.props.setBottomBar(false);
@@ -226,7 +244,7 @@ class WarehouseNavigator extends React.Component {
         this.props.keyStack === 'ReportManifest' &&
         this.props.indexBottomBar === 0
       ) {
-        this.props.setBottomBar(true);
+        this.props.setBottomBar(false);
       }
       if (
         this.props.keyStack === 'ManualInput' &&
@@ -263,14 +281,25 @@ class WarehouseNavigator extends React.Component {
     } else {
       this.props.toggleDrawer(isDrawerOpen);
     }
-
+    const filteredProps = {
+      ...props,
+      state: {
+        ...props.state,
+        routeNames: props.state.routeNames.filter((routeName) => {
+          routeName !== 'HomeDrawer';
+        }),
+        routes: props.state.routes.filter(
+          (route) => route.name !== 'HomeDrawer',
+        ),
+      },
+    };
     return (
       <DrawerContentScrollView
+        {...filteredProps}
         contentContainerStyle={{
           paddingTop: 0,
           flex: 1,
-        }}
-        {...props}>
+        }}>
         <SafeAreaView edges={['top']} style={{backgroundColor: '#F1811C'}}>
           <View style={styles.drawerHead}>
             <Avatar
@@ -278,13 +307,12 @@ class WarehouseNavigator extends React.Component {
               rounded
               containerStyle={styles.drawerAvatar}
               source={{
-                uri:
-                  'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
+                uri: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
               }}></Avatar>
-            <Text style={styles.drawerText}>Driver Name</Text>
+            <Text style={styles.drawerText}>Operator Name</Text>
           </View>
         </SafeAreaView>
-        <DrawerItemList {...props} />
+        <DrawerItemList {...filteredProps} />
         <DrawerItem label="Logout" onPress={this.drawerLogout} />
         <Text style={styles.versionText}>
           {`Version ${DeviceInfo.getVersion()}`}
@@ -314,10 +342,8 @@ class WarehouseNavigator extends React.Component {
     const focusedRoute = state.routes[state.index];
     const focusedDescriptor = descriptors[focusedRoute.key];
     const focusedOptions = focusedDescriptor.options;
-    const {
-      tabBarActiveBackgroundColor,
-      tabBarInactiveBackgroundColor,
-    } = focusedOptions;
+    const {tabBarActiveBackgroundColor, tabBarInactiveBackgroundColor} =
+      focusedOptions;
     const tabBarActiveTintColor = props.activeTintColor;
     const tabBarInactiveTintColor = props.inactiveTintColor;
     this.setWrapperofNavigation(
@@ -383,7 +409,7 @@ class WarehouseNavigator extends React.Component {
             options.tabBarAccessibilityLabel !== undefined
               ? options.tabBarAccessibilityLabel
               : typeof label === 'string' && Platform.OS === 'ios'
-              ? `${label}, tab, ${index + 1} of ${routes.length}`
+              ? `${label}, tab, ${index + 1} of ${state.routes.length}`
               : undefined;
           return (
             <NavigationContext.Provider
@@ -487,7 +513,7 @@ class WarehouseNavigator extends React.Component {
       tabBar: (props) => {
         return this._CustomBottomTabContent(props);
       },
-      initialRouteName: 'Home',
+      initialRouteName: 'Outbound',
       tabBarOptions: {
         shifting: false,
         showLabel: false,
@@ -514,7 +540,7 @@ class WarehouseNavigator extends React.Component {
   render() {
     return (
       <Drawer.Navigator
-        initialRouteName="Home"
+        initialRouteName="HomeDrawer"
         drawerStyle={Mixins.verticalBarExpand}
         drawerContent={this._CustomDrawerContent}
         contentContainerStyle={styles.drawerContainer}
@@ -526,6 +552,15 @@ class WarehouseNavigator extends React.Component {
           labelStyle: Mixins.button,
           itemStyle: Mixins.verticalBarMargin,
         }}>
+        <Drawer.Screen
+          name="HomeDrawer"
+          component={this.deliveryTab}
+          options={{
+            drawerIcon: ({focused, color, size}) => (
+              <IconBell2Mobile height="20" width="17" fill="#2D2C2C" />
+            ),
+          }}
+        />
         <Drawer.Screen
           name="Notifications"
           component={this.deliveryTab}

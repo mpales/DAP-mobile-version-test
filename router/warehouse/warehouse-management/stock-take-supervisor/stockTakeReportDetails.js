@@ -14,15 +14,12 @@ import {
 import {Card, Overlay} from 'react-native-elements';
 import {connect} from 'react-redux';
 import mixins from '../../../../mixins';
-import moment from 'moment';
 // component
 import {TextList} from '../../../../component/extend/Text-list';
 import FormatHelper from '../../../../component/helper/format';
 import ImageLoading from '../../../../component/loading/image';
 // helper
 import {getBlob, getData} from '../../../../component/helper/network';
-// icon
-import Checkmark from '../../../../assets/icon/iconmonstr-check-mark-2 (1) 1mobile.svg';
 
 const window = Dimensions.get('screen');
 
@@ -43,10 +40,6 @@ class StockTakeReportDetails extends React.Component {
       acknowledged: false,
       isLoading: true,
     };
-    this.toggleCheckBox.bind(this);
-    this.toggleOverlay.bind(this);
-    this.renderPhotoProof.bind(this);
-    this.initPhotoThumb.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -78,7 +71,6 @@ class StockTakeReportDetails extends React.Component {
         reportData: result,
         isLoading: false,
       });
-      console.log(result);
     }
   };
 
@@ -97,31 +89,6 @@ class StockTakeReportDetails extends React.Component {
       overlayImageString: `	
       /stocks-mobile/stock-counts/${stockTakeId}/products/${productId}/reports/${item.id}/photo`,
       overlayImageFilename: item.id,
-    });
-  };
-
-  toggleCheckBox = () => {
-    const {acknowledged} = this.state;
-    this.setState({
-      acknowledged: !acknowledged,
-    });
-  };
-
-  checkedIcon = () => {
-    return (
-      <View style={styles.checked}>
-        <Checkmark height="14" width="14" fill="#FFFFFF" />
-      </View>
-    );
-  };
-
-  uncheckedIcon = () => {
-    return <View style={styles.unchecked} />;
-  };
-
-  onChangeResolution = (value) => {
-    this.setState({
-      resolution: value,
     });
   };
 
@@ -291,43 +258,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderColor: '#D5D5D5',
     color: '#6C6B6B',
-  },
-  navigationButton: {
-    backgroundColor: '#F07120',
-    borderRadius: 5,
-    marginVertical: 10,
-  },
-  textCheckbox: {
-    ...mixins.subtitle3,
-    lineHeight: 21,
-    fontWeight: '400',
-    color: '#6C6B6B',
-    textAlign: 'center',
-  },
-  checkboxContainer: {
-    width: '100%',
-    borderWidth: 0,
-    backgroundColor: 'transparent',
-    margin: 0,
-    marginVertical: 10,
-    paddingHorizontal: 0,
-  },
-  checked: {
-    backgroundColor: '#2A3386',
-    padding: 5,
-    borderRadius: 2,
-    marginRight: 5,
-    marginVertical: 3,
-  },
-  unchecked: {
-    width: 24,
-    height: 24,
-    borderWidth: 1,
-    borderRadius: 2,
-    borderColor: '#6C6B6B',
-    padding: 5,
-    marginRight: 5,
-    marginVertical: 3,
   },
 });
 

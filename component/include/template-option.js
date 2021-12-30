@@ -33,7 +33,8 @@ const styles = {
       },
       containerCheckbox: {
         flexDirection: 'column',
-        flexShrink: 1,
+         flexGrow:1,
+        flexBasis:1,
         justifyContent: 'center',
       },
       checkboxContainer: {
@@ -44,6 +45,13 @@ const styles = {
         paddingHorizontal: 0,
         justifyContent: 'flex-start',
         alignItems:'flex-start',
+      },
+      dotLabel: {
+        ...Mixins.small1,
+        color: '#2D2C2C',
+        fontWeight: '500',
+        lineHeight: 18,
+        paddingHorizontal:9,
       },
 };
 const theme = {
@@ -66,7 +74,10 @@ const Manifest = React.forwardRef((props, ref) => {
   return (
     <ThemeProvider theme={theme}>
         <View style={[styles.dividerContent,{marginVertical:3}]}>
-            <Text style={styles.labelPackage}>{props.name}</Text>
+        <View style={{flexDirection:'row', flexShrink:1, justifyContent:'flex-start',alignItems:'flex-start', paddingTop:10}}>                        
+              <Text style={styles.labelPackage}>{props.name}</Text>
+              <Text style={styles.dotLabel}>:</Text>
+            </View>
             <View style={styles.containerCheckbox}>
             {props.values.map((num,index)=>{
                 return(

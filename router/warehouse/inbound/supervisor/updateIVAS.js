@@ -7,6 +7,8 @@ import Checkmark from '../../../../assets/icon/iconmonstr-check-mark-7 1mobile.s
 import Mixins from '../../../../mixins';
 import {getData,putData} from '../../../../component/helper/network';
 import Banner from '../../../../component/banner/banner';
+import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
+import SelectDropdown from 'react-native-select-dropdown';
 class Acknowledge extends React.Component {
   constructor(props) {
     super(props);
@@ -18,16 +20,11 @@ class Acknowledge extends React.Component {
       stuffTruck: false,
       stuffTruckPallet: '',
       stuffTruckCarton : '',
-      stuff20Container: false,
-      stuff20ContainerDot1: false,
-      stuff20ContainerDot2: false,
-      stuff20ContainerPallet :'',
-      stuff20ContainerCarton : '',
-      stuff40Container: false,
-      stuff40ContainerDot1: false,
-      stuff40ContainerDot2: false,
-      stuff40ContainerPallet :'',
-      stuff40ContainerCarton : '',
+      stuffContainer: 0,
+      stuffContainerDot1: false,
+      stuffContainerDot2: false,
+      stuffContainerPallet :'',
+      stuffContainerCarton : '',
       takeCartoon: false,
       takeCartonSKU : '',
       takeLabelling: false,
@@ -61,65 +58,50 @@ class Acknowledge extends React.Component {
   }
 
   async componentDidMount(){
-    const {receivingNumber, shipmentID} = this.state;
+    const {receivingNumber, shipmentID, inboundData} = this.state;
     const result = await getData('/inboundsMobile/'+receivingNumber+'/shipmentVAS/'+shipmentID);
-    console.log(result);
+    
     this.setState({
-      stuffTruck: result.inbound_shipment === 1 ? true : false,
-      stuffTruckPallet: result.inbound_shipment === 1 ? ''+result.inbound_shipment_no_pallet : '',
-      stuffTruckCarton : result.inbound_shipment === 1 ? ''+result.inbound_shipment_no_carton : '',
-      stuff20Container: result.inbound_shipment === 2 ? true : false,
-      stuff20ContainerDot1: result.inbound_shipment === 2 && (result.inbound_shipment_pallet === 1 || result.inbound_shipment_pallet === 3) ? true : false,
-      stuff20ContainerDot2: result.inbound_shipment === 2 && (result.inbound_shipment_pallet === 2 || result.inbound_shipment_pallet === 3) ? true : false,
-      stuff20ContainerPallet :result.inbound_shipment === 2 ? ''+result.inbound_shipment_no_pallet : '',
-      stuff20ContainerCarton : result.inbound_shipment === 2 ? ''+result.inbound_shipment_no_pallet : '',
-      stuff40Container: result.inbound_shipment === 3 ? true : false,
-      stuff40ContainerDot1: result.inbound_shipment === 3 && (result.inbound_shipment_pallet === 1 || result.inbound_shipment_pallet === 3) ? true : false,
-      stuff40ContainerDot2: result.inbound_shipment === 3 && (result.inbound_shipment_pallet === 2 || result.inbound_shipment_pallet === 3) ? true : false,
-      stuff40ContainerPallet :result.inbound_shipment === 3 ? ''+result.inbound_shipment_no_pallet : '',
-      stuff40ContainerCarton : result.inbound_shipment === 3 ? ''+result.inbound_shipment_no_pallet : '',
-      takeCartoon: result.carton_dimension_sku !== 0 ? true : false,
-      takeCartonSKU : ''+result.carton_dimension_sku,
+      stuffTruck: result.inbound_shipment_va.inbound_shipment === 1 ? true : false,
+      stuffTruckPallet: result.inbound_shipment_va.inbound_shipment === 1 ? ''+result.inbound_shipment_va.inbound_shipment_no_pallet : '',
+      stuffTruckCarton : result.inbound_shipment_va.inbound_shipment === 1 ? ''+result.inbound_shipment_va.inbound_shipment_no_carton : '',
+      stuffContainer: result.inbound_shipment_va.inbound_shipment - 2,
+      stuffContainerDot1: (result.inbound_shipment_va.inbound_shipment_pallet === 1 || result.inbound_shipment_va.inbound_shipment_pallet === 3) ? true : false,
+      stuffContainerDot2:(result.inbound_shipment_va.inbound_shipment_pallet === 2 || result.inbound_shipment_va.inbound_shipment_pallet === 3) ? true : false,
+      stuffContainerPallet : ''+result.inbound_shipment_va.inbound_shipment_no_pallet,
+      stuffContainerCarton : ''+result.inbound_shipment_va.inbound_shipment_no_carton,
+      takeCartoon: result.inbound_shipment_va.carton_dimension_sku !== 0 ? true : false,
+      takeCartonSKU : ''+result.inbound_shipment_va.carton_dimension_sku,
       takeLabelling: false,
       takePacking: false,
-      takeOthers: result.other !== "" ? true : false,
+      takeOthers: result.inbound_shipment_va.other !== "" ? true : false,
       takeOthersInput : '',
-      recordedBy: result.created_by !== undefined ? result.created_by.firstName : null,
+      recordedBy: result.inbound_shipment_va.created_by !== undefined ? result.inbound_shipment_va.created_by.firstName : null,
     });
   }
   submitItem = async ()=>{
-    const {stuffTruck, stuff20Container, stuff40Container} = this.state;
-    const {stuff20ContainerDot1, stuff20ContainerDot2, stuff40ContainerDot1, stuff40ContainerDot2} = this.state;
+    const {stuffTruck, stuffContainer, stuff40Container} = this.state;
+    const {stuffContainerDot1, stuffContainerDot2, stuffContainerCarton, stuffContainerPallet, stuffTruckCarton, stuffTruckPallet} = this.state;
 
-    let shipment = stuffTruck ? 1 : stuff20Container ? 2 : stuff40Container ? 3 : 0;
+    let shipment = stuffTruck ? 1 : stuffContainer + 2;
     let shipmentpallet = 0;
-    if(stuff20Container){
-      if(stuff20ContainerDot1 && stuff20ContainerDot2){
+    if(shipment > 1 ){
+      if(stuffContainerDot1 && stuffContainerDot2){
         shipmentpallet = 3;
       } else {
-        if(stuff20ContainerDot1){
+        if(stuffContainerDot1){
           shipmentpallet = 1;
-        } else if(stuff20ContainerDot2){
+        } else if(stuffContainerDot2){
           shipmentpallet = 2;
         }
       }
-    } else if (stuff40Container){
-      if(stuff40ContainerDot1 && stuff40ContainerDot2){
-        shipmentpallet = 3;
-      } else {
-        if(stuff40ContainerDot1){
-          shipmentpallet = 1;
-        } else if(stuff40ContainerDot2){
-          shipmentpallet = 2;
-        }
-      }
-    }
+    } 
     let VAS = {
       shipment:shipment,
       shipmentPallet: shipmentpallet,
-      nCartoon : shipment === 1 ? parseInt(this.state.stuffTruckCarton) : shipment === 2 ? parseInt(this.state.stuff20ContainerCarton) : shipment === 3 ? parseInt(this.state.stuff40ContainerCarton) : 0,
-      nPallet  : shipment === 1 ? parseInt(this.state.stuffTruckPallet) : shipment === 2 ? parseInt(this.state.stuff20ContainerPallet) : shipment === 3 ? parseInt(this.state.stuff40ContainerPallet) : 0,
-      cartoonDimensionSKU : this.state.takeCartonSKU === "0" ? NaN : parseInt(this.state.takeCartonSKU),
+      nCartoon : shipment === 1 ? parseInt(stuffTruckCarton) : parseInt(stuffContainerCarton),
+      nPallet  : shipment === 1 ? parseInt(stuffTruckPallet) : parseInt(stuffContainerPallet),
+    //  cartoonDimensionSKU : this.state.takeCartonSKU === "0" ? NaN : parseInt(this.state.takeCartonSKU),
       other: this.state.takeOthersInput
     };
     const result = await putData('/inboundsMobile/'+this.state.receivingNumber+'/shipmentVAS/'+this.state.shipmentID, VAS);
@@ -164,6 +146,8 @@ class Acknowledge extends React.Component {
         stuff20Container: !this.state.stuff20Container,
         stuffTruck: false,
         stuff40Container: false,
+        stuff40ContainerDot1: false,
+        stuff40ContainerDot2: false,
     });
   };
 
@@ -172,6 +156,8 @@ class Acknowledge extends React.Component {
       stuff20Container: false,
       stuffTruck:false,
         stuff40Container: !this.state.stuff40Container,
+        stuff20ContainerDot1: false,
+        stuff20ContainerDot2: false,
     });
   };
   toggleCheckBoxTakeCartoon = () => {
@@ -200,11 +186,11 @@ class Acknowledge extends React.Component {
   stuffTruckCartonInput = (text) => {
     this.setState({stuffTruckCarton:text});
   }
-  stuff20ContainerPalletInput = (text) => {
-    this.setState({stuff20ContainerPallet :text});
+  stuffContainerPalletInput = (text) => {
+    this.setState({stuffContainerPallet :text});
   }
-  stuff20ContainerCartonInput = (text) => {
-    this.setState({stuff20ContainerCarton :text});
+  stuffContainerCartonInput = (text) => {
+    this.setState({stuffContainerCarton :text});
   }
   stuff40ContainerPalletInput = (text) => {
     this.setState({stuff40ContainerPallet :text});
@@ -230,14 +216,16 @@ class Acknowledge extends React.Component {
           />)}
        <View style={[styles.sectionInput,{paddingHorizontal: 30,paddingTop: 40, paddingBottom:10}]}>
             <View style={styles.labelHeadInput}>
-             <Text style={styles.textHeadInput}>Client</Text>
+             <Text style={styles.textHeadInput}>Client ID</Text>
              </View>
+             <Text style={styles.dotLabelStyle}>:</Text>
              <Text style={styles.textHeadInput}>{this.state.inboundData.client}</Text>
          </View>
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Ref #</Text>
              </View>
+             <Text style={styles.dotLabelStyle}>:</Text>
              <Text style={styles.textHeadInput}>{this.state.inboundData.reference_id }</Text>
          </View>
 
@@ -245,194 +233,198 @@ class Acknowledge extends React.Component {
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Receipt #</Text>
              </View>
+             <Text style={styles.dotLabelStyle}>:</Text>
              <Text style={styles.textHeadInput}>{this.state.inboundData.inbound_receipt.length > 0 ? this.state.inboundData.inbound_receipt[this.state.inboundData.inbound_receipt.length -1].receipt_no : ''}</Text>
+         </View>
+         <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
+            <View style={styles.labelHeadInput}>
+             <Text style={styles.textHeadInput}>Shipment Type</Text>
+             </View>
+             <Text style={styles.dotLabelStyle}>:</Text>
+             <Text style={styles.textHeadInput}>{this.state.inboundData.shipment_type === 2 ? "FCL" : "LCL"}</Text>
          </View>
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Date</Text>
              </View>
+             <Text style={styles.dotLabelStyle}>:</Text>
              <Text style={styles.textHeadInput}>{this.state.inboundData.created_on !== null ? moment(this.state.inboundData.created_on).format('DD-MM-YYYY') : null}</Text>
          </View>
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Recorded By</Text>
              </View>
+             <Text style={styles.dotLabelStyle}>:</Text>
              <Text style={styles.textHeadInput}>{this.state.recordedBy}</Text>
          </View>
          <Divider orientation="horizontal" color="#D5D5D5" style={{marginVertical: 15}}/>
-        <View style={styles.sectionInbound}>
-          <Text style={{...Mixins.h6,lineHeight:27,fontWeight:'600',color:'#424141',marginVertical:10}}>Inbound Shipment</Text>
-        <CheckBox
-                title="Un-Stuffing From Truck"
-                textStyle={styles.text}
-                containerStyle={styles.checkboxContainer}
-                checked={this.state.stuffTruck}
-                onPress={this.toggleCheckBoxStuffTruck}
-                checkedIcon={this.checkedIcon()}
-                uncheckedIcon={this.uncheckedIcon()}
-              />
-        <View style={styles.sectionInput}>
+         <View style={styles.sectionInbound}>
+          <View style={{flexDirection:'row', flexShrink:1,}}>
+          <Text style={{...Mixins.h6,lineHeight:27,fontWeight:'700',color:'#424141',marginVertical:10}}>Inbound Shipment</Text>
+          <Text style={{...Mixins.h6,lineHeight:27,fontWeight:'700',color:'red',marginVertical:10}}>*</Text>
+          </View>
+
+         {(this.state.inboundData.shipment_type === 1 || this.state.inboundData.type === 2) ? ( 
+         <View style={{flexDirection:'column', flex:1, marginVertical:14}}>
+            <Text style={{...Mixins.body1, color:'#2D2C2C', lineHeight:20, fontWeight:'700'}}>
+            Un-Stuffing From Truck
+            </Text>
+            
+        <View style={[styles.sectionInput, {paddingVertical:10}]}>
             <View style={styles.labelInput}>
              <Text style={styles.textInput}>Number Pallet</Text>
              </View>
              <Input 
-                 containerStyle={{flexShrink:1}}
-                 inputContainerStyle={[(!this.state.stuffTruck) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
+                 containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
+                 inputContainerStyle={[(!this.state.stuffTruck) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80, borderColor:'#ABABAB'}]} 
                 inputStyle={(!this.state.stuffTruck) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuffTruck)}
+                style={{...Mixins.body1,lineHeight:21,color:'#6C6B6B',fontWeight:'400'}}
                 onChangeText={this.stuffTruckPalletInput}
                 value={this.state.stuffTruckPallet}
+                keyboardType="number-pad"
             />
          </View>      
-         <View style={styles.sectionInput}>
+         <View style={[styles.sectionInput, {paddingVertical:10}]}>
             <View style={styles.labelInput}>
              <Text style={styles.textInput}>Number Cartons</Text>
              </View>
              <Input 
-                                 containerStyle={{flexShrink:1}}
-                                 inputContainerStyle={[(!this.state.stuffTruck) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
+                                  containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
+                                 inputContainerStyle={[(!this.state.stuffTruck) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80, borderColor:'#ABABAB'}]} 
                                  inputStyle={(!this.state.stuffTruck) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
-                             
+                                 style={{...Mixins.body1,lineHeight:21,color:'#6C6B6B',fontWeight:'400'}}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
                 disabled={(!this.state.stuffTruck)}
                 onChangeText={this.stuffTruckCartonInput}
                 value={this.state.stuffTruckCarton}
+                keyboardType="number-pad"
             />
-         </View> 
-
-            <CheckBox
-                title="Un-Stuffing From 20 Container "
-                textStyle={styles.text}
-                containerStyle={styles.checkboxContainer}
-                checked={this.state.stuff20Container}
-                onPress={this.toggleCheckBoxStuffContainer20}
-                checkedIcon={this.checkedIcon()}
-                uncheckedIcon={this.uncheckedIcon()}
-              />
+         </View>
+         </View> ): (
+            <View style={{flexDirection:'column', flex:1, marginVertical:14}}>
+                <SelectDropdown
+                            buttonStyle={{width:'100%',maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
+                            buttonTextStyle={{...Mixins.body1, color:'#2D2C2C', lineHeight:20, fontWeight:'700',textAlign:'left',}}
+                            data={['20ft', '40ft','20ft High Cube','40ft High Cube'] }
+                            defaultValueByIndex={this.state.stuffContainer}
+                            disabled={this.state.stuffTruck}
+                            onSelect={(selectedItem, index) => {
+                              const {stuffContainer} = this.state;
+                              if(index === stuffContainer) {
+                                this.setState({
+                                  stuffContainer : index,
+                                });
+                              } else {
+                                this.setState({
+                                  stuffContainer: index,
+                                  stuffContainerDot1: false,
+                                  stuffContainerDot2: false,
+                                  stuffContainerCarton: '',
+                                  stuffContainerPallet: '',
+                                });
+                              }
+                            }}
+                            renderDropdownIcon={() => {
+                              return (
+                                <IconArrow66Mobile fill="#ABABAB" height="16" width="16" style={{transform:[{rotate:'90deg'}]}}/>
+                              );
+                            }}
+                            dropdownIconPosition="right"
+                            buttonTextAfterSelection={(selectedItem, index) => {
+                              // text represented after item is selected
+                              // if data array is an array of objects then return selectedItem.property to render after item is selected
+                              return selectedItem;
+                            }}
+                            rowTextForSelection={(item, index) => {
+                              // text represented for each item in dropdown
+                              // if data array is an array of objects then return item.property to represent item in dropdown
+                              return item;
+                            }}
+                            renderCustomizedRowChild={(item, index) => {
+                              return (
+                                <View style={{flex:1,paddingHorizontal:17, backgroundColor:this.state.stuffContainer === index ? '#e7e8f2' : 'transparent',paddingVertical:0,marginVertical:0, justifyContent:'center'}}>
+                                  <Text style={{...Mixins.small1,fontWeight:'400',lineHeight:18, color:'#424141'}}>{item}</Text>
+                                </View>
+                              );
+                            }}
+                          />
+      
             <View style={styles.groupCheckbox}>
                 <CheckBox
                 center
                 title='Palletized'
+                textStyle={{...Mixins.body1,color:'#2D2C2C',fontWeight:'400',lineHeight:20}}
                 containerStyle={styles.checkboxContainer}
                 checkedIcon='dot-circle-o'
                 uncheckedIcon='circle-o'
-                checked={this.state.stuff20ContainerDot1}
+                uncheckedColor="#6C6B6B"
+                checkedColor="#2A3386"
+                checked={this.state.stuffContainerDot1}
                 onPress={()=>{
-                    this.setState({stuff20ContainerDot1: !this.state.stuff20ContainerDot1})
+                    this.setState({stuffContainerDot1: !this.state.stuffContainerDot1, stuffContainerDot2: false})
                 }}
-                disabled={(!this.state.stuff20Container)}
+                disabled={this.state.stuffTruck}
                 />
-                   <CheckBox
+                  <CheckBox
                 center
                 title='Loose'
                 containerStyle={styles.checkboxContainer}
+                textStyle={{...Mixins.body1,color:'#2D2C2C',fontWeight:'400',lineHeight:20}}
                 checkedIcon='dot-circle-o'
                 uncheckedIcon='circle-o'
-                checked={this.state.stuff20ContainerDot2}
+                uncheckedColor="#6C6B6B"
+                checkedColor="#2A3386"
+                checked={this.state.stuffContainerDot2}
                 onPress={()=>{
-                    this.setState({stuff20ContainerDot2: !this.state.stuff20ContainerDot2})
+                    this.setState({stuffContainerDot2: !this.state.stuffContainerDot2, stuffContainerDot1:false})
                 }}
-                disabled={(!this.state.stuff20Container)}
+                disabled={this.state.stuffTruck}
                 />
             </View>
-            <View style={styles.sectionInput}>
+            <View style={[styles.sectionInput, {paddingVertical:10}]}>
             <View style={styles.labelInput}>
-             <Text style={styles.textInput}>Number Pallet</Text>
-             </View>
-             <Input 
-                 containerStyle={{flexShrink:1}}
-                 inputContainerStyle={[(!this.state.stuff20Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
-                inputStyle={(!this.state.stuff20Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                disabled={(!this.state.stuff20Container)}
-                onChangeText={this.stuff20ContainerPalletInput}
-                value={this.state.stuff20ContainerPallet}
-            />
-         </View>      
-            <View style={styles.sectionInput}>
-            <View style={styles.labelInput}>
-             <Text style={styles.textInput}>Number Cartons</Text>
-             </View>
-             <Input 
-                               containerStyle={{flexShrink:1}}
-                               inputContainerStyle={[(!this.state.stuff20Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
-                               inputStyle={(!this.state.stuff20Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
-                           
-                labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                disabled={(!this.state.stuff20Container)}
-                onChangeText={this.stuff20ContainerCartonInput}
-                value={this.state.stuff20ContainerCarton}
-            />
-            </View> 
-
-            <CheckBox
-                title="Un-Stuffing From 40 Container "
-                textStyle={styles.text}
-                containerStyle={styles.checkboxContainer}
-                checked={this.state.stuff40Container}
-                onPress={this.toggleCheckBoxStuffContainer40}
-                checkedIcon={this.checkedIcon()}
-                uncheckedIcon={this.uncheckedIcon()}
-              />
-            <View style={styles.groupCheckbox}>
-                <CheckBox
-                center
-                title='Palletized'
-                containerStyle={styles.checkboxContainer}
-                checkedIcon='dot-circle-o'
-                uncheckedIcon='circle-o'
-                checked={this.state.stuff40ContainerDot1}
-                onPress={()=>{
-                    this.setState({stuff40ContainerDot1: !this.state.stuff40ContainerDot1})
-                }}
-                disabled={(!this.state.stuff40Container)}
-                />
-                   <CheckBox
-                center
-                title='Loose'
-                containerStyle={styles.checkboxContainer}
-                checkedIcon='dot-circle-o'
-                uncheckedIcon='circle-o'
-                checked={this.state.stuff40ContainerDot2}
-                onPress={()=>{
-                    this.setState({stuff40ContainerDot2: !this.state.stuff40ContainerDot2})
-                }}
-                disabled={(!this.state.stuff40Container)}
-                />
+            <Text style={styles.textInput}>Number Pallet</Text>
             </View>
-            <View style={styles.sectionInput}>
-            <View style={styles.labelInput}>
-             <Text style={styles.textInput}>Number Pallet</Text>
-             </View>
-             <Input 
-                 containerStyle={{flexShrink:1}}
-                 inputContainerStyle={[(!this.state.stuff40Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
-                inputStyle={(!this.state.stuff40Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
+            <Input 
+                  containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
+                inputContainerStyle={[styles.containedInputDefault,{maxHeight:35, width:80, borderColor:'#ABABAB'}]} 
+                inputStyle={styles.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                disabled={(!this.state.stuff40Container)}
-                onChangeText={this.stuff40ContainerPalletInput}
-                value={this.state.stuff40ContainerPallet}
+                style={{...Mixins.body1,lineHeight:21,color:'#6C6B6B',fontWeight:'400'}}
+                onChangeText={this.stuffContainerPalletInput}
+                value={this.state.stuffContainerPallet}
+                keyboardType="number-pad"
+                disabled={this.state.stuffTruck}
             />
-         </View> 
-            <View style={styles.sectionInput}>
+        </View>      
+        <View style={[styles.sectionInput, {paddingVertical:10}]}>
             <View style={styles.labelInput}>
-             <Text style={styles.textInput}>Number Cartons</Text>
-             </View>
-             <Input 
-                    containerStyle={{flexShrink:1}}
-                    inputContainerStyle={[(!this.state.stuff40Container) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
-                    inputStyle={(!this.state.stuff40Container) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
-
+            <Text style={styles.textInput}>Number Cartons</Text>
+            </View>
+            <Input 
+                              containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
+                              inputContainerStyle={[styles.containedInputDefault,{maxHeight:35, width:80, borderColor:'#ABABAB'}]} 
+                              inputStyle={styles.containedInputDefaultStyle}
+                              style={{...Mixins.body1,lineHeight:21,color:'#6C6B6B',fontWeight:'400'}}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
-                disabled={(!this.state.stuff40Container)}
-                onChangeText={this.stuff40ContainerCartonInput}
-                value={this.state.stuff40ContainerCarton}
+                onChangeText={this.stuffContainerCartonInput}
+                value={this.state.stuffContainerCarton}
+                keyboardType="number-pad"
+                disabled={this.state.stuffTruck}
             />
             </View> 
+       
+          
+
+          </View> 
+         )} 
+       
+           
         </View>
 
-        <Divider orientation="horizontal" color="#D5D5D5" style={{marginVertical: 15}}/>
+        {/* <Divider orientation="horizontal" color="#D5D5D5" style={{marginVertical: 15}}/>
 
         <View style={styles.sectionValueAdded}>
         <Text style={{...Mixins.h6,lineHeight:27,fontWeight:'600',color:'#424141',marginVertical:10}}>Value Added Work Required</Text>
@@ -445,12 +437,12 @@ class Acknowledge extends React.Component {
                 checkedIcon={this.checkedIcon()}
                 uncheckedIcon={this.uncheckedIcon()}
               />
-            <View style={styles.sectionInput}>
+            <View style={[styles.sectionInput, {paddingVertical:10}]}>
             <View style={styles.labelInput}>
              <Text style={styles.textInput}>Number SKU</Text>
              </View>
              <Input 
-                                 containerStyle={{flexShrink:1}}
+                             containerStyle={{flexShrink:1, flexDirection:'row', alignItems:'center'}}
                                  inputContainerStyle={[(!this.state.takeCartoon) ? styles.containedInputDisabled: styles.containedInputDefault,{maxHeight:35, width:80}]} 
                                  inputStyle={(!this.state.takeCartoon) ? styles.containedInputDisabledStyle: styles.containedInputDefaultStyle}
                 labelStyle={[Mixins.containedInputDefaultLabel,{marginBottom: 5}]}
@@ -477,7 +469,7 @@ class Acknowledge extends React.Component {
                 onChangeText={this.takeOthersChangeInput}
                 value={this.state.takeOthersInput}
             />
-            </View> 
+            </View>  */}
 
 
             {/* <CheckBox
@@ -556,13 +548,13 @@ class Acknowledge extends React.Component {
                 disabled={(!this.state.takePacking)}
             />
             </View>  */}
-        </View>
+        {/* </View> */}
          <Button
               containerStyle={{flex:1, marginHorizontal: 30,marginVertical: 20}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.submitItem}
-              disabled={ this.state.stuffTruck || this.state.stuff20Container || this.state.stuff40Container ? false : true}
+              disabled={ (this.state.stuffTruck && this.state.stuffTruckCarton && this.state.stuffTruckPallet) || (this.state.stuffContainer >=0 && this.state.stuffContainerCarton && this.state.stuffContainerPallet) ? false : true}
               title="Update"
             />
         </ScrollView>
@@ -586,7 +578,7 @@ sectionValueAdded: {
   paddingHorizontal:30,
 },
 groupCheckbox: {
-paddingHorizontal: 40,
+paddingHorizontal: 0,
 paddingVertical: 10,
 },
 text: {
@@ -628,13 +620,12 @@ sectionInput: {
 },
 labelHeadInput :{
   width: 120,
-  justifyContent: 'center',
+  justifyContent: 'flex-start',
 },
 labelInput: {
     flexShrink: 1,
-    width: 120,
+    width: 230,
     justifyContent: 'center',
-    maxHeight:35
 },
 containedInputDisabled : {
 ...Mixins.containedInputDisabledContainer,
@@ -658,12 +649,15 @@ textHeadInput :{
     fontWeight: '600',
     color: '#6C6B6B',
     flexShrink: 1,
+    textAlignVertical:'top',
+    
 },
 textInput :{
     ...Mixins.subtitle3,
     lineHeight: 21,
     fontWeight: '400',
     color: '#424141',
+    textAlignVertical:'center',
 },
 
   sectionSheetButton: {
@@ -713,6 +707,14 @@ textInput :{
     borderBottomWidth: 1,
     marginVertical: 0,
     paddingVertical: 0,
+  },
+  dotLabelStyle : {
+    ...Mixins.body1,
+    color:'#6C6B6B',
+    fontWeight:'400',
+    lineHeight:21,
+    paddingHorizontal:9,
+
   },
   inputStyle: {
     ...Mixins.lineInputDefaultStyle,

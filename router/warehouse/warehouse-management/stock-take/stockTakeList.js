@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import {Badge, Button, SearchBar} from 'react-native-elements';
+import {Badge, SearchBar} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
@@ -18,6 +18,8 @@ import Loading from '../../../../component/loading/loading';
 import {getData} from '../../../../component/helper/network';
 //style
 import Mixins from '../../../../mixins';
+// icon
+import SearchIcon from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
 
 class StockTakeList extends React.Component {
   constructor(props) {
@@ -30,8 +32,6 @@ class StockTakeList extends React.Component {
       isLoading: true,
       isRefreshing: false,
     };
-    this.handleFilterStatus.bind(this);
-    this.updateSearch.bind(this);
   }
 
   componentDidMount() {
@@ -122,7 +122,7 @@ class StockTakeList extends React.Component {
     return (
       <View
         style={{
-          marginTop: '50%',
+          flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
         }}>
@@ -147,22 +147,13 @@ class StockTakeList extends React.Component {
           <Loading />
         ) : (
           <>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginTop: 15,
-                paddingHorizontal: 20,
-              }}>
-              <Text style={styles.searchTitle}>Search</Text>
-            </View>
             <SearchBar
+              placeholder="Search..."
               onChangeText={this.updateSearch}
               value={this.state.search}
               lightTheme={true}
               inputStyle={styles.searchInputText}
-              searchIcon=""
+              searchIcon={<SearchIcon height="20" width="20" fill="#2D2C2C" />}
               containerStyle={styles.searchContainer}
               inputContainerStyle={styles.searchInputContainer}
             />
@@ -269,6 +260,7 @@ class StockTakeList extends React.Component {
               onRefresh={this.refreshStockTakeList}
               keyExtractor={(item, index) => index}
               showsVerticalScrollIndicator={false}
+              contentContainerStyle={{flex: 1}}
               ListEmptyComponent={this.renderEmpty}
             />
           </>
@@ -284,14 +276,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     flex: 1,
   },
-  searchTitle: {
-    ...Mixins.subtitle3,
-    lineHeight: 20,
-    color: '#424141',
-  },
   searchInputText: {
     ...Mixins.subtitle3,
-    lineHeight: 14,
+    lineHeight: 21,
   },
   searchContainer: {
     backgroundColor: 'transparent',
@@ -306,9 +293,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#D5D5D5',
     height: 35,
-  },
-  search: {
-    alignItems: 'flex-end',
   },
   badgeContainer: {
     flex: 1,

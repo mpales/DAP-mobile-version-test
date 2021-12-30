@@ -1,21 +1,28 @@
 import React from 'react';
-import {ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {
+  Dimensions,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 // helper
 import {getData} from '../../../../component/helper/network';
-import moment from 'moment';
 // component
 import RelocationBarcodeResult from '../../../../component/extend/ListItem-relocation-barcode-result';
 //style
 import Mixins from '../../../../mixins';
 
+const window = Dimensions.get('window');
+
 class BarcodeCamera extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      warehouseDetails: null,
       scanResult: null,
       barcodeResult: this.props.route.params?.barcodeResult ?? null,
       isLoaded: false,
@@ -25,17 +32,23 @@ class BarcodeCamera extends React.Component {
 
   componentDidMount() {
     this.getClientProductStorageList();
+    this._unsubscribe = this.props.navigation.addListener('focus', () => {
+      this.props.setSelectedRequestRelocation(null);
+    });
+  }
+
+  componentWillUnmount() {
+    this._unsubscribe();
   }
 
   getClientProductStorageList = async () => {
     const {barcodeResult} = this.state;
     const result = await getData(
-      `/stocks-mobile/product-storage/location-id/${barcodeResult}`,
+      `/stocks/product-storage/location-id/${barcodeResult}`,
     );
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
-        scanResult: result.productStorage,
-        warehouseDetails: result.warehouse,
+        scanResult: result,
       });
     }
     this.setState({
@@ -44,18 +57,13 @@ class BarcodeCamera extends React.Component {
   };
 
   navigateToRequestRelocationForm = (data) => {
-    const {barcodeResult, warehouseDetails} = this.state;
-    this.props.navigation.navigate('RequestRelocationForm', {
-      productStorage: {
-        ...data,
-        locationId: barcodeResult,
-      },
-    });
+    this.props.setSelectedRequestRelocation([data]);
+    this.props.setSelectedLocationId(this.state.barcodeResult);
+    this.props.navigation.navigate('RequestRelocationForm');
   };
 
   render() {
-    const {barcodeResult, isLoaded, scanResult, warehouseDetails} = this.state;
-
+    const {barcodeResult, isLoaded, scanResult} = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -74,7 +82,8 @@ class BarcodeCamera extends React.Component {
                   scanResult === null ? 0 : scanResult.length
                 } Result`}</Text>
               </View>
-              {scanResult === null ? (
+              {scanResult === null ||
+              (!!scanResult && scanResult.length === 0) ? (
                 <View style={styles.noResultContainer}>
                   <Text style={styles.title}>No result found</Text>
                 </View>
@@ -108,8 +117,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   noResultContainer: {
-    flex: 1,
-    flexDirection: 'column',
+    marginTop: window.height * 0.4,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -141,8 +150,11 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
+    setSelectedRequestRelocation: (data) => {
+      return dispatch({type: 'SelectedRequestRelocation', payload: data});
+    },
+    setSelectedLocationId: (data) => {
+      return dispatch({type: 'SelectedLocationId', payload: data});
     },
   };
 };

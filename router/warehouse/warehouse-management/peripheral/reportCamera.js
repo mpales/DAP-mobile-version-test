@@ -2,6 +2,7 @@ import React from 'react';
 import {
   FlatList,
   Image,
+  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -25,10 +26,6 @@ class CameraSingle extends React.Component {
       isFlashActive: false,
       pictureGallery: this.props.stockTakeReportPhotoList,
     };
-
-    this.handleShowImagePreview.bind(this);
-    this.takePicture.bind(this);
-    this.flashToggle.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -252,7 +249,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     display: 'flex',
     flexDirection: 'column',
-    top: 60,
+    top: Platform.OS === 'ios' ? 100 : 60,
     right: 20,
     zIndex: 2,
   },

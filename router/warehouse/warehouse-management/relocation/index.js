@@ -4,6 +4,7 @@ import {
   Header,
   HeaderBackButton,
 } from '@react-navigation/stack';
+import {Platform} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../../mixins';
 // screen
@@ -14,7 +15,13 @@ import RelocationRequest from './relocationRequest';
 import RelocationRequestForm from './relocationRequestForm';
 import RelocationScanResult from './relocationScanResult';
 import RelocationRequestConfirm from './relocationRequestConfirm';
+import RelocationItemDetails from './relocationItemDetails';
 import BarcodeCamera from '../peripheral/barcodeCamera';
+import ConfirmRelocationBarcode from '../peripheral/confirmRelocationBarcode';
+import ManualInput from './manualInput';
+import SelectRelocateItem from './selectRelocateItem';
+import RelocationRequestItemDetails from './relocationRequestItemDetails';
+import RequestRelocateToBarcode from '../peripheral/requestRelocateToBarcode';
 // icon
 import IconArrow66Mobile from '../../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 
@@ -27,15 +34,11 @@ class WarehouseManagement extends React.Component {
       bottomSheet: false,
       isShowSignature: false,
     };
-    this.setWrapperofStack.bind(this);
   }
 
   setWrapperofStack = (index, key) => {
-    const {indexBottomBar} = this.props;
-    if (indexBottomBar === 0) {
-      this.props.setCurrentStackKey(key);
-      this.props.setCurrentStackIndex(index);
-    }
+    this.props.setCurrentStackKey(key);
+    this.props.setCurrentStackIndex(index);
   };
 
   render() {
@@ -65,6 +68,7 @@ class WarehouseManagement extends React.Component {
           headerTintColor: '#FFF',
           headerLeftContainerStyle:
             Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
+          headerBackTitle: 'Back',
           header: (props) => {
             let state = props.navigation.dangerouslyGetState();
             let key = state.routes[state.index].name;
@@ -94,6 +98,13 @@ class WarehouseManagement extends React.Component {
                 }}
               />
             ),
+          }}
+        />
+        <Stack.Screen
+          component={RelocationItemDetails}
+          name="RelocationItemDetails"
+          options={{
+            headerTitle: 'Item Details',
           }}
         />
         <Stack.Screen
@@ -143,6 +154,20 @@ class WarehouseManagement extends React.Component {
           }}
         />
         <Stack.Screen
+          component={SelectRelocateItem}
+          name="SelectRelocateItem"
+          options={{
+            headerTitle: 'Select Items',
+          }}
+        />
+        <Stack.Screen
+          component={RelocationRequestItemDetails}
+          name="RelocationRequestItemDetails"
+          options={{
+            headerTitle: 'Items Detail',
+          }}
+        />
+        <Stack.Screen
           component={RelocationRequestConfirm}
           name="RelocationRequestConfirm"
           options={{
@@ -157,29 +182,42 @@ class WarehouseManagement extends React.Component {
             headerTransparent: true,
           }}
         />
+        <Stack.Screen
+          component={RequestRelocateToBarcode}
+          name="RequestRelocateToBarcode"
+          options={{
+            headerTitle: '',
+            headerTransparent: true,
+          }}
+        />
+        <Stack.Screen
+          component={ConfirmRelocationBarcode}
+          name="ConfirmRelocationBarcode"
+          options={{
+            headerTitle: '',
+            headerTransparent: true,
+          }}
+        />
+        <Stack.Screen
+          component={ManualInput}
+          name="ManualInput"
+          options={{
+            headerTitle: '',
+          }}
+        />
       </Stack.Navigator>
     );
   }
 }
 
 function mapStateToProps(state) {
-  return {
-    todos: state.originReducer.todos,
-    textfield: state.originReducer.todos.name,
-    value: state.originReducer.todos.name,
-    userRole: state.originReducer.userRole,
-    isPhotoProofSubmitted: state.originReducer.filters.isPhotoProofSubmitted,
-    isSignatureSubmitted: state.originReducer.filters.isSignatureSubmitted,
-  };
+  return {};
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
-    },
-    setStartDelivered: (toggle) => {
-      return dispatch({type: 'startDelivered', payload: toggle});
     },
     setCurrentStackKey: (string) => {
       return dispatch({type: 'keyStack', payload: string});

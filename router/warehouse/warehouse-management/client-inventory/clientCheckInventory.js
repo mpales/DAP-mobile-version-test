@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Platform,
   StatusBar,
   StyleSheet,
   Text,
@@ -29,12 +30,11 @@ class ClientCheckInventory extends React.Component {
       filteredClientList: null,
       filteredProductList: null,
     };
-    this.submitSearch.bind(this);
   }
 
   componentDidMount() {
-    this.getClientList();
     this._unsubscribe = this.props.navigation.addListener('focus', () => {
+      this.getClientList();
       this.props.setBottomBar(true);
     });
   }
@@ -57,7 +57,7 @@ class ClientCheckInventory extends React.Component {
   }
 
   getClientList = async () => {
-    const result = await getData('/clients');
+    const result = await getData('/clients/name');
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
         clientList: result,
@@ -94,7 +94,13 @@ class ClientCheckInventory extends React.Component {
           product: '',
         };
       } else {
-        obj = {client: value, filteredClientList: this.filterClientList(value)};
+        obj = {
+          client: value,
+          filteredClientList: this.filterClientList(value),
+          clientId: null,
+          product: '',
+          productList: null,
+        };
       }
     } else if (type === 'productList') {
       if (value === '') {
@@ -125,8 +131,8 @@ class ClientCheckInventory extends React.Component {
   filterClientList = (value) => {
     const {clientList} = this.state;
     if (clientList !== null) {
-      return clientList.filter((client, index) => {
-        if (client.name !== null && index < 5)
+      return clientList.filter((client) => {
+        if (client.name !== null)
           return client.name.toLowerCase().includes(value.toLowerCase());
       });
     }
@@ -137,7 +143,7 @@ class ClientCheckInventory extends React.Component {
     const {productList} = this.state;
     if (productList !== null) {
       return productList.filter((product, index) => {
-        if (product.description !== null && index < 5) {
+        if (product.description !== null) {
           return (
             product.description.toLowerCase().includes(value.toLowerCase()) ||
             product.item_code.toLowerCase().includes(value.toLowerCase())
@@ -206,8 +212,10 @@ class ClientCheckInventory extends React.Component {
     const {
       client,
       clientId,
+      clientList,
       product,
       productId,
+      productList,
       filteredClientList,
       filteredProductList,
     } = this.state;
@@ -216,7 +224,12 @@ class ClientCheckInventory extends React.Component {
         <StatusBar barStyle="dark-content" />
         <View style={styles.body}>
           <View style={styles.searchContainer}>
-            <View style={styles.inputWrapper}>
+            <View
+              style={
+                Platform.OS === 'ios'
+                  ? [styles.inputWrapper, {zIndex: 1}]
+                  : styles.inputWrapper
+              }>
               <Text style={styles.inputTitle}>Client</Text>
               <Input
                 placeholder="Select Client"
@@ -231,8 +244,9 @@ class ClientCheckInventory extends React.Component {
               <View style={styles.dropdownContainer}>
                 {client !== '' &&
                   clientId === null &&
-                  filteredClientList !== null &&
-                  filteredClientList.length === 0 && (
+                  ((filteredClientList !== null &&
+                    filteredClientList.length === 0) ||
+                    clientList === null) && (
                     <View
                       style={[
                         styles.inputContainer,
@@ -242,12 +256,17 @@ class ClientCheckInventory extends React.Component {
                     </View>
                   )}
                 {filteredClientList !== null &&
-                  filteredClientList.map((client) =>
-                    this.renderItem(client, 'client'),
-                  )}
+                  filteredClientList
+                    .slice(0, 5)
+                    .map((client) => this.renderItem(client, 'client'))}
               </View>
             </View>
-            <View style={styles.inputWrapper}>
+            <View
+              style={
+                Platform.OS === 'ios'
+                  ? [styles.inputWrapper, {zIndex: 1}]
+                  : styles.inputWrapper
+              }>
               <Text style={styles.inputTitle}>Search Product</Text>
               <Input
                 placeholder="Search Product"
@@ -263,8 +282,9 @@ class ClientCheckInventory extends React.Component {
               <View style={styles.dropdownContainer}>
                 {product !== '' &&
                   productId === null &&
-                  filteredProductList !== null &&
-                  filteredProductList.length === 0 && (
+                  ((filteredProductList !== null &&
+                    filteredProductList.length === 0) ||
+                    productList === null) && (
                     <View
                       style={[
                         styles.inputContainer,
@@ -274,9 +294,9 @@ class ClientCheckInventory extends React.Component {
                     </View>
                   )}
                 {filteredProductList !== null &&
-                  filteredProductList.map((product) =>
-                    this.renderItem(product, 'product'),
-                  )}
+                  filteredProductList
+                    .slice(0, 5)
+                    .map((product) => this.renderItem(product, 'product'))}
               </View>
             </View>
             <Button
@@ -286,7 +306,7 @@ class ClientCheckInventory extends React.Component {
                 styles.button,
                 {marginHorizontal: 0, marginTop: 20},
               ]}
-              disabled={client === '' || product === ''}
+              disabled={clientId === null || productId === null}
               disabledStyle={{backgroundColor: '#ABABAB'}}
               disabledTitleStyle={{color: '#FFF'}}
               onPress={this.submitSearch}
@@ -309,26 +329,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
   },
-  resultContainer: {
-    flexShrink: 1,
-    padding: 20,
-  },
   inputWrapper: {
     marginTop: 10,
     overflow: 'visible',
-  },
-  title: {
-    ...Mixins.subtitle3,
-    fontSize: 18,
-    lineHeight: 25,
-  },
-  text: {
-    ...Mixins.subtitle3,
-    fontSize: 14,
-    lineHeight: 21,
-  },
-  textBlue: {
-    color: '#2A3386',
   },
   inputTitle: {
     ...Mixins.subtitle3,
@@ -344,6 +347,7 @@ const styles = StyleSheet.create({
   inputText: {
     ...Mixins.subtitle3,
     lineHeight: 21,
+    paddingHorizontal: 10,
   },
   button: {
     ...Mixins.bgButtonPrimary,
@@ -359,7 +363,7 @@ const styles = StyleSheet.create({
     right: 0,
     left: 0,
     top: 70,
-    zIndex: 1,
+    zIndex: 3,
     backgroundColor: '#FFF',
   },
 });

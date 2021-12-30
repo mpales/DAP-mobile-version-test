@@ -5,14 +5,15 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import {Button, Card, Input, Overlay} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
-import {Picker} from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
+import SelectDropdown from 'react-native-select-dropdown';
 // component
 import {TextList, CustomTextList} from '../../../../component/extend/Text-list';
 import Banner from '../../../../component/banner/banner';
@@ -23,19 +24,20 @@ import {getData, postData} from '../../../../component/helper/network';
 import Mixins from '../../../../mixins';
 // icon
 import CheckmarkIcon from '../../../../assets/icon/iconmonstr-check-mark-8mobile.svg';
+import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 
 const window = Dimensions.get('window');
 
 class RelocationRequest extends React.Component {
   constructor(props) {
     super(props);
+    this.locationDropdownRef = React.createRef();
     this.state = {
-      relocateFrom: this.props.route.params?.productStorage ?? null,
+      relocateFrom: this.props.selectedRequestRelocation,
       warehouseList: null,
       locationList: [],
       reasonCodeList: REASONCODELIST,
       gradeList: GRADELIST,
-      newLocation: NEWLOCATION,
       remarks: '',
       quantityToTransfer: 0,
       selectedWarehouse: null,
@@ -47,22 +49,27 @@ class RelocationRequest extends React.Component {
       errorMessage: '',
       isSubmitting: false,
     };
-    this.handleShowOverlay.bind(this);
   }
 
   componentDidMount() {
+    const {relocateFrom} = this.state;
     this.getWarehouseList();
+    this.setState({
+      selectedGrade: relocateFrom[0].grade,
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.selectedWarehouse !== this.state.selectedWarehouse) {
-      if (this.state.selectedWarehouse === null) {
-        this.setState({
-          locationList: [],
-          selectedLocation: null,
-        });
-      } else {
+      if (this.state.selectedWarehouse !== null) {
         this.getLocationList();
+      }
+      this.setState({
+        locationList: [],
+        selectedLocation: null,
+      });
+      if (!!this.locationDropdownRef) {
+        this.locationDropdownRef.current.reset();
       }
     }
   }
@@ -76,7 +83,7 @@ class RelocationRequest extends React.Component {
   handlePicker = (value, type) => {
     let obj = {};
     if (type === 'warehouse') {
-      obj = {selectedWarehouse: value};
+      obj = {selectedWarehouse: value, selectedLocation: null};
     } else if (type === 'locationId') {
       obj = {selectedLocation: value};
     } else if (type === 'reasonCode') {
@@ -97,31 +104,13 @@ class RelocationRequest extends React.Component {
     this.setState(obj);
   };
 
-  buttonDisabled = () => {
-    const {
-      selectedWarehouse,
-      selectedLocation,
-      selectedReasonCode,
-      selectedGrade,
-      quantityToTransfer,
-      isSubmitting,
-    } = this.state;
-    if (
-      selectedWarehouse === null ||
-      selectedLocation === null ||
-      selectedReasonCode === null ||
-      selectedGrade === null ||
-      quantityToTransfer === 0 ||
-      isSubmitting
-    ) {
-      return true;
-    }
-    return false;
-  };
-
   getWarehouseList = async () => {
     const result = await getData('/warehouses/names');
-    if (typeof result === 'object' && result.error === undefined) {
+    if (
+      typeof result === 'object' &&
+      result.error === undefined &&
+      result.errors === undefined
+    ) {
       this.setState({
         warehouseList: result,
       });
@@ -131,7 +120,11 @@ class RelocationRequest extends React.Component {
   getLocationList = async () => {
     const {selectedWarehouse} = this.state;
     const result = await getData(`/warehouses/${selectedWarehouse}/containers`);
-    if (typeof result === 'object' && result.error === undefined) {
+    if (
+      typeof result === 'object' &&
+      result.error === undefined &&
+      result.errors === undefined
+    ) {
       this.setState({
         locationList: result,
       });
@@ -141,7 +134,7 @@ class RelocationRequest extends React.Component {
   calculateQuantity = (value) => {
     const {relocateFrom} = this.state;
     let quantityNumber = 0;
-    quantityNumber = relocateFrom.quantity * (value / 100);
+    quantityNumber = relocateFrom[0].quantity * (value / 100);
     this.setState({
       quantityToTransfer: quantityNumber.toFixed(0),
       sliderValue: value,
@@ -149,10 +142,11 @@ class RelocationRequest extends React.Component {
   };
 
   calculateSliderPercentage = (value) => {
+    value = isNaN(value) || /\s/g.test(value) ? 0 : value;
     const {relocateFrom} = this.state;
     let percentage = 0;
     if (value !== '') {
-      percentage = ((relocateFrom.quantity * parseInt(value)) / 100) * 10;
+      percentage = ((relocateFrom[0].quantity * parseInt(value)) / 100) * 10;
     }
     this.setState({
       quantityToTransfer:
@@ -167,15 +161,26 @@ class RelocationRequest extends React.Component {
     this.props.navigation.navigate('RelocationList');
   };
 
-  navigateToRequestRelocationBarcode = () => {
-    this.props.navigation.navigate('RequestRelocationBarcode', {
-      relocateTo: true,
-    });
+  navigateToRequestRelocateToBarcode = () => {
+    this.props.navigation.navigate('RequestRelocateToBarcode');
+  };
+
+  navigateToSelectRelocateItem = () => {
+    this.props.navigation.navigate('SelectRelocateItem');
+  };
+
+  navigateToRelocationRequestItemDetails = () => {
+    this.props.navigation.navigate('RelocationRequestItemDetails');
   };
 
   confirmRelocate = async () => {
+    const {selectedRequestRelocation} = this.props;
     this.setState({
       isSubmitting: true,
+    });
+    let productStorageId = [];
+    await selectedRequestRelocation.forEach((element) => {
+      productStorageId.push(element.id);
     });
     const {
       relocateFrom,
@@ -186,20 +191,26 @@ class RelocationRequest extends React.Component {
       remarks,
     } = this.state;
     const data = {
-      clientId: relocateFrom.client.id,
-      itemCode: !!relocateFrom.itemCode
-        ? relocateFrom.itemCode
-        : relocateFrom.product.item_code,
-      productId: !!relocateFrom.productId
-        ? relocateFrom.productId
-        : relocateFrom.product._id,
-      productStorageIdFrom: relocateFrom.id,
+      selectedBy: selectedRequestRelocation.length > 1 ? 1 : 0,
+      clientId:
+        selectedRequestRelocation.length > 1 ? '' : relocateFrom[0].client.id,
+      product:
+        selectedRequestRelocation.length > 1
+          ? ''
+          : relocateFrom[0].product.item_code,
+      locationId: relocateFrom[0].warehouse.locationId,
+      productStorageIdFroms: productStorageId,
+      relocateEntirePallet: 0,
       warehouseStorageContainerIdTo: selectedLocation,
       productGradeTo: selectedGrade,
       quantityTo: quantityToTransfer,
       reasonCode: selectedReasonCode,
       remark: remarks,
     };
+    if (selectedRequestRelocation.length > 1) {
+      delete data.productGradeTo;
+      delete data.quantityTo;
+    }
     const result = await postData('/stocks-mobile/stock-relocations', data);
     if (
       typeof result === 'object' &&
@@ -209,14 +220,54 @@ class RelocationRequest extends React.Component {
       result.errors === undefined
     ) {
       this.handleShowOverlay(true);
-    } else if (typeof result === 'string') {
-      this.setState({
-        errorMessage: result,
-      });
+    } else {
+      this.handleRequestError(result);
     }
     this.setState({
-      isSubmitting: true,
+      isSubmitting: false,
     });
+  };
+
+  handleRequestError = (result) => {
+    let errorMessage = '';
+    if (!!result.error) {
+      errorMessage = result.error;
+    } else if (typeof result === 'string') {
+      errorMessage = result;
+    } else if (typeof Array.isArray(result)) {
+      errorMessage = result.errors[0].msg;
+    }
+    this.setState({
+      errorMessage: errorMessage,
+    });
+  };
+
+  buttonDisabled = () => {
+    const {
+      selectedWarehouse,
+      selectedLocation,
+      selectedReasonCode,
+      selectedGrade,
+      quantityToTransfer,
+      isSubmitting,
+    } = this.state;
+    const {selectedRequestRelocation} = this.props;
+    if (
+      selectedWarehouse === null ||
+      selectedLocation === null ||
+      selectedReasonCode === null ||
+      selectedGrade === null ||
+      isSubmitting
+    ) {
+      return true;
+    } else if (
+      !!selectedRequestRelocation &&
+      selectedRequestRelocation.length === 1 &&
+      parseInt(quantityToTransfer) === 0
+    ) {
+      return true;
+    }
+    return false;
   };
 
   closeBanner = () => {
@@ -233,14 +284,14 @@ class RelocationRequest extends React.Component {
       locationList,
       reasonCodeList,
       gradeList,
-      newLocation,
       selectedWarehouse,
       selectedLocation,
-      selectedReasonCode,
       selectedGrade,
       remarks,
       quantityToTransfer,
     } = this.state;
+    const {selectedRequestRelocation} = this.props;
+
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
@@ -253,126 +304,241 @@ class RelocationRequest extends React.Component {
         )}
         <ScrollView style={styles.body}>
           <Text style={styles.title}>Relocate From</Text>
-          <Card containerStyle={styles.cardContainer}>
-            <TextList title="Warehouse" value={relocateFrom.warehouseName} />
-            <TextList title="Location" value={relocateFrom.locationId} />
-            <TextList title="Client" value={relocateFrom.client.name} />
-            <TextList
-              title="Item Code"
-              value={
-                !!relocateFrom.itemCode
-                  ? relocateFrom.itemCode
-                  : relocateFrom.product.item_code
-              }
-            />
-            <TextList
-              title="Description"
-              value={
-                relocateFrom.description
-                // !!relocateFrom.description
-                //   ? relocateFrom.description
-                //   : relocateFrom.product.description
-              }
-            />
-            <TextList title="Quantity" value={relocateFrom.quantity} />
-            <TextList
-              title="UOM"
-              value={
-                typeof relocateFrom.uom === 'object'
-                  ? relocateFrom.uom.packaging
-                  : relocateFrom.uom
-              }
-            />
-            <TextList
-              title="Grade"
-              value={productGradeToString(
-                !!relocateFrom.productGrade
-                  ? relocateFrom.productGrade
-                  : relocateFrom.grade,
-              )}
-            />
-          </Card>
+          {relocateFrom !== null && (
+            <Card containerStyle={styles.cardContainer}>
+              <TextList
+                title="Warehouse"
+                value={relocateFrom[0].warehouse.warehouse}
+              />
+              <TextList
+                title="Location"
+                value={relocateFrom[0].warehouse.locationId}
+              />
+              <TextList title="Client" value={relocateFrom[0].client.name} />
+              <TextList
+                title="Item Code"
+                value={relocateFrom[0].product.item_code}
+              />
+              <TextList
+                title="Description"
+                value={relocateFrom[0].product.description}
+              />
+              <TextList title="Quantity" value={relocateFrom[0].quantity} />
+              <TextList
+                title="UOM"
+                value={relocateFrom[0].productUom.packaging}
+              />
+              <TextList
+                title="Grade"
+                value={productGradeToString(relocateFrom[0].grade)}
+              />
+            </Card>
+          )}
+          <View
+            style={[
+              styles.rowContainer,
+              {justifyContent: 'center', marginTop: 20},
+            ]}>
+            <Text style={[styles.text, {color: '#ABABAB'}]}>{`You have ${
+              selectedRequestRelocation === null
+                ? 0
+                : selectedRequestRelocation.length
+            } Item Relocate, `}</Text>
+            <TouchableOpacity onPress={this.navigateToSelectRelocateItem}>
+              <Text style={styles.navigationText}>Add More Items?</Text>
+            </TouchableOpacity>
+          </View>
+          {selectedRequestRelocation !== null &&
+            selectedRequestRelocation.length > 1 && (
+              <Button
+                title="See All Items"
+                titleStyle={styles.buttonText}
+                buttonStyle={[styles.button, {marginTop: 0, marginBottom: 20}]}
+                onPress={this.navigateToRelocationRequestItemDetails}
+              />
+            )}
           <View style={styles.relocateToContainer}>
             <Text style={[styles.title, {marginHorizontal: 0}]}>
               Relocate To
             </Text>
-            <Button
-              title="By Barcode"
-              titleStyle={[styles.buttonText, {fontSize: 14, lineHeight: 21}]}
-              buttonStyle={[styles.smallButton]}
-              onPress={this.navigateToRequestRelocationBarcode}
+          </View>
+          <View style={styles.inputFormContainer}>
+            <Text style={styles.inputFormTitle}>Warehouse</Text>
+            <SelectDropdown
+              buttonStyle={styles.dropdownButton}
+              buttonTextStyle={styles.dropdownButtonText}
+              rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
+              data={!!warehouseList ? warehouseList : []}
+              defaultButtonText="Select Warehouse"
+              onSelect={(selectedItem) => {
+                this.handlePicker(selectedItem.id, 'warehouse');
+              }}
+              buttonTextAfterSelection={(selectedItem) => {
+                return selectedItem.name;
+              }}
+              rowTextForSelection={(item) => {
+                return item.name;
+              }}
+              renderDropdownIcon={() => (
+                <View style={{marginRight: 10}}>
+                  <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+                </View>
+              )}
+              renderCustomizedRowChild={(item, index) => {
+                let selectedWarehouse = warehouseList.find(
+                  (warehouse) => warehouse.name === item,
+                );
+                return (
+                  <View
+                    style={{
+                      flex: 1,
+                      paddingHorizontal: 27,
+                      backgroundColor:
+                        !!selectedWarehouse &&
+                        selectedWarehouse.id === this.state.selectedWarehouse
+                          ? '#e7e8f2'
+                          : 'transparent',
+                      paddingVertical: 0,
+                      marginVertical: 0,
+                      justifyContent: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        ...Mixins.small1,
+                        fontWeight: '400',
+                        lineHeight: 18,
+                        color: '#424141',
+                        textAlign: 'center',
+                      }}>
+                      {item}
+                    </Text>
+                  </View>
+                );
+              }}
             />
           </View>
           <View style={styles.inputFormContainer}>
-            <Text style={styles.inputFormtitle}>Warehouse</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dropdown"
-                selectedValue={selectedWarehouse}
-                onValueChange={(value) =>
-                  this.handlePicker(value, 'warehouse')
-                }>
-                <Picker.Item label="Select Warehouse" value={null} />
-                {warehouseList !== null &&
-                  warehouseList.map((item) => (
-                    <Picker.Item
-                      label={item.name}
-                      value={item.id}
-                      key={item.id}
-                    />
-                  ))}
-              </Picker>
-            </View>
+            <Text style={styles.inputFormTitle}>Location ID</Text>
+            <SelectDropdown
+              buttonStyle={
+                selectedWarehouse === null
+                  ? [styles.dropdownButton, {backgroundColor: '#E5E5E5'}]
+                  : styles.dropdownButton
+              }
+              buttonTextStyle={styles.dropdownButtonText}
+              rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
+              data={!!locationList ? locationList : []}
+              defaultButtonText="Selected Location ID"
+              onSelect={(selectedItem) => {
+                this.handlePicker(selectedItem.id, 'locationId');
+              }}
+              buttonTextAfterSelection={(selectedItem) => {
+                return selectedItem.locationId;
+              }}
+              rowTextForSelection={(item) => {
+                return item.locationId;
+              }}
+              renderDropdownIcon={() => (
+                <View style={{marginRight: 10}}>
+                  <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+                </View>
+              )}
+              disabled={selectedWarehouse === null}
+              ref={this.locationDropdownRef}
+              renderCustomizedRowChild={(item, index) => {
+                let selectedLocation = locationList.find(
+                  (location) => location.locationId === item,
+                );
+                return (
+                  <View
+                    style={{
+                      flex: 1,
+                      paddingHorizontal: 27,
+                      backgroundColor:
+                        !!selectedLocation &&
+                        selectedLocation.id === this.state.selectedLocation
+                          ? '#e7e8f2'
+                          : 'transparent',
+                      paddingVertical: 0,
+                      marginVertical: 0,
+                      justifyContent: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        ...Mixins.small1,
+                        fontWeight: '400',
+                        lineHeight: 18,
+                        color: '#424141',
+                        textAlign: 'center',
+                      }}>
+                      {item}
+                    </Text>
+                  </View>
+                );
+              }}
+            />
           </View>
           <View style={styles.inputFormContainer}>
-            <Text style={styles.inputFormtitle}>Location ID</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dropdown"
-                selectedValue={selectedLocation}
-                onValueChange={(value) =>
-                  this.handlePicker(value, 'locationId')
-                }
-                enabled={!!selectedWarehouse}>
-                <Picker.Item label="Select Location ID" value={null} />
-                {locationList.length > 0 &&
-                  locationList.map((item) => (
-                    <Picker.Item
-                      label={item.locationId}
-                      value={item.id}
-                      key={item.id}
-                    />
-                  ))}
-              </Picker>
-            </View>
+            <Text style={styles.inputFormTitle}>Reason Code</Text>
+            <SelectDropdown
+              buttonStyle={styles.dropdownButton}
+              buttonTextStyle={styles.dropdownButtonText}
+              rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
+              data={!!reasonCodeList ? reasonCodeList : []}
+              defaultButtonText="Selected Reason Code"
+              onSelect={(selectedItem) => {
+                this.handlePicker(selectedItem.id, 'reasonCode');
+              }}
+              buttonTextAfterSelection={(selectedItem) => {
+                return selectedItem.code;
+              }}
+              rowTextForSelection={(item) => {
+                return item.code;
+              }}
+              renderDropdownIcon={() => (
+                <View style={{marginRight: 10}}>
+                  <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+                </View>
+              )}
+              renderCustomizedRowChild={(item, index) => {
+                let selectedReasonCode = reasonCodeList.find(
+                  (reasonCode) => reasonCode.code === item,
+                );
+                return (
+                  <View
+                    style={{
+                      flex: 1,
+                      paddingHorizontal: 27,
+                      backgroundColor:
+                        !!selectedReasonCode &&
+                        selectedReasonCode.id === this.state.selectedReasonCode
+                          ? '#e7e8f2'
+                          : 'transparent',
+                      paddingVertical: 0,
+                      marginVertical: 0,
+                      justifyContent: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        ...Mixins.small1,
+                        fontWeight: '400',
+                        lineHeight: 18,
+                        color: '#424141',
+                        textAlign: 'center',
+                      }}>
+                      {item}
+                    </Text>
+                  </View>
+                );
+              }}
+            />
           </View>
           <View style={styles.inputFormContainer}>
-            <Text style={styles.inputFormtitle}>Reason Code</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dropdown"
-                selectedValue={selectedReasonCode}
-                onValueChange={(value) =>
-                  this.handlePicker(value, 'reasonCode')
-                }>
-                <Picker.Item label="Select Reason Code" value={null} />
-                {reasonCodeList !== null &&
-                  reasonCodeList.map((item) => (
-                    <Picker.Item
-                      label={item.code}
-                      value={item.id}
-                      key={item.code}
-                    />
-                  ))}
-              </Picker>
-            </View>
-          </View>
-          <View style={styles.inputFormContainer}>
-            <Text style={styles.inputFormtitle}>Remarks</Text>
+            <Text style={styles.inputFormTitle}>Remarks</Text>
             <Input
               multiline={true}
               containerStyle={{paddingHorizontal: 0}}
-              inputContainerStyle={styles.inputContainer}
+              inputContainerStyle={[styles.inputContainer, {height: 'auto'}]}
               numberOfLines={3}
               textAlignVertical="top"
               inputStyle={styles.inputText}
@@ -383,15 +549,26 @@ class RelocationRequest extends React.Component {
           </View>
           <View style={[styles.inputFormContainer, {marginHorizontal: 0}]}>
             <View style={{marginHorizontal: 20}}>
-              <Text style={styles.inputFormtitle}>Quantity To Transfer</Text>
+              <Text style={styles.inputFormTitle}>Quantity To Transfer</Text>
               <Input
                 containerStyle={{paddingHorizontal: 0}}
-                inputContainerStyle={styles.inputContainer}
+                inputContainerStyle={
+                  selectedRequestRelocation === null ||
+                  (Array.isArray(selectedRequestRelocation) &&
+                    selectedRequestRelocation.length > 1)
+                    ? [styles.inputContainer, {backgroundColor: '#E5E5E5'}]
+                    : styles.inputContainer
+                }
                 inputStyle={styles.inputText}
                 keyboardType="numeric"
                 renderErrorMessage={false}
                 value={quantityToTransfer.toString()}
                 onChangeText={(text) => this.calculateSliderPercentage(text)}
+                disabled={
+                  selectedRequestRelocation === null ||
+                  (Array.isArray(selectedRequestRelocation) &&
+                    selectedRequestRelocation.length > 1)
+                }
               />
             </View>
             <View style={{marginHorizontal: 10}}>
@@ -408,6 +585,11 @@ class RelocationRequest extends React.Component {
                 maximumTrackTintColor="#E7E8F2"
                 thumbTintColor="#F07120"
                 value={this.state.sliderValue}
+                disabled={
+                  selectedRequestRelocation === null ||
+                  (Array.isArray(selectedRequestRelocation) &&
+                    selectedRequestRelocation.length > 1)
+                }
                 onValueChange={(value) => this.calculateQuantity(value)}
               />
               <View
@@ -417,35 +599,86 @@ class RelocationRequest extends React.Component {
                   marginHorizontal: 10,
                 }}>
                 <Text>0%</Text>
-                <Text style={{marginLeft: '6%'}}>25%</Text>
-                <Text style={{marginLeft: '7%'}}>50%</Text>
-                <Text style={{marginLeft: '6%'}}>75%</Text>
+                <Text style={{marginLeft: '5%'}}>25%</Text>
+                <Text style={{marginLeft: '4%'}}>50%</Text>
+                <Text style={{marginLeft: '4%'}}>75%</Text>
                 <Text>100%</Text>
               </View>
             </View>
           </View>
           <View style={styles.inputFormContainer}>
-            <Text style={styles.inputFormtitle}>Destination Grade</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dropdown"
-                selectedValue={selectedGrade}
-                onValueChange={(value) => this.handlePicker(value, 'grade')}>
-                <Picker.Item
-                  label="Select Grade"
-                  value={null}
-                  color="#ABABAB"
-                />
-                {gradeList !== null &&
-                  gradeList.map((item) => (
-                    <Picker.Item
-                      label={item.grade}
-                      value={item.id}
-                      key={item.id}
-                    />
-                  ))}
-              </Picker>
-            </View>
+            <Text style={styles.inputFormTitle}>Destination Grade</Text>
+            <SelectDropdown
+              buttonStyle={
+                selectedRequestRelocation === null ||
+                (Array.isArray(selectedRequestRelocation) &&
+                  selectedRequestRelocation.length > 1)
+                  ? [styles.dropdownButton, {backgroundColor: '#E5E5E5'}]
+                  : styles.dropdownButton
+              }
+              buttonTextStyle={styles.dropdownButtonText}
+              rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
+              data={!!gradeList ? gradeList : []}
+              defaultButtonText={
+                selectedRequestRelocation === null ||
+                (Array.isArray(selectedRequestRelocation) &&
+                  selectedRequestRelocation.length > 1)
+                  ? '-'
+                  : productGradeToString(relocateFrom[0].grade) !== '-'
+                  ? productGradeToString(relocateFrom[0].grade)
+                  : 'Selected Grade'
+              }
+              onSelect={(selectedItem) => {
+                this.handlePicker(selectedItem.id, 'grade');
+              }}
+              buttonTextAfterSelection={(selectedItem) => {
+                return selectedItem.grade;
+              }}
+              rowTextForSelection={(item) => {
+                return item.grade;
+              }}
+              renderDropdownIcon={() => (
+                <View style={{marginRight: 10}}>
+                  <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+                </View>
+              )}
+              disabled={
+                selectedRequestRelocation === null ||
+                (Array.isArray(selectedRequestRelocation) &&
+                  selectedRequestRelocation.length > 1)
+              }
+              renderCustomizedRowChild={(item, index) => {
+                let selectedGrade = gradeList.find(
+                  (grade) => grade.grade === item,
+                );
+                return (
+                  <View
+                    style={{
+                      flex: 1,
+                      paddingHorizontal: 27,
+                      backgroundColor:
+                        !!selectedGrade &&
+                        selectedGrade.id === this.state.selectedGrade
+                          ? '#e7e8f2'
+                          : 'transparent',
+                      paddingVertical: 0,
+                      marginVertical: 0,
+                      justifyContent: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        ...Mixins.small1,
+                        fontWeight: '400',
+                        lineHeight: 18,
+                        color: '#424141',
+                        textAlign: 'center',
+                      }}>
+                      {item}
+                    </Text>
+                  </View>
+                );
+              }}
+            />
           </View>
           <Button
             title="Confirm Relocate"
@@ -455,6 +688,12 @@ class RelocationRequest extends React.Component {
             disabledStyle={{backgroundColor: 'gray'}}
             disabled={this.buttonDisabled()}
             onPress={this.confirmRelocate}
+          />
+          <Button
+            title="Relocate By Barcode"
+            titleStyle={styles.buttonText}
+            buttonStyle={[styles.button, {backgroundColor: '#121C78'}]}
+            onPress={this.navigateToRequestRelocateToBarcode}
           />
         </ScrollView>
         {this.state.showOverlay && (
@@ -488,37 +727,47 @@ class RelocationRequest extends React.Component {
               <View style={{padding: 20}}>
                 <Text style={styles.cardTitle}>New Location</Text>
                 <TextList
+                  title="Warehouse"
+                  value={
+                    !!warehouseList &&
+                    !!selectedWarehouse &&
+                    warehouseList.find((el) => el.id === selectedWarehouse).name
+                  }
+                />
+                <TextList
                   title="Location"
                   value={
+                    !!locationList &&
+                    !!selectedLocation &&
                     locationList.find((el) => el.id === selectedLocation)
                       .locationId
                   }
                 />
-                <TextList
-                  title="Item Code"
-                  value={
-                    !!relocateFrom.itemCode
-                      ? relocateFrom.itemCode
-                      : relocateFrom.product.item_code
-                  }
-                />
-                <TextList
-                  title="Description"
-                  value={relocateFrom.description}
-                />
-                <CustomTextList title="Quantity" value={quantityToTransfer} />
-                <TextList
-                  title="UOM"
-                  value={
-                    typeof relocateFrom.uom === 'object'
-                      ? relocateFrom.uom.packaging
-                      : relocateFrom.uom
-                  }
-                />
-                <CustomTextList
-                  title="Grade"
-                  value={productGradeToString(selectedGrade)}
-                />
+                {!!selectedRequestRelocation &&
+                  selectedRequestRelocation.length === 1 && (
+                    <>
+                      <TextList
+                        title="Item Code"
+                        value={relocateFrom[0].product.item_code}
+                      />
+                      <TextList
+                        title="Description"
+                        value={relocateFrom[0].description}
+                      />
+                      <CustomTextList
+                        title="Quantity"
+                        value={quantityToTransfer}
+                      />
+                      <TextList
+                        title="UOM"
+                        value={relocateFrom[0].productUom.packaging}
+                      />
+                      <CustomTextList
+                        title="Grade"
+                        value={productGradeToString(selectedGrade)}
+                      />
+                    </>
+                  )}
                 <Button
                   title="Back To List"
                   titleStyle={styles.buttonText}
@@ -565,16 +814,6 @@ const GRADELIST = [
   {id: 10, grade: 'REWORK'},
 ];
 
-const NEWLOCATION = {
-  location: 'AW-00214',
-  itemCode: '342045002',
-  description: 'ERGOBLOM V2 BLUE DESK',
-  quantity: 30,
-  locationOpacity: 60,
-  UOM: 'Pair',
-  grade: 'expired',
-};
-
 const styles = StyleSheet.create({
   body: {
     backgroundColor: Colors.white,
@@ -591,7 +830,6 @@ const styles = StyleSheet.create({
   cardContainer: {
     borderRadius: 5,
     backgroundColor: '#fff',
-    marginBottom: 30,
     marginHorizontal: 20,
     shadowColor: '#000',
     shadowOffset: {
@@ -625,7 +863,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginBottom: 20,
   },
-  inputFormtitle: {
+  inputFormTitle: {
     ...Mixins.subtitle3,
     lineHeight: 21,
     marginBottom: 10,
@@ -635,6 +873,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderColor: '#D5D5D5',
     paddingHorizontal: 10,
+    height: 40,
   },
   inputText: {
     ...Mixins.subtitle3,
@@ -642,8 +881,9 @@ const styles = StyleSheet.create({
   },
   button: {
     ...Mixins.bgButtonPrimary,
-    marginVertical: 20,
+    marginBottom: 20,
     marginHorizontal: 20,
+    borderRadius: 5,
   },
   buttonText: {
     ...Mixins.subtitle3,
@@ -655,10 +895,46 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 5,
   },
+  dropdownButton: {
+    width: '100%',
+    maxHeight: 40,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ABABAB',
+    backgroundColor: 'white',
+    paddingHorizontal: 0,
+  },
+  dropdownButtonText: {
+    paddingHorizontal: 10,
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#424141',
+    textAlign: 'left',
+    paddingHorizontal: 0,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    marginVertical: 10,
+  },
+  navigationText: {
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#121C78',
+    textDecorationColor: '#121C78',
+    textDecorationLine: 'underline',
+    textDecorationStyle: 'solid',
+  },
+  text: {
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+  },
 });
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    selectedRequestRelocation:
+      state.originReducer.filters.selectedRequestRelocation,
+  };
 }
 
 const mapDispatchToProps = (dispatch) => {

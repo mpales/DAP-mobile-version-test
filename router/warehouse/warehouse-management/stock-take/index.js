@@ -4,6 +4,7 @@ import {
   Header,
   HeaderBackButton,
 } from '@react-navigation/stack';
+import {Platform} from 'react-native';
 import {Button} from 'react-native-elements';
 import {connect} from 'react-redux';
 // screen
@@ -29,7 +30,6 @@ class StockTakeNavigator extends React.Component {
       bottomSheet: false,
       isShowSignature: false,
     };
-    this.setWrapperofStack.bind(this);
   }
 
   setWrapperofStack = (index, key) => {
@@ -47,7 +47,7 @@ class StockTakeNavigator extends React.Component {
   render() {
     return (
       <Stack.Navigator
-        initialRouteName="SearchInventory"
+        initialRouteName="StockTakeJobList"
         screenOptions={{
           headerBackImage: () => (
             <IconArrow66Mobile height="22" width="18" fill="#FFF" />
@@ -71,6 +71,7 @@ class StockTakeNavigator extends React.Component {
           headerTintColor: '#FFF',
           headerLeftContainerStyle:
             Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
+          headerBackTitle: 'Back',
           header: (props) => {
             let state = props.navigation.dangerouslyGetState();
             let key = state.routes[state.index].name;
@@ -183,9 +184,6 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
     setCurrentStackKey: (string) => {
       return dispatch({type: 'keyStack', payload: string});
     },

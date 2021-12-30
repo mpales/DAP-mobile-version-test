@@ -1,10 +1,17 @@
 import React from 'react';
-import {ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {
+  Platform,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {Button, Input} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
-import {Picker} from '@react-native-picker/picker';
+import SelectDropdown from 'react-native-select-dropdown';
 // helper
 import {getData} from '../../../../component/helper/network';
 // style
@@ -20,15 +27,29 @@ class SearchInventory extends React.Component {
       warehouseName: '',
       warehouse: null,
       locationId: '',
+      locationList: null,
+      filteredLocationList: null,
     };
-    this.submitSearch.bind(this);
   }
 
   componentDidMount() {
-    this.getWarehouseList();
     this._unsubscribe = this.props.navigation.addListener('focus', () => {
+      this.getWarehouseList();
       this.props.setBottomBar(true);
     });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.warehouse !== this.state.warehouse) {
+      this.setState({
+        locationId: '',
+        locationList: null,
+        filteredLocationList: null,
+      });
+      if (this.state.warehouse !== null) {
+        this.getLocationList();
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -54,18 +75,72 @@ class SearchInventory extends React.Component {
         obj = {warehouse: value, warehouseName: selectedWarehouse.name};
       }
     } else if (type === 'locationId') {
-      obj = {locationId: value};
+      if (value === '') {
+        obj = {locationId: value, filteredLocationList: null};
+      } else {
+        obj = {
+          locationId: value,
+          filteredLocationList: this.filterLocationList(value),
+        };
+      }
+    }
+    this.setState(obj);
+  };
+
+  handleSelect = (value, type) => {
+    if (type === 'locationId') {
+      obj = {
+        locationId: value.locationId,
+        filteredLocationList: null,
+      };
     }
     this.setState(obj);
   };
 
   getWarehouseList = async () => {
-    const result = await getData('/warehouses');
+    const result = await getData('/warehouses/names');
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
         warehouseList: result,
       });
     }
+  };
+
+  getLocationList = async () => {
+    const {warehouse} = this.state;
+    const result = await getData(`/warehouses/${warehouse}/containers`);
+    if (typeof result === 'object' && result.error === undefined) {
+      this.setState({
+        locationList: result,
+      });
+    }
+  };
+
+  filterLocationList = (value) => {
+    const {locationList} = this.state;
+    if (locationList !== null) {
+      return locationList.filter((location) => {
+        if (location.locationId !== null)
+          return location.locationId
+            .toLowerCase()
+            .includes(value.toLowerCase());
+      });
+    }
+    return null;
+  };
+
+  renderItem = (item, type) => {
+    return (
+      <TouchableOpacity
+        key={item.id}
+        style={[
+          styles.inputContainer,
+          {justifyContent: 'center', paddingHorizontal: 10},
+        ]}
+        onPress={() => this.handleSelect(item, type)}>
+        <Text style={styles.inputText}>{item.locationId}</Text>
+      </TouchableOpacity>
+    );
   };
 
   navigateToSearchInventoryList = () => {
@@ -84,42 +159,82 @@ class SearchInventory extends React.Component {
   };
 
   render() {
-    const {warehouseList, warehouse, locationId} = this.state;
+    const {
+      warehouseList,
+      warehouse,
+      locationId,
+      filteredLocationList,
+      locationList,
+    } = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
-        <ScrollView style={styles.body}>
+        <View style={styles.body}>
           <View style={styles.searchContainer}>
-            <View style={styles.inputWrapper}>
+            <View style={[styles.inputWrapper, {zIndex: 2}]}>
               <Text style={styles.inputTitle}>Warehouse</Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  mode="dropdown"
-                  selectedValue={warehouse}
-                  onValueChange={(value) =>
-                    this.handleInput(value, 'warehouse')
-                  }
-                  style={{height: 50}}>
-                  <Picker.Item
-                    label="Select Warehouse"
-                    value={null}
-                    style={styles.text}
-                  />
-                  {warehouseList !== null &&
-                    warehouseList.map((item) => {
-                      return (
-                        <Picker.Item
-                          key={item.id}
-                          label={item.name}
-                          value={item.id}
-                          style={styles.text}
-                        />
-                      );
-                    })}
-                </Picker>
-              </View>
+              <SelectDropdown
+                buttonStyle={styles.dropdownButton}
+                buttonTextStyle={styles.dropdownButtonText}
+                rowTextStyle={[
+                  styles.dropdownButtonText,
+                  {textAlign: 'center'},
+                ]}
+                data={!!warehouseList ? warehouseList : []}
+                defaultButtonText="Select Warehouse"
+                onSelect={(selectedItem) => {
+                  this.handleInput(selectedItem.id, 'warehouse');
+                }}
+                buttonTextAfterSelection={(selectedItem) => {
+                  return selectedItem.name;
+                }}
+                rowTextForSelection={(item) => {
+                  return item.name;
+                }}
+                renderDropdownIcon={() => (
+                  <View style={{marginRight: 10}}>
+                    <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+                  </View>
+                )}
+                renderCustomizedRowChild={(item, index) => {
+                  let selectedWarehouse = warehouseList.find(
+                    (warehouse) => warehouse.name === item,
+                  );
+                  return (
+                    <View
+                      style={{
+                        flex: 1,
+                        paddingHorizontal: 27,
+                        backgroundColor:
+                          !!selectedWarehouse &&
+                          selectedWarehouse.id === warehouse
+                            ? '#e7e8f2'
+                            : 'transparent',
+                        paddingVertical: 0,
+                        marginVertical: 0,
+                        justifyContent: 'center',
+                      }}>
+                      <Text
+                        style={{
+                          ...Mixins.small1,
+                          fontWeight: '400',
+                          lineHeight: 18,
+                          color: '#424141',
+                          textAlign: 'center',
+                        }}>
+                        {item}
+                      </Text>
+                    </View>
+                  );
+                }}
+              />
             </View>
-            <View style={styles.inputWrapper}>
+            <View
+              style={
+                Platform.OS === 'ios'
+                  ? [styles.inputWrapper, {zIndex: 1}]
+                  : styles.inputWrapper
+              }>
               <Text style={styles.inputTitle}>Search Location ID</Text>
               <Input
                 placeholder="Search Location ID"
@@ -129,7 +244,32 @@ class SearchInventory extends React.Component {
                 inputStyle={styles.inputText}
                 renderErrorMessage={false}
                 onChangeText={(text) => this.handleInput(text, 'locationId')}
+                onBlur={() => {
+                  this.setState({
+                    filteredLocationList: null,
+                  });
+                }}
+                disabled={warehouse === null}
+                disabledInputStyle={{backgroundColor: '#EFEFEF'}}
               />
+              <View style={styles.dropdownContainer}>
+                {locationId !== '' &&
+                  ((filteredLocationList !== null &&
+                    filteredLocationList.length === 0) ||
+                    locationList === null) && (
+                    <View
+                      style={[
+                        styles.inputContainer,
+                        {justifyContent: 'center', paddingHorizontal: 10},
+                      ]}>
+                      <Text style={styles.inputText}>No Result</Text>
+                    </View>
+                  )}
+                {filteredLocationList !== null &&
+                  filteredLocationList
+                    .slice(0, 5)
+                    .map((location) => this.renderItem(location, 'locationId'))}
+              </View>
             </View>
             <Button
               title="Search"
@@ -150,7 +290,7 @@ class SearchInventory extends React.Component {
               onPress={this.navigateToSearchInventoryBarcode}
             />
           </View>
-        </ScrollView>
+        </View>
       </SafeAreaProvider>
     );
   }
@@ -167,35 +307,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
   },
-  resultContainer: {
-    flexShrink: 1,
-    padding: 20,
-  },
   inputWrapper: {
     marginTop: 10,
-  },
-  title: {
-    ...Mixins.subtitle3,
-    fontSize: 18,
-    lineHeight: 25,
   },
   text: {
     ...Mixins.subtitle3,
     fontSize: 14,
     lineHeight: 21,
   },
-  textBlue: {
-    color: '#2A3386',
-  },
   inputTitle: {
     ...Mixins.subtitle3,
     lineHeight: 21,
+    marginBottom: 10,
   },
   inputContainer: {
-    marginTop: 5,
     borderRadius: 5,
     borderWidth: 1,
-    height: 50,
+    height: 40,
+    borderColor: '#D5D5D5',
   },
   inputText: {
     ...Mixins.subtitle3,
@@ -211,12 +340,30 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 25,
   },
-  pickerContainer: {
-    borderWidth: 1,
+  dropdownButton: {
+    width: '100%',
+    maxHeight: 40,
     borderRadius: 5,
-    borderColor: '#D5D5D5',
-    marginTop: 5,
-    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ABABAB',
+    backgroundColor: 'white',
+    paddingHorizontal: 0,
+  },
+  dropdownButtonText: {
+    paddingHorizontal: 10,
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#424141',
+    textAlign: 'left',
+    paddingHorizontal: 0,
+  },
+  dropdownContainer: {
+    position: 'absolute',
+    right: 0,
+    left: 0,
+    top: 70,
+    zIndex: 3,
+    backgroundColor: '#FFF',
   },
 });
 

@@ -1,6 +1,7 @@
 import React from 'react';
-import {Text, Button,Image, Avatar} from 'react-native-elements';
-import {RecyclerViewBackedScrollViewBase, View} from 'react-native';
+import {Text, Button, Image, Avatar} from 'react-native-elements';
+import {RecyclerViewBackedScrollViewBase, View, ScrollView} from 'react-native';
+import {SafeAreaInsetsContext} from 'react-native-safe-area-context';
 import Return from '../../../assets/icon/iconmonstr-shipping-box-2mobile.svg';
 import PickNote from '../../../assets/icon/iconmonstr-note-19mobile.svg';
 import Recylcing from '../../../assets/icon/iconmonstr-recycling-1 1mobile.svg';
@@ -9,7 +10,6 @@ import {connect} from 'react-redux';
 import Mixins, {themeStoreContext} from '../../../mixins';
 import LogoSmall from '../../../assets/dap_logo_hires1-e1544435829468 5small.svg';
 import {observer} from 'mobx-react';
-
 
 @observer
 class Acknowledge extends React.Component {
@@ -22,42 +22,95 @@ class Acknowledge extends React.Component {
     };
   }
 
-
-  componentDidMount(){
-   
-  }
-  render(){
+  componentDidMount() {}
+  render() {
     return (
-        <View style={{flex: 1, flexDirection:'column', backgroundColor: this.context._Scheme2, paddingHorizontal: 22,}}>
-          <View style={{alignItems:'center', justifyContent: 'center',flexDirection: 'column',marginTop:100, marginBottom:20}}>
-          <LogoSmall width="135" height="70" style={{alignSelf:'center'}}/>
-          </View>
-          <View style={{flexDirection:'column',flexShrink:1, alignItems:'center',justifyContent:'center',marginBottom:30,marginTop:10}}>
-            <Text style={{...Mixins.h1,lineHeight:36,fontWeight:'700',color:'#fff'}}>
-            OUTBOUND
-            </Text>
-          </View>
-          <View style={{flexDirection: 'row', flexShrink:1}}>
-          <View style={styles.sectionContainer}>
+      <SafeAreaInsetsContext.Consumer>
+        {(insets) => (
+          <ScrollView
+            style={{
+              flex: 1,
+              flexDirection: 'column',
+              backgroundColor: this.context._Scheme2,
+              paddingHorizontal: 22,
+              paddingTop: insets.top,
+              paddingBottom: insets.bottom,
+            }}
+            showsVerticalScrollIndicator={false}>
+            <View
+              style={{
+                alignItems: 'flex-start',
+                justifyContent: 'flex-start',
+                flexDirection: 'column',
+                marginTop: 10,
+                marginBottom: 20,
+              }}>
+              <LogoSmall
+                width="135"
+                height="70"
+                style={{alignSelf: 'center'}}
+              />
+            </View>
+            <View
+              style={{
+                flexDirection: 'column',
+                flexShrink: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 30,
+                marginTop: 10,
+              }}>
+              <Text
+                style={{
+                  ...Mixins.h1,
+                  lineHeight: 36,
+                  fontWeight: '700',
+                  color: '#fff',
+                }}>
+                OUTBOUND
+              </Text>
+            </View>
+            <View style={{flexDirection: 'row', flexShrink: 1}}>
+              <View style={styles.sectionContainer}>
                 <Avatar
                   size={140}
                   ImageComponent={() => (
-                    <PickNote height="70" width="70" fill={this.context._Scheme4} />
+                    <PickNote
+                      height="70"
+                      width="70"
+                      fill={this.context._Scheme4}
+                    />
                   )}
                   imageProps={{
                     containerStyle: {
-                     ...Mixins.buttonFloatedAvatarDefaultIconStyle
+                      ...Mixins.buttonFloatedAvatarDefaultIconStyle,
                     },
                   }}
                   title="PICK TASK"
-                  overlayContainerStyle={{...Mixins.buttonFloatedAvatarDefaultOverlayStyle,backgroundColor: this.context._Scheme5}}
+                  overlayContainerStyle={{
+                    ...Mixins.buttonFloatedAvatarDefaultOverlayStyle,
+                    backgroundColor: this.context._Scheme5,
+                  }}
                   onPress={() => {
                     this.props.setBottomBar(true);
-                    this.props.navigation.navigate('Outbound',{screen:'Task'})}}
+                    this.props.navigation.navigate('Outbound', {
+                      screen: 'Task',
+                    });
+                  }}
                   activeOpacity={0.7}
-                  containerStyle={Mixins.buttonFloatedAvatarDefaultContainerStyle}
-                  placeholderStyle={Mixins.buttonFloatedAvatarDefaultPlaceholderStyle}
-                  titleStyle={[{...Mixins.buttonFloatedAvatarDefaultTitleStyle, color: this.context._Scheme6},{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}]}
+                  containerStyle={
+                    Mixins.buttonFloatedAvatarDefaultContainerStyle
+                  }
+                  placeholderStyle={
+                    Mixins.buttonFloatedAvatarDefaultPlaceholderStyle
+                  }
+                  titleStyle={[
+                    {
+                      ...Mixins.buttonFloatedAvatarDefaultTitleStyle,
+                      color: this.context._Scheme6,
+                    },
+                    {...Mixins.subtitle3, lineHeight: 16, fontWeight: '700'},
+                  ]}
                 />
               </View>
               <View style={styles.sectionContainer}>
@@ -82,9 +135,9 @@ class Acknowledge extends React.Component {
                   titleStyle={[Mixins.buttonFloatedAvatarDefaultTitleStyle,{...Mixins.subtitle3,lineHeight:16,fontWeight: '700'}]}
                 /> */}
               </View>
-          </View>
-          
-          {/* <View style={{flexDirection: 'row', flexShrink:1}}>
+            </View>
+
+            {/* <View style={{flexDirection: 'row', flexShrink:1}}>
           <View style={styles.sectionContainer}>
                 <Avatar
                   size={140}
@@ -126,8 +179,9 @@ class Acknowledge extends React.Component {
                 />
               </View>
           </View> */}
-          
-        </View>
+          </ScrollView>
+        )}
+      </SafeAreaInsetsContext.Consumer>
     );
   }
 }
@@ -229,9 +283,9 @@ const styles = {
     paddingTop: 0,
   },
   checkmark: {
-    position: 'absolute', 
-    bottom: 62, 
-    right: 16
+    position: 'absolute',
+    bottom: 62,
+    right: 16,
   },
 };
 function mapStateToProps(state) {
@@ -252,14 +306,14 @@ const mapDispatchToProps = (dispatch) => {
     onChange: (text) => {
       return {type: 'todos', payload: text};
     },
-    signatureSubmittedHandler: (signature) => dispatch({type: 'Signature', payload: signature}),
+    signatureSubmittedHandler: (signature) =>
+      dispatch({type: 'Signature', payload: signature}),
     setBottomBar: (toggle) => dispatch({type: 'BottomBar', payload: toggle}),
-    setStartDelivered : (toggle) => {
+    setStartDelivered: (toggle) => {
       return dispatch({type: 'startDelivered', payload: toggle});
-    }
+    },
     //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Acknowledge);
-

@@ -42,6 +42,7 @@ class List extends React.Component {
             renderGoBack : false,
             renderRefresh: false,
             renderFiltered: true,
+            renderType : false,
         };
 
     this.updateASN.bind(this);
@@ -60,13 +61,12 @@ class List extends React.Component {
         this.setState({filtered:num, renderFiltered : true});
     }
     setType = (num)=>{
-        this.setState({type:num});
+        this.setState({type:num, renderType: true});
     }
     updateASN = async ()=>{
         const result = await getData('inboundsMobile');
-        this.setState({renderGoBack: false, renderRefresh: false, renderFiltered:false});
         if(Array.isArray(result)){
-            return result.filter((o)=> o !== null);
+            return result.filter((o)=> o !== null).sort((a, b) => -(String(a.created_on).localeCompare(String(b.created_on))))
         } else {
             return [];
         }
@@ -78,18 +78,26 @@ class List extends React.Component {
         let updatedStatus = [];
         for (let index = 0; index < inboundList.length; index++) {
             const element = inboundList[index];
-            const elementStatus = result.find((o)=>o.id === element.id);
-           updatedStatus[index] = {
-             ...element,
-             ...elementStatus,  
-           };
+            if(result !== undefined && result.error === undefined){
+                const elementStatus = result.find((o)=>o.id === element.id);
+                updatedStatus[index] = {
+                  ...element,
+                  ...elementStatus,  
+                };
+            } else {
+                updatedStatus[index] = {
+                  ...element,  
+                };
+            }
         }
-        this.setState({renderGoBack: false, renderRefresh: false, renderFiltered: false});
        return updatedStatus;
     }
     shouldComponentUpdate(nextProps, nextState) {
         if(this.props.keyStack !== nextProps.keyStack){
-        if(nextProps.keyStack === 'List'){
+        if(nextProps.keyStack === 'ListSupervisor' && this.props.keyStack === 'CompletedSupervisor'){
+            this.setState({renderRefresh : true});
+            return true;
+        } else if(nextProps.keyStack === 'ListSupervisor' && this.props.keyStack === 'CompletedSupervisor'){
             this.setState({renderGoBack : true});
             return true;
         }
@@ -99,20 +107,29 @@ class List extends React.Component {
     async componentDidUpdate(prevProps, prevState, snapshot) {
         const {type} = this.state;
         const {inboundList} = this.props; 
-        if(prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true){
+        if((prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || (prevState.renderType !== this.state.renderType && this.state.renderType === true)){
             const resultedList =  await this.updateASN();
             this.props.setinboundList(resultedList);
-        }
-        let filtered =  ((prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type) && inboundList.length > 0 ? this.state.filtered : null;
-        if(filtered === 0) {
-            let AllASN = await this.updateStatus();
-            this.setState({list:AllASN.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
-        } else if(filtered === 1){
-            let PendingASN = await this.updateStatus();
-            this.setState({list:PendingASN.filter((element)=> element.status === 7).filter((element)=>String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
-        } else if(filtered === 2){
-            let ProgressASN = await this.updateStatus();
-            this.setState({list:ProgressASN.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
+            let filtered =  ((prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || (prevState.renderType !== this.state.renderType && this.state.renderType === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type) && inboundList.length > 0 ? this.state.filtered : null;
+            if(filtered === 0) {
+                this.setState({list:resultedList.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type)),renderGoBack: false, renderRefresh: false, renderFiltered:false, renderType :false});
+            } else if(filtered === 1){
+                this.setState({list:resultedList.filter((element)=> element.status === 7).filter((element)=>String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type)),renderGoBack: false, renderRefresh: false, renderFiltered:false, renderType :false});
+            } else if(filtered === 2){
+                this.setState({list:resultedList.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type)),renderGoBack: false, renderRefresh: false, renderFiltered:false, renderType :false});
+            }
+        } else {
+            let filtered =  ( (prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true ) || (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type) && inboundList.length > 0 ? this.state.filtered : null;
+            if(filtered === 0) {
+                let AllASN = await this.updateStatus();
+                this.setState({list:AllASN.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type)),renderGoBack: false, renderRefresh: false, renderFiltered:false, renderType :false});
+            } else if(filtered === 1){
+                let PendingASN = await this.updateStatus();
+                this.setState({list:PendingASN.filter((element)=> element.status === 7).filter((element)=>String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type)),renderGoBack: false, renderRefresh: false, renderFiltered:false, renderType :false});
+            } else if(filtered === 2){
+                let ProgressASN = await this.updateStatus();
+                this.setState({list:ProgressASN.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type)),renderGoBack: false, renderRefresh: false, renderFiltered:false, renderType :false});
+            }
         }
         
     }
@@ -122,11 +139,11 @@ class List extends React.Component {
         this.props.setinboundList(resultedList);
         const {filtered} = this.state;
         if(filtered === 0) {
-            this.setState({list:resultedList.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
+            this.setState({list:resultedList.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type)),renderGoBack: false, renderRefresh: false, renderFiltered:false,renderType:false});
         } else if(filtered === 1){
-            this.setState({list:resultedList.filter((element)=> element.status === 7).filter((element)=>String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
+            this.setState({list:resultedList.filter((element)=> element.status === 7).filter((element)=>String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type)),renderGoBack: false, renderRefresh: false, renderFiltered:false,renderType:false});
         } else if(filtered === 2){
-            this.setState({list:resultedList.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type))});
+            this.setState({list:resultedList.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type)),renderGoBack: false, renderRefresh: false, renderFiltered:false,renderType:false});
         }
     }
     _onRefresh = () => {
@@ -148,14 +165,14 @@ class List extends React.Component {
                 >
                         <Text style={{...Mixins.subtitle1,lineHeight: 21,color:'#424141', paddingHorizontal: 20, marginTop: 15}}>Search</Text>
                          <SearchBar
-              placeholder="Type Here..."
+              placeholder="Search..."
               onChangeText={this.updateSearch}
               value={this.state.search}
               lightTheme={true}
-              inputStyle={{backgroundColor: '#fff'}}
+              inputStyle={{backgroundColor: '#fff', ...Mixins.body1, padding:0,margin:0}}
               placeholderTextColor="#2D2C2C"
               searchIcon={() => (
-                <IconSearchMobile height="20" width="20" fill="#2D2C2C" />
+                <IconSearchMobile height="15" width="15" fill="#2D2C2C" />
               )}
               containerStyle={{
                 backgroundColor: 'transparent',

@@ -554,8 +554,13 @@ class Details extends React.Component {
   render() {
     let Navigate;
     const {visible} = this.state;
-    if (this.props.userRole.type === 'Warehouse') {
-      if (this.props.warehouse_module === 'INBOUND') {
+    const {routes, index} = this.props.navigation.dangerouslyGetState();
+    if (  routes[index].params !== undefined &&
+      routes[index].params.role !== undefined &&
+      routes[index].params.role === 'Warehouse') {
+      if (    routes[index].params !== undefined &&
+        routes[index].params.navigator !== undefined &&
+        routes[index].params.navigator === 'INBOUND') {
         Navigate = (
           <>
             <WarehouseInNavigator />
@@ -613,7 +618,9 @@ class Details extends React.Component {
             </Overlay>
           </>
         );
-      } else if (this.props.warehouse_module === 'OUTBOUND') {
+      } else if (    routes[index].params !== undefined &&
+        routes[index].params.navigator !== undefined &&
+        routes[index].params.navigator === 'OUTBOUND') {
         Navigate = (
           <>
             <WarehouseOutNavigator />
@@ -671,7 +678,9 @@ class Details extends React.Component {
             </Overlay>
           </>
         );
-      } else if (this.props.warehouse_module === 'WAREHOUSE') {
+      } else if (    routes[index].params !== undefined &&
+        routes[index].params.navigator !== undefined &&
+        routes[index].params.navigator === 'WAREHOUSE') {
         Navigate = (
           <>
             <WarehouseNavigator />
@@ -729,7 +738,9 @@ class Details extends React.Component {
             </Overlay>
           </>
         );
-      }else if (this.props.warehouse_module === 'VAS') {
+      }else if (    routes[index].params !== undefined &&
+        routes[index].params.navigator !== undefined &&
+        routes[index].params.navigator === 'VAS') {
         Navigate = (
           <>
             <VASNavigator />
@@ -791,7 +802,9 @@ class Details extends React.Component {
         this.props.navigation.navigate('MenuWarehouse');
         Navigate = <></>;
       }
-    } else if (this.props.userRole.type === 'Delivery') {
+    } else if (  routes[index].params !== undefined &&
+      routes[index].params.role !== undefined &&
+      routes[index].params.role === 'Delivery') {
       Navigate = (
         <>
           <DeliveryNavigator />

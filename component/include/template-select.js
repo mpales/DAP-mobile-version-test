@@ -32,6 +32,13 @@ const styles = {
         fontWeight: '400',
         lineHeight: 18,
       },
+      dotLabel: {
+        ...Mixins.small1,
+        color: '#2D2C2C',
+        fontWeight: '500',
+        lineHeight: 18,
+        paddingHorizontal:9,
+      },
 };
 const theme = {
  
@@ -53,9 +60,12 @@ const Manifest = React.forwardRef((props, ref) => {
   return (
     <ThemeProvider theme={theme}>
         <View style={[styles.dividerContent,{marginVertical:3}]}>
-            <Text style={styles.labelPackage}>{props.name}</Text>
+            <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignItems:'center'}}>                        
+              <Text style={styles.labelPackage}>{props.name}</Text>
+              <Text style={styles.dotLabel}>:</Text>
+            </View>
                     <SelectDropdown
-                            buttonStyle={{maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
+                            buttonStyle={{flexBasis:1, flexGrow:1,maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
                             buttonTextStyle={{...styles.infoPackage,textAlign:'left',}}
                             data={props.values}
                             defaultValue={selectVal}
@@ -71,6 +81,13 @@ const Manifest = React.forwardRef((props, ref) => {
                               // text represented for each item in dropdown
                               // if data array is an array of objects then return item.property to represent item in dropdown
                               return item
+                            }}
+                            renderCustomizedRowChild={(item, index) => {
+                              return (
+                                <View style={{flex:1,paddingHorizontal:27, backgroundColor:selectVal === item ? '#e7e8f2' : 'transparent',paddingVertical:0,marginVertical:0, justifyContent:'center'}}>
+                                  <Text style={{...Mixins.small1,fontWeight:'400',lineHeight:18, color:'#424141'}}>{item}</Text>
+                                </View>
+                              );
                             }}
                           />
         </View>

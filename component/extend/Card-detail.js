@@ -2,10 +2,10 @@ import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import mixins from '../../mixins';
 
-const DetailItemList = ({title, value, report}) => {
+const DetailItemList = ({title, value, report, labelStyle}) => {
   return (
     <View style={styles.wrapper}>
-      <Text style={[styles.detailText, {width: '40%'}]}>{title}</Text>
+      <Text style={[styles.detailText, {width: '40%'}, labelStyle]}>{title}</Text>
       <Text style={styles.detailText}>:</Text>
       <Text
         style={
@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     marginLeft: 5,
     flexWrap: 'wrap',
+    flexBasis:1,
     maxWidth: '65%',
   },
 });

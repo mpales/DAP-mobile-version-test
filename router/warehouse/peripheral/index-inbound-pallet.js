@@ -26,6 +26,8 @@ import moment from 'moment';
 import {postData} from '../../../component/helper/network';
 import {connect} from 'react-redux';
 import MultipleSKUList from '../../../component/extend/ListItem-inbound-multiple-sku';
+import {default as Reanimated, useAnimatedScrollHandler} from 'react-native-reanimated';
+import BottomSheet from 'reanimated-bottom-sheet';
 import Banner from '../../../component/banner/banner';
 const screen = Dimensions.get('screen');
 const grade = ["Pick", "Buffer", "Damage", "Defective", "Short Expiry", "Expired", "No Stock", "Reserve"];
@@ -57,13 +59,13 @@ class Example extends React.Component {
   }
 
   static getDerivedStateFromProps(props,state){
-    const {putawayList, currentASN, navigation, setBarcodeScanner, detectBarcode} = props;
+    const {putawayContent, currentASN, navigation, setBarcodeScanner, detectBarcode} = props;
     const {dataCode, dataItem, scanItem} = state;
     const {routes, index} = navigation.dangerouslyGetState();
     if(scanItem === '0'){
       if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined) {
         setBarcodeScanner(true);
-        let item = putawayList.find((element)=>element.id === routes[index].params.inputCode);  
+        let item = putawayContent.find((element)=>element.id === routes[index].params.inputCode);  
         let products = null;
         if(routes[index].params.productIndex !== undefined){
           products = item.products[routes[index].params.productIndex]
@@ -74,9 +76,23 @@ class Example extends React.Component {
     } 
     return {...state, detectBarcodeToState: detectBarcode};
   }
- 
+  shouldComponentUpdate(nextProps, nextState) {
+    if(this.props.keyStack !== nextProps.keyStack){
+      if(nextProps.keyStack === 'PalletScanner' && this.props.keyStack ==='ManualPallet'){
+        const {routes, index} = nextProps.navigation.dangerouslyGetState();
+        if(routes[index].params !== undefined && routes[index].params.manualCode !== undefined){
+          //if multiple sku
+          nextProps.setBarcodeScanner(false);
+          nextProps.navigation.setParams({...routes[index].params,manualCode: undefined})
+          this.setState({dataCode: routes[index].params.manualCode});
+        }
+        return false;
+      }
+    }
+    return true;
+  }
   async componentDidUpdate(prevProps, prevState) {
-    const {putawayList,detectBarcode, currentASN, navigation, setBarcodeScanner} = this.props;
+    const {putawayContent,detectBarcode, currentASN, navigation, setBarcodeScanner} = this.props;
     const {dataCode,scanItem,suggestionLocation, dataItem} = this.state;
     if(prevProps.detectBarcode !== detectBarcode){
       if(detectBarcode) {
@@ -87,7 +103,7 @@ class Example extends React.Component {
     }
     if(dataCode !== '0' && scanItem !== null && detectBarcode === false && dataItem === null){
     
-      let item = putawayList.find((element)=>element.id === scanItem);  
+      let item = putawayContent.find((element)=>element.id === scanItem);  
       this.props.setBarcodeScanner(false);
       this.setState({dataItem: item});
     }
@@ -184,9 +200,12 @@ class Example extends React.Component {
                       </View>
                       <View style={styles.dividerContent}>
                         <Text style={styles.labelPackage}>Location</Text>
+                        <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                         <Text style={styles.infoPackage}>
                         {this.state.dataCode}
                         </Text>
+                        </View>
                       </View>
               
                     </View>
@@ -263,47 +282,72 @@ class Example extends React.Component {
     <View style={styles.sheetContainer}>
       <View style={styles.sectionSheetDetail}>
         <View style={styles.sheetPackages}
-        onLayout={(e)=> this.setState({dynamicheight:e.nativeEvent.layout.height+180})}
+        onLayout={(e)=> this.setState({dynamicheight:e.nativeEvent.layout.height+160})}
         >
                { this.state.elementProduct === null ? ( 
               <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
+                <Text style={{...Mixins.body1,fontWeight:'700',lineHeight:21, color:'#424141'}}>Suggestion Place</Text>
                <View style={styles.dividerContent}>
                <Text style={styles.labelNotFound}>Warehouse</Text>
+               <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.locationItem}</Text>
+                  </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Location</Text>
-                  <Text style={styles.infoNotFound}>{this.state.suggestionLocation}</Text>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
+                        <View
+              style={
+                 { flexDirection:'column',flexShrink:1,  marginLeft: 5,}
+              }>
+             {this.state.suggestionLocation.map((item,num)=>{
+               return (
+                 <View key={num} style={{flexDirection:'row', flex:1}}>
+                  <Text style={{...Mixins.small3,fontSize:8,lineHeight:12, paddingLeft:10, textAlignVertical:'center', color:'#ABABAB'}}>{'\u2B24'}</Text>
+                 <Text style={styles.infoNotFound}>{item}</Text>
+                 </View>
+               );
+             })}
+            </View>
+          
+                  </View>
                 </View>
                 </View>) : (
                   <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Item Code</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.elementProduct.itemCode}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Description</Text>
-                <View style={{flexDirection:'row', flexShrink:1}}>
+                  <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.elementProduct.description}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Stock Grade</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.elementProduct.grade}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>UOM</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.elementProduct.uom}</Text>
                   </View>
                 </View>
                 <View style={styles.dividerContent}>
                   <Text style={styles.labelNotFound}>Qty</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
+                        <Text style={styles.dotLabel}>:</Text>
                   <Text style={styles.infoNotFound}>{this.state.elementProduct.qty}</Text>
                   </View>
                 </View>
@@ -326,16 +370,26 @@ class Example extends React.Component {
           //         dataCode: this.state.scanItem,
           //     }
           //   })}}
-          title="Report Item"
-        />
+          title="Report"
+        /> 
+        <Button
+        containerStyle={{flex:1, marginTop: 10,marginLeft:5,}}
+        buttonStyle={[styles.navigationButton, { borderWidth:1,
+          borderColor: '#F07120'}]}
+        titleStyle={styles.deliveryText}
+        onPress={() => {
+          this.props.navigation.navigate("ManualPallet")}}
+        title="Input Manual"
+      />
         </View>
       </View>
     </View>
   );
-
   renderHeader = () => (
     <View style={styles.header}>
-      <View style={styles.panelHeader} />
+     <View style={styles.panelHeader}>
+      <View style={styles.panelHandle} />
+    </View>
     </View>
   );
 
@@ -349,6 +403,7 @@ class Example extends React.Component {
     this.props.navigation.navigate('PalletDetails');
   }
   closeErrorBanner = ()=>{
+    this.props.navigation.setOptions({headerShown:true});
     this.setState({errors:''});
   }
   onSubmit = async () => {
@@ -357,6 +412,7 @@ class Example extends React.Component {
     console.log(resultSubmit);
     if(typeof resultSubmit === 'object' && resultSubmit.error !== undefined){
       this.props.setBarcodeScanner(true);
+      this.props.navigation.setOptions({headerShown:false});
       this.setState({confirmScanned : false,dataCode: '0', dataItem : null, errors: resultSubmit.error });
     } else {
       this.setState({confirmScanned : true});
@@ -375,17 +431,17 @@ class Example extends React.Component {
           />)}
         {detectBarcodeToState === false ? (
           <this.renderModal/>
-        ) : (          <Modalize 
+        ) : (          <BottomSheet
           ref={this.modalizeRef}
-          handleStyle={{width: '30%', backgroundColor: '#C4C4C4', borderRadius: 0}}
-          handlePosition={'inside'}
-          disableScrollIfPossible={true}
-          modalHeight={this.state.dynamicheight}
-          alwaysOpen={this.state.dynamicheight}
-          HeaderComponent={<this.renderHeader />}
-        >
-          <this.renderInner />
-        </Modalize>)}
+          initialSnap={2}
+          snapPoints={[30,110, this.state.dynamicheight] }
+          enabledBottomClamp={false}
+          enabledContentTapInteraction={false}
+          renderContent={this.renderInner}
+          renderHeader={this.renderHeader}
+          enabledInnerScrolling={false}
+          enabledBottomInitialAnimation={false}
+        />)}
         <TouchableWithoutFeedback onPress={() => {}}>
           <BarCode renderBarcode={this.renderBarcode} navigation={this.props.navigation} useManualMenu={false} barcodeContext={"Scan barcode Here"}/>
         </TouchableWithoutFeedback>
@@ -442,20 +498,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#f7f5eee8',
   },
   header: {
-    backgroundColor: '#ffffff',
-    shadowColor: '#000000',
-    paddingTop: 20,
+    backgroundColor: 'white',
+    height: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    paddingBottom:0,
+    marginBottom:-1,
+    borderBottomColor:'white',
+    borderBottomWidth:0,
   },
   panelHeader: {
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 11,
   },
   panelHandle: {
     width: 120,
     height: 7,
     backgroundColor: '#C4C4C4',
-    marginBottom: 10,
   },
   photo: {
     width: '100%',
@@ -506,16 +566,16 @@ const styles = StyleSheet.create({
    
   labelNotFound: {
     minWidth: 140,
-    ...Mixins.h6,
-    color: '#2D2C2C',
-    fontWeight: '500',
-    lineHeight: 24,
+    ...Mixins.body1,
+    color: '#424141',
+    fontWeight: '400',
+    lineHeight: 21,
   },
   infoNotFound: {
     paddingHorizontal: 10,
-    ...Mixins.h6,
+    ...Mixins.body1,
     fontWeight: '400',
-    lineHeight: 24,
+    lineHeight: 21,
     color: '#424141',
   },
   labelPackage: {
@@ -613,7 +673,14 @@ const styles = StyleSheet.create({
   backText: {
     color: '#F1811C',
   },
-  
+  dotLabel: {
+    ...Mixins.small1,
+    color: '#6C6B6B',
+    fontWeight: '500',
+    lineHeight: 18,
+    paddingRight:0,
+    paddingLeft:0,
+  },
 });
 
 function mapStateToProps(state) {
@@ -623,7 +690,7 @@ function mapStateToProps(state) {
     // for prototype only
     barcodeScanned: state.originReducer.filters.barcodeScanned,
     // end
-    putawayList: state.originReducer.putawayList,
+    putawayContent: state.originReducer.putawayContent,
     keyStack: state.originReducer.filters.keyStack,
   };
 }

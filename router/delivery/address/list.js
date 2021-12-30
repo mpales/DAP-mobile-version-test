@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, TouchableOpacity, Text, PermissionsAndroid, NativeModules, FlatList, ScrollView} from 'react-native';
+import {View, TouchableOpacity, Text, PermissionsAndroid, NativeModules, FlatList, ScrollView,RefreshControl, Image} from 'react-native';
 import {SearchBar, Badge} from 'react-native-elements';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import AddressList from '../../../component/extend/ListItem-address';
@@ -19,34 +19,34 @@ class List extends Component {
     super(props);
   
     const namedOrder = [
-      {named: 'Ginny', status : 'Pending', coords:{lat: 1.116441781583991,lng:104.07022945250226},packages:15,Address:'Chang i 26th, Singapore', list: [
+      {named: 'Ginny', status : 'Pending', coords:{lat: 1.116441781583991,lng:104.07022945250226},waypoints: {latitude: 1.1103263462912354,longitude:103.9674608376373},packages:15,Address:'Chang i 26th, Singapore', list: [
         {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323344567553' },
         {package:'6',weight:'64.00 Kg',CBM:'0.50', id: '#323344342342' },
         {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323312312312' },
         {package:'3',weight:'23.00 Kg',CBM:'0.18', id: '#323344897815'},
       ]},
-      {named: 'Tho',  status : 'Pending', coords: {lat: 1.1291426215166025,lng:103.95759091202049}, packages:4,Address:'639 Balestier Rd, Singapura 329922', list: [
+      {named: 'Tho',  status : 'Pending', coords: {lat: 1.1291426215166025,lng:103.95759091202049}, waypoints:null, packages:4,Address:'639 Balestier Rd, Singapura 329922', list: [
         {package:'1',weight:'23.00 Kg',CBM:'0.18' , id: '#12544457577'},
         {package:'3',weight:'64.00 Kg',CBM:'0.50' , id: '#67785464564'},
       ]},
-      {named: 'West', status : 'Complete', coords : {lat: 1.1103263462912354,lng:103.9674608376373}, packages:4,Address:'2 Orchard Turn, Singapura 238801', list: [
+      {named: 'West', status : 'Complete', coords : {lat: 1.1103263462912354,lng:103.9674608376373}, waypoints:null, packages:4,Address:'2 Orchard Turn, Singapura 238801', list: [
         {package:'1',weight:'23.00 Kg',CBM:'0.18' , id: '#988786767666'},
         {package:'3',weight:'64.00 Kg',CBM:'0.50' , id: '#455645645688'},
       ]},
-      {named: 'Go',  status : 'Complete', coords: {lat:1.3250369, lng:103.6973209}, packages:1,Address:'221A Boon Lay Pl, Singapura 641221', list: [
+      {named: 'Go',  status : 'Complete', coords: {lat:1.3250369, lng:103.6973209}, waypoints:null, packages:1,Address:'221A Boon Lay Pl, Singapura 641221', list: [
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#768565463455'},
       ]},
-      {named: 'Dolittle', status : 'Complete', coords: {lat:1.3691909, lng:103.8436772}, packages:5,Address:'16 Ang Mo Kio Central 3, Singapore 567748', list: [
+      {named: 'Dolittle', status : 'Complete', coords: {lat:1.3691909, lng:103.8436772}, waypoints:null, packages:5,Address:'16 Ang Mo Kio Central 3, Singapore 567748', list: [
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#879755465377'},
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#345344234677'},
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#345345436435'},
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#213125432423'},
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#856756534555'},
       ]},
-      {named: 'Cumberbatch', status : 'On Delivery', coords: {lat:1.330895, lng:103.8375949}, packages:1,Address:'510 Thomson Rd, Singapura 298135', list: [
+      {named: 'Cumberbatch', status : 'On Delivery', coords: {lat:1.330895, lng:103.8375949},  waypoints:null,packages:1,Address:'510 Thomson Rd, Singapura 298135', list: [
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#323344897815'},
       ]},
-      {named: 'Bram', status : 'On Delivery',packages:1,coords: {lat: 1.3911178, lng:103.7664461}, Address:'27 Woodlands Link, #01-01 Chang Cheng HQ, Singapura 738732', list: [
+      {named: 'Bram', status : 'On Delivery',packages:1,coords: {lat: 1.3911178, lng:103.7664461}, waypoints:null, Address:'27 Woodlands Link, #01-01 Chang Cheng HQ, Singapura 738732', list: [
         {package:'1',weight:'2.00 Kg',CBM:'0.18' , id: '#456456456542'},
       ]},
     ];
@@ -55,6 +55,7 @@ class List extends Component {
     data: [],
     search: '',
     namedOrder,
+    isLoading: false,
     locationPermission : false,
   };
   this.props.setDataOrder(namedOrder);
@@ -71,10 +72,8 @@ class List extends Component {
   componentDidMount() {
      let {locationPermission} = this.props;
     if (locationPermission) {
-      console.log(locationPermission); 
       let watchID = Geolocation.watchPosition(
          ({coords}) => {
-           console.log('mount coords',coords);
            let latLng = {
              lat: coords.latitude,
              lng: coords.longitude,
@@ -84,9 +83,12 @@ class List extends Component {
            let listCords = Array.from({length:this.state.namedOrder.length}).map((num,index) => {
             return {lat: this.state.namedOrder[index].coords.lat, lng: this.state.namedOrder[index].coords.lng};
            });
+           let waypoints = Array.from({length:this.state.namedOrder.length}).map((num,index) => {
+            return this.state.namedOrder[index].waypoints;
+           });
           // for active subscribed geoLocation please see the conditional within props.step to update;
          //  if(this.props.isTraffic){
-            this.props.getDirectionsAPIWithTraffic(listCords, coords);
+            this.props.getDirectionsAPIWithTraffic(listCords, coords, waypoints);
          // } else {
         
          //   this.props.getDirectionsAPI([{lat: 1.3143394,lng:103.7038231},{lat: 1.3911178, lng:103.7664461},{lat:1.3287109, lng:103.8476682},{lat:1.2895404, lng:103.8081271},{lat:1.3250369, lng:103.6973209},{lat:1.3691909, lng:103.8436772},{lat:1.330895, lng:103.8375949}], latLng);
@@ -133,7 +135,7 @@ class List extends Component {
   }
   
   updateStateData = () => {
-    this.setState({data: Array.from({length: this.props.dataPackage.length}).map((element,index)=>{
+    this.setState({isLoading: false,data: Array.from({length: this.props.dataPackage.length}).map((element,index)=>{
     //  let statSingleOffline = this.props.stat[index];
       let statSingleAPI = this.props.statAPI[index];
       let namedData = this.props.dataPackage.length > 0 ? this.props.dataPackage[index] : this.state.namedOrder[index];
@@ -153,6 +155,11 @@ class List extends Component {
               lat: coords.latitude,
               lng: coords.longitude,
             };
+            let orders = this.translateOrdersTraffic();
+            let waypoints = Array.from({length:this.state.namedOrder.length}).map((num,index) => {
+             return this.state.namedOrder[index].waypoints;
+            });
+            this.props.getDirectionsAPIWithTraffic(orders, coords, waypoints);  
             this.props.reverseGeoCoding(coords);
             Geolocation.clearWatch(watchID);
             RNFusedLocation.stopObserving();
@@ -175,11 +182,10 @@ class List extends Component {
         });
      }
 
-    if(prevProps.route_id !== this.props.route_id){
-         let {coords} = this.props.currentPositionData;
-         let orders = this.translateOrdersTraffic();
-         this.props.getDirectionsAPIWithTraffic(orders, coords);  
-    }
+    // if(prevProps.route_id !== this.props.route_id){
+    //      let {coords} = this.props.currentPositionData;
+     
+    // }
     // stop using own routestat calculation, will be using google api stats.
     //  // for active subscribed geoLocation please see the conditional within props.step to update;
   //  if((prevProps.location === undefined && this.props.location !== undefined ) || (prevProps.route_id !== this.props.route_id && this.props.stat.length === 0)){
@@ -256,6 +262,39 @@ class List extends Component {
       index: index,
     })
   }
+  renderEmpty = () => {
+    const {isConnected} = this.props;
+    return (
+      <View style={styles.emptyDeliveryContainer}>
+        {isConnected === false ? (
+          <Image
+            source={require('../../../assets/server_unreachable.jpg')}
+            style={{width: 200, height: 100}}
+            resizeMode="contain"
+          />
+        ) : (
+          <Image
+            source={require('../../../assets/grey_truck.jpg')}
+            style={{width: 200, height: 100}}
+            resizeMode="contain"
+          />
+        )}
+        <Text style={styles.noDeliveryText}>
+          {isConnected === false
+            ? 'Transport Server Unreachable'
+            : 'No Pending Delivery'}
+        </Text>
+        <TouchableOpacity
+          style={styles.refreshButton}
+          onPress={this.getTotalPackages}
+          disabled={true}
+          >
+          <Text style={styles.refreshButtonText}>{'Refresh'}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   render() {
 
     const {search} = this.state;
@@ -268,8 +307,16 @@ class List extends Component {
               <AddressList {...props} navigation={this.navigateToDelivery} />
             );
           }}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.isLoading}
+              onRefresh={this.updateStateData}
+            />
+          }
+          ListEmptyComponent={this.renderEmpty}
           keyExtractor={(item, index) => index}
           ListHeaderComponent={() => {
+            if(this.state.data.length === 0) return null;
             return (
               <View style={styles.filterContainer}>
                 <SearchBar
@@ -384,6 +431,35 @@ const styles = {
     ...Mixins.small3,
     lineHeight: 12,
     color: '#121C78'
+  },
+  
+  emptyDeliveryContainer: {
+    flex: 1,
+    marginTop: '30%',
+    marginHorizontal: 20,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noDeliveryText: {
+    ...Mixins.subtitle3,
+    lineHeight: 15,
+    marginVertical: 20,
+  },
+  
+  refreshButton: {
+    width: '100%',
+    marginHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#F07120',
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  refreshButtonText: {
+    ...Mixins.subtitle3,
+    color: '#FFFFFF',
+    fontSize: 20,
   },
 };
 

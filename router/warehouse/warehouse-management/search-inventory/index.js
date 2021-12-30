@@ -5,6 +5,7 @@ import {
   HeaderBackButton,
 } from '@react-navigation/stack';
 import {connect} from 'react-redux';
+import {Platform} from 'react-native';
 import Mixins from '../../../../mixins';
 // screen
 import SearchInventory from './searchInventory';
@@ -23,15 +24,11 @@ class SearchInventoryNavigator extends React.Component {
       bottomSheet: false,
       isShowSignature: false,
     };
-    this.setWrapperofStack.bind(this);
   }
 
   setWrapperofStack = (index, key) => {
-    const {indexBottomBar} = this.props;
-    if (indexBottomBar === 0) {
-      this.props.setCurrentStackKey(key);
-      this.props.setCurrentStackIndex(index);
-    }
+    this.props.setCurrentStackKey(key);
+    this.props.setCurrentStackIndex(index);
   };
 
   render() {
@@ -61,6 +58,7 @@ class SearchInventoryNavigator extends React.Component {
           headerTintColor: '#FFF',
           headerLeftContainerStyle:
             Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
+          headerBackTitle: 'Back',
           header: (props) => {
             let state = props.navigation.dangerouslyGetState();
             let key = state.routes[state.index].name;
@@ -118,9 +116,6 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
     setCurrentStackKey: (string) => {
       return dispatch({type: 'keyStack', payload: string});
     },

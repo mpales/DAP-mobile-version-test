@@ -8,13 +8,14 @@ import {
 } from 'react-native';
 import Mixins from '../../../mixins';
 import { connect } from 'react-redux';
-
+import Banner from '../../../component/banner/banner';
 class ManualInput extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             inputCode: '',
             dataCode: null,
+            indexData : null,
             bayCode : null,
             error: false,
         }
@@ -26,13 +27,12 @@ class ManualInput extends React.Component {
         if(dataCode === null){
             const {routes, index} = navigation.dangerouslyGetState();
             if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-              return {...state, dataCode: routes[index].params.dataCode, bayCode : routes[index].params.bayCode};
+              return {...state, dataCode: routes[index].params.dataCode, indexData: routes[index].params.indexData};
             }
         }
         return {...state};
       }
     handleConfirm = () => {
-        console.log('compare : ' + this.state.dataCode + this.state.inputCode);
         if(this.state.inputCode !== this.state.dataCode) {
             this.setState({inputCode: '', error: true});
         } else {
@@ -41,14 +41,22 @@ class ManualInput extends React.Component {
                 name: 'Barcode',
                 params: {
                     manualCode: this.state.inputCode,
-                    bayCode: this.state.bayCode
+                    indexData: this.state.indexData,
                 }
             });
         }
     }
+    closeNotifBanner = ()=>{
+        this.setState({error:false});
+      }
     render() {
         return (
             <View style={styles.container}>
+                    {this.state.error && (<Banner
+            title="Invalid input barcode , please try it again"
+            backgroundColor="#F1811C"
+            closeBanner={this.closeNotifBanner}
+          />)}
             <View style={{padding:20}}>
             <Text style={styles.title}>Input Manual Item Barcode</Text>
             <TextInput
@@ -63,9 +71,9 @@ class ManualInput extends React.Component {
                 <Text style={styles.buttonText}>Confirm</Text>
             </TouchableOpacity>
             </View>
-            {this.state.error && (<View style={{position: 'absolute', bottom:0, left:0, right:0, backgroundColor:'#E03B3B', width: '100%', justifyContent: 'center', alignItems: 'center'}}>
+            {/* {this.state.error && (<View style={{position: 'absolute', bottom:0, left:0, right:0, backgroundColor:'#E03B3B', width: '100%', justifyContent: 'center', alignItems: 'center'}}>
             <Text style={{...Mixins.small3, lineHeight: 16, fontSize: 11,fontWeight: '400', color:'#fff'}}>Invalid input barcode , please try it again</Text>
-            </View>)}
+            </View>)} */}
     </View>
         )
     }

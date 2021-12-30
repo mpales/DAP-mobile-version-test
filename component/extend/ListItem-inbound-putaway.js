@@ -101,6 +101,23 @@ lineHeight: 18,
     fontWeight:'400',
     color: '#ffffff',
   },
+  wrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  detailText: {
+    ...Mixins.small1,
+    color: '#424141',
+    fontWeight:'500',
+  },
+  valueText: {
+    flexGrow: 1,
+    marginLeft: 5,
+    flexWrap: 'wrap',
+    flexBasis:1,
+    maxWidth: '65%',
+  },
 };
 const theme = {
   ListItem: {
@@ -139,15 +156,71 @@ const Manifest = ({item, index, ToManifest}) => {
         onPress={ToManifest}
         >
           <ListItem.Content style={styles.sectionContainer}>
-                    <Text style={{...Mixins.small1,lineHeight: 18,color: '#ABABAB', fontWeight: '400'}}>
-                    {moment(item.date).format("DD-MM-YYYY")}
-                    </Text>
-                    <Text style={{...Mixins.body1,lineHeight: 21,color: '#424141', fontWeight: '600'}}>
-                        {item.pallet}
-                    </Text>
-                    <Text style={{...Mixins.body1,lineHeight: 21,color: '#424141', fontWeight: '600'}}>
-                       {item.warehouse}
-                    </Text>
+          <Badge value={item.type === 1 ? 'ASN' : item.type === 2 ? 'GRN' : item.type === 3 ? 'TRANSIT' : 'OTHERS'} status="warning" textStyle={{...Mixins.small3,fontWeight: '700',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-start',marginBottom:10}} badgeStyle={{backgroundColor: item.type === 1 ? '#121C78' : item.type === 2 ? '#F07120' : item.type === 3 ? 'white' : '#17B055', borderColor:'#ABABAB', borderWidth:item.type === 1 ? 0 : item.type === 2 ? 0 : item.type === 3 ? 1 : 0, borderRadius:5}} />
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '45%'}]}>Received Date</Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+            {item.receivedDate ? moment(item.receivedDate).format("DD-MM-YYYY") : '-'}
+            </Text>
+          </View>
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '45%'}]}>Client ID</Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+            {item.clientId}
+            </Text>
+          </View>
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '45%'}]}>Inbound ID</Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+            {item.jobId}
+            </Text>
+          </View>
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '45%'}]}>Ref #</Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+            {item.ref}
+            </Text>
+          </View>
+          {item.type === 3 && (
+          <><View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '45%'}]}>Warehouse</Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+            {item.warehouse}
+            </Text>
+          </View>
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '45%'}]}>Pallet</Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+            {item.pallet}
+            </Text>
+          </View>
+          </>)}
+      
+                 
                     
     
         </ListItem.Content>
@@ -166,7 +239,6 @@ const Manifest = ({item, index, ToManifest}) => {
                     />)}
                     onPress={ToManifest}
                 />
-           <Badge value={item.type === 1 ? 'ASN' : item.type === 2 ? 'GRN' : item.type === 3 ? 'OTHERS' : 'TRANSIT'} status="warning" textStyle={{...Mixins.small3,fontWeight: '700',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-start'}} badgeStyle={{backgroundColor: item.type === 1 ? '#121C78' : item.type === 2 ? '#F07120' : item.type === 3 ? 'white' : '#17B055', borderColor:'#ABABAB', borderWidth:item.type === 1 ? 0 : item.type === 2 ? 0 : item.type === 3 ? 1 : 0, borderRadius:5}} />
         </View>
       </ListItem>
     </ThemeProvider>

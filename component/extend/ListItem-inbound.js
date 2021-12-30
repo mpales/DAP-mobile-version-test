@@ -50,7 +50,7 @@ const styles = {
   labelContainer : {
     flexShrink: 1,
     flexDirection: 'column',
-    justifyContent: 'space-evenly',
+    justifyContent: 'flex-start',
     marginHorizontal: 0,
     marginVertical: 10,
     padding:3,
@@ -72,10 +72,26 @@ const styles = {
   },
   descText: {
     ...Mixins.small1,
-    fontWeight: '400',
+    fontWeight: '500',
     lineHeight: 18,
-    color:'#ABABAB'
-  }
+    color:'#424141'
+  },
+  wrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  detailText: {
+    ...Mixins.small1,
+    color: '#424141',
+  },
+  valueText: {
+    flexGrow: 1,
+    marginLeft: 5,
+    flexWrap: 'wrap',
+    flexBasis:1,
+    maxWidth: '65%',
+  },
 };
 const theme = {
   ListItem: {
@@ -150,18 +166,96 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
         <ListItem.Content style={styles.sectionContainer}>
-        <ListItem.Title style={{...Mixins.body3,lineHeight: 18,color: '#ABABAB', fontWeight: '600'}}>
-        {moment(item.eta).format("DD-MM-YYYY")}
-        </ListItem.Title>
-        <ListItem.Subtitle style={{...Mixins.body1, lineHeight: 21, color: '#424141', fontWeight: '600'}}>
-        {item.reference_id}
-        </ListItem.Subtitle>
-        <Text style={styles.descText}>{item.client}</Text>
+        <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>ETA Date</Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+            {moment(item.eta).format("DD-MM-YYYY")}
+            </Text>
+          </View>
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>Client ID  </Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+            {item.client}
+            </Text>
+          </View>
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>Inbound ID  </Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+            {item.inbound_number}
+            </Text>
+          </View>
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>Ref #   </Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+              {item.reference_id ? item.reference_id : '-'}
+            </Text>
+          </View>
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>Shipment type  </Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+             {item.shipment_type === 2 ? 'FCL': 'LCL'}
+            </Text>
+          </View>
+          {item.shipment_type === 2 && (          
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>Container  #  </Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+             {item.container_no}
+            </Text>
+          </View>)}
+          {item.type === 2 && (
+            <>          
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>No. of Pallet  </Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+             -
+            </Text>
+          </View>
+             
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>No. of Carton  </Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+           -
+            </Text>
+          </View>
+          </>)}
         <Text style={styles.descText}>{item.total_product_processed+'/'+item.total_product+' Lines Complete'}</Text>
         </ListItem.Content>
         <View style={styles.labelContainer}>
         <Badge value={labelstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />
-        <View style={{alignSelf:'flex-end',flexDirection: 'column'}}>
+        <View style={{alignSelf:'flex-end',flexDirection: 'column', flex:1, justifyContent:'center', alignItems:'center'}}>
            
         <ListItem.Chevron
             size={16}

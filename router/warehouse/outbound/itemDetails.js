@@ -16,6 +16,8 @@ import DetailList from '../../../component/extend/Card-detail';
 import ChevronRight from '../../../assets/icon/iconmonstr-arrow-66mobile-2.svg';
 import ChevronDown from '../../../assets/icon/iconmonstr-arrow-66mobile-1.svg';
 import Loading from '../../../component/loading/loading';
+import {getData} from '../../../component/helper/network';
+import moment from 'moment';
 class ConnoteDetails extends React.Component {
   constructor(props) {
     super(props);
@@ -23,6 +25,8 @@ class ConnoteDetails extends React.Component {
       sortBy: 'Name',
       dataCode : '0',
       bayCode :'0',
+      dataActivities : [],
+      totalReports: 0,
       _itemDetail: null,
     };
     this.renderHeader.bind(this);
@@ -33,7 +37,7 @@ class ConnoteDetails extends React.Component {
     if(dataCode === '0'){
       const {routes, index} = navigation.dangerouslyGetState();
       if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-        return {...state, dataCode: routes[index].params.dataCode, bayCode:routes[index].params.bayCode};
+        return {...state, dataCode: routes[index].params.dataCode};
       }
       return {...state};
     } 
@@ -41,57 +45,121 @@ class ConnoteDetails extends React.Component {
     return {...state};
   }
 
-  componentDidMount(){
+  async componentDidMount(){
     const {navigation, outboundList} = this.props;
     const {dataCode, _itemDetail, bayCode} = this.state;
     
-    if(dataCode !=='0' && _itemDetail === null && outboundList.some((element)=> element.barcode === dataCode && element.location_bay === bayCode)){
-      let list = outboundList.find((element)=>element.barcode === dataCode);
+    if(dataCode !=='0' && _itemDetail === null && outboundList.some((element)=> element.pick_task_product_id === dataCode)){
+      let list = outboundList.find((element)=>element.pick_task_product_id === dataCode);
       this.setState({_itemDetail: list});
+      const resultTotalReport = await getData('/outboundMobile/pickTask/'+this.props.currentTask+'/product/'+dataCode+'/reports');
+      console.log(resultTotalReport)
+      if(typeof resultTotalReport === 'object' && resultTotalReport.error === undefined){
+        this.setState({totalReports:resultTotalReport.length})
+      }
+
+      const resultActivities = await getData('/outboundMobile/pickTask/'+this.props.currentTask+'/product/'+dataCode+'/activities');
+      console.log(resultActivities);
+      if(typeof resultActivities === 'object' && resultActivities.error === undefined){
+        this.setState({dataActivities:resultActivities})
+      }
     }
   }
   navigateSeeReport = () => {
-    this.props.navigation.navigate('ItemReportDetail');
+    const {pick_task_product_id} = this.state._itemDetail;
+    this.props.navigation.navigate('ItemReportDetail',{number:pick_task_product_id});
   };
 
   renderHeader = () => {
     const {_itemDetail} = this.state;
+    let totalQty = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+      return _itemDetail.detail[index].quantity;
+    });
+    let expArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+        if(_itemDetail.detail[index].attributes.expiry_date === undefined)
+        return null;
+      return _itemDetail.detail[index].attributes.expiry_date;
+    });
+    let expFiltered = expArr.filter((o)=> o !== null);
+
+    let colorArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+        if(_itemDetail.detail[index].attributes.color === undefined)
+        return null;
+      return _itemDetail.detail[index].attributes.color;
+    });
+    let colorFiltered =colorArr.filter((o)=> o !== null);;
+    
+    let weightArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+      if(_itemDetail.detail[index].attributes.weight === undefined)
+      return null;
+      return _itemDetail.detail[index].attributes.weight;
+    });
+    let weightFiltered = weightArr.filter((o)=> o !== null);;
+
+    
+    let volumeArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+      if(_itemDetail.detail[index].attributes.volume === undefined)
+      return null;
+      return _itemDetail.detail[index].attributes.volume;
+    });
+    let volumeFiltered = volumeArr.filter((o)=> o !== null);;
+    
+       
+    let classArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+      if(_itemDetail.detail[index].attributes.class === undefined)
+      return null;
+      return _itemDetail.detail[index].attributes.class;
+    });
+    let classFiltered = classArr.filter((o)=> o !== null);;
+
+    let banchArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+      if(_itemDetail.detail[index].batch_no === undefined)
+      return null;
+      return _itemDetail.detail[index].batch_no;
+    });
+    let banchFiltered = banchArr.filter((o)=> o !== null);;
+    let categoryArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+      if(_itemDetail.detail[index].attributes.category === undefined)
+      return null;
+      return _itemDetail.detail[index].attributes.category;
+    });
+    categoryFiltered = categoryArr.filter((o)=> o !== null);
     return (
       <>
       <Card containerStyle={[styles.cardContainer,{paddingHorizontal:0,paddingVertical:10}]} style={styles.card}>
               <View style={[styles.header,{paddingHorizontal:20}]}>
                 <View>
                   <Text style={[styles.headerTitle, {flex: 0, fontSize: 20}]}>
-                    {_itemDetail.barcode}
+                    {_itemDetail.product.item_code}
                   </Text>
                 </View>
                 {/* <Text style={styles.packageCounterText}>{_itemDetail.scanned+'/'+_itemDetail.total_qty}</Text> */}
               </View>
               <View style={[styles.detail,{paddingVertical:10}]}>
                 <View style={[styles.detailSection,{paddingBottom:10}]}>
-                <DetailList title="Description" value={_itemDetail.description} />
-                <DetailList title="Barcode" value={_itemDetail.barcode} />
-                <DetailList title="UOM" value={_itemDetail.UOM} />
-                <DetailList title="Quantity" value={_itemDetail.total_qty} />
-                <DetailList title="Product Class" value="-" />
-                <DetailList title="CBM" value="-" />
-                <DetailList title="Weight" value="-" />
+                <DetailList title="Description" value={_itemDetail.product.description} />
+                <DetailList title="Barcode" value={_itemDetail.product.item_code} />
+                <DetailList title="UOM" value={_itemDetail.product.uom} />
+                <DetailList title="Quantity" value={totalQty.length > 0 ? String(totalQty.reduce((p,n)=>p+n)) : "0"}/>
+                <DetailList title="Product Class" value={classFiltered.length > 0 ? classFiltered[0] : '-'  } />
+                <DetailList title="CBM" value={volumeFiltered.length > 0 ? volumeFiltered[0] : '-'} />
+                <DetailList title="Weight" value={weightFiltered.length > 0 ? weightFiltered[0] : '-'} />
                 </View>
                 <Divider/>
                 <View style={[styles.detailSection,{paddingVertical:10}]}>
-                  <Text style={styles.reportSectionTitle}>Product Category : Fashion</Text>
-                  <DetailList title="Color" value="BLACK" />
-                  <DetailList title="EXP Date" value="-" />
-                  <DetailList title="Banch" value="-" />
+                  <Text style={styles.reportSectionTitle}>Product Category : {categoryFiltered.length > 0 ? categoryFiltered[0]:'-' }</Text>
+                  <DetailList title="Color" value={colorFiltered.length > 0 ? colorFiltered[0] : '-' } />
+                  <DetailList title="EXP Date" value={expFiltered.length > 0 && expFiltered[0] ? moment(expFiltered[0]).format('YYYY-MM-DD HH:mm:ss') : '-'} />
+                  <DetailList title="Batch" value={banchFiltered.length > 0 ? banchFiltered[0] : '-'} />
                 </View>
                 <View style={[styles.reportSection,{paddingHorizontal:20}]}>
                   <Text style={styles.reportSectionTitle}>Report:</Text>
                   <TouchableOpacity
               style={styles.seeReportButton}
               onPress={this.navigateSeeReport}>
-                  <DetailList
+               <DetailList
                     title="Total Report"
-                    value="2 Report"
+                    value={this.state.totalReports+" Report"}
                     report={true}
                   />
                    </TouchableOpacity>
@@ -110,20 +178,33 @@ class ConnoteDetails extends React.Component {
           </View>
         </View>
         <View style={[styles.header, {marginTop: 10}]}>
+        <View style={{flex:1}}>
           <Text style={styles.detailText}>Date and Time</Text>
-          <Text style={styles.detailText}>Name</Text>
+          </View>
+          <View style={{flexShrink:1}}>
+          <Text style={[styles.detailText,{textAlign:'left'}]}>Name</Text>
+          </View>
+          <View style={{flex:1, justifyContent:'flex-end',alignItems:'flex-end'}}>
           <Text style={styles.detailText}>Activities</Text>
+          </View>
         </View>
       </>
     );
   };
 
-  renderInner = (item) => {
+  renderInner = ({item,index}) => {
+    let oddeven = index % 2;
     return (
-      <View style={styles.header}>
-        <Text style={styles.detailText}>{item.date}</Text>
-        <Text style={styles.detailText}>{item.name}</Text>
-        <Text style={styles.detailText}>{item.status}</Text>
+      <View style={[styles.header,{backgroundColor: oddeven == 0 ? '#EFEFEF' : 'white'}]}>
+         <View style={{flex:1}}>
+        <Text style={styles.detailText}>{moment(item.date).format('DD/MM/YYYY h:mm a')}</Text>
+        </View>
+        <View style={{flexShrink:1}}>
+        <Text style={styles.detailText}>{item.user_id.firstName}</Text>
+        </View>
+        <View style={{flex:1, justifyContent:'flex-end',alignItems:'flex-end'}}>
+        <Text style={[styles.detailText,{textAlign:'right'}]}>{item.activity}</Text>
+        </View>
       </View>
     );
   };
@@ -143,10 +224,10 @@ class ConnoteDetails extends React.Component {
           </View>
           <View style={styles.body}>
             <FlatList
-              data={[]}
+              data={this.state.dataActivities}
               style={{padding:0}}
               ListHeaderComponent={this.renderHeader}
-              renderItem={({item}) => this.renderInner(item)}
+              renderItem={this.renderInner}
             />
           </View>
         </View>
@@ -250,6 +331,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
   return {
     outboundList: state.originReducer.outboundList,
+    currentTask : state.originReducer.filters.currentTask,
   };
 };
 

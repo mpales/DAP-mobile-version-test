@@ -59,7 +59,7 @@ export const deliveryStatusColor = (status) => {
 export const requestRelocationJobStatusColor = (status) => {
   let color = '';
   switch (status) {
-    case 'In Progress':
+    case 'Processing':
       color = '#F07120';
       break;
     case 'Completed':

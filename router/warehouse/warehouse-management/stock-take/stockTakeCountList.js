@@ -21,6 +21,8 @@ import {getData} from '../../../../component/helper/network';
 import Format from '../../../../component/helper/format';
 //style
 import Mixins from '../../../../mixins';
+// icon
+import SearchIcon from '../../../../assets/icon/iconmonstr-search-thinmobile.svg';
 
 const screen = Dimensions.get('window');
 
@@ -37,9 +39,6 @@ class StockTakeCountList extends React.Component {
       filterStatus: 'All',
       isShowModal: false,
     };
-    this.handleFilterStatus.bind(this);
-    this.updateSearch.bind(this);
-    this.completeStockTake.bind(this);
   }
 
   componentDidMount() {
@@ -167,7 +166,7 @@ class StockTakeCountList extends React.Component {
     return (
       <View
         style={{
-          marginTop: '50%',
+          flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
         }}>
@@ -218,12 +217,12 @@ class StockTakeCountList extends React.Component {
           )}
         </View>
         <SearchBar
-          placeholder="Search"
+          placeholder="Search..."
           onChangeText={this.updateSearch}
           value={this.state.search}
           lightTheme={true}
           inputStyle={styles.searchInputText}
-          searchIcon=""
+          searchIcon={<SearchIcon height="20" width="20" fill="#2D2C2C" />}
           containerStyle={styles.searchContainer}
           inputContainerStyle={styles.searchInputContainer}
         />
@@ -323,6 +322,7 @@ class StockTakeCountList extends React.Component {
               keyExtractor={(item, index) => index}
               showsVerticalScrollIndicator={false}
               style={{marginBottom: 70}}
+              contentContainerStyle={{flex: 1}}
               ListEmptyComponent={this.renderEmpty}
             />
             {jobData.status !== 'Completed' && (
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   },
   searchInputText: {
     ...Mixins.subtitle3,
-    lineHeight: 14,
+    lineHeight: 21,
   },
   searchContainer: {
     backgroundColor: 'transparent',
@@ -402,9 +402,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#D5D5D5',
     height: 35,
-  },
-  search: {
-    alignItems: 'flex-end',
   },
   badgeContainer: {
     flex: 1,
@@ -512,9 +509,6 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
     setStockTakeId: (id) => {
       return dispatch({type: 'StockTakeId', payload: id});
     },

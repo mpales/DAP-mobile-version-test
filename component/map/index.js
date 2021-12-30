@@ -70,6 +70,7 @@ class NavigationalMap extends React.Component {
           latitude: data[index].coords.lat,
           longitude: data[index].coords.lng,
         },
+        waypoints : data[index].waypoints,
       };
     });
 
@@ -113,7 +114,7 @@ class NavigationalMap extends React.Component {
     const destination = new Location(markers[index][0], markers[index][1]);
     if (NavigationalMap.Beacon instanceof Distance === false) {
       NavigationalMap.Beacon = new Distance(destination);
-      props.getDeliveryDirections(route[index].coordinate, currentCoords);
+      props.getDeliveryDirections(route[index].coordinate, currentCoords, route[index].waypoints);
       props.reverseGeoCoding(currentCoords);
       let initialCamera = NavigationalMap.Beacon.camera(
         ASPECT_RATIO,
@@ -139,7 +140,7 @@ class NavigationalMap extends React.Component {
       updateToRenderMap === true
     ) {
       NavigationalMap.Beacon = new Distance(destination);
-      props.getDeliveryDirections(route[index].coordinate, currentCoords);
+      props.getDeliveryDirections(route[index].coordinate, currentCoords, route[index].waypoints);
       props.reverseGeoCoding(currentCoords);
       let initialCamera = NavigationalMap.Beacon.camera(
         ASPECT_RATIO,
@@ -172,6 +173,28 @@ class NavigationalMap extends React.Component {
     };
   }
  
+  getSnapshotBeforeUpdate(prevProps, prevState) {
+    if (
+      prevProps.startDelivered === true &&
+      this.props.startDelivered === true &&
+      prevProps.keyStack === 'Map' &&
+      this.props.keyStack === 'Map' &&
+      this.state.showLocationOnce === false &&
+      this.state.foregroundService === true
+    ) {
+      return true;
+    } else if (
+      prevProps.startDelivered === false &&
+      this.props.startDelivered === false &&
+      this.state.showLocationOnce === true &&
+      this.state.foregroundService === true
+    ) {
+      return false;
+    }
+    return null;
+  }
+
+  
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.props.destinationid !== prevProps.destinationid) {
       if (this.props.destinationid === null) {
@@ -180,15 +203,18 @@ class NavigationalMap extends React.Component {
         this.getDeliveryDirection();
       }
     }
-    if(this.props.startDelivered !== prevProps.startDelivered){
-      if(this.props.startDelivered === false && this.state.history_polyline !== null){
-        this.setState({history_polyline:null,showLocationOnce:false});
+    if (this.props.startDelivered !== prevProps.startDelivered) {
+      if (
+        this.props.startDelivered === false &&
+        this.state.history_polyline !== null
+      ) {
+        this.setState({history_polyline: null});
       }
     }
-    if(this.props.keyStack !== prevProps.keyStack){
-      if(this.props.keyStack === 'Map'){
+    if (this.props.keyStack !== prevProps.keyStack) {
+      if (this.props.keyStack === 'Map') {
         this.callbackModeChange.setValue(1);
-        if(this.props.startDelivered === true){
+        if (this.props.startDelivered === true) {
           RNFusedLocation.startObserving({
             timeout: 300,
             maximumAge: 50,
@@ -199,14 +225,23 @@ class NavigationalMap extends React.Component {
         }
       }
     }
-    if(this.state.foregroundService !== prevState.foregroundService){
-      if(this.state.foregroundService === true){
+    if (this.state.foregroundService !== prevState.foregroundService) {
+      if (this.state.foregroundService === true) {
         this.setState({
           showLocationOnce: true,
-        });   
+        });
+      } else {
+        AppState.removeEventListener('change', this._handleAppStateChange);
       }
     }
-    if (this.props.startDelivered === true && this.props.ApplicationNavigational !== null && this.props.destinationid !== null && this.state.showLocationOnce === false) {
+    if (
+      this.props.startDelivered === true &&
+      this.props.ApplicationNavigational !== null &&
+      this.props.destinationid !== null &&
+      this.state.showLocationOnce === false &&
+      this.state.foregroundService === true &&
+      snapshot === true
+    ) {
       this.setState({
         showLocationOnce: true,
       });
@@ -216,28 +251,47 @@ class NavigationalMap extends React.Component {
             this.props.deliveryDestinationData.steps.length - 1
           ][0],
         longitude:
-        this.props.deliveryDestinationData.steps[
-          this.props.deliveryDestinationData.steps.length - 1
+          this.props.deliveryDestinationData.steps[
+            this.props.deliveryDestinationData.steps.length - 1
           ][1],
-        sourceLatitude: -8.0870631, // optionally specify starting location for directions
-        sourceLongitude: -34.8941619, // not optional if sourceLatitude is specified
+
         //title: 'The White House', // optional
-        googleForceLatLon: false, // optionally force GoogleMaps to use the latlon for the query instead of the title
-        googlePlaceId: 'ChIJGVtI4by3t4kRr51d_Qm_x58', // optionally specify the google-place-id
+        googleForceLatLon: true, // optionally force GoogleMaps to use the latlon for the query instead of the title
+        //  googlePlaceId: 'ChIJGVtI4by3t4kRr51d_Qm_x58', // optionally specify the google-place-id
         alwaysIncludeGoogle: true, // optional, true will always add Google Maps to iOS and open in Safari, even if app is not installed (default: false)
         dialogTitle: 'This is the dialog Title', // optional (default: 'Open in Maps')
         dialogMessage: 'This is the amazing dialog Message', // optional (default: 'What app would you like to use?')
         cancelText: 'This is the cancel button text', // optional (default: 'Cancel')
-        appsWhiteList: ['google-maps'], // optionally you can set which apps to show (default: will show all supported apps installed on device)
+        appsWhiteList:
+          Platform.OS === 'ios'
+            ? ['google-maps', 'apple-maps']
+            : ['google-maps'], // optionally you can set which apps to show (default: will show all supported apps installed on device)
         naverCallerName: 'com.example.myapp', // to link into Naver Map You should provide your appname which is the bundle ID in iOS and applicationId in android.
         app: this.props.ApplicationNavigational, // optionally specify specific app to use
       });
-    } 
+    } else if (snapshot === false) {
+      this.setState({
+        showLocationOnce: false,
+      });
+    }
   }
   componentDidMount() {
     this.callbackModeChange.setValue(1);
-    if (this.props.destinationid !== null) {
-      this.getDeliveryDirection();
+    if (
+      this.props.destinationid !== null &&
+      this.props.index !== undefined &&
+      this.props.data !== undefined &&
+      this.props.data.length !== 0 &&
+      NavigationalMap.Beacon instanceof Distance === true
+    ) {
+      if (
+        NavigationalMap.Beacon.checkDestinationID(
+          this.props.destinationid,
+          this.props.data[this.props.index].coords,
+        ) === true
+      ) {
+        this.getDeliveryDirection();
+      }
     }
 
     if (Platform.OS === 'ios') {
@@ -261,16 +315,7 @@ class NavigationalMap extends React.Component {
         },
       ]);
     }
-    AppState.addEventListener('change', (state) =>
-      NavigationalMap._handlebackgroundgeolocation(
-        state,
-        this.props.currentPositionData,
-        this.props.deliveryDestinationData,
-        this.props.startDelivered,
-        this.state.foregroundService,
-        this.props.statAPI[this.props.index],
-      ),
-    );
+    AppState.addEventListener('change', this._handleAppStateChange);
 
     this.locatorID = Geolocation.watchPosition(
       ({coords}) => {
@@ -318,8 +363,25 @@ class NavigationalMap extends React.Component {
               longitude: camera.longitude,
             });
           }
-          let statFromNavigation = this.Polygon.translateToStats(latLng, this.props.statAPI[this.props.index]);
-          this.props.UpdatedStat(statFromNavigation);
+          if (
+            deliveryDestinationData.steps.length > 0 &&
+            Object.keys(deliveryDestinationData.statAPI).length > 0
+          ) {
+            let Polygon = new Util();
+            let LayerGroup = Polygon.setLayersGroup(
+              deliveryDestinationData.steps,
+              [
+                deliveryDestinationData.steps[
+                  deliveryDestinationData.steps.length - 1
+                ],
+              ],
+            );
+            let statFromNavigation = Polygon.translateToStats(
+              latLng,
+              deliveryDestinationData.statAPI,
+            );
+            this.props.updateNavigationStats(statFromNavigation);
+          }
           this.setState({
             history_polyline: NavigationalMap.Beacon.view_history(),
           });
@@ -375,24 +437,34 @@ class NavigationalMap extends React.Component {
   }
 
   componentWillUnmount() {
+    NavigationalMap.Beacon.terminateDestination();
     if (Platform.OS === 'android') {
       ForegroundServiceModule.stopService();
     } else {
       PushNotificationIOS.cancelLocalNotifications();
       PushNotificationIOS.removeAllDeliveredNotifications();
     }
+    AppState.removeEventListener('change', this._handleAppStateChange);
     RNFusedLocation.stopObserving()
     Geolocation.clearWatch(this.locatorID);
     BackgroundGeolocation.removeAllListeners();
     BackgroundGeolocation.stop();
   }
+  _handleAppStateChange = (state) => {
+    NavigationalMap._handlebackgroundgeolocation(
+      state,
+      this.props.currentPositionData,
+      this.props.deliveryDestinationData,
+      this.props.startDelivered,
+      this.state.foregroundService,
+    );
+  };
   static _handlebackgroundgeolocation = async (
     nextAppState,
     currentPositionData,
     deliveryDestinationData,
     startDelivered,
     startForegroundService,
-    statAPI,
   ) => {
     if (nextAppState === 'active' && startForegroundService) {
       await RNFusedLocation.stopObserving();
@@ -452,10 +524,18 @@ class NavigationalMap extends React.Component {
           };
           NavigationalMap.Beacon.locator(latLng);
           let Polygon = new Util();
-          let LayerGroup =  Polygon.setLayersGroup(deliveryDestinationData.steps,   deliveryDestinationData.steps[
-            deliveryDestinationData.steps.length - 1
-          ]);
-          let Stats = Polygon.translateToStats(latLng,statAPI);
+          let LayerGroup = Polygon.setLayersGroup(
+            deliveryDestinationData.steps,
+            [
+              deliveryDestinationData.steps[
+                deliveryDestinationData.steps.length - 1
+              ],
+            ],
+          );
+          let Stats = Polygon.translateToStats(
+            latLng,
+            deliveryDestinationData.statAPI,
+          );
           if (
              Stats.distance < 1000
           ) {
@@ -581,6 +661,7 @@ class NavigationalMap extends React.Component {
       index,
       ApplicationNavigational,
     } = this.props;
+    const {route} = this.state;
     let LatLngs = [];
     let marker = [];
     let latLng;
@@ -602,6 +683,27 @@ class NavigationalMap extends React.Component {
       currentPositionData.coords.lng,
     );
     marker.push(latLng.location());
+
+    let waypoints = this.state.route[index].waypoints;
+    if(waypoints !== null){
+      if(Array.isArray(waypoints) === true){
+        for (let index = 0; index < waypoints.length; index++) {
+          const coordinates = waypoints[index];
+          let latLng = new Location(
+           coordinates.latitude,
+           coordinates.longitude,
+         ); 
+         marker.push(latLng.location());
+        } 
+       } else if(typeof waypoints === 'object' && waypoints !== null){
+         let latLng = new Location(
+          waypoints.latitude,
+          waypoints.longitude,
+         ); 
+         marker.push(latLng.location());
+       }
+    }
+   
     // push polyline steps
     LatLngs = Array.from({length: deliveryDestinationData.steps.length}).map(
       (num, index) => {
@@ -835,6 +937,9 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    updateNavigationStats: (data) => {
+      return dispatch({type: 'updateNavigationStats', payload: data});
+    },
     ...bindActionCreators({getDeliveryDirections, reverseGeoCoding}, dispatch),
   };
 };

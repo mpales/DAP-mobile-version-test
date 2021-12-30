@@ -45,7 +45,45 @@ export const navigationRef = React.createRef();
   export const resetLog = () => ({
     type: 'resetLogin',
   });
-  
+  export function setRootScreens(key,value, name){
+    if (navigationRef.current) {
+      // Perform navigation if the app has mounted
+      const state = navigationRef.current?.getRootState();
+      const changedState = Array.from({length:state.routes.length}).map((num,index)=>{
+        if(name !== undefined){
+          if(name === state.routes[index].name){
+              return {...state.routes[index],
+                params:{
+                ...state.routes[index].params,
+                [key]:value,
+              }
+            };
+          } else {
+            return {...state.routes[index],
+              params:{
+              ...state.routes[index].params,
+            }
+          };
+          }
+        } else {
+            return {...state.routes[index],
+              params:{
+              ...state.routes[index].params,
+              [key]:value,
+            }
+          };
+        }
+      });
+      navigationRef.current?.resetRoot({
+        index: state.index,
+        routes: changedState,
+      });
+   
+    } else {
+      // You can decide what to do if the app hasn't mounted
+      // You can ignore this, or add these actions to a queue you can call later
+    }
+  };
   export function setRootParams(key,value){
     if (navigationRef.current) {
       // Perform navigation if the app has mounted

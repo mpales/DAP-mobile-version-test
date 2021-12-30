@@ -1,9 +1,6 @@
 import React from 'react';
-import {
-  createStackNavigator,
-  Header,
-  HeaderBackButton,
-} from '@react-navigation/stack';
+import {createStackNavigator, Header} from '@react-navigation/stack';
+import {Platform} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../../mixins';
 // screen
@@ -22,15 +19,11 @@ class ClientInventoryNavigator extends React.Component {
       bottomSheet: false,
       isShowSignature: false,
     };
-    this.setWrapperofStack.bind(this);
   }
 
   setWrapperofStack = (index, key) => {
-    const {indexBottomBar} = this.props;
-    if (indexBottomBar === 0) {
-      this.props.setCurrentStackKey(key);
-      this.props.setCurrentStackIndex(index);
-    }
+    this.props.setCurrentStackKey(key);
+    this.props.setCurrentStackIndex(index);
   };
 
   render() {
@@ -60,6 +53,7 @@ class ClientInventoryNavigator extends React.Component {
           headerTintColor: '#FFF',
           headerLeftContainerStyle:
             Platform.OS === 'ios' ? {paddingHorizontal: 15} : null,
+          headerBackTitle: 'Back',
           header: (props) => {
             let state = props.navigation.dangerouslyGetState();
             let key = state.routes[state.index].name;
@@ -70,7 +64,7 @@ class ClientInventoryNavigator extends React.Component {
         }}>
         <Stack.Screen
           component={ClientCheckInventory}
-          name="CheckInventory"
+          name="ClientCheckInventory"
           options={{
             headerTitle: 'Client Inventory',
           }}
@@ -100,9 +94,6 @@ function mapStateToProps(state) {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
     setCurrentStackKey: (string) => {
       return dispatch({type: 'keyStack', payload: string});
     },

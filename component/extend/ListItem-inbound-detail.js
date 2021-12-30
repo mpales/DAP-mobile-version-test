@@ -131,7 +131,10 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
   const isCurrentManifest = useSelector(
     (state) => state.originReducer.filters.currentManifest,
   );
-  let addAttribute = item.is_transit === undefined && item.input_basic_attributes === 0 ? false : item.is_transit !== undefined ? false : true;
+  const isCurrentManifestType = useSelector(
+    (state) => state.originReducer.filters.currentManifestType,
+  );
+  let addAttribute = item.is_transit === undefined && item.record === 0  ? false : item.is_transit !== undefined ? false : true;
   let status = 'grey';
   let textstatus = 'pending';
   switch (item.status) {
@@ -174,17 +177,17 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
         <ListItem.Content style={styles.sectionContainer}>
         <View style={{flexDirection:"row", flexGrow:1, justifyContent:'center',alignContent:'center',alignItems:'center'}}>
           <View style={{flexDirection:'row', flexShrink:1,}}>
-        {addAttribute && ( <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5',paddingHorizontal:10, marginRight:5}}>
+        {/* {item.is_new === 1 && ( <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5',paddingHorizontal:10, marginRight:5}}>
                         
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#F07120', fontWeight: '500'}}>
                         New
                         </Text>
                         
-                    </View>)}
-                    {item.take_photo === 1 && ( <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5',paddingHorizontal:10, marginRight:5}}>
+                    </View>)} */}
+                    {item.record === 1 && ( <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5, borderRadius: 5,borderWidth:1,borderColor:'#D5D5D5',paddingHorizontal:10, marginRight:5}}>
                         
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#F07120', fontWeight: '500'}}>
-                        Photo
+                        Record
                         </Text>
                         
                     </View>)}
@@ -255,7 +258,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                    <View style={{flexDirection: 'row',flexShrink:1, marginVertical: 5}}>
                         <View style={{width:100}}>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
-                        Product Code
+                        Item Code
                         </Text>
                         </View>
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
@@ -303,7 +306,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                         <Text style={{...Mixins.small1,lineHeight: 18,color: '#6C6B6B', fontWeight: '500',textAlign: 'right',flexShrink: 1, paddingHorizontal: 8}}>:</Text>
                         <View style={{flexDirection:'row', flex: 1}}> 
                         <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400', flexShrink: 1}}>
-                        {item.qty_processed+ '/' +item.qty}
+                        {isCurrentManifestType === 2 ? item.qty_processed : item.qty_processed+ '/' +item.qty}
                         </Text>
                         </View>
                     </View>
@@ -342,9 +345,9 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
             <View style={[styles.buttonContainer,{flexDirection:'column',flex: 1,width:'100%'}]}>
             <View style={{flexDirection:'row'}}>
             <Button
-              containerStyle={{flex:1, paddingVertical: 4, paddingHorizontal: 0,}}
-              buttonStyle={[styles.navigationButton]}
-              titleStyle={[styles.deliveryText,{paddingHorizontal: 10}]}
+              containerStyle={{flex:1, paddingVertical: 4, paddingHorizontal: 0,height:'100%',flexBasis:1 }}
+              buttonStyle={[styles.navigationButton, {flexGrow:1, }]}
+              titleStyle={[styles.deliveryText,{paddingHorizontal: 10,}]}
               onPress={()=>{
                 navigation.navigate({
                   name: 'ItemProcess',
@@ -353,12 +356,13 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                   }
                 })
               }}
-              title="Process Item"
+              disabled={item.status === 1 || item.status === 2 ? false : true }
+              title="Process"
             />
                 {addAttribute && (
                   <Button
-                    containerStyle={{flex:1, paddingVertical: 4,alignSelf:'flex-end', marginLeft:20}}
-                    buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
+                    containerStyle={{flex:1, paddingVertical: 4,alignSelf:'flex-end', marginLeft:20, height:'100%',flexBasis:1 }}
+                    buttonStyle={[styles.navigationButton, {paddingHorizontal: 0,flexGrow:1, }]}
                     titleStyle={[styles.deliveryText,{color:'#ffffff', paddingHorizontal: 10}]}
                     onPress={()=>{
                       navigation.navigate({
@@ -368,7 +372,7 @@ const Manifest = ({item, index, drag, currentManifest, navigation}) => {
                         }
                       })
                     }}
-                    title="Input Attribute"
+                    title="Record"
                   />
                 )}
             </View>

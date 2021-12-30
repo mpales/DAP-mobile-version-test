@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  FlatList,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -8,66 +7,80 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Card} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
-import {Picker} from '@react-native-picker/picker';
-//component
+import SelectDropdown from 'react-native-select-dropdown';
+// component
 import ListItemClientStorage from '../../../../component/extend/ListItem-client-inventory-storage';
-//helper
+import Loading from '../../../../component/loading/loading';
+// helper
 import {getData} from '../../../../component/helper/network';
-import {
-  clientProductStatus,
-  clientProductStatusEndpoint,
-  cleanKeyString,
-} from '../../../../component/helper/string';
-//style
+// style
 import Mixins from '../../../../mixins';
+// icon
+import ArrowRight from '../../../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
+import ArrowDown from '../../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 
 class ClientStorageList extends React.Component {
   constructor(props) {
     super(props);
-    this.headerColumn = React.createRef([]);
     this.state = {
       client: this.props.route.params?.client.name ?? null,
       product: this.props.route.params?.product.name ?? null,
       selectedStatus: '',
       selectedSortBy: null,
-      itemStatusData: null,
+      tableStatus: ['On Hand', 'Free', 'Outgoing', 'Incoming', 'Reserved'],
+      itemStatusData: {
+        onhand: 0,
+        free: 0,
+        outgoing: 0,
+        incoming: 0,
+        reserved: 0,
+      },
       storageList: null,
       isLoading: true,
       isStorageListLoaded: false,
     };
   }
 
-  componentDidMount() {
-    this.getClientProductQuantity();
+  async componentDidMount() {
+    this.getTableData();
   }
 
-  getClientProductQuantity = async () => {
+  getTableData = async () => {
+    this.getClientInventoryProductStatus('on-hand');
+    this.getClientInventoryProductStatus('free');
+    this.getClientInventoryProductStatus('outgoing');
+    this.getClientInventoryProductStatus('incoming');
+    await this.getClientInventoryProductStatus('reserved');
+    this.setState({
+      isLoading: false,
+    });
+  };
+
+  getClientInventoryProductStatus = async (status) => {
     const {route} = this.props;
     let clientId = route.params?.client.id ?? null;
     let productId = route.params?.product.id ?? null;
     if (clientId !== null && productId !== null) {
       const result = await getData(
-        `/clients/${clientId}/products/${productId}/quantity`,
+        `/stocks/client-inventories/client/${clientId}/product/${productId}/status/${status}`,
       );
       if (typeof result === 'object' && result.error === undefined) {
+        const newItemStatusData = this.state.itemStatusData;
+        newItemStatusData[status === 'on-hand' ? 'onhand' : status] =
+          result.total;
         this.setState({
-          itemStatusData: result,
+          itemStatusData: newItemStatusData,
         });
       }
-      this.setState({
-        isLoading: false,
-      });
     }
   };
 
   getProductListByStatus = async (status) => {
     this.setState({
       storageList: null,
-      selectedStatus: status,
       isStorageListLoaded: false,
     });
     const {route} = this.props;
@@ -75,11 +88,11 @@ class ClientStorageList extends React.Component {
     let productId = route.params?.product.id ?? null;
     if (clientId !== null && productId !== null) {
       const result = await getData(
-        `/clients/${clientId}/products/${productId}/${status}`,
+        `/stocks/client-inventories/client/${clientId}/product/${productId}/status/${status}/products`,
       );
       if (typeof result === 'object' && result.error === undefined) {
         this.setState({
-          storageList: status === 'free' ? result.products : result,
+          storageList: result,
         });
       }
       this.setState({
@@ -89,8 +102,9 @@ class ClientStorageList extends React.Component {
   };
 
   sortList = (type) => {
+    const {storageList} = this.state;
     this.setState({selectedSortBy: type});
-    let sortedList = [...this.state.storageList];
+    let sortedList = !!storageList ? [...storageList] : [];
     sortedList.sort((a, b) =>
       a[type] > b[type] ? 1 : b[type] > a[type] ? -1 : 0,
     );
@@ -98,9 +112,8 @@ class ClientStorageList extends React.Component {
   };
 
   navigateToDetails = (data) => {
-    const {selectedStatus} = this.state;
     this.props.navigation.navigate('ClientStorageDetails', {
-      selectedStatus: selectedStatus,
+      clientName: this.state.client,
       data: data,
     });
   };
@@ -112,9 +125,10 @@ class ClientStorageList extends React.Component {
       isStorageListLoaded,
       itemStatusData,
       product,
-      selectedSortBy,
       selectedStatus,
+      selectedSortBy,
       storageList,
+      tableStatus,
     } = this.state;
     return (
       <SafeAreaProvider style={styles.body}>
@@ -122,24 +136,54 @@ class ClientStorageList extends React.Component {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.headerContainer}>
             <Text style={styles.text}>Sort By</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                mode="dialog"
-                selectedValue={selectedSortBy}
-                onValueChange={(value) => this.sortList(value)}
-                style={{maxWidth: 150}}>
-                <Picker.Item
-                  label="Location"
-                  value="location"
-                  style={styles.text}
-                />
-                <Picker.Item
-                  label="Quantity"
-                  value="quantity"
-                  style={styles.text}
-                />
-              </Picker>
-            </View>
+            <SelectDropdown
+              buttonStyle={styles.dropdownButton}
+              buttonTextStyle={styles.dropdownButtonText}
+              rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
+              data={['Location', 'Warehouse']}
+              defaultValueByIndex={0}
+              onSelect={(selectedItem) => {
+                this.sortList(selectedItem);
+              }}
+              buttonTextAfterSelection={(selectedItem) => {
+                return selectedItem;
+              }}
+              rowTextForSelection={(item) => {
+                return item;
+              }}
+              renderDropdownIcon={() => (
+                <View style={{marginRight: 10}}>
+                  <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
+                </View>
+              )}
+              renderCustomizedRowChild={(item, index) => {
+                return (
+                  <View
+                    style={{
+                      flex: 1,
+                      paddingHorizontal: 27,
+                      backgroundColor:
+                        !!selectedSortBy && item === selectedSortBy
+                          ? '#e7e8f2'
+                          : 'transparent',
+                      paddingVertical: 0,
+                      marginVertical: 0,
+                      justifyContent: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        ...Mixins.small1,
+                        fontWeight: '400',
+                        lineHeight: 18,
+                        color: '#424141',
+                        textAlign: 'center',
+                      }}>
+                      {item}
+                    </Text>
+                  </View>
+                );
+              }}
+            />
             <View
               style={{
                 flexDirection: 'row',
@@ -163,24 +207,29 @@ class ClientStorageList extends React.Component {
               </View>
             </View>
           </View>
-          {!isLoading && (
-            <Card containerStyle={styles.cardContainer}>
-              {itemStatusData === null ? (
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <Text style={styles.title}>No Result</Text>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              justifyContent: 'center',
+            }}>
+            <View style={styles.cardContainer}>
+              {isLoading ? (
+                <View style={{marginVertical: 10}}>
+                  <Loading />
                 </View>
               ) : (
-                <View style={styles.tableRow}>
+                <View
+                  style={[
+                    styles.tableRow,
+                    {paddingHorizontal: 0, marginVertical: 10},
+                  ]}>
                   <View style={styles.firstColumn}>
                     <Text style={styles.tableColumnFirst}>Item Status</Text>
-                    {itemStatusData.map((value, index) => {
+                    {tableStatus.map((status, index) => {
                       return (
                         <Text
+                          key={index}
                           style={
                             index % 2 === 0
                               ? [
@@ -189,85 +238,70 @@ class ClientStorageList extends React.Component {
                                 ]
                               : styles.tableColumnFirst
                           }>
-                          {clientProductStatus(value.status)}
+                          {status}
                         </Text>
                       );
                     })}
                   </View>
-                  <ScrollView horizontal={true}>
-                    <View style={{flex: 1, flexDirection: 'column'}}>
-                      <View style={styles.tableRow}>
-                        {Object.keys(itemStatusData[0]).map((value, index) => {
-                          if (value === 'product_id' || value === 'status') {
-                            return;
-                          }
-                          return (
-                            <Text style={styles.tableColumnValue}>
-                              {cleanKeyString(value)}
-                            </Text>
-                          );
-                        })}
-                      </View>
-                      {itemStatusData.map((data, index) => {
-                        let key = [];
-                        Object.keys(data).map((value) => {
-                          if (value !== 'product_id' && value !== 'status') {
-                            key.push(value);
-                          }
-                        });
-                        return (
-                          <TouchableOpacity
-                            disabled={
-                              clientProductStatus(data.status) ===
-                              clientProductStatus(1)
-                            }
-                            onPress={() =>
-                              this.getProductListByStatus(
-                                clientProductStatusEndpoint(data.status),
-                              )
-                            }
-                            style={
-                              index % 2 === 0
-                                ? [
-                                    styles.tableRow,
-                                    {
-                                      backgroundColor: '#F5F5FB',
-                                    },
-                                  ]
-                                : [styles.tableRow]
-                            }>
-                            {key.map((keyValue) => {
-                              return (
-                                <Text style={styles.tableColumnValue}>
-                                  {data[keyValue] === null
-                                    ? '0'
-                                    : data[keyValue]}
-                                </Text>
-                              );
-                            })}
-                          </TouchableOpacity>
-                        );
-                      })}
+                  <View style={styles.verticalLineSeparator} />
+                  <View
+                    style={{
+                      flexDirection: 'column',
+                    }}>
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableColumnFirst}>Quantity</Text>
                     </View>
-                  </ScrollView>
+                    {tableStatus.map((status, index) => {
+                      return (
+                        <TouchableOpacity
+                          key={index}
+                          onPress={() =>
+                            this.getProductListByStatus(
+                              status.toLowerCase().replace(/\s/g, '-'),
+                            )
+                          }
+                          style={
+                            index % 2 === 0
+                              ? [
+                                  styles.tableRow,
+                                  {
+                                    backgroundColor: '#F5F5FB',
+                                  },
+                                ]
+                              : [styles.tableRow]
+                          }>
+                          <Text style={styles.tableColumnValue}>
+                            {itemStatusData[
+                              status.toLowerCase().replace(/\s/g, '')
+                            ] ?? '-'}
+                          </Text>
+                          <ArrowRight fill="#2D2C2C" width="10" height="10" />
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
                 </View>
               )}
-            </Card>
-          )}
-          <View style={styles.lineSeparator} />
-          {storageList !== null &&
-            isStorageListLoaded &&
-            storageList.map((item) => (
-              <ListItemClientStorage
-                item={item}
-                selectedStatus={selectedStatus}
-                navigate={this.navigateToDetails}
-              />
-            ))}
-          {storageList === null && isStorageListLoaded && (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.text}>No Result</Text>
             </View>
+          </View>
+          <View style={styles.lineSeparator} />
+          {isStorageListLoaded && (
+            <>
+              {storageList !== null && storageList.length > 0 ? (
+                storageList.map((item, index) => (
+                  <ListItemClientStorage
+                    key={index}
+                    item={item}
+                    selectedStatus={selectedStatus}
+                    navigate={this.navigateToDetails}
+                  />
+                ))
+              ) : (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.text}>No Result</Text>
+                </View>
+              )}
+            </>
           )}
         </ScrollView>
       </SafeAreaProvider>
@@ -298,15 +332,26 @@ const styles = StyleSheet.create({
   textBlue: {
     color: '#2A3386',
   },
-  pickerContainer: {
+  dropdownButton: {
     width: 150,
-    borderWidth: 1,
+    maxHeight: 40,
     borderRadius: 5,
-    borderColor: '#D5D5D5',
-    marginTop: 5,
+    borderWidth: 1,
+    borderColor: '#ABABAB',
+    backgroundColor: 'white',
+    paddingHorizontal: 0,
     marginBottom: 10,
   },
+  dropdownButtonText: {
+    paddingHorizontal: 10,
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    color: '#424141',
+    textAlign: 'left',
+    paddingHorizontal: 0,
+  },
   cardContainer: {
+    flexShrink: 1,
     borderRadius: 5,
     backgroundColor: '#fff',
     marginBottom: 15,
@@ -322,13 +367,11 @@ const styles = StyleSheet.create({
   },
   tableRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 10,
   },
   firstColumn: {
     width: 100,
-    borderRightWidth: 1,
-    borderRightColor: '#D5D5D5',
   },
   column: {
     flexDirection: 'column',
@@ -362,6 +405,14 @@ const styles = StyleSheet.create({
     borderBottomColor: '#D5D5D5',
     marginVertical: 10,
   },
+  verticalLineSeparator: {
+    position: 'absolute',
+    height: '115%',
+    left: 100,
+    zIndex: 2,
+    borderRightWidth: 1,
+    borderColor: '#D5D5D5',
+  },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -375,11 +426,7 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    setBottomBar: (toggle) => {
-      return dispatch({type: 'BottomBar', payload: toggle});
-    },
-  };
+  return {};
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ClientStorageList);

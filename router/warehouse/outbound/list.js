@@ -6,7 +6,9 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View, 
+    RefreshControl, 
+    ActivityIndicator
 } from 'react-native';
 import {
     Card,
@@ -24,14 +26,17 @@ import Mixins from '../../../mixins';
 //icon
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import moment from 'moment';
+import Banner from '../../../component/banner/banner';
+import {getData} from '../../../component/helper/network';
 import mixins, {themeStoreContext} from '../../../mixins';
 import {observer} from 'mobx-react';
-
+import EmptyIlustrate from '../../../assets/icon/manifest-empty mobile.svg';
 const window = Dimensions.get('window');
 
 @observer
 class List extends React.Component {
   static contextType = themeStoreContext;
+  _unsubscribe = null;
   constructor(props) {
         super(props);
 
@@ -41,41 +46,17 @@ class List extends React.Component {
             filtered : 0,
             _list: [],
             updated: false,
+            renderRefresh : false,
+            renderFiltered : false,
+            renderGoBack : false,
+            notifbanner : '',
+            notifsuccess: false,
         };
     this.setFiltered.bind(this);
     this.updateSearch.bind(this);
     }
     static getDerivedStateFromProps(props,state){
-        const {navigation,outboundList, currentTask,barcodeScanned, ReportedList, idScanned} = props;
-        const {taskNumber, _list, search, filtered} = state;
-        if(outboundList.length === 0 && search === ''){
-          let list = outboundListDummy.filter((element)=>element.description.indexOf(search) > -1);
-          props.setOutboundList(list);
-          return {...state, _list : list, updated: true};
-        } else if(outboundList.length > 0 && barcodeScanned.length > 0 && idScanned !== null) {
-          let list = Array.from({length: outboundList.length}).map((num, index) => {
-            return {
-                ...outboundList[index],
-                scanned: barcodeScanned.includes(outboundList[index].barcode) && idScanned === outboundList[index].id ? barcodeScanned.length : outboundList[index].scanned,
-            };
-          });
-          props.setItemIDScanned(null);
-          props.setItemScanned([]);
-          props.setOutboundList(list);
-          return {...state,_list : list, updated: true};
-        } else if(outboundList.length > 0 && ReportedList !== null ) {
-          let list = Array.from({length: outboundList.length}).map((num, index) => {
-            return {
-                ...outboundList[index],
-                scanned: ReportedList === outboundList[index].id ? -1 : outboundList[index].scanned,
-            };
-          });
-          props.setReportedList(null);
-          props.setOutboundList(list);
-          return {...state, _list: list, updated: true}
-        } else if(outboundList.length > 0 && _list.length === 0  && search === '' && filtered === 0 ) {
-          return {...state, _list: outboundList, updated: true}
-        }
+       
         return {...state};
       }
       // shouldComponentUpdate(nextProps, nextState) {
@@ -92,83 +73,167 @@ class List extends React.Component {
       //   }
       //   return true;
       // }
-      componentDidUpdate(prevProps, prevState, snapshot) {
+      async componentDidUpdate(prevProps, prevState, snapshot) {
 
         if(this.props.keyStack !== prevProps.keyStack){
           if(prevProps.keyStack === 'Barcode' && this.props.keyStack ==='List'){
-            this.setState({updated: true});
+            this.setState({renderRefresh: true});
     
           } else if(prevProps.keyStack === 'ReportManifest' && this.props.keyStack ==='List'){
-            this.setState({updated: true});
-          }
-        }
-        const {outboundList} = this.props;
-        
-        if(prevState.taskNumber !== this.state.taskNumber){
-          if(this.state.taskNumber === null){
-            this.props.navigation.goBack();
-          } else {
-            this.setState({_list: []});
-            this.props.setOutboundList([]);
+            this.setState({renderRefresh: true});
+          } else if(this.props.keyStack === 'List' && prevProps.keyStack !== 'Task'){
+            this.setState({renderFiltered:true});
           }
         } 
-        let filtered = prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || this.state.updated === true ? this.state.filtered : null;
-        if(filtered === 0) {
-          this.setState({_list: outboundList.filter((element)=> element.description.indexOf(this.state.search) > -1), updated: false});
-          } else if(filtered === 1){
-            this.setState({_list: outboundList.filter((element)=> element.scanned === -1).filter((element)=> element.description.indexOf(this.state.search) > -1), updated: false});
-          } else if(filtered === 2){
-            this.setState({_list: outboundList.filter((element)=>  element.scanned === 0).filter((element)=> element.description.indexOf(this.state.search) > -1), updated: false});
-          }else if(filtered === 3){
-            this.setState({_list: outboundList.filter((element)=>  element.scanned < element.total_qty && element.scanned > 0).filter((element)=> element.description.indexOf(this.state.search) > -1), updated: false});
-          }else if(filtered === 4){
-            this.setState({_list: outboundList.filter((element)=>  element.scanned === element.total_qty).filter((element)=> element.description.indexOf(this.state.search) > -1), updated: false});
-          } 
+        if(this.state.renderRefresh !== prevState.renderRefresh && this.state.renderRefresh === true){
+          const {taskNumber} = this.state;
+          const {currentTask} = this.props;
+          let outboundId = taskNumber === null ? currentTask : taskNumber;
+          const resultOutbound = await getData('outboundMobile/pickTask/'+outboundId);
+          this.props.setOutboundList(resultOutbound.products)
+          let filtered = (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true)|| prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || this.state.updated === true ? this.state.filtered : null;
+          if(filtered === 0 && resultOutbound.products !== undefined) {
+            this.setState({_list: resultOutbound.products.filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            } else if(filtered === 1){
+              this.setState({_list: resultOutbound.products.filter((element)=> element.status === 4).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            } else if(filtered === 2){
+              this.setState({_list: resultOutbound.products.filter((element)=>  element.status === 1).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            }else if(filtered === 3){
+              this.setState({_list: resultOutbound.products.filter((element)=>  element.status === 2).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            }else if(filtered === 4){
+              this.setState({_list: resultOutbound.products.filter((element)=>  element.status === 3).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            }
+        } else if(this.state.renderFiltered !== prevState.renderFiltered && this.state.renderFiltered === true){
+          const resultOutbound = await this.updateStatus();
+          this.props.setOutboundList(resultOutbound)
+          let filtered = (prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true) || (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true)|| prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || this.state.updated === true ? this.state.filtered : null;
+          if(filtered === 0 && resultOutbound !== undefined) {
+            this.setState({_list: resultOutbound.filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            } else if(filtered === 1){
+              this.setState({_list: resultOutbound.filter((element)=> element.status === 4).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            } else if(filtered === 2){
+              this.setState({_list: resultOutbound.filter((element)=>  element.status === 1).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            }else if(filtered === 3){
+              this.setState({_list: resultOutbound.filter((element)=>  element.status === 2).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            }else if(filtered === 4){
+              this.setState({_list: resultOutbound.filter((element)=>  element.status === 3).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            }
+        } else {
+          const {outboundList} = this.props;
+          let filtered = (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true)|| prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || this.state.updated === true ? this.state.filtered : null;
+          if(filtered === 0 && outboundList !== undefined) {
+            this.setState({_list: outboundList.filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            } else if(filtered === 1){
+              this.setState({_list: outboundList.filter((element)=> element.status === 4).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            } else if(filtered === 2){
+              this.setState({_list: outboundList.filter((element)=>  element.status === 1).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            }else if(filtered === 3){
+              this.setState({_list: outboundList.filter((element)=>  element.status === 2).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            }else if(filtered === 4){
+              this.setState({_list: outboundList.filter((element)=>  element.status === 3).filter((element)=> String(element.product.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1), updated: false, renderGoBack: false, renderRefresh: false, renderFiltered:false});
+            }
+        } 
        
       }
-      componentDidMount() {
+      async componentDidMount() {
         const {navigation, currentTask,barcodeScanned, ReportedManifest} = this.props;
         const {taskNumber, _manifest, search} = this.state;
+        this._unsubscribe = this.props.navigation.addListener('focus', () => {
+          // do something
+          if(this.props.taskSuccess !== null){
+            this.setState({notifbanner: this.props.taskSuccess, notifsuccess: true});
+            this.props.setItemSuccess(null);
+          } else if(this.props.taskError !== null){
+            this.setState({notifbanner: this.props.taskError, notifsuccess: false});
+            this.props.setItemError(null);
+          }
+        });
         if(taskNumber === null){
           const {routes, index} = navigation.dangerouslyGetState();
           if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
-            this.setState({taskNumber: routes[index].params.number})
+            const result = await getData('outboundMobile/pickTask/'+routes[index].params.number);
+            this.props.setOutboundList(result.products);
+            this.setState({taskNumber: routes[index].params.number, updated: true})
           } else if(currentTask !== null) {
-            this.setState({taskNumber: currentTask})
+            const result = await getData('outboundMobile/pickTask/'+currentTask);
+            this.props.setOutboundList(result.products);
+            this.setState({taskNumber: currentTask, updated: true})
           } else {
             navigation.popToTop();
           }
         }
       }
+      updateStatus = async ()=>{
+        const {taskNumber} = this.state;
+        const {currentTask, outboundList} = this.props;
+        let outboundId = taskNumber === null ? currentTask : taskNumber;
+        const result = await getData('/outboundMobile/pickTask/'+outboundId+'/productStatus');
+        let updatedStatus = [];
+        if(outboundList !== undefined){
+        for (let index = 0; index < outboundList.length; index++) {
+            const element = outboundList[index];
+            if(result !== undefined && result.error === undefined && result.pick_task_products.length > 0){
+                const elementStatus = result.pick_task_products.find((o)=>o.id === element.pick_task_product_id);
+                if(elementStatus) delete elementStatus.id;
+                updatedStatus[index] = {
+                  ...element,
+                  ...elementStatus,  
+                };
+            } else {
+                updatedStatus[index] = {
+                    ...element,
+                  };
+            }
+        }
+      }
+       return updatedStatus;
+    }
+      componentWillUnmount(){
+        this._unsubscribe();
+      }
     updateSearch = (search) => {
         this.setState({search});
       };
     setFiltered = (num)=>{
-        this.setState({filtered:num});
+        this.setState({filtered:num, renderFiltered:true});
     }
-
+    _onRefresh = () => {
+      this.setState({renderRefresh: true});
+  }
+  closeNotifBanner = ()=>{
+    this.setState({notifbanner:'', notifsuccess: false});
+  }
     render() {
         const {outboundTask} = this.props;
         const {taskNumber, _list} = this.state;
-        let currentTask = outboundTask.find((element) => element.code === taskNumber);
+        let currentTask = outboundTask.find((element) => element.id === taskNumber);
         return(
             <SafeAreaProvider>
                 <StatusBar barStyle="dark-content" />
+                {this.state.notifbanner !== '' && (<Banner
+                  title={this.state.notifbanner}
+                  backgroundColor={this.state.notifsuccess === true ? "#17B055" : "#F1811C"}
+                  closeBanner={this.closeNotifBanner}
+                />)}
                 <ScrollView 
                    style={{...styles.body, backgroundColor: this.context._Scheme5}} 
                     showsVerticalScrollIndicator={false}
+                    refreshControl={<RefreshControl
+                      colors={["#9Bd35A", "#689F38"]}
+                      refreshing={this.state.renderRefresh}
+                      onRefresh={this._onRefresh.bind(this)}
+                  />
+                 }
                 >
                     <View style={styles.headingBar}>
                         <View style={{flex:1,flexDirection: 'row'}}>
                         <View style={{alignItems:'flex-start',flex:1}}>
-                            <Text style={{...Mixins.subtitle1,lineHeight:21, color: this.context._Scheme7}}>{taskNumber}</Text>
+                            <Text style={{...Mixins.subtitle1,lineHeight:21, color: this.context._Scheme7}}>{currentTask !== undefined ? currentTask.pick_task_no : null}</Text>
+                            <Text style={{...Mixins.small1,lineHeight:21,fontWeight:'700', color : this.context._Scheme7}}>{currentTask !== undefined && currentTask.warehouses !== undefined ? currentTask.warehouses.join() : null}</Text>
                         </View>
                             <View style={{alignItems:'flex-end',flex:1}}>
-                            <Text style={{...Mixins.small1,lineHeight:21, color :this.context._Scheme7}}>{currentTask !== undefined ? currentTask.warehouse_code : null}</Text>
+                            <Text style={{...Mixins.small1,lineHeight:21, color :this.context._Scheme7}}>{currentTask !== undefined ? currentTask.client_id : null}</Text>
                             </View>
-                        </View>
-                        <View style={{flex:1}}>
-                        <Text style={{...Mixins.small1,lineHeight:21,fontWeight:'700', color : this.context._Scheme7}}>{currentTask !== undefined ? currentTask.company : null}</Text>
                         </View>
                     </View>
                          <SearchBar
@@ -206,6 +271,14 @@ class List extends React.Component {
                     badgeStyle={this.state.filtered === 0 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8}}
                     textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
                     />
+                    
+                    <Badge
+                    value="Waiting"
+                    containerStyle={styles.badgeSort}
+                    onPress={()=> this.setFiltered(2)}
+                    badgeStyle={this.state.filtered === 2 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
+                    textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
+                    />
                     <Badge
                     value="Reported"
                     containerStyle={styles.badgeSort}
@@ -214,47 +287,34 @@ class List extends React.Component {
                     textStyle={this.state.filtered === 1 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
                     />
                     <Badge
-                    value="Pending"
-                    containerStyle={styles.badgeSort}
-                    onPress={()=> this.setFiltered(2)}
-                    badgeStyle={this.state.filtered === 2 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
-                    textStyle={this.state.filtered === 2 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
-                    />
-                    <Badge
-                    value="Progress"
+                    value="In Progress"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(3)}
                     badgeStyle={this.state.filtered === 3 ? styles.badgeActive : {...styles.badgeInactive, backgroundColor: this.context._Scheme8} }
                     textStyle={this.state.filtered === 3 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
                     />
                     <Badge
-                    value="Completed"
+                    value="Item Picked"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(4)}
                     badgeStyle={this.state.filtered === 4 ? styles.badgeActive :{...styles.badgeInactive, backgroundColor: this.context._Scheme8}}
                     textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : {...styles.badgeInactiveTint, color: this.context._Scheme6} }
                     />
                             </ScrollView>
-                            {_list.map((data, i, arr) =>   {
-                              let status = 'grey';
-                              let textstatus = 'pending';
-                              if(data.scanned < data.total_qty && data.scanned >= 0) {
-                                if(data.scanned === 0) {
-                                  status = 'grey';
-                                  textstatus = 'Pending';
-                                } else {
-                                  status = 'orange'
-                                  textstatus = 'Progress'
-                                }
-                              } else if(data.scanned === -1){
-                                status = 'red';
-                                textstatus = 'Reported'
-                              } else {
-                                textstatus = 'Completed'
-                                status = 'green';
-                              }
+                           
+                            {_list.length === 0 ? 
+                (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
+                  {this.state.taskNumber === null ? (    <ActivityIndicator 
+                    size={50} 
+                    color="#121C78"
+                />) :  (<>
+                <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+                <Text style={{  ...Mixins.subtitle3,}}>Empty Product</Text>
+                </>)}
+                  </View>)
+                : _list.map((data, i, arr) =>   {
+                              
                                 return (
-                                
                                 <OutboundDetail 
                                     key={i} 
                                     index={i} 
@@ -264,8 +324,7 @@ class List extends React.Component {
                                         this.props.navigation.navigate({
                                           name: 'Barcode',
                                           params: {
-                                              inputCode: data.barcode,
-                                              bayCode: data.location_bay
+                                              inputCode: data.pick_task_product_id,
                                           }
                                         });
                                     }}
@@ -568,6 +627,8 @@ function mapStateToProps(state) {
         currentTask : state.originReducer.filters.currentTask,
         ReportedList : state.originReducer.filters.ReportedList,
         keyStack: state.originReducer.filters.keyStack,
+        taskError: state.originReducer.filters.taskError,
+        taskSuccess : state.originReducer.filters.taskSuccess,
     };
   }
   
@@ -597,6 +658,12 @@ const mapDispatchToProps = (dispatch) => {
       },
       setItemIDScanned : (id) => {
         return dispatch({type: 'ListIDScanned', payload: id});
+      },
+      setItemError : (error)=>{
+        return dispatch({type:'TaskError', payload: error});
+      },
+      setItemSuccess : (error)=>{
+        return dispatch({type:'TaskSuccess', payload: error});
       },
       //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
     };

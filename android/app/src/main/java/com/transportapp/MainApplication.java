@@ -10,6 +10,9 @@ import com.burnweb.rnsendintent.RNSendIntentPackage;
 import org.reactnative.camera.RNCameraPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.github.reactnativecommunity.location.RNLocationPackage;
+import com.ReactNativeBlobUtil.ReactNativeBlobUtilPackage;
+import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
+import com.supersami.foregroundservice.ForegroundServicePackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import com.reactlibrary.RNThreadPackage;
 import com.swmansion.reanimated.ReanimatedPackage;
@@ -40,7 +43,7 @@ public class MainApplication extends Application implements ReactApplication {
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for example:
-          // packages.add(new RNThreadPackage(mReactNativeHost));
+            // packages.add(new RNThreadPackage(mReactNativeHost, new ReactNativeBlobUtilPackage(), new ForegroundServicePackage()));
           return packages;
         }
 
