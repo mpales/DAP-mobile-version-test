@@ -101,7 +101,7 @@ class List extends React.Component {
         this.setState({
           list: resultedList.filter(
             (element) =>
-              String(element.client)
+              String(element.pallet)
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1,
           ),
@@ -114,7 +114,7 @@ class List extends React.Component {
             .filter((element) => (element.status !== undefined && element.status === 1))
             .filter(
               (element) =>
-                String(element.client)
+                String(element.pallet)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1,
             ),
@@ -127,7 +127,7 @@ class List extends React.Component {
             .filter((element) => (element.status !== undefined && element.status === 2))
             .filter(
               (element) =>
-                String(element.client)
+                String(element.pallet)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1,
             ),
@@ -140,7 +140,7 @@ class List extends React.Component {
             .filter((element) => (element.status !== undefined && element.status === 3))
             .filter(
               (element) =>
-                String(element.client)
+                String(element.pallet)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1,
             ),
@@ -153,7 +153,7 @@ class List extends React.Component {
             .filter((element) => (element.status !== undefined && element.status === 4))
             .filter(
               (element) =>
-                String(element.client)
+                String(element.pallet)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1,
             ),
@@ -175,7 +175,7 @@ class List extends React.Component {
         this.setState({
           list: putawayContent.filter(
             (element) =>
-              String(element.client)
+              String(element.pallet)
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1,
           ),
@@ -188,7 +188,7 @@ class List extends React.Component {
             .filter((element) => (element.status !== undefined && element.status === 1))
             .filter(
               (element) =>
-                String(element.client)
+                String(element.pallet)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1,
             ),
@@ -201,7 +201,7 @@ class List extends React.Component {
             .filter((element) => (element.status !== undefined && element.status === 2))
             .filter(
               (element) =>
-                String(element.client)
+                String(element.pallet)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1,
             ),
@@ -214,7 +214,7 @@ class List extends React.Component {
             .filter((element) => (element.status !== undefined && element.status === 3))
             .filter(
               (element) =>
-                String(element.client)
+                String(element.pallet)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1 ,
             ),
@@ -227,7 +227,7 @@ class List extends React.Component {
             .filter((element) => (element.status !== undefined && element.status === 4))
             .filter(
               (element) =>
-                String(element.client)
+                String(element.pallet)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1,
             ),
@@ -246,7 +246,7 @@ class List extends React.Component {
       this.setState({
         list: resultedList.filter(
           (element) =>
-            String(element.client)
+            String(element.pallet)
               .toLowerCase()
               .indexOf(this.state.search.toLowerCase()) > -1 ,
         ),
@@ -259,7 +259,7 @@ class List extends React.Component {
           .filter((element) => (element.status !== undefined && element.status === 1))
           .filter(
             (element) =>
-              String(element.client)
+              String(element.pallet)
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1 ,
           ),
@@ -272,7 +272,7 @@ class List extends React.Component {
           .filter((element) => (element.status !== undefined && element.status === 2))
           .filter(
             (element) =>
-              String(element.client)
+              String(element.pallet)
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1 ,
           ),
@@ -285,7 +285,7 @@ class List extends React.Component {
           .filter((element) => (element.status !== undefined && element.status === 3))
           .filter(
             (element) =>
-              String(element.client)
+              String(element.pallet)
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1 ,
           ),
@@ -298,7 +298,7 @@ class List extends React.Component {
           .filter((element) => (element.status !== undefined && element.status === 4))
           .filter(
             (element) =>
-              String(element.client)
+              String(element.pallet)
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1,
           ),
