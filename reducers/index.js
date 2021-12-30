@@ -22,7 +22,9 @@ const initialState = {
   gallery: {},
   VASList: [],
   inboundSPVList: [],
+  putawayID: null,
   putawayList: [],
+  putawayContent: [],
   outboundTask: [],
   outboundList: [],
   manifestList: [],
@@ -1101,6 +1103,16 @@ export default function appReducer(state = initialState, action) {
         ...state,
         putawayList: action.payload,
       };
+      case 'PutawayID':
+        return {
+          ...state,
+          putawayID: action.payload,
+        };
+      case 'PutawayContent':
+        return {
+          ...state,
+          putawayContent: action.payload,
+        };
     case 'OutboundTask':
       return {
         ...state,

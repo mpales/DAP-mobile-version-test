@@ -240,11 +240,30 @@ class WarehouseNavigator extends React.Component {
           });
           return true;
         } else if (
+          prevProps.keyStack === 'PalletDetails' &&
           this.props.keyStack === 'PalletScanner' &&
           this.props.indexBottomBar === 0
         ) {
           this.navigationRef.current.navigate('Inbound', {
             screen: 'PalletDetails',
+          });
+          return true;
+        } else if (
+          prevProps.keyStack === 'PutawayItemDetails' &&
+          this.props.keyStack === 'PalletScanner' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PutawayItemDetails',
+          });
+          return true;
+        } else if (
+          prevProps.keyStack === 'PutawayTransitDetails' &&
+          this.props.keyStack === 'PalletScanner' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PutawayTransitDetails',
           });
           return true;
         } else if (
@@ -266,6 +285,38 @@ class WarehouseNavigator extends React.Component {
           return true;
         } else if (
           this.props.keyStack === 'PalletDetails' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PutawayPallet',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'PutawayTransitDetails' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PalletList',
+          });
+          return true;
+        } else if (
+          this.props.keyStack === 'PutawayItemDetails' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PutawayItem',
+          });
+          return true;
+        }else if (
+          this.props.keyStack === 'PutawayItem' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('Inbound', {
+            screen: 'PalletList',
+          });
+          return true;
+        }else if (
+          this.props.keyStack === 'PutawayPallet' &&
           this.props.indexBottomBar === 0
         ) {
           this.navigationRef.current.navigate('Inbound', {
@@ -477,6 +528,30 @@ class WarehouseNavigator extends React.Component {
       }
       if (
         this.props.keyStack === 'PalletDetails' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'PutawayTransitDetails' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'PutawayItemDetails' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'PutawayItem' &&
+        this.props.indexBottomBar === 0
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.keyStack === 'PutawayPallet' &&
         this.props.indexBottomBar === 0
       ) {
         this.props.setBottomBar(false);
