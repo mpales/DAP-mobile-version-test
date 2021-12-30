@@ -98,7 +98,7 @@ class ConnoteDetails extends React.Component {
                     />
                     <DetailList
                       title="Warehouse"
-                      value={_itemDetail.client}
+                      value={_itemDetail.warehouse}
                       labelStyle={{width: '55%'}}
                     />
                     <DetailList

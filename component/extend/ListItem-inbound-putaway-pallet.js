@@ -181,7 +181,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
               style={
                 [styles.detailText, styles.valueText]
               }>
-              {item.client}
+              {item.warehouse}
             </Text>
           </View>
        
