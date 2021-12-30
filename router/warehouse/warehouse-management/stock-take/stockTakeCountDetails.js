@@ -45,7 +45,7 @@ class StockTakeCountDetails extends React.Component {
 
   componentDidMount() {
     const {stockTakeDetails} = this.state;
-    if (stockTakeDetails !== null && stockTakeDetails.status === 'Waiting') {
+    if (stockTakeDetails !== null && stockTakeDetails.status === 'Pending') {
       this.lockUnlockProduct(3);
     }
   }
@@ -64,7 +64,7 @@ class StockTakeCountDetails extends React.Component {
     const {stockTakeDetails, isSubmitted} = this.state;
     if (
       stockTakeDetails !== null &&
-      stockTakeDetails.status === 'Waiting' &&
+      stockTakeDetails.status === 'Pending' &&
       !isSubmitted
     ) {
       this.lockUnlockProduct(2);

@@ -33,6 +33,7 @@ class StockTakeCountList extends React.Component {
       filteredStockTakeCountList: null,
       jobData: this.props.route.params?.jobData ?? null,
       stockTakeCountList: null,
+      completeButtonClicked: false,
       isLoading: true,
       isRefreshing: false,
       search: '',
@@ -65,7 +66,7 @@ class StockTakeCountList extends React.Component {
     ) {
       setTimeout(() => {
         this.getStockTakeProduct();
-      }, 1000);
+      }, 500);
     }
     if (
       prevProps.keyStack !== this.props.keyStack &&
@@ -93,7 +94,8 @@ class StockTakeCountList extends React.Component {
     );
     if (typeof result === 'object' && result.error === undefined) {
       this.setState({
-        stockTakeCountList: result,
+        stockTakeCountList: result.productStorages,
+        completeButtonClicked: result.completeStockCountBtnClicked,
       });
     }
     this.setState({
@@ -177,6 +179,7 @@ class StockTakeCountList extends React.Component {
 
   render() {
     const {
+      completeButtonClicked,
       stockTakeCountList,
       jobData,
       filteredStockTakeCountList,
@@ -186,7 +189,7 @@ class StockTakeCountList extends React.Component {
       isRefreshing,
       isShowModal,
     } = this.state;
-    console.log(jobData);
+
     return (
       <SafeAreaProvider style={styles.body}>
         <StatusBar barStyle="dark-content" />
@@ -245,29 +248,29 @@ class StockTakeCountList extends React.Component {
             }
           />
           <Badge
-            value="Waiting"
-            onPress={() => this.handleFilterStatus('Waiting')}
+            value="Pending"
+            onPress={() => this.handleFilterStatus('Pending')}
             badgeStyle={
-              this.state.filterStatus === 'Waiting'
+              this.state.filterStatus === 'Pending'
                 ? styles.badgeSelected
                 : styles.badge
             }
             textStyle={
-              this.state.filterStatus === 'Waiting'
+              this.state.filterStatus === 'Pending'
                 ? styles.badgeTextSelected
                 : styles.badgeText
             }
           />
           <Badge
-            value="In Progress"
-            onPress={() => this.handleFilterStatus('In Progress')}
+            value="Processing"
+            onPress={() => this.handleFilterStatus('Processing')}
             badgeStyle={
-              this.state.filterStatus === 'In Progress'
+              this.state.filterStatus === 'Processing'
                 ? styles.badgeSelected
                 : styles.badge
             }
             textStyle={
-              this.state.filterStatus === 'In Progress'
+              this.state.filterStatus === 'Processing'
                 ? styles.badgeTextSelected
                 : styles.badgeText
             }
@@ -287,15 +290,15 @@ class StockTakeCountList extends React.Component {
             }
           />
           <Badge
-            value="Completed"
-            onPress={() => this.handleFilterStatus('Completed')}
+            value="Processed"
+            onPress={() => this.handleFilterStatus('Processed')}
             badgeStyle={
-              this.state.filterStatus === 'Completed'
+              this.state.filterStatus === 'Processed'
                 ? styles.badgeSelected
                 : styles.badge
             }
             textStyle={
-              this.state.filterStatus === 'Completed'
+              this.state.filterStatus === 'Processed'
                 ? styles.badgeTextSelected
                 : styles.badgeText
             }
@@ -325,7 +328,7 @@ class StockTakeCountList extends React.Component {
               contentContainerStyle={{flex: 1}}
               ListEmptyComponent={this.renderEmpty}
             />
-            {jobData.status !== 'Completed' && (
+            {jobData.status !== 'Completed' && completeButtonClicked !== true && (
               <View style={styles.bottomButtonContainer}>
                 <Button
                   title="Complete Stock Take"

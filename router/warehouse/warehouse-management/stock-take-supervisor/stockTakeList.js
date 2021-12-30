@@ -174,29 +174,29 @@ class StockTakeList extends React.Component {
                 }
               />
               <Badge
-                value="Waiting"
-                onPress={() => this.handleFilterStatus('Waiting')}
+                value="Pending"
+                onPress={() => this.handleFilterStatus('Pending')}
                 badgeStyle={
-                  filterStatus === 'Waiting'
+                  filterStatus === 'Pending'
                     ? styles.badgeSelected
                     : styles.badge
                 }
                 textStyle={
-                  filterStatus === 'Waiting'
+                  filterStatus === 'Pending'
                     ? styles.badgeTextSelected
                     : styles.badgeText
                 }
               />
               <Badge
-                value="In Progress"
-                onPress={() => this.handleFilterStatus('In Progress')}
+                value="Processing"
+                onPress={() => this.handleFilterStatus('Processing')}
                 badgeStyle={
-                  filterStatus === 'In Progress'
+                  filterStatus === 'Processing'
                     ? styles.badgeSelected
                     : styles.badge
                 }
                 textStyle={
-                  filterStatus === 'In Progress'
+                  filterStatus === 'Processing'
                     ? styles.badgeTextSelected
                     : styles.badgeText
                 }
