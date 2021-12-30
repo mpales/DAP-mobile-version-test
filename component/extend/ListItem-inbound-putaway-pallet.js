@@ -14,15 +14,13 @@ import IconCursor20Mobile from '../../assets/icon/iconmonstr-cursor-20 1mobile.s
 import IconTime2Mobile from '../../assets/icon/iconmonstr-time-2 1mobile.svg';
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
 import moment from 'moment';
-import {useSelector} from 'react-redux';
 import Mixins from '../../mixins';
 
 const styles = {
   sectionContainer: {
+    marginHorizontal: 14,
+    paddingVertical: 12,
     flexGrow: 1,
-    marginHorizontal: 20,
-    paddingVertical: 10,
-    flexDirection:'column',
   },
   titleText: {
     color: '#6C6B6B',
@@ -33,9 +31,12 @@ const styles = {
     color: '#6C6B6B',
   },
   containerList: {
-    marginVertical: 4,
     marginHorizontal: 0,
+    marginVertical: 6,
     padding: 0,
+    marginBottom: 0,
+    borderTopLeftRadius: 5,
+    borderBottomLeftRadius: 5,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -46,43 +47,22 @@ const styles = {
 
     elevation: 5,
   },
-  rightList: {
-    flexDirection: 'column',
+  labelContainer : {
     flexShrink: 1,
-    marginHorizontal: 10,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    marginHorizontal: 0,
     marginVertical: 10,
+    padding:3,
     alignSelf: 'stretch',
   },
-  containerUser: {
-    flex: 1,
-    alignItems: 'flex-end',
-    justifyContent: 'flex-end'
-  },
-  inboundUser: {
-    ...Mixins.subtitle3,
-    color:'#D5D5D5',
+  labelText: {
+    ...Mixins.small1,
     fontWeight: '400',
     lineHeight: 18,
+    color:'#ABABAB',
     alignSelf: 'flex-end',
   },
-  containerPackage: {
-    flex: 1,
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start'
-  },
-  inboundPackage: {
-    ...Mixins.subtitle3,
-    color:'#D5D5D5',
-    fontWeight: '600',
-    lineHeight: 21,
-  alignSelf: 'flex-end',
-  },
-  inboundText: {
-...Mixins.small1,
-fontWeight: '400',
-lineHeight: 18,
-  },
-  
   leftList: {
     backgroundColor: 'grey',
     flexShrink: 1,
@@ -90,16 +70,11 @@ lineHeight: 18,
     borderRadius: 5,
     alignSelf: 'stretch',
   },
-  
-  navigationButton: {
-    backgroundColor: '#F07120',
-    borderRadius: 5,
-  },
-  deliveryText: {
-    ...Mixins.subtitle3,
-    lineHeight: 21,
-    fontWeight:'400',
-    color: '#ffffff',
+  descText: {
+    ...Mixins.small1,
+    fontWeight: '500',
+    lineHeight: 18,
+    color:'#424141'
   },
   wrapper: {
     flexDirection: 'row',
@@ -109,7 +84,6 @@ lineHeight: 18,
   detailText: {
     ...Mixins.small1,
     color: '#424141',
-    fontWeight:'500',
   },
   valueText: {
     flexGrow: 1,
@@ -140,10 +114,32 @@ const theme = {
   ListItemContent: {
     containerStyle: styles.sectionContainer,
   },
-  
-};
-const Manifest = ({item, index, ToManifest}) => {
+ 
 
+};
+const Manifest = ({item, index, isActive, ToManifest}) => {
+  let status = 'grey';
+  let labelstatus = '';
+  switch (item.status) {
+    case 1:
+      status = '#ABABAB';
+      labelstatus = 'Pending';
+      break;
+      case 2:
+        status = '#E03B3B';
+        labelstatus = 'Reported';
+        break;
+        case 3:
+          status = '#F1811C';
+          labelstatus = 'Processing';
+          break;
+          case 4:
+            status = '#17B055';
+            labelstatus = 'Processed';
+            break;
+              default:
+      break;
+  }
   return (
     <ThemeProvider theme={theme}>
       <ListItem
@@ -155,91 +151,92 @@ const Manifest = ({item, index, ToManifest}) => {
         pad={0}
         onPress={ToManifest}
         >
-          <ListItem.Content style={styles.sectionContainer}>
-          <Badge value={item.type === 1 ? 'ASN' : item.type === 2 ? 'GRN' : item.type === 3 ? 'TRANSIT' : 'OTHERS'} status="warning" textStyle={{...Mixins.small3,fontWeight: '700',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-start',marginBottom:10}} badgeStyle={{backgroundColor: item.type === 1 ? '#121C78' : item.type === 2 ? '#F07120' : item.type === 3 ? 'white' : '#17B055', borderColor:'#ABABAB', borderWidth:item.type === 1 ? 0 : item.type === 2 ? 0 : item.type === 3 ? 1 : 0, borderRadius:5}} />
-          <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '45%'}]}>Received Date</Text>
+        <View style={[styles.leftList,{backgroundColor:status}]}>
+        </View>
+        <ListItem.Content style={styles.sectionContainer}>
+        <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>Date</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
                 [styles.detailText, styles.valueText]
               }>
-            {item.receivedDate ? moment(item.receivedDate).format("DD-MM-YYYY") : '-'}
+            {moment(item.date).format("DD-MM-YYYY")}
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '45%'}]}>Client ID</Text>
+            <Text style={[styles.detailText, {width: '55%'}]}>Inbound Job ID</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
                 [styles.detailText, styles.valueText]
               }>
-            {item.clientId}
+            {item.inboundJobId}
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '45%'}]}>Inbound ID</Text>
+            <Text style={[styles.detailText, {width: '55%'}]}>Warehouse  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
                 [styles.detailText, styles.valueText]
               }>
-            {item.jobId}
+              {item.client}
+            </Text>
+          </View>
+       
+          <View style={styles.wrapper}>
+            <Text style={[styles.detailText, {width: '55%'}]}>Pallet</Text>
+            <Text style={styles.detailText}>:</Text>
+            <Text
+              style={
+                [styles.detailText, styles.valueText]
+              }>
+             {item.pallet}
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '45%'}]}>Ref #</Text>
+            <Text style={[styles.detailText, {width: '55%'}]}>Suggested Location</Text>
             <Text style={styles.detailText}>:</Text>
-            <Text
+            <View
               style={
-                [styles.detailText, styles.valueText]
+                 { flexDirection:'column',flexShrink:1,  marginLeft: 5,}
               }>
-            {item.ref}
-            </Text>
+             {item.suggestedLocation.map((item,num)=>{
+               return (
+                 <View key={num} style={{flexDirection:'row', flex:1}}>
+                  <Text style={{...Mixins.small3,fontSize:6,lineHeight:10, paddingHorizontal:5, textAlignVertical:'center', color:'#ABABAB'}}>{'\u2B24'}</Text>
+                 <Text style={styles.detailText}>{item}</Text>
+                 </View>
+               );
+             })}
+            </View>
           </View>
-          {item.type === 3 && (
-          <><View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '45%'}]}>Warehouse</Text>
-            <Text style={styles.detailText}>:</Text>
-            <Text
-              style={
-                [styles.detailText, styles.valueText]
-              }>
-            {item.warehouse}
-            </Text>
-          </View>
-          <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '45%'}]}>Pallet</Text>
-            <Text style={styles.detailText}>:</Text>
-            <Text
-              style={
-                [styles.detailText, styles.valueText]
-              }>
-            {item.pallet}
-            </Text>
-          </View>
-          </>)}
-      
-                 
-                    
+          
     
         </ListItem.Content>
-        <View style={{flexDirection: 'column', paddingHorizontal: 10}}>
-            <ListItem.Chevron
-                  size={16}
-                  color="#2D2C2C"
-                  containerStyle={{alignSelf: 'flex-end', flexShrink:1, paddingHorizontal:0}}
-                  Component={(props)=>(
-                    <Button
-                      {...props}
-                      type="clear"
-                      icon={
-                        <IconArrow66Mobile height="26" width="26" fill="#2D2C2C"/>
-                      }
-                    />)}
-                    onPress={ToManifest}
-                />
+        <View style={styles.labelContainer}>
+        <Badge value={labelstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />
+        <View style={{alignSelf:'flex-end',flexDirection: 'column', flex:1, justifyContent:'center', alignItems:'center'}}>
+           
+        <ListItem.Chevron
+            size={16}
+            color="#2D2C2C"
+            containerStyle={{alignContent:'flex-end',justifyContent:'flex-end',alignItems:'flex-end',flexShrink:1,padding:0,margin:0}}
+            Component={(props)=>(
+              <Button
+                {...props}
+                type="clear"
+                icon={
+                  <IconArrow66Mobile height="26" width="26" fill="#2D2C2C"/>
+                }
+              />)}
+            onPress={ToManifest}
+          />
+          </View>
+       
         </View>
+        
       </ListItem>
     </ThemeProvider>
   );

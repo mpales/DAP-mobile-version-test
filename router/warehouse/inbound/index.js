@@ -37,6 +37,10 @@ import IVAS from './IVAS-list';
 import detailIVAS from './IVASDetails';
 import newIVAS from './newIVAS';
 import PalletList from './putaway/putaway-list';
+import PutawayPallet from './putaway/putaway-pallet';
+import PutawayItem from './putaway/putaway-item';
+import PutawayTransitDetails from './putaway/transitDetails';
+import PutawayItemDetails from './putaway/itemDetails.js';
 import PalletDetails from './putaway/palletDetails';
 import PalletScanner from '../peripheral/index-inbound-pallet';
 import ItemTransitDetail from './itemTransitDetails';
@@ -231,6 +235,132 @@ class HomeNavigator extends React.Component {
             },
           })}
         />
+            <Stack.Screen
+          name="PutawayPallet"
+          component={PutawayPallet}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              }),
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'Pallet List',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+            headerLeft: (props) => {
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(true);
+                    this.props.navigation.navigate('PalletList');
+                  }}
+                />
+              );
+            },
+          })}
+        />
+            <Stack.Screen
+          name="PutawayItem"
+          component={PutawayItem}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              }),
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'Item List',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+            headerLeft: (props) => {
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(true);
+                    this.props.navigation.navigate('PalletList');
+                  }}
+                />
+              );
+            },
+          })}
+        />
+        <Stack.Screen
+          name="PutawayTransitDetails"
+          component={PutawayTransitDetails}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              }),
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'Pallet Details',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+
+            headerLeft: (props) => {
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(false);
+                    this.props.navigation.navigate('PalletList');
+                  }}
+                />
+              );
+            },
+          })}
+        />
+        <Stack.Screen
+          name="PutawayItemDetails"
+          component={PutawayItemDetails}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              }),
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'Item Details',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+
+            headerLeft: (props) => {
+              return (
+                <HeaderBackButton
+                  {...props}
+                  onPress={() => {
+                    this.props.setBottomBar(false);
+                    this.props.navigation.navigate('PutawayItem');
+                  }}
+                />
+              );
+            },
+          })}
+        />
         <Stack.Screen
           name="PalletDetails"
           component={PalletDetails}
@@ -256,7 +386,7 @@ class HomeNavigator extends React.Component {
                   {...props}
                   onPress={() => {
                     this.props.setBottomBar(false);
-                    this.props.navigation.navigate('PalletList');
+                    this.props.navigation.navigate('PutawayPallet');
                   }}
                 />
               );

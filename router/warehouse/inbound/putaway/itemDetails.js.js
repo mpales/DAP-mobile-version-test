@@ -69,7 +69,7 @@ class ConnoteDetails extends React.Component {
     return (
       <>
         <View style={[styles.header, {paddingHorizontal: 10, paddingTop: 20}]}>
-          <Text style={styles.headerTitle}>Pallet Details</Text>
+          <Text style={styles.headerTitle}>Item Details</Text>
         </View>
         <View style={[styles.headerBody, {flexShrink: 1}]}>
           <Card
@@ -80,37 +80,44 @@ class ConnoteDetails extends React.Component {
             style={styles.card}>
             <View style={[styles.header, {paddingHorizontal: 15}]}>
               <View style={{flexDirection: 'column', flex: 1}}>
-            
-                    <DetailList
+              <DetailList
                       title="Date"
                       value={moment(_itemDetail.date).format('DD-MM-YYYY')}
                       labelStyle={{width: '55%'}}
                     />
                     <DetailList
-                      title="Client ID"
+                      title="Inbound Job ID"
                       value={_itemDetail.client}
                       labelStyle={{width: '55%'}}
                     />
                     <DetailList
-                      title="Inbound Job ID"
+                      title="Item Code"
                       value={_itemDetail.inboundJobId}
                       labelStyle={{width: '55%'}}
                     />
                     <DetailList
-                      title="Warehouse"
-                      value={_itemDetail.client}
+                      title="Description"
+                      value={_itemDetail.warehouse}
                       labelStyle={{width: '55%'}}
                     />
                     <DetailList
+                      title="UOM"
+                      value={_itemDetail.pallet}
+                      labelStyle={{width: '55%'}}
+                    />
+                        <DetailList
+                      title="Qty"
+                      value={_itemDetail.pallet}
+                      labelStyle={{width: '55%'}}
+                    />
+                        <DetailList
                       title="Pallet"
                       value={_itemDetail.pallet}
                       labelStyle={{width: '55%'}}
                     />
-                     <View style={styles.wrapper}>
-                    <Text style={[styles.detailText, {width: '55%'}]}>Suggested Location</Text>
-                    <Text style={styles.detailText}>:</Text>
-                    <View style={{flex:1}}>
-                    {_itemDetail.suggestedLocation.map((item,num)=>{
+                    <DetailList
+                      title="Suggested Location"
+                      value={_itemDetail.suggestedLocation.map((item,num)=>{
                         return (
                           <View key={num} style={{flexDirection:'row', flex:1}}>
                            <Text style={{...Mixins.small3,fontSize:6,lineHeight:10, paddingHorizontal:5, textAlignVertical:'center', color:'#ABABAB'}}>{'\u2B24'}</Text>
@@ -118,14 +125,12 @@ class ConnoteDetails extends React.Component {
                           </View>
                         );
                       })}
-                      </View>
-                  </View>
-                   
-            
-              
+                      labelStyle={{width: '55%'}}
+                    />
+                    
               </View>
               <Badge
-                value="ASN"
+                value="GRN"
                 status="warning"
                 textStyle={{
                   ...Mixins.small3,
@@ -135,19 +140,19 @@ class ConnoteDetails extends React.Component {
                 }}
                 containerStyle={{alignSelf: 'flex-start'}}
                 badgeStyle={{
-                  backgroundColor:'#121C78',
+                  backgroundColor:'#F07120',
                   borderColor: '#ABABAB',
                   borderWidth:0,
                   borderRadius: 5,
                 }}
               />
             </View>
-    
+        
           </Card>
         </View>
         <View style={{backgroundColor: 'white', paddingHorizontal: 10}}>
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Items</Text>
+            <Text style={styles.headerTitle}>Pallet Details</Text>
           </View>
         </View>
       </>
@@ -156,7 +161,7 @@ class ConnoteDetails extends React.Component {
 
   renderInner = (item, index) => {
     return (
-  
+ 
         <Card
           containerStyle={[styles.cardContainer, {marginHorizontal: 10}]}
           style={styles.card}>
@@ -166,17 +171,15 @@ class ConnoteDetails extends React.Component {
                 <Text style={styles.packageCounterText}>{item.client}</Text>
               </View>
               <View style={styles.detail}>
-                <DetailList title="Item Code" value={item.itemCode} />
-                <DetailList title="Description" value={item.description} />
-                <DetailList title="Stock Grade" value={item.grade} />
-                <DetailList title="UOM" value={item.uom} />
-                <DetailList title="Qty" value={item.qty} />
+                <DetailList title="Warehouse" value={item.itemCode} />
+                <DetailList title="Pallet" value={item.description} />
+                <DetailList title="Suggested Location" value={item.grade} />
+   
               </View>
             </View>
-    
           </View>
         </Card>
- 
+
     );
   };
   renderEmptyView = () => {
@@ -188,7 +191,7 @@ class ConnoteDetails extends React.Component {
           marginTop: 100,
         }}>
         <EmptyIlustrate height="132" width="213" style={{marginBottom: 15}} />
-        <Text style={{...Mixins.subtitle3}}>Empty Items</Text>
+        <Text style={{...Mixins.subtitle3}}>Empty Pallet</Text>
       </View>
     );
   };
@@ -209,6 +212,7 @@ class ConnoteDetails extends React.Component {
             />
           </View>
         </View>
+     
           <SafeAreaInsetsContext.Consumer>
             {(inset) => (
               <>
@@ -316,18 +320,6 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
-  },
-  wrapper: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-  },
-  valueText: {
-    flexGrow: 1,
-    marginLeft: 5,
-    flexWrap: 'wrap',
-    flexBasis:1,
-    maxWidth: '65%',
   },
   cardContainer: {
     borderRadius: 5,

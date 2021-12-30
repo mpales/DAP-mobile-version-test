@@ -59,18 +59,18 @@ class Example extends React.Component {
   }
 
   static getDerivedStateFromProps(props,state){
-    const {putawayList, currentASN, navigation, setBarcodeScanner, detectBarcode} = props;
+    const {putawayContent, currentASN, navigation, setBarcodeScanner, detectBarcode} = props;
     const {dataCode, dataItem, scanItem} = state;
     const {routes, index} = navigation.dangerouslyGetState();
     if(scanItem === '0'){
       if(routes[index].params !== undefined && routes[index].params.inputCode !== undefined) {
         setBarcodeScanner(true);
-        let item = putawayList.find((element)=>element.id === routes[index].params.inputCode);  
+        let item = putawayContent.find((element)=>element.id === routes[index].params.inputCode);  
         let products = null;
         if(routes[index].params.productIndex !== undefined){
           products = item.products[routes[index].params.productIndex]
         }
-        return {...state, scanItem: routes[index].params.inputCode, suggestionLocation :item.suggestedLocation.join("\r\n"),  locationItem: item.warehouse, detectBarcodeToState: true, elementProduct : routes[index].params.productIndex !== undefined ? products : null};
+        return {...state, scanItem: routes[index].params.inputCode, suggestionLocation :item.suggestedLocation,  locationItem: item.warehouse, detectBarcodeToState: true, elementProduct : routes[index].params.productIndex !== undefined ? products : null};
       } 
       return {...state, detectBarcodeToState: true};
     } 
@@ -92,7 +92,7 @@ class Example extends React.Component {
     return true;
   }
   async componentDidUpdate(prevProps, prevState) {
-    const {putawayList,detectBarcode, currentASN, navigation, setBarcodeScanner} = this.props;
+    const {putawayContent,detectBarcode, currentASN, navigation, setBarcodeScanner} = this.props;
     const {dataCode,scanItem,suggestionLocation, dataItem} = this.state;
     if(prevProps.detectBarcode !== detectBarcode){
       if(detectBarcode) {
@@ -103,7 +103,7 @@ class Example extends React.Component {
     }
     if(dataCode !== '0' && scanItem !== null && detectBarcode === false && dataItem === null){
     
-      let item = putawayList.find((element)=>element.id === scanItem);  
+      let item = putawayContent.find((element)=>element.id === scanItem);  
       this.props.setBarcodeScanner(false);
       this.setState({dataItem: item});
     }
@@ -286,6 +286,7 @@ class Example extends React.Component {
         >
                { this.state.elementProduct === null ? ( 
               <View style={[styles.sectionDividier, {alignItems: 'flex-start'}]}>
+                <Text style={{...Mixins.body1,fontWeight:'700',lineHeight:21, color:'#424141'}}>Suggestion Place</Text>
                <View style={styles.dividerContent}>
                <Text style={styles.labelNotFound}>Warehouse</Text>
                <View style={{flexDirection:'row', flexShrink:1}}>
@@ -297,7 +298,20 @@ class Example extends React.Component {
                   <Text style={styles.labelNotFound}>Location</Text>
                   <View style={{flexDirection:'row', flexShrink:1}}>
                         <Text style={styles.dotLabel}>:</Text>
-                  <Text style={styles.infoNotFound}>{this.state.suggestionLocation}</Text>
+                        <View
+              style={
+                 { flexDirection:'column',flexShrink:1,  marginLeft: 5,}
+              }>
+             {this.state.suggestionLocation.map((item,num)=>{
+               return (
+                 <View key={num} style={{flexDirection:'row', flex:1}}>
+                  <Text style={{...Mixins.small3,fontSize:8,lineHeight:12, paddingLeft:10, textAlignVertical:'center', color:'#ABABAB'}}>{'\u2B24'}</Text>
+                 <Text style={styles.infoNotFound}>{item}</Text>
+                 </View>
+               );
+             })}
+            </View>
+          
                   </View>
                 </View>
                 </View>) : (
@@ -552,16 +566,16 @@ const styles = StyleSheet.create({
    
   labelNotFound: {
     minWidth: 140,
-    ...Mixins.h6,
-    color: '#2D2C2C',
-    fontWeight: '500',
-    lineHeight: 24,
+    ...Mixins.body1,
+    color: '#424141',
+    fontWeight: '400',
+    lineHeight: 21,
   },
   infoNotFound: {
     paddingHorizontal: 10,
-    ...Mixins.h6,
+    ...Mixins.body1,
     fontWeight: '400',
-    lineHeight: 24,
+    lineHeight: 21,
     color: '#424141',
   },
   labelPackage: {
@@ -676,7 +690,7 @@ function mapStateToProps(state) {
     // for prototype only
     barcodeScanned: state.originReducer.filters.barcodeScanned,
     // end
-    putawayList: state.originReducer.putawayList,
+    putawayContent: state.originReducer.putawayContent,
     keyStack: state.originReducer.filters.keyStack,
   };
 }

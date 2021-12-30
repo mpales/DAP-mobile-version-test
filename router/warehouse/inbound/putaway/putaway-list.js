@@ -79,12 +79,12 @@ class List extends React.Component {
         this.setState({
           list: resultedList.filter(
             (element) =>
-              String(element.client)
+              String(element.clientId)
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1 &&
                 (this.state.dropdown === '' ||
                   (this.state.dropdown !== '' &&
-                    moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                    moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
           ),
           renderGoBack: false,
           renderRefresh: false,
@@ -95,12 +95,12 @@ class List extends React.Component {
             .filter((element) => element.type === 1)
             .filter(
               (element) =>
-                String(element.client)
+                String(element.clientId)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1 &&
                   (this.state.dropdown === '' ||
                     (this.state.dropdown !== '' &&
-                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                      moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
             ),
           renderGoBack: false,
           renderRefresh: false,
@@ -111,12 +111,12 @@ class List extends React.Component {
             .filter((element) => element.type === 2)
             .filter(
               (element) =>
-                String(element.client)
+                String(element.clientId)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1 &&
                   (this.state.dropdown === '' ||
                     (this.state.dropdown !== '' &&
-                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                      moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
             ),
           renderGoBack: false,
           renderRefresh: false,
@@ -127,12 +127,12 @@ class List extends React.Component {
             .filter((element) => element.type === 3)
             .filter(
               (element) =>
-                String(element.client)
+                String(element.clientId)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1 &&
                   (this.state.dropdown === '' ||
                     (this.state.dropdown !== '' &&
-                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                      moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
             ),
           renderGoBack: false,
           renderRefresh: false,
@@ -143,12 +143,12 @@ class List extends React.Component {
             .filter((element) => element.type === 4)
             .filter(
               (element) =>
-                String(element.client)
+                String(element.clientId)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1 &&
                   (this.state.dropdown === '' ||
                     (this.state.dropdown !== '' &&
-                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                      moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
             ),
           renderGoBack: false,
           renderRefresh: false,
@@ -168,12 +168,12 @@ class List extends React.Component {
         this.setState({
           list: putawayList.filter(
             (element) =>
-              String(element.client)
+              String(element.clientId)
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1 &&
                 (this.state.dropdown === '' ||
                   (this.state.dropdown !== '' &&
-                    moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                    moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
           ),
           renderGoBack: false,
           renderRefresh: false,
@@ -184,12 +184,12 @@ class List extends React.Component {
             .filter((element) => element.type === 1)
             .filter(
               (element) =>
-                String(element.client)
+                String(element.clientId)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1 &&
                   (this.state.dropdown === '' ||
                     (this.state.dropdown !== '' &&
-                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                      moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
             ),
           renderGoBack: false,
           renderRefresh: false,
@@ -200,12 +200,12 @@ class List extends React.Component {
             .filter((element) => element.type === 2)
             .filter(
               (element) =>
-                String(element.client)
+                String(element.clientId)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1 &&
                   (this.state.dropdown === '' ||
                     (this.state.dropdown !== '' &&
-                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                      moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
             ),
           renderGoBack: false,
           renderRefresh: false,
@@ -216,12 +216,12 @@ class List extends React.Component {
             .filter((element) => element.type === 3)
             .filter(
               (element) =>
-                String(element.client)
+                String(element.clientId)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1 &&
                   (this.state.dropdown === '' ||
                     (this.state.dropdown !== '' &&
-                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                      moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
             ),
           renderGoBack: false,
           renderRefresh: false,
@@ -232,12 +232,12 @@ class List extends React.Component {
             .filter((element) => element.type === 4)
             .filter(
               (element) =>
-                String(element.client)
+                String(element.clientId)
                   .toLowerCase()
                   .indexOf(this.state.search.toLowerCase()) > -1 &&
                   (this.state.dropdown === '' ||
                     (this.state.dropdown !== '' &&
-                      moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                      moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
             ),
           renderGoBack: false,
           renderRefresh: false,
@@ -254,12 +254,12 @@ class List extends React.Component {
       this.setState({
         list: resultedList.filter(
           (element) =>
-            String(element.client)
+            String(element.clientId)
               .toLowerCase()
               .indexOf(this.state.search.toLowerCase()) > -1 &&
               (this.state.dropdown === '' ||
                 (this.state.dropdown !== '' &&
-                  moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                  moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
         ),
       });
     } else if (filtered === 1) {
@@ -268,12 +268,12 @@ class List extends React.Component {
           .filter((element) => element.type === 1)
           .filter(
             (element) =>
-              String(element.client)
+              String(element.clientId)
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1 &&
                 (this.state.dropdown === '' ||
                   (this.state.dropdown !== '' &&
-                    moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                    moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
           ),
       });
     } else if (filtered === 2) {
@@ -282,12 +282,12 @@ class List extends React.Component {
           .filter((element) => element.type === 2)
           .filter(
             (element) =>
-              String(element.client)
+              String(element.clientId)
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1 &&
                 (this.state.dropdown === '' ||
                   (this.state.dropdown !== '' &&
-                    moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                    moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
           ),
       });
     } else if (filtered === 3) {
@@ -296,12 +296,12 @@ class List extends React.Component {
           .filter((element) => element.type === 3)
           .filter(
             (element) =>
-              String(element.client)
+              String(element.clientId)
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1 &&
                 (this.state.dropdown === '' ||
                   (this.state.dropdown !== '' &&
-                    moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                    moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
           ),
       });
     } else if (filtered === 4) {
@@ -310,12 +310,12 @@ class List extends React.Component {
           .filter((element) => element.type === 4)
           .filter(
             (element) =>
-              String(element.client)
+              String(element.clientId)
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1 &&
                 (this.state.dropdown === '' ||
                   (this.state.dropdown !== '' &&
-                    moment(element.date).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
+                    moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
           ),
       });
     }
@@ -328,8 +328,8 @@ class List extends React.Component {
     let arrayDate = Array.from({
       length: putawayList.length,
     }).map((num, index) => {
-      if (putawayList[index].date !== undefined && putawayList[index].date !== 0) {
-        return moment(putawayList[index].date).format("DD-MM-YYYY");
+      if (putawayList[index].receivedDate !== undefined && putawayList[index].receivedDate !== 0) {
+        return moment(putawayList[index].receivedDate).format("DD-MM-YYYY");
       }
       return null;
     });
@@ -573,12 +573,30 @@ class List extends React.Component {
                       item={data}
                       ToManifest={() => {
                         this.props.setBottomBar(false);
-                        this.props.navigation.navigate({
-                          name: 'PalletDetails',
-                          params: {
-                            dataCode: data.id,
-                          },
-                        });
+                        this.props.setPutawayID(data.id);
+                        if(data.type === 1){
+                          this.props.navigation.navigate({
+                            name: 'PutawayPallet',
+                            params: {
+                              dataCode: data.id,
+                            },
+                          });
+                        } else if (data.type === 2){
+                          // not implemented
+                          // this.props.navigation.navigate({
+                          //   name: 'PutawayItem',
+                          //   params: {
+                          //     dataCode: data.id,
+                          //   },
+                          // });
+                        } else {
+                          this.props.navigation.navigate({
+                             name: 'PutawayTransitDetails',
+                             params: {
+                               dataCode: data.id,
+                             },
+                           });
+                        }
                       }}
                     />
                   );
@@ -773,6 +791,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     setPutawayList: (data) => {
       return dispatch({type: 'PutawayList', payload: data});
+    },
+    setPutawayID: (data) => {
+      return dispatch({type: 'PutawayID', payload: data});
     },
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
