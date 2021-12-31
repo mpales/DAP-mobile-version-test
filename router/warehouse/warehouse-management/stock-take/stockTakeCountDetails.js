@@ -27,6 +27,9 @@ import {
 } from '../../../../component/helper/string';
 //style
 import Mixins from '../../../../mixins';
+// icon
+import MinIcon from '../../../../assets/icon/min-mobile.svg';
+import PlusIcon from '../../../../assets/icon/plus-mobile.svg';
 
 const window = Dimensions.get('window');
 
@@ -293,9 +296,10 @@ class StockTakeCountDetails extends React.Component {
               <View style={styles.counterContainer}>
                 <Text style={Mixins.h4}>Qty</Text>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Button
-                    title="-"
-                    buttonStyle={styles.roundButton}
+                  <MinIcon
+                    height="30"
+                    width="30"
+                    style={{flexShrink: 1, marginVertical: 5}}
                     onPress={this.handleMinus}
                   />
                   <TextInput
@@ -305,9 +309,10 @@ class StockTakeCountDetails extends React.Component {
                     keyboardType="number-pad"
                     onChangeText={(text) => this.handleInput(text)}
                   />
-                  <Button
-                    title="+"
-                    buttonStyle={styles.roundButton}
+                  <PlusIcon
+                    height="30"
+                    width="30"
+                    style={{flexShrink: 1, marginVertical: 5}}
                     onPress={this.handlePlus}
                   />
                 </View>
