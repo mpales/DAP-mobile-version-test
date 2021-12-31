@@ -6,7 +6,10 @@ import {connect} from 'react-redux';
 import {Button} from 'react-native-elements';
 import IconArrow66Mobile from '../../../assets/icon/iconmonstr-arrow-66mobile-7.svg';
 import Camera from '../peripheral/index-VAS-pallet';
+import Barcode from '../peripheral/index-VAS-Disposal';
 import List from './list';
+import ListDisposal from './list-disposal';
+import ListDisposalItem from './list-disposal-item';
 import ReportManifest from './reportManifest';
 import itemReportDetail from './itemReportDetails';
 import Mixins from '../../../mixins';
@@ -17,6 +20,9 @@ import EnlargeMedia from '../peripheral/enlargeMedia';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import ItemTransitDetail from './itemTransitDetails';
 import ItemDisposalDetail from './itemDisposalDetails';
+import ItemDetail from './itemDetails';
+import ManualInput from './manualInput';
+import ReportDisposal from './reportDisposal';
 import IVASDetail from '../detail/index-VAS';
 const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
@@ -172,7 +178,66 @@ class HomeNavigator extends React.Component {
             },
           }}
         />
-     
+      <Stack.Screen
+          name="ListDisposal"
+          initialParams={{type:this.state.type}}
+          component={ListDisposal}
+          options={{
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'Pick Disposal List',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar(true)
+                  this.props.navigation.navigate('List');
+                }
+              }
+              />);
+            },
+          }}
+        />
+      <Stack.Screen
+          name="ListDisposalItem"
+          initialParams={{type:this.state.type}}
+          component={ListDisposalItem}
+          options={{
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'All item',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar(false)
+                  this.props.navigation.navigate('ItemDisposalDetail');
+                }
+              }
+              />);
+            },
+          }}
+        />
          <Stack.Screen
           name="ItemVASDetail"
           component={ItemTransitDetail}
@@ -226,7 +291,37 @@ class HomeNavigator extends React.Component {
               return(
                 <HeaderBackButton  {...props} onPress={()=>{
                   this.props.setBottomBar(false)
-                  this.props.navigation.navigate('List');
+                  this.props.navigation.navigate('ListDisposal');
+                }
+              }
+              />);
+            },
+          })}
+        />
+        <Stack.Screen
+          name="ItemDetails"
+          component={ItemDetail}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'Report Details',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+            headerLeft: (props) => {
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.setBottomBar(false)
+                  this.props.navigation.goBack();
                 }
               }
               />);
@@ -284,8 +379,48 @@ class HomeNavigator extends React.Component {
             headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
           })}
         />
-     
-      
+        <Stack.Screen 
+          name="BarcodeDisposal"
+          component={Barcode}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTitle:'',
+            headerTransparent: true,
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+          })}
+        />
+      <Stack.Screen 
+          name="ManualInput"
+          component={ManualInput}
+          options={() => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerTitle:'',
+            headerTransparent: true,
+            headerTintColor: '#fff',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+          })}
+        />
         <Stack.Screen
           name="ReportManifest"
           component={ReportManifest}
@@ -308,8 +443,39 @@ class HomeNavigator extends React.Component {
                   if(routes[index-1].name === 'SupervisorMode'){
                     navigation.navigate('SupervisorMode');
                   } else {
-                    this.props.navigation.navigate('List')
+                    this.props.navigation.navigate('ItemDisposalDetail')
                   }
+                }
+              }
+              />);
+            },
+            headerTintColor: '#fff',
+            headerTitle: 'Report',
+            headerTitleStyle: {...Mixins.h6, fontWeight: '400', lineHeight: 22},
+        
+          })}
+        />
+        
+        <Stack.Screen
+          name="ReportDisposal"
+          component={ReportDisposal}
+          options={({navigation}) => ({
+            headerStyle: {
+              backgroundColor: '#121C78',
+              elevation: 0,
+              shadowOpacity: 0,
+              borderBottomWidth: 0,
+              ...Platform.select({
+                android: {
+                  height: 45,
+                },
+              })
+            },
+            headerLeft: (props) => {
+              const {routes,index} = navigation.dangerouslyGetState();
+              return(
+                <HeaderBackButton  {...props} onPress={()=>{
+                  this.props.navigation.navigate('ListDisposal')
                 }
               }
               />);

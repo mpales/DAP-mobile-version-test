@@ -290,12 +290,9 @@ class List extends React.Component {
                                     ToManifest={()=>{
                                         this.props.setBottomBar(false);
                                         if(this.state.type === 'DISPOSAL'){
-                                            this.props.navigation.navigate( {
-                                                name: 'ItemDisposalDetail',
-                                                params: {
-                                                  bayScanned : false,
+                                            this.props.navigation.navigate( 'ListDisposal',{
+                                                  type : 'Diposal',
                                                   dataCode : data.number,
-                                                },
                                               });
                                         } else {
                                             this.props.navigation.navigate( {
