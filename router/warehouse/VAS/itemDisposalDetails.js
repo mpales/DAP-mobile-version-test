@@ -110,25 +110,20 @@ class ConnoteDetails extends React.Component {
       <>
         <StatusBar barStyle="dark-content" />
         <ScrollView style={styles.container}>
+        <View style={[styles.header,{marginHorizontal:20}]}>
+            <Text style={styles.headerTitle}>Disposal Details</Text>
+          
+          </View>
           <View style={styles.body}>
-            <Card containerStyle={styles.cardContainer} style={{}}>
+            <Card containerStyle={styles.cardContainer}>
               <View style={{...styles.detail,paddingHorizontal:20, marginBottom:10}}>
-              <DetailList title="Client" value={_itemDetail.transport} />
-              <DetailList title="Warehouse" value={_itemDetail.desc} />
-              <DetailList title="Location" value={_itemDetail.ref} />
-              <DetailList title="Item Code" value={_itemDetail.number} />
-              <DetailList title="Description" value={_itemDetail.rcpt} />
+              <DetailList title="Job Type" value="Re-Labeling" />
+              <DetailList title="Required Proof" value="Photo and Video" />
               </View>
-              <Divider />
-              <View style={{...styles.detail,paddingHorizontal:20, marginTop:10}}>
-                <DetailList title="Job Type" value="Re-Labeling" />
-                <DetailList title="Labeling Required" value="40" />
-                <DetailList title="UOM" value="PCS" />
-                <DetailList title="Required Proof" value="Photo and Video" />
-                </View>
+              
             </Card>
 
-            <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20}}>
+            <View style={{alignItems: 'center',justifyContent: 'center', marginVertical: 20, marginHorizontal:20}}>
                         <Avatar onPress={()=>{
                               if(this.props.disposalProofID === null || this.props.disposalProofID === this.state.dataCode){
                                 this.props.setBottomBar(false);
@@ -170,7 +165,7 @@ class ConnoteDetails extends React.Component {
 { (_itemDetail.status === 'progress' || _itemDetail.status === 'pending') ? (            
 <>
 <Button
-              containerStyle={{flexShrink:1, marginVertical: 10,}}
+              containerStyle={{flexShrink:1, marginVertical: 10,marginHorizontal:20}}
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={()=>{
@@ -181,8 +176,17 @@ class ConnoteDetails extends React.Component {
               disabled={(!this.state.submitPhoto)}
               title="Submit"
             />
+            <Button
+              containerStyle={{flexShrink:1, marginBottom: 10,marginHorizontal:20}}
+              buttonStyle={[styles.navigationButton, {paddingHorizontal: 0, backgroundColor:'#121C78'}]}
+              titleStyle={styles.deliveryText}
+              onPress={()=>{
+                this.props.navigation.navigate('ListDisposalItem')
+              }}
+              title="See All the Item"
+            />
           <Button
-              containerStyle={{flexShrink:1, marginBottom: 10,}}
+              containerStyle={{flexShrink:1, marginBottom: 10,marginHorizontal:20}}
               buttonStyle={[styles.reportButton, {paddingHorizontal: 0}]}
               titleStyle={{...styles.deliveryText,color:'#E03B3B'}}
               onPress={()=>{
@@ -199,7 +203,7 @@ class ConnoteDetails extends React.Component {
             />
   </>          ) : (
        <Button
-       containerStyle={{flexShrink:1, marginBottom: 10,}}
+       containerStyle={{flexShrink:1, marginBottom: 10,marginHorizontal:20}}
        buttonStyle={[styles.reportButton, {paddingHorizontal: 0}]}
        titleStyle={{...styles.deliveryText,color:'#E03B3B'}}
        onPress={()=>{
@@ -210,7 +214,7 @@ class ConnoteDetails extends React.Component {
      />
   ) }
 
-            <View style={{flexDirection:'column',flexShrink:1, marginVertical:20}}>
+            <View style={{flexDirection:'column',flexShrink:1, marginVertical:20, marginHorizontal:20}}>
               <Text style={{...mixins.subtitle3,lineHeight:21}}>Remarks</Text>
               <View style={styles.remark}>
               <Text style={styles.remarkText}>
@@ -246,7 +250,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-    padding: 20,
+    paddingVertical:20,
+  
   },
   
   remarkText:{
@@ -301,7 +306,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     borderRadius: 5,
     backgroundColor: '#fff',
-    marginHorizontal: 0,
+    marginHorizontal: 20,
     paddingHorizontal:0,
     marginBottom: 20,
     shadowColor: '#000',

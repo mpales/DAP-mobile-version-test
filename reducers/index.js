@@ -21,6 +21,7 @@ const initialState = {
   inboundList: [],
   gallery: {},
   VASList: [],
+  DISPOSALList: [],
   inboundSPVList: [],
   putawayID: null,
   putawayList: [],
@@ -86,11 +87,15 @@ const initialState = {
     ReportedTask: [],
     ReportedList: null,
     currentList: null,
+    currentDisposal: null,
     currentIVAS: [],
     logged: false,
     activeVAS: [],
     completeVAS: [],
     ReportedVAS: [],
+    activeDisposal: [],
+    completeDisposal: [],
+    ReportedDisposal: [],
     ApplicationNavigational: null,
     stockTakeId: null,
     manifestError: null,
@@ -812,6 +817,14 @@ export default function appReducer(state = initialState, action) {
           currentList: action.payload,
         },
       };
+      case 'setCurrentDisposal':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            currentDisposal: action.payload,
+          },
+        };
     case 'addActiveTask':
       return {
         ...state,
@@ -1093,6 +1106,11 @@ export default function appReducer(state = initialState, action) {
         ...state,
         VASList: action.payload,
       };
+      case 'DISPOSALList':
+      return {
+        ...state,
+        DISPOSALList: action.payload,
+      };
     case 'InboundSPVList':
       return {
         ...state,
@@ -1214,9 +1232,33 @@ export default function appReducer(state = initialState, action) {
         ...state,
         filters: {
           ...state.filters,
-          ReportedVAS: [...state.filters.ReportedVAS, action.payload],
+          ReportedDisposal: [...state.filters.ReportedDisposal, action.payload],
         },
       };
+      case 'activeDisposal':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            activeDisposal: [...state.filters.activeDisposal, action.payload],
+          },
+        };
+      case 'completeDisposal':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            completeDisposal: [...state.filters.completeDisposal, action.payload],
+          },
+        };
+      case 'ReportedDisposal':
+        return {
+          ...state,
+          filters: {
+            ...state.filters,
+            ReportedDisposal: [...state.filters.ReportedDisposal, action.payload],
+          },
+        };
     case 'fromBarcode':
       return {
         ...state,

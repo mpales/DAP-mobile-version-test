@@ -114,7 +114,125 @@ class WarehouseNavigator extends React.Component {
       'hardwareBackPress',
       () => {
         this._refreshFromBackHandle();
-
+        if (
+          this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'IVASDetail'
+        ) {
+          this.navigationRef.current.navigate('MenuWarehouse');
+          return true;
+        } else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'List'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'IVASDetail',
+          });
+          return true;
+        } else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'ItemVASDetail'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'List',
+          });
+          return true;
+        } else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'ItemDisposalDetail'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'ListDisposal',
+          });
+          return true;
+        } else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'ItemReportDetail'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'ItemDetails',
+          });
+          return true;
+        } else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'ItemDetails' && prevProps.keyStack === 'ListDisposal'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'ListDisposal',
+          });
+          return true;
+        } else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'ItemDetails' && prevProps.keyStack === 'ListDisposalItem'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'ListDisposalItem',
+          });
+          return true;
+        }else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'Barcode'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'ItemVASDetail',
+          });
+          return true;
+        } else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'BarcodeDisposal'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'ListDisposal',
+          });
+          return true;
+        }else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'ReportManifest'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'ItemDisposalDetail',
+          });
+          return true;
+        }else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'ReportDisposal'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'ListDisposal',
+          });
+          return true;
+        }else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'ManualInput'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'BarcodeDisposal',
+          });
+          return true;
+        }else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'ListDisposal'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'List',
+          });
+          return true;
+        } else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'ListDisposalItem'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'ItemDisposalDetail',
+          });
+          return true;
+        }else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'DisposalCamera'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'ItemDisposalDetail',
+          });
+          return true;
+        }else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'EnlargeImage'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'SingleCamera',
+          });
+          return true;
+        }else if (
+          this.props.indexBottomBar === 0 && this.props.keyStack === 'EnlargeMedia'
+        ) {
+          this.navigationRef.current.navigate('VAS', {
+            screen: 'SingleCamera',
+          });
+          return true;
+        }
         return false;
       },
     );
@@ -160,6 +278,12 @@ class WarehouseNavigator extends React.Component {
         this.props.keyStack === 'Barcode'
       ) {
         this.props.setBottomBar(false);
+      } 
+       if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'BarcodeDisposal'
+      ) {
+        this.props.setBottomBar(false);
       }
       if (
         this.props.indexBottomBar === 0 &&
@@ -176,6 +300,48 @@ class WarehouseNavigator extends React.Component {
       if (
         this.props.indexBottomBar === 0 &&
         this.props.keyStack === 'SingleCamera'
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'SingleCamera'
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'EnlargeMedia'
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'ReportDisposal'
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'ManualInput'
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'ItemDetails'
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'ListDisposalItem'
+      ) {
+        this.props.setBottomBar(false);
+      }
+      if (
+        this.props.indexBottomBar === 0 &&
+        this.props.keyStack === 'ListDisposal'
       ) {
         this.props.setBottomBar(false);
       }

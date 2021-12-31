@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    bottom: 130,
+    bottom: 180,
     zIndex: 3,
   },
   pictureSize: {
