@@ -245,18 +245,6 @@ class StockTakeReport extends React.Component {
               checked={reasonOption === 0}
               onPress={() => this.handleReportOptions(0)}
             />
-            {/* <CheckBox
-              title="Item Missing"
-              checkedIcon="dot-circle-o"
-              uncheckedIcon="circle-o"
-              checkedColor="#2A3386"
-              uncheckedColor="#6C6B6B"
-              textStyle={Mixins.subtitle3}
-              size={25}
-              containerStyle={styles.checkbox}
-              checked={reasonOption === 1}
-              onPress={() => this.handleReportOptions(1)}
-            /> */}
             {this.props.route.params?.isBlankCount ? (
               <CheckBox
                 title="Expired Item"
@@ -271,18 +259,32 @@ class StockTakeReport extends React.Component {
                 onPress={() => this.handleReportOptions(2)}
               />
             ) : (
-              <CheckBox
-                title="Excess Item"
-                checkedIcon="dot-circle-o"
-                uncheckedIcon="circle-o"
-                checkedColor="#2A3386"
-                uncheckedColor="#6C6B6B"
-                textStyle={Mixins.subtitle3}
-                size={25}
-                containerStyle={styles.checkbox}
-                checked={reasonOption === 4}
-                onPress={() => this.handleReportOptions(4)}
-              />
+              <>
+                <CheckBox
+                  title="Item Missing"
+                  checkedIcon="dot-circle-o"
+                  uncheckedIcon="circle-o"
+                  checkedColor="#2A3386"
+                  uncheckedColor="#6C6B6B"
+                  textStyle={Mixins.subtitle3}
+                  size={25}
+                  containerStyle={styles.checkbox}
+                  checked={reasonOption === 1}
+                  onPress={() => this.handleReportOptions(1)}
+                />
+                <CheckBox
+                  title="Excess Item"
+                  checkedIcon="dot-circle-o"
+                  uncheckedIcon="circle-o"
+                  checkedColor="#2A3386"
+                  uncheckedColor="#6C6B6B"
+                  textStyle={Mixins.subtitle3}
+                  size={25}
+                  containerStyle={styles.checkbox}
+                  checked={reasonOption === 4}
+                  onPress={() => this.handleReportOptions(4)}
+                />
+              </>
             )}
             <CheckBox
               title="Other"
