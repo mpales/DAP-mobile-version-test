@@ -171,7 +171,7 @@ const Manifest = ({item, index, ToManifest}) => {
             break;
             case 7:
               status = '#E03B3B';
-              labelstatus = 'Cancelled'
+              labelstatus = 'Reported'
               break;
               case 8:
                 status = '#17B055';
