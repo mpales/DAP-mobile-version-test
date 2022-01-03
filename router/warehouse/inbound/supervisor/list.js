@@ -230,7 +230,7 @@ class List extends React.Component {
                     textStyle={this.state.filtered === 0 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                       <Badge
-                    value="Cancelled"
+                    value="Reported"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(1)}
                     badgeStyle={this.state.filtered === 1 ? styles.badgeActive : styles.badgeInactive }
