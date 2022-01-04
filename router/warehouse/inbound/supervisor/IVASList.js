@@ -87,6 +87,7 @@ class ConnoteReportDetails extends React.Component {
   }
   renderListVAS = ({item,index, separators})=>{
     let shipmentopt = '';
+  
     switch ( item.inbound_shipment_va.inbound_shipment) {
       case 1:
         shipmentopt = 'Un-Stuffing From Truck';
@@ -122,7 +123,7 @@ class ConnoteReportDetails extends React.Component {
        
         <View style={styles.detail}>
           <DetailList title="Client ID" value={item.inbound.client} />
-          <DetailList title="Ref #" value={this.state.inboundData.reference_id} />
+          <DetailList title="Ref #" value={item.inbound.reference_id} />
           <DetailList title="Shipment Type" value={this.state.inboundData.shipment_type === 2 ? "FCL" : "LCL"} />
           <DetailList title="Recorded By" value={item.inbound_shipment_va.created_by  !== undefined ? item.inbound_shipment_va.created_by.firstName : null} />
           <DetailList title="Date and Time" value={item.inbound_shipment_va.created_on  !== undefined && item.inbound_shipment_va.created_on  !== null ? moment(item.inbound_shipment_va.created_on).format('DD/MM/YYYY h:mm a') : null}/>
