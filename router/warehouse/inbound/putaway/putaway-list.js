@@ -168,7 +168,7 @@ class List extends React.Component {
           this.state.renderGoBack === true) ||
         prevState.filtered !== this.state.filtered ||
         prevState.search !== this.state.search ||
-        prevState.renderFiltered !== this.state.renderFiltered ||
+       ( prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true) ||
         prevState.dropdown !== this.state.dropdown
           ? this.state.filtered
           : null;
