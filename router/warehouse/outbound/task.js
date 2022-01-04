@@ -592,7 +592,7 @@ class List extends React.Component {
               containerStyle={{flex: 1,paddingRight:0}}
               inputContainerStyle={{
                 ...styles.textInput,
-                backgroundColor: 'black',
+                backgroundColor: 'white',
               }}
               inputStyle={[
                 Mixins.containedInputDefaultStyle,
