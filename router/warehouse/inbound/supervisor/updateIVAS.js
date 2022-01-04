@@ -32,6 +32,10 @@ class Acknowledge extends React.Component {
       takeOthers: false,
       takeOthersInput : '',
       recordedBy : '',
+      receipt_no: null,
+      created_on:null,
+      client: null,
+      reference_id: null
     };
     this.submitItem.bind(this);
     this.toggleCheckBoxStuffTruck.bind(this);
@@ -60,7 +64,6 @@ class Acknowledge extends React.Component {
   async componentDidMount(){
     const {receivingNumber, shipmentID, inboundData} = this.state;
     const result = await getData('/inboundsMobile/'+receivingNumber+'/shipmentVAS/'+shipmentID);
-    
     this.setState({
       stuffTruck: result.inbound_shipment_va.inbound_shipment === 1 ? true : false,
       stuffTruckPallet: result.inbound_shipment_va.inbound_shipment === 1 ? ''+result.inbound_shipment_va.inbound_shipment_no_pallet : '',
@@ -76,6 +79,10 @@ class Acknowledge extends React.Component {
       takePacking: false,
       takeOthers: result.inbound_shipment_va.other !== "" ? true : false,
       takeOthersInput : '',
+      receipt_no : result.receipt_no,
+      client : result.inbound.client,
+      reference_id:result.inbound.reference_id,
+      created_on: result.inbound_shipment_va.created_on,
       recordedBy: result.inbound_shipment_va.created_by !== undefined ? result.inbound_shipment_va.created_by.firstName : null,
     });
   }
@@ -219,14 +226,14 @@ class Acknowledge extends React.Component {
              <Text style={styles.textHeadInput}>Client ID</Text>
              </View>
              <Text style={styles.dotLabelStyle}>:</Text>
-             <Text style={styles.textHeadInput}>{this.state.inboundData.client}</Text>
+             <Text style={styles.textHeadInput}>{this.state.client}</Text>
          </View>
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>
              <Text style={styles.textHeadInput}>Ref #</Text>
              </View>
              <Text style={styles.dotLabelStyle}>:</Text>
-             <Text style={styles.textHeadInput}>{this.state.inboundData.reference_id }</Text>
+             <Text style={styles.textHeadInput}>{this.state.reference_id }</Text>
          </View>
 
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
@@ -234,7 +241,7 @@ class Acknowledge extends React.Component {
              <Text style={styles.textHeadInput}>Receipt #</Text>
              </View>
              <Text style={styles.dotLabelStyle}>:</Text>
-             <Text style={styles.textHeadInput}>{this.state.inboundData.inbound_receipt.length > 0 ? this.state.inboundData.inbound_receipt[this.state.inboundData.inbound_receipt.length -1].receipt_no : ''}</Text>
+             <Text style={styles.textHeadInput}>{this.state.receipt_no}</Text>
          </View>
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>
@@ -248,7 +255,7 @@ class Acknowledge extends React.Component {
              <Text style={styles.textHeadInput}>Date</Text>
              </View>
              <Text style={styles.dotLabelStyle}>:</Text>
-             <Text style={styles.textHeadInput}>{this.state.inboundData.created_on !== null ? moment(this.state.inboundData.created_on).format('DD-MM-YYYY') : null}</Text>
+             <Text style={styles.textHeadInput}>{this.state.created_on !== null ? moment(this.state.created_on).format('DD-MM-YYYY') : '-'}</Text>
          </View>
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>

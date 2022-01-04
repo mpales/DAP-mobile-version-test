@@ -28,6 +28,7 @@ class ConnoteReportDetails extends React.Component {
       note: 'Item weight is over 10 kg',
       itemIVAS : null,
       clientVAS : null,
+      referenceVAS : null,
       inboundData: null,
       shipmentID: null,
       notifbanner: '',
@@ -44,7 +45,7 @@ class ConnoteReportDetails extends React.Component {
       if(routes[index].params !== undefined && routes[index].params.number !== undefined) {
         let inboundData = inboundList.find((element) => element.id ===  routes[index].params.number);
         if(inboundData !== undefined && routes[index].params.shipmentID !== undefined){
-          return {...state, inboundID: routes[index].params.number,inboundData: inboundData, shipmentID: routes[index].params.shipmentID, clientVAS: routes[index].params.clientVAS};
+          return {...state, inboundID: routes[index].params.number,inboundData: inboundData, shipmentID: routes[index].params.shipmentID, clientVAS: routes[index].params.clientVAS, referenceVAS: inboundData.reference_id};
         } else {
           navigation.goBack();
           return {...state, inboundID: routes[index].params.number};
@@ -59,18 +60,18 @@ class ConnoteReportDetails extends React.Component {
     const {inboundID, shipmentID} = this.state;
     if(prevProps.keyStack !== this.props.keyStack && this.props.keyStack  === 'IVASDetailsSPV'){
       const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+ shipmentID );
-      this.setState({itemIVAS:result.inbound_shipment_va, acknowledged:result.inbound_shipment_va.acknowledged !== undefined ? result.inbound_shipment_va.acknowledged : false});
+      this.setState({clientVAS:result.inbound.client,referenceVAS: result.inbound.reference_id,itemIVAS:result.inbound_shipment_va, acknowledged:result.inbound_shipment_va.acknowledged !== undefined ? result.inbound_shipment_va.acknowledged : false});
     }
     if(prevState.renderAcknowledged !== this.state.renderAcknowledged && this.state.renderAcknowledged === true){
       const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+ shipmentID );
-      this.setState({itemIVAS:result.inbound_shipment_va, acknowledged:result.inbound_shipment_va.acknowledged !== undefined ? result.inbound_shipment_va.acknowledged : false, renderAcknowledged : false});
+      this.setState({clientVAS:result.inbound.client,referenceVAS: result.inbound.reference_id,itemIVAS:result.inbound_shipment_va, acknowledged:result.inbound_shipment_va.acknowledged !== undefined ? result.inbound_shipment_va.acknowledged : false, renderAcknowledged : false});
     }
   }
   async componentDidMount(){
     const {inboundID, shipmentID} = this.state;
     const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+ shipmentID );
     console.log(result);
-    this.setState({itemIVAS:result.inbound_shipment_va, acknowledged:result.inbound_shipment_va.acknowledged !== undefined ? result.inbound_shipment_va.acknowledged : false});
+    this.setState({clientVAS:result.inbound.client,referenceVAS: result.inbound.reference_id,itemIVAS:result.inbound_shipment_va, acknowledged:result.inbound_shipment_va.acknowledged !== undefined ? result.inbound_shipment_va.acknowledged : false});
   }
   checkedIcon = () => {
     return (
@@ -148,7 +149,7 @@ class ConnoteReportDetails extends React.Component {
              
               <View style={[styles.detail]}>
                 <DetailList title="Client ID" value={this.state.clientVAS} />
-                <DetailList title="Ref #" value={this.state.inboundData.reference_id} />
+                <DetailList title="Ref #" value={this.state.referenceVAS} />
                 <DetailList title="Shipment Type" value={this.state.inboundData.shipment_type === 2 ? "FCL" : "LCL"} />
                 <DetailList title="Recorded By" value={ itemIVAS.created_by !== undefined ? itemIVAS.created_by.firstName : null} />
                 <DetailList title="Date and Time" value={ itemIVAS.created_on  !== null ? moment(itemIVAS.created_on).format('DD/MM/YYYY h:mm a') : null}/>
