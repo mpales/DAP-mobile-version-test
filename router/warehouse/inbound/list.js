@@ -56,7 +56,8 @@ class List extends React.Component {
         const {routes, index} = navigation.dangerouslyGetState();
             if(routes[index].params !== undefined && routes[index].params.type !== undefined && type !== routes[index].params.type){
                 //if multiple sku
-               return {...state, type : routes[index].params.type,renderRefresh : routes[index].params.type === state.type ? state.renderRefresh : true};
+                return {...state, type : routes[index].params.type,};
+            //    return {...state, type : routes[index].params.type,renderRefresh : routes[index].params.type === state.type ? state.renderRefresh : false};
             }
         return {...state};
       }
@@ -112,7 +113,7 @@ class List extends React.Component {
         if(prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true){
             const resultedList =  await this.updateASN();
             this.props.setInboundLIst(resultedList);
-            let filtered = ((prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search) ? this.state.filtered : null;
+            let filtered = ((prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.renderFiltered !== this.state.renderFiltered || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search) ? this.state.filtered : null;
             if(filtered === 0) {
                 this.setState({list:resultedList.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
             } else if(filtered === 1){
@@ -127,7 +128,7 @@ class List extends React.Component {
                 this.setState({list:resultedList.filter((element)=> element.status === 7).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
             }
         } else {
-            let filtered = ((prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search) ? this.state.filtered : null;
+            let filtered = ((prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.renderFiltered !== this.state.renderFiltered || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search) ? this.state.filtered : null;
             if(filtered === 0) {
                 let AllASN = await this.updateStatus();
                 this.setState({list:AllASN.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
