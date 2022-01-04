@@ -245,7 +245,7 @@ class StockTakeReport extends React.Component {
               checked={reasonOption === 0}
               onPress={() => this.handleReportOptions(0)}
             />
-            {this.props.route.params?.isBlankCount ?? false === false && (
+            {this.props.route.params?.isBlankCount === false && (
               <>
                 <CheckBox
                   title="Item Missing"
