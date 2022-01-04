@@ -9,7 +9,7 @@ export default FadeInView =  forwardRef((props, ref) => {
   const hide = React.useCallback( () => {
     Animated.timing(fadeAnim, {
       toValue: 0,
-      duration: 1,
+      duration: 500,
       useNativeDriver: true,
     }).start(()=> setIndicator(true));
   }, [fadeAnim]);
@@ -17,7 +17,7 @@ export default FadeInView =  forwardRef((props, ref) => {
   const show = React.useCallback( () => {
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 2,
+      duration: 1000,
       useNativeDriver: true,
     }).start(()=> setIndicator(false));
   }, [fadeAnim]);
