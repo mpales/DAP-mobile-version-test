@@ -20,6 +20,7 @@ import {
   Keyboard,
   InteractionManager,
   BackHandler,
+  Dimensions,
 } from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Signature from './Browser';
@@ -27,7 +28,7 @@ import {NavigationContainer, TabRouter} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import Mixins from './mixins';
 import {LoginInput} from './input';
-import {FadeInView} from './animated';
+import FadeInView from './animated';
 import {AnyAction, Dispatch} from 'redux';
 import {connect, Provider, useSelector, useDispatch} from 'react-redux';
 import Beranda from './router/details';
@@ -52,10 +53,12 @@ import MenuWarehouse from './router/warehouse/detail/warehouse-menu';
 import LogoLarge from './assets/dap_logo_hires1-e1544435829468 5large.svg';
 import SplashScreen from 'react-native-splash-screen';
 import DeviceInfo from 'react-native-device-info';
+const screen = Dimensions.get('screen');
 enableScreens(false);
 class App extends React.Component<IProps, IState> {
   keyboardDidShowListener: any;
   keyboardDidHideListener: any;
+  _refFadeView = null;
   constructor(props: IProps | Readonly<IProps>) {
     super(props);
     this.state = {
@@ -121,7 +124,6 @@ class App extends React.Component<IProps, IState> {
       fingerprint: this.props.deviceSignatureValue,
     };
     const result = await postData('auth/login', body);
-    console.log(result);
     if (result.authToken) {
       // user object is temporary
       let role = '';
@@ -165,6 +167,7 @@ class App extends React.Component<IProps, IState> {
       };
       this.props.login(user);
       this.props.saveJwtToken(result.authToken);
+      this._refFadeView.setOpacity(0);
       this.setState({
         email: '',
         password: '',
@@ -190,12 +193,12 @@ class App extends React.Component<IProps, IState> {
         <Signature deviceSignature={this.props.deviceSignature} />
         <View style={styles.body}>
           <View style={styles.sectionContainerIMG}>
-            <LogoLarge width="179" height="91" style={{alignSelf: 'center'}} />
+            <LogoLarge width="179" height={screen.height * 0.10} style={{alignSelf: 'center'}} />
           </View>
-          <FadeInView
-            transition={this.state.transitionTo}
+          <FadeInView  ref={(ref)=> this._refFadeView = ref} style={{flexDirection:'column', flex:1, flexBasis:1}}>
+          <View
             style={styles.sectionContainerKeyboard}>
-            <LoginInput
+              <LoginInput
               label="Email"
               value={this.state.email}
               placeholder="Masukan Email / Username"
@@ -250,12 +253,12 @@ class App extends React.Component<IProps, IState> {
                 </Text>
               )}
             </View>
-            <View style={{flexShrink: 1}}>
+            {this.state.keyboardState !== 'opened' && (<View style={{flexShrink: 1}}>
               <Text style={styles.buttonTextForgot}>Forgot password?</Text>
-            </View>
-          </FadeInView>
+            </View>)}
+          </View>
 
-          <View style={styles.footer}>
+          <View style={[styles.footer, this.state.keyboardState === 'opened' ?{marginBottom:20} : null ]}>
             <TouchableOpacity
               style={styles.button}
               onPress={this.onSubmitToBeranda.bind(this)}
@@ -268,10 +271,11 @@ class App extends React.Component<IProps, IState> {
               <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
           </View>
-          <Text
+         {this.state.keyboardState !== 'opened' && ( <Text
             style={
               styles.versionText
-            }>{`Version ${DeviceInfo.getVersion()}`}</Text>
+            }>{`Version ${DeviceInfo.getVersion()}`}</Text>)}
+            </FadeInView>
         </View>
       </>
     );
@@ -315,7 +319,7 @@ const styles = StyleSheet.create({
   buttonTextForgot: {
     color: Colors.white,
     ...Mixins.body1,
-    lineHeight: 21,
+    lineHeight: 28,
   },
   button: {
     flex: 0,
@@ -329,12 +333,12 @@ const styles = StyleSheet.create({
   },
 
   sectionContainerIMG: {
-    marginTop: 52,
-    marginBottom: 60,
+    marginTop: 25,
+    marginBottom: 10,
     paddingHorizontal: 20,
     flex: 0,
     flexShrink: 1,
-    height: 60,
+    height: screen.height * 0.10,
   },
   sectionContainer: {
     marginTop: 32,
@@ -346,8 +350,7 @@ const styles = StyleSheet.create({
   sectionContainerKeyboard: {
     marginTop: 10,
     paddingHorizontal: 20,
-    height: 180,
-    flex: 0,
+    height:screen.height * 0.28,
     flexShrink: 1,
   },
   sectionContainerFooter: {
@@ -389,7 +392,7 @@ const styles = StyleSheet.create({
   labelText: {
     color: Colors.white,
     ...Mixins.body1,
-    lineHeight: 21,
+    lineHeight: 28,
     textAlign: 'center',
   },
   versionText: {

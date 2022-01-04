@@ -478,14 +478,17 @@ class List extends React.Component {
   };
   render() {
     const {outboundTask} = this.props;
-    let arrayWarehouses = Array.from({
-      length: outboundTask.length,
-    }).map((num, index) => {
-      if (outboundTask[index].warehouses !== undefined) {
-        return outboundTask[index].warehouses.join();
-      }
-      return null;
-    });
+    let arrayWarehouses = [];
+    if(Array.isArray(outboundTask) && outboundTask.length > 0){
+      arrayWarehouses = Array.from({
+        length: outboundTask.length,
+      }).map((num, index) => {
+        if (outboundTask[index].warehouses !== undefined) {
+          return outboundTask[index].warehouses.join();
+        }
+        return null;
+      });
+    }
     let stringWarehouses = arrayWarehouses.filter((o)=> o !== null).join();
     let Warehouses = [
       ...new Set(String('All' + (stringWarehouses.length > 0 ? ',' + stringWarehouses : '')).split(',')),
@@ -523,7 +526,7 @@ class List extends React.Component {
                       textAlign: 'left',
                     }}
                     data={Warehouses}
-                    defaultValueByIndex={this.state.dropdown === '' ? 0 : Warehouses.findIndex((o)=> o === this.state.dropdown)}
+                    defaultValueByIndex={(this.state.dropdown === '' || Warehouses.some((o)=> o === this.state.dropdown) === false) ? 0 : Warehouses.findIndex((o)=> o === this.state.dropdown)}
                     onSelect={(selectedItem, index) => {
                       this.setState({
                         dropdown: selectedItem === 'All' ? '' : selectedItem,
