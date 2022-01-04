@@ -110,7 +110,7 @@ class List extends React.Component {
         if((prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || (prevState.renderType !== this.state.renderType && this.state.renderType === true)){
             const resultedList =  await this.updateASN();
             this.props.setinboundList(resultedList);
-            let filtered =  ((prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || (prevState.renderType !== this.state.renderType && this.state.renderType === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type) && inboundList.length > 0 ? this.state.filtered : null;
+            let filtered =  ((prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || (prevState.renderType !== this.state.renderType && this.state.renderType === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type) ? this.state.filtered : null;
             if(filtered === 0) {
                 this.setState({list:resultedList.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type)),renderGoBack: false, renderRefresh: false, renderFiltered:false, renderType :false});
             } else if(filtered === 1){
@@ -119,7 +119,7 @@ class List extends React.Component {
                 this.setState({list:resultedList.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type)),renderGoBack: false, renderRefresh: false, renderFiltered:false, renderType :false});
             }
         } else {
-            let filtered =  ( (prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true ) || (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type) && inboundList.length > 0 ? this.state.filtered : null;
+            let filtered =  ( (prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true ) || (prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || prevState.type !== this.state.type) ? this.state.filtered : null;
             if(filtered === 0) {
                 let AllASN = await this.updateStatus();
                 this.setState({list:AllASN.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1 && (type === 0 || type !== 0 && element.type === type)),renderGoBack: false, renderRefresh: false, renderFiltered:false, renderType :false});
