@@ -201,6 +201,10 @@ class Acknowledge extends React.Component {
   }
   render(){
     if(this.state.inboundData === null) return <Loading/>
+    let active_inbound_receipt = null;
+    if(this.state.inboundData.inbound_receipt.length > 0){
+      active_inbound_receipt = this.state.inboundData.inbound_receipt.find((o)=>o.current_active === true);
+    }
     return (
         <ScrollView style={styles.body}>
             {this.state.error !== '' && (<Banner
@@ -230,7 +234,7 @@ class Acknowledge extends React.Component {
              <Text style={styles.textHeadInput}>Receipt #</Text>
              </View>
              <Text style={styles.dotLabelStyle}>:</Text>
-             <Text style={styles.textHeadInput}>{this.state.inboundData.inbound_receipt.length > 0 ? this.state.inboundData.inbound_receipt[this.state.inboundData.inbound_receipt.length -1].receipt_no : ''}</Text>
+             <Text style={styles.textHeadInput}>{this.state.inboundData.inbound_receipt.length > 0  && active_inbound_receipt ? active_inbound_receipt.receipt_no : '-'}</Text>
          </View>
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>
