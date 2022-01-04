@@ -264,17 +264,13 @@ class StockTakeCountDetails extends React.Component {
                         onPress={this.confirmStockTake}
                       />
                     )}
-                  </>
-                )}
-                <Button
-                  type="clear"
-                  title="Report"
-                  containerStyle={styles.reportButton}
-                  titleStyle={styles.reportButtonText}
-                  onPress={this.navigateToReportStockTakeCount}
-                />
-                {stockTakeDetails.status !== 'Reported' && (
-                  <>
+                    <Button
+                      type="clear"
+                      title="Report"
+                      containerStyle={styles.reportButton}
+                      titleStyle={styles.reportButtonText}
+                      onPress={this.navigateToReportStockTakeCount}
+                    />
                     <Button
                       type="clear"
                       title="Reassign"

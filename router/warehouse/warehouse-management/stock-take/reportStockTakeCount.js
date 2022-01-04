@@ -245,20 +245,7 @@ class StockTakeReport extends React.Component {
               checked={reasonOption === 0}
               onPress={() => this.handleReportOptions(0)}
             />
-            {this.props.route.params?.isBlankCount ? (
-              <CheckBox
-                title="Expired Item"
-                checkedIcon="dot-circle-o"
-                uncheckedIcon="circle-o"
-                checkedColor="#2A3386"
-                uncheckedColor="#6C6B6B"
-                textStyle={Mixins.subtitle3}
-                size={25}
-                containerStyle={styles.checkbox}
-                checked={reasonOption === 2}
-                onPress={() => this.handleReportOptions(2)}
-              />
-            ) : (
+            {this.props.route.params?.isBlankCount === false && (
               <>
                 <CheckBox
                   title="Item Missing"
@@ -286,6 +273,18 @@ class StockTakeReport extends React.Component {
                 />
               </>
             )}
+            <CheckBox
+              title="Expired Item"
+              checkedIcon="dot-circle-o"
+              uncheckedIcon="circle-o"
+              checkedColor="#2A3386"
+              uncheckedColor="#6C6B6B"
+              textStyle={Mixins.subtitle3}
+              size={25}
+              containerStyle={styles.checkbox}
+              checked={reasonOption === 2}
+              onPress={() => this.handleReportOptions(2)}
+            />
             <CheckBox
               title="Other"
               checkedIcon="dot-circle-o"
