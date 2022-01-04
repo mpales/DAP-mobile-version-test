@@ -55,7 +55,7 @@ class List extends React.Component {
         return {...state};
       }
     updateSearch = (search) => {
-        this.setState({search});
+        this.setState({search: search, renderFiltered:true});
       };
     setFiltered = (num)=>{
         this.setState({filtered:num, renderFiltered : true});
@@ -246,9 +246,9 @@ class List extends React.Component {
                   
                             </View>
                             {
-                            this.state.list.length === 0 ? 
+                            (this.state.list.length === 0 || this.state.renderFiltered === true || this.state.renderType === true) ? 
                             (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
-                              {this.state.renderFiltered === true ?(<ActivityIndicator 
+                              {(this.state.renderFiltered === true || this.state.renderType === true) ?(<ActivityIndicator 
                     size={50} 
                     color="#121C78"
                 />) : (<><EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>

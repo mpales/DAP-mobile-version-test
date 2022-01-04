@@ -259,7 +259,7 @@ class List extends React.Component {
                     />
                      </ScrollView>
                             {
-                            this.state.list.length === 0 ? 
+                            (this.state.list.length === 0 || this.state.renderFiltered === true )? 
                             (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
                             {this.state.renderFiltered === true ?(<ActivityIndicator 
                     size={50} 
