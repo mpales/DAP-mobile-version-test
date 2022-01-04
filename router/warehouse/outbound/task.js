@@ -43,16 +43,17 @@ class List extends React.Component {
       list: [],
       renderGoBack: false,
       renderRefresh: false,
+      renderFiltered : true,
     };
     this.updateTask.bind(this);
     this.setFiltered.bind(this);
     this.updateSearch.bind(this);
   }
   updateSearch = (search) => {
-    this.setState({search});
+    this.setState({search: search, renderFiltered: true});
   };
   setFiltered = (num) => {
-    this.setState({filtered: num, renderGoBack: true});
+    this.setState({filtered: num, renderGoBack: true, renderFiltered: true});
   };
   updateTask = async () => {
     // const {activeTask,completeTask, ReportedTask} = this.props;
@@ -96,7 +97,7 @@ class List extends React.Component {
         this.props.keyStack === 'Task' &&
         prevProps.keyStack !== 'WarehouseOut'
       ) {
-        this.setState({renderGoBack: true});
+        this.setState({renderGoBack: true, renderFiltered: true});
       }
     }
     if (
@@ -109,6 +110,7 @@ class List extends React.Component {
         (prevState.renderRefresh !== this.state.renderRefresh &&
           this.state.renderRefresh === true) ||
         prevState.filtered !== this.state.filtered ||
+        prevState.renderFiltered !== this.state.renderFiltered ||
         prevState.search !== this.state.search ||
         prevState.dropdown !== this.state.dropdown
           ? this.state.filtered
@@ -126,6 +128,7 @@ class List extends React.Component {
           ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       } else if (filtered === 1) {
         this.setState({
@@ -142,6 +145,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       } else if (filtered === 2) {
         this.setState({
@@ -158,6 +162,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       } else if (filtered === 3) {
         this.setState({
@@ -174,6 +179,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       } else if (filtered === 4) {
         this.setState({
@@ -190,6 +196,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       }
     } else if (
@@ -204,6 +211,7 @@ class List extends React.Component {
         (prevState.renderRefresh !== this.state.renderRefresh &&
           this.state.renderRefresh === true) ||
         prevState.filtered !== this.state.filtered ||
+        prevState.renderFiltered !== this.state.renderFiltered ||
         prevState.search !== this.state.search ||
         prevState.dropdown !== this.state.dropdown
           ? this.state.filtered
@@ -221,6 +229,7 @@ class List extends React.Component {
           ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       } else if (filtered === 1) {
         this.setState({
@@ -237,6 +246,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       } else if (filtered === 2) {
         this.setState({
@@ -253,6 +263,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       } else if (filtered === 3) {
         this.setState({
@@ -269,6 +280,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       } else if (filtered === 4) {
         this.setState({
@@ -285,6 +297,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       }
     } else {
@@ -292,6 +305,7 @@ class List extends React.Component {
         (prevState.renderRefresh !== this.state.renderRefresh &&
           this.state.renderRefresh === false) ||
         prevState.filtered !== this.state.filtered ||
+        prevState.renderFiltered !== this.state.renderFiltered ||
         prevState.search !== this.state.search ||
         prevState.dropdown !== this.state.dropdown
           ? this.state.filtered
@@ -309,6 +323,7 @@ class List extends React.Component {
           ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       } else if (filtered === 1) {
         this.setState({
@@ -325,6 +340,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       } else if (filtered === 2) {
         this.setState({
@@ -341,6 +357,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       } else if (filtered === 3) {
         this.setState({
@@ -357,6 +374,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       } else if (filtered === 4) {
         this.setState({
@@ -373,6 +391,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false,
         });
       }
     }
@@ -392,6 +411,9 @@ class List extends React.Component {
               (this.state.dropdown !== '' &&
                 element.warehouses.includes(this.state.dropdown))),
         ),
+        renderGoBack: false,
+        renderRefresh: false,
+        renderFiltered: false,
       });
     } else if (filtered === 1) {
       this.setState({
@@ -403,6 +425,9 @@ class List extends React.Component {
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1,
           ),
+          renderGoBack: false,
+          renderRefresh: false,
+          renderFiltered: false,
       });
     } else if (filtered === 2) {
       this.setState({
@@ -414,6 +439,9 @@ class List extends React.Component {
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1,
           ),
+          renderGoBack: false,
+          renderRefresh: false,
+          renderFiltered: false,
       });
     } else if (filtered === 3) {
       this.setState({
@@ -425,6 +453,9 @@ class List extends React.Component {
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1,
           ),
+          renderGoBack: false,
+          renderRefresh: false,
+          renderFiltered: false,
       });
     } else if (filtered === 4) {
       this.setState({
@@ -436,11 +467,14 @@ class List extends React.Component {
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1,
           ),
+          renderGoBack: false,
+          renderRefresh: false,
+          renderFiltered: false,
       });
     }
   }
   _onRefresh = () => {
-    this.setState({renderRefresh: true});
+    this.setState({renderRefresh: true, renderFiltered: true});
   };
   render() {
     const {outboundTask} = this.props;
@@ -493,6 +527,7 @@ class List extends React.Component {
                     onSelect={(selectedItem, index) => {
                       this.setState({
                         dropdown: selectedItem === 'All' ? '' : selectedItem,
+                        renderFiltered: true,
                       });
                     }}
                     renderDropdownIcon={() => {
@@ -554,10 +589,10 @@ class List extends React.Component {
                   style={{marginLeft: 5}}
                 />
               }
-              containerStyle={{flex: 1}}
+              containerStyle={{flex: 1,paddingRight:0}}
               inputContainerStyle={{
                 ...styles.textInput,
-                backgroundColor: '#fff',
+                backgroundColor: 'white',
               }}
               inputStyle={[
                 Mixins.containedInputDefaultStyle,
@@ -692,19 +727,18 @@ class List extends React.Component {
                   }
                 />
               </ScrollView>
-              {this.state.list.length === 0 ? (
+              {(this.state.list.length === 0 || this.state.renderFiltered === true) ? (
                 <View
                   style={{
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginTop: 100,
                   }}>
-                  <EmptyIlustrate
-                    height="132"
-                    width="213"
-                    style={{marginBottom: 15}}
-                  />
-                  <Text style={{...Mixins.subtitle3}}>Empty Job</Text>
+             {this.state.renderFiltered === true ?(<ActivityIndicator 
+                    size={50} 
+                    color="#121C78"
+                />) : (<><EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+                              <Text style={{  ...Mixins.subtitle3,}}>Empty Job</Text></>)}
                 </View>
               ) : (
                 this.state.list.map((data, i) => (

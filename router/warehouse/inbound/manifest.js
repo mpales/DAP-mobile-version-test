@@ -67,6 +67,7 @@ class Warehouse extends React.Component {
       notifbanner: '',
       notifsuccess: false,
       renderRefresh: false,
+      renderFiltered : false,
       remark: '',
       remarkHeight: 500,
     };
@@ -129,26 +130,26 @@ class Warehouse extends React.Component {
         nextProps.keyStack === 'Manifest' &&
         this.props.keyStack === 'Barcode'
       ) {
-        this.setState({renderRefresh: true});
+        this.setState({renderRefresh: true, renderFiltered: true});
         return true;
       }
       if (
         nextProps.keyStack === 'Manifest' &&
         this.props.keyStack === 'ItemProcess'
       ) {
-        this.setState({renderRefresh: true});
+        this.setState({renderRefresh: true, renderFiltered: true});
         return true;
       } else if (
         nextProps.keyStack === 'Manifest' &&
         this.props.keyStack === 'ReportManifest'
       ) {
-        this.setState({updated: true});
+        this.setState({updated: true, renderFiltered: true});
         return true;
       } else if (
         nextProps.keyStack === 'Manifest' &&
         this.props.keyStack === 'newItem'
       ) {
-        this.setState({renderRefresh: true});
+        this.setState({renderRefresh: true, renderFiltered: true});
         return true;
       } else if (nextProps.keyStack === 'Manifest') {
         return true;
@@ -182,6 +183,7 @@ class Warehouse extends React.Component {
           this.state.renderRefresh === true) ||
         prevState.filtered !== this.state.filtered ||
         prevState.search !== this.state.search ||
+        prevState.renderFiltered !== this.state.renderFiltered ||
         (prevState.updated !== this.state.updated &&
           this.state.updated === false) ||
         (prevState.initialRender !== this.state.initialRender &&
@@ -202,6 +204,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       } else if (filtered === 1) {
         this.setState({
@@ -218,6 +221,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       } else if (filtered === 2) {
         this.setState({
@@ -234,6 +238,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       } else if (filtered === 3) {
         this.setState({
@@ -250,6 +255,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       } else if (filtered === 4) {
         this.setState({
@@ -266,6 +272,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       }
     } else if (
@@ -303,6 +310,7 @@ class Warehouse extends React.Component {
           this.state.renderRefresh === false) ||
         prevState.filtered !== this.state.filtered ||
         prevState.search !== this.state.search ||
+        prevState.renderFiltered !== this.state.renderFiltered ||
         (prevState.updated !== this.state.updated &&
           this.state.updated === true) ||
         (prevState.initialRender !== this.state.initialRender &&
@@ -323,6 +331,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       } else if (filtered === 1) {
         this.setState({
@@ -339,6 +348,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       } else if (filtered === 2) {
         this.setState({
@@ -355,6 +365,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       } else if (filtered === 3) {
         this.setState({
@@ -371,6 +382,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       } else if (filtered === 4) {
         this.setState({
@@ -387,6 +399,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       }
     } else {
@@ -395,6 +408,7 @@ class Warehouse extends React.Component {
           this.state.renderRefresh === false) ||
         prevState.filtered !== this.state.filtered ||
         prevState.search !== this.state.search ||
+        prevState.renderFiltered !== this.state.renderFiltered ||
         (prevState.updated !== this.state.updated &&
           this.state.updated === false) ||
         (prevState.initialRender !== this.state.initialRender &&
@@ -415,6 +429,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       } else if (filtered === 1) {
         this.setState({
@@ -431,6 +446,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       } else if (filtered === 2) {
         this.setState({
@@ -447,6 +463,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       } else if (filtered === 3) {
         this.setState({
@@ -463,6 +480,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       } else if (filtered === 4) {
         this.setState({
@@ -479,6 +497,7 @@ class Warehouse extends React.Component {
           updated: false,
           renderRefresh: false,
           initialRender: false,
+          renderFiltered: false,
         });
       }
     }
@@ -573,6 +592,7 @@ class Warehouse extends React.Component {
                 .receipt_no,
             remark: result.remarks,
             initialRender: true,
+            renderFiltered: false,
           });
         } else {
           navigation.popToTop();
@@ -619,6 +639,7 @@ class Warehouse extends React.Component {
                 .receipt_no,
             remark: result.remarks,
             initialRender: true,
+            renderFiltered: false,
           });
         } else {
           navigation.popToTop();
@@ -632,7 +653,7 @@ class Warehouse extends React.Component {
     this._unsubscribe();
   }
   setFiltered = (num) => {
-    this.setState({filtered: num, updated: true});
+    this.setState({filtered: num, updated: true,    renderFiltered: true,});
   };
   toggleOverlay = () => {
     const {_visibleOverlay} = this.state;
@@ -663,7 +684,7 @@ class Warehouse extends React.Component {
     });
   };
   updateSearch = (search) => {
-    this.setState({search});
+    this.setState({search: search,   renderFiltered: true,});
   };
   generatePalletID = async () => {
     const {receivingNumber} = this.state;
@@ -677,7 +698,7 @@ class Warehouse extends React.Component {
   };
 
   _onRefresh = () => {
-    this.setState({renderRefresh: true});
+    this.setState({renderRefresh: true,   renderFiltered: true,});
   };
   render() {
     const {_visibleOverlay, _manifest, receivingNumber} = this.state;
@@ -1008,14 +1029,14 @@ class Warehouse extends React.Component {
               </ScrollView>
 
               <Card containerStyle={styles.cardContainer}>
-                {_manifest.length === 0 ? (
+                {(_manifest.length === 0 || this.state.renderFiltered === true) ? (
                   <View
                     style={{
                       justifyContent: 'center',
                       alignItems: 'center',
                       marginTop: 100,
                     }}>
-                    {this.state.receivingNumber === null ? (
+                    {(this.state.receivingNumber === null || this.state.renderFiltered === true)? (
                       <ActivityIndicator size={50} color="#121C78" />
                     ) : this.props.manifestType === 2 ? (
                       <BlankList height="185" width="213" />

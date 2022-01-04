@@ -51,6 +51,7 @@ class Warehouse extends React.Component{
       updated: false,
       initialRender : false,
       renderRefresh: false,
+      renderFiltered: false,
       remark : '',
       remarkHeight: 500,
     };
@@ -77,17 +78,17 @@ class Warehouse extends React.Component{
       if(typeof result === 'object' && result.error === undefined){
 
         this.props.setManifestList(result.products)
-        let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === false)  || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === false) ? this.state.filtered : null;
+        let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered ||  prevState.renderFiltered !== this.state.renderFiltered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === false)  || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === false) ? this.state.filtered : null;
         if(filtered === 0) {
-          this.setState({_manifest: result.products.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+          this.setState({_manifest: result.products.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
           } else if(filtered === 1){
-            this.setState({_manifest: result.products.filter((element)=> element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+            this.setState({_manifest: result.products.filter((element)=> element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
           } else if(filtered === 2){
-            this.setState({_manifest: result.products.filter((element)=>  element.status === 1).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+            this.setState({_manifest: result.products.filter((element)=>  element.status === 1).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
           }else if(filtered === 3){
-            this.setState({_manifest: result.products.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+            this.setState({_manifest: result.products.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
           }else if(filtered === 4){
-            this.setState({_manifest: result.products.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+            this.setState({_manifest: result.products.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
           } 
       
       }
@@ -111,31 +112,31 @@ class Warehouse extends React.Component{
         }
       });
       this.props.setManifestList(updatedstatus)
-      let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === true)  || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === false)  ? this.state.filtered : null;
+      let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered ||  prevState.renderFiltered !== this.state.renderFiltered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === true)  || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === false)  ? this.state.filtered : null;
       if(filtered === 0) {
-        this.setState({_manifest: updatedstatus.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        this.setState({_manifest: updatedstatus.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
         } else if(filtered === 1){
-          this.setState({_manifest: updatedstatus.filter((element)=> element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+          this.setState({_manifest: updatedstatus.filter((element)=> element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
         } else if(filtered === 2){
-          this.setState({_manifest: updatedstatus.filter((element)=>  element.status === 1).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+          this.setState({_manifest: updatedstatus.filter((element)=>  element.status === 1).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
         }else if(filtered === 3){
-          this.setState({_manifest: updatedstatus.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+          this.setState({_manifest: updatedstatus.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
         }else if(filtered === 4){
-          this.setState({_manifest: updatedstatus.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+          this.setState({_manifest: updatedstatus.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
         } 
     } else {
-    let filtered = (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === false) || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === true) ? this.state.filtered : null;
+    let filtered = (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered ||  prevState.renderFiltered !== this.state.renderFiltered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === false) || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === true) ? this.state.filtered : null;
    
     if(filtered === 0) {
-      this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+      this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
       } else if(filtered === 1){
-        this.setState({_manifest: manifestList.filter((element)=> element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        this.setState({_manifest: manifestList.filter((element)=> element.status === 4).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
       } else if(filtered === 2){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 1).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 1).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
       }else if(filtered === 3){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 2).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
       }else if(filtered === 4){
-        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false});
+        this.setState({_manifest: manifestList.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
       } 
     }
    
@@ -163,7 +164,7 @@ class Warehouse extends React.Component{
             //   return {...manifestDummy[index],...result.inbound_products[index]}
             // });
             this.props.setManifestList(result.products)
-            this.setState({receivingNumber: routes[index].params.number,inboundNumber: result.inbound_number,_manifest:result.products,companyname:result.client,remark: result.remarks, initialRender: true})
+            this.setState({receivingNumber: routes[index].params.number,inboundNumber: result.inbound_number,_manifest:result.products,companyname:result.client,remark: result.remarks, initialRender: true, renderFiltered:false})
           } else {
             navigation.popToTop();
           }
@@ -175,7 +176,7 @@ class Warehouse extends React.Component{
             //   return {...manifestDummy[index],...result.inbound_products[index]}
             // });
             this.props.setManifestList(result.products)
-          this.setState({receivingNumber: currentASN,inboundNumber: result.inbound_number, _manifest:result.products, companyname:result.client,remark: result.remarks, initialRender: true})
+          this.setState({receivingNumber: currentASN,inboundNumber: result.inbound_number, _manifest:result.products, companyname:result.client,remark: result.remarks, initialRender: true, renderFiltered:false})
           } else {
             navigation.popToTop();
           }
@@ -188,14 +189,14 @@ class Warehouse extends React.Component{
     this._unsubscribe();
   }
   setFiltered = (num)=>{
-    this.setState({filtered:num,updated:true});
+    this.setState({filtered:num,updated:true, renderFiltered:true});
 }
  
   updateSearch = (search) => {
-    this.setState({search});
+    this.setState({search:search, renderFiltered:true});
   };
   _onRefresh = () => {
-    this.setState({renderRefresh: true});
+    this.setState({renderRefresh: true, renderFiltered:true});
   }
   render() {
     const {_visibleOverlay, _manifest,receivingNumber} = this.state;
@@ -329,9 +330,9 @@ class Warehouse extends React.Component{
          
               <Card containerStyle={styles.cardContainer}>
                 {
-              _manifest.length === 0 ? 
+              (_manifest.length === 0 || this.state.renderFiltered === true) ? 
                 (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
-                {this.state.receivingNumber === null ? (    <ActivityIndicator 
+                {(this.state.receivingNumber === null || this.state.renderFiltered === true) ? (    <ActivityIndicator 
                     size={50} 
                     color="#121C78"
                 />) :this.props.manifestType === 2 ? (

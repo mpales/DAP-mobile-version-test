@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
   RefreshControl,
+  ActivityIndicator
 } from 'react-native';
 import {Card, Input, SearchBar, Badge} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
@@ -36,6 +37,7 @@ class List extends React.Component {
       list: [],
       renderGoBack: false,
       renderRefresh: false,
+      renderFiltered: true,
     };
 
     this.updateASN.bind(this);
@@ -43,10 +45,10 @@ class List extends React.Component {
     this.updateSearch.bind(this);
   }
   updateSearch = (search) => {
-    this.setState({search});
+    this.setState({search: search, renderFiltered: true});
   };
   setFiltered = (num) => {
-    this.setState({filtered: num});
+    this.setState({filtered: num, renderFiltered: true});
   };
   updateASN = async () => {
     this.setState({renderGoBack: false});
@@ -61,7 +63,7 @@ class List extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     if (this.props.keyStack !== nextProps.keyStack) {
       if (nextProps.keyStack === 'List') {
-        this.setState({renderGoBack: true});
+        this.setState({renderGoBack: true, renderFiltered: true});
         return true;
       }
     }
@@ -88,6 +90,7 @@ class List extends React.Component {
           ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false
         });
       } else if (filtered === 1) {
         this.setState({
@@ -104,6 +107,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false
         });
       } else if (filtered === 2) {
         this.setState({
@@ -120,6 +124,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false
         });
       } else if (filtered === 3) {
         this.setState({
@@ -136,6 +141,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false
         });
       } else if (filtered === 4) {
         this.setState({
@@ -152,6 +158,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false
         });
       }
     } else {
@@ -161,6 +168,7 @@ class List extends React.Component {
           this.state.renderGoBack === true) ||
         prevState.filtered !== this.state.filtered ||
         prevState.search !== this.state.search ||
+        prevState.renderFiltered !== this.state.renderFiltered ||
         prevState.dropdown !== this.state.dropdown
           ? this.state.filtered
           : null;
@@ -177,6 +185,7 @@ class List extends React.Component {
           ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false
         });
       } else if (filtered === 1) {
         this.setState({
@@ -193,6 +202,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false
         });
       } else if (filtered === 2) {
         this.setState({
@@ -209,6 +219,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false
         });
       } else if (filtered === 3) {
         this.setState({
@@ -225,6 +236,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false
         });
       } else if (filtered === 4) {
         this.setState({
@@ -241,6 +253,7 @@ class List extends React.Component {
             ),
           renderGoBack: false,
           renderRefresh: false,
+          renderFiltered: false
         });
       }
     }
@@ -261,6 +274,9 @@ class List extends React.Component {
                 (this.state.dropdown !== '' &&
                   moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
         ),
+        renderGoBack: false,
+        renderRefresh: false,
+        renderFiltered: false
       });
     } else if (filtered === 1) {
       this.setState({
@@ -275,6 +291,9 @@ class List extends React.Component {
                   (this.state.dropdown !== '' &&
                     moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
           ),
+          renderGoBack: false,
+          renderRefresh: false,
+          renderFiltered: false
       });
     } else if (filtered === 2) {
       this.setState({
@@ -289,6 +308,9 @@ class List extends React.Component {
                   (this.state.dropdown !== '' &&
                     moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
           ),
+          renderGoBack: false,
+          renderRefresh: false,
+          renderFiltered: false
       });
     } else if (filtered === 3) {
       this.setState({
@@ -303,6 +325,9 @@ class List extends React.Component {
                   (this.state.dropdown !== '' &&
                     moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
           ),
+          renderGoBack: false,
+          renderRefresh: false,
+          renderFiltered: false
       });
     } else if (filtered === 4) {
       this.setState({
@@ -317,11 +342,14 @@ class List extends React.Component {
                   (this.state.dropdown !== '' &&
                     moment(element.receivedDate).isSame(this.state.dropdown.split("-").reverse().join("-"), "day"))),
           ),
+          renderGoBack: false,
+          renderRefresh: false,
+          renderFiltered: false
       });
     }
   }
   _onRefresh = () => {
-    this.setState({renderRefresh: true});
+    this.setState({renderRefresh: true,renderFiltered : true});
   };
   render() {
     const {putawayList} = this.props;
@@ -415,6 +443,7 @@ class List extends React.Component {
                     onSelect={(selectedItem, index) => {
                       this.setState({
                         dropdown: selectedItem === 'All' ? '' : selectedItem,
+                        renderFiltered: true,
                       });
                     }}
                     renderDropdownIcon={() => {
@@ -548,21 +577,18 @@ class List extends React.Component {
                   }
                 /> */}
               </View>
-              {this.state.list.length === 0 ? (
+              {(this.state.list.length === 0 || this.state.renderFiltered === true) ? (
                 <View
                   style={{
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginTop: 100,
                   }}>
-                  <EmptyIlustrate
-                    height="132"
-                    width="213"
-                    style={{marginBottom: 15}}
-                  />
-                  <Text style={{...Mixins.subtitle3}}>
-                    Scroll down to Refresh
-                  </Text>
+                   {this.state.renderFiltered === true ?(<ActivityIndicator 
+                    size={50} 
+                    color="#121C78"
+                />) : (<><EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+                              <Text style={{  ...Mixins.subtitle3,}}>Scroll Down to Refresh</Text></>)}
                 </View>
               ) : (
                 this.state.list.map((data, i, arr) => {

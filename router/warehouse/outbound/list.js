@@ -302,9 +302,9 @@ class List extends React.Component {
                     />
                             </ScrollView>
                            
-                            {_list.length === 0 ? 
+                            {(_list.length === 0 || this.state.renderFiltered || this.state.renderRefresh) ? 
                 (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
-                  {this.state.taskNumber === null ? (    <ActivityIndicator 
+                  {(this.state.taskNumber === null  || this.state.renderFiltered || this.state.renderRefresh)? (    <ActivityIndicator 
                     size={50} 
                     color="#121C78"
                 />) :  (<>

@@ -7,7 +7,8 @@ import {
     Text,
     TouchableOpacity,
     View,
-    RefreshControl
+    RefreshControl,
+    ActivityIndicator
 } from 'react-native';
 import {
     Card,
@@ -41,6 +42,7 @@ class List extends React.Component {
             type: null,
             renderGoBack : false,
             renderRefresh : false,
+            renderFiltered: true,
         };
 
     this.updateASN.bind(this);
@@ -54,15 +56,16 @@ class List extends React.Component {
         const {routes, index} = navigation.dangerouslyGetState();
             if(routes[index].params !== undefined && routes[index].params.type !== undefined && type !== routes[index].params.type){
                 //if multiple sku
-               return {...state, type : routes[index].params.type,renderRefresh : routes[index].params.type === state.type ? state.renderRefresh : true};
+                return {...state, type : routes[index].params.type,};
+            //    return {...state, type : routes[index].params.type,renderRefresh : routes[index].params.type === state.type ? state.renderRefresh : false};
             }
         return {...state};
       }
     updateSearch = (search) => {
-        this.setState({search});
+        this.setState({search: search, renderFiltered:true});
       };
     setFiltered = (num)=>{
-        this.setState({filtered:num});
+        this.setState({filtered:num,renderFiltered : true});
     }
     updateASN = async ()=>{
         const {type} = this.state;
@@ -97,10 +100,10 @@ class List extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {
         if(this.props.keyStack !== nextProps.keyStack){
         if(this.props.keyStack === 'Completed' && nextProps.keyStack === 'List'){
-            this.setState({renderRefresh : true});
+            this.setState({renderRefresh : true,renderFiltered:true});
             return true;
         } else if(nextProps.keyStack === 'List'){
-            this.setState({renderGoBack : true});
+            this.setState({renderGoBack : true, renderFiltered: true});
             return true;
         }
         }
@@ -110,40 +113,40 @@ class List extends React.Component {
         if(prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true){
             const resultedList =  await this.updateASN();
             this.props.setInboundLIst(resultedList);
-            let filtered = ((prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search) && this.props.inboundList.length > 0 ? this.state.filtered : null;
+            let filtered = ((prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.renderFiltered !== this.state.renderFiltered || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search) ? this.state.filtered : null;
             if(filtered === 0) {
-                this.setState({list:resultedList.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false});
+                this.setState({list:resultedList.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
             } else if(filtered === 1){
-                this.setState({list:resultedList.filter((element)=> element.status === 3).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false});
+                this.setState({list:resultedList.filter((element)=> element.status === 3).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
             } else if(filtered === 2){
-                this.setState({list:resultedList.filter((element)=> element.status === 4).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false});
+                this.setState({list:resultedList.filter((element)=> element.status === 4).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
             }else if(filtered === 3){
-                this.setState({list:resultedList.filter((element)=> element.status === 5).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false})
+                this.setState({list:resultedList.filter((element)=> element.status === 5).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false})
             }else if(filtered === 4){
-                this.setState({list:resultedList.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false})
+                this.setState({list:resultedList.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false})
             }else if(filtered === 5){
-                this.setState({list:resultedList.filter((element)=> element.status === 7).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false});
+                this.setState({list:resultedList.filter((element)=> element.status === 7).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
             }
         } else {
-            let filtered = ((prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search) && this.props.inboundList.length > 0 ? this.state.filtered : null;
+            let filtered = ((prevState.renderGoBack !== this.state.renderGoBack && this.state.renderGoBack === true) || (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.renderFiltered !== this.state.renderFiltered || prevState.filtered !== this.state.filtered || prevState.search !== this.state.search) ? this.state.filtered : null;
             if(filtered === 0) {
                 let AllASN = await this.updateStatus();
-                this.setState({list:AllASN.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)});
+                this.setState({list:AllASN.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
             } else if(filtered === 1){
                 let PendingASN = await this.updateStatus();
-                this.setState({list:PendingASN.filter((element)=> element.status === 3).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false});
+                this.setState({list:PendingASN.filter((element)=> element.status === 3).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
             } else if(filtered === 2){
                 let ProgressASN = await this.updateStatus();
-                this.setState({list:ProgressASN.filter((element)=> element.status === 4).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false});
+                this.setState({list:ProgressASN.filter((element)=> element.status === 4).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
             }else if(filtered === 3){
                 let CompleteASN = await this.updateStatus();
-                this.setState({list:CompleteASN.filter((element)=> element.status === 5).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false})
+                this.setState({list:CompleteASN.filter((element)=> element.status === 5).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false})
             }else if(filtered === 4){
                 let ReportedASN = await this.updateStatus();
-                this.setState({list:ReportedASN.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false})
+                this.setState({list:ReportedASN.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false})
             }else if(filtered === 5){
                 let ReportedASN = await this.updateStatus();
-                this.setState({list:ReportedASN.filter((element)=> element.status === 7).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false});
+                this.setState({list:ReportedASN.filter((element)=> element.status === 7).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
             }
         }
         
@@ -153,25 +156,24 @@ class List extends React.Component {
         this.props.setInboundLIst(resultedList);
         const {filtered} = this.state;
         if(filtered === 0) {
-            this.setState({list:resultedList.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false});
+            this.setState({list:resultedList.filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
         }else if(filtered === 1){
-            this.setState({list:resultedList.filter((element)=> element.status === 3).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false});
+            this.setState({list:resultedList.filter((element)=> element.status === 3).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
         } else if(filtered === 2){
-            this.setState({list:resultedList.filter((element)=> element.status === 4).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false});
+            this.setState({list:resultedList.filter((element)=> element.status === 4).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
         }else if(filtered === 3){
-            this.setState({list:resultedList.filter((element)=> element.status === 5).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false});
+            this.setState({list:resultedList.filter((element)=> element.status === 5).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
         }else if(filtered === 4){
-            this.setState({list:resultedList.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false});
+            this.setState({list:resultedList.filter((element)=> element.status === 6).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
         }else if(filtered === 5){
-            this.setState({list:resultedList.filter((element)=> element.status === 7).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false});
+            this.setState({list:resultedList.filter((element)=> element.status === 7).filter((element)=> String(element.client).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1),renderGoBack: false, renderRefresh: false, renderFiltered:false});
         }
     }
     _onRefresh = () => {
-        this.setState({renderRefresh: true});
+        this.setState({renderRefresh: true, renderFiltered:true});
     }
     render() {
-        if(this.state.renderRefresh === true) 
-        return <Loading />;
+     
         return(
             <SafeAreaProvider>
                 <StatusBar barStyle="dark-content" />
@@ -250,7 +252,7 @@ class List extends React.Component {
                     textStyle={this.state.filtered === 4 ? styles.badgeActiveTint : styles.badgeInactiveTint }
                     />
                           <Badge
-                    value="Cancelled"
+                    value="Reported"
                     containerStyle={styles.badgeSort}
                     onPress={()=> this.setFiltered(5)}
                     badgeStyle={this.state.filtered === 5 ? styles.badgeActive : styles.badgeInactive }
@@ -258,10 +260,13 @@ class List extends React.Component {
                     />
                      </ScrollView>
                             {
-                            this.state.list.length === 0 ? 
+                            (this.state.list.length === 0 || this.state.renderFiltered === true )? 
                             (<View style={{justifyContent:'center',alignItems:'center',marginTop:100}}>
-                              <EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
-                              <Text style={{  ...Mixins.subtitle3,}}>Empty Job</Text>
+                            {this.state.renderFiltered === true ?(<ActivityIndicator 
+                    size={50} 
+                    color="#121C78"
+                />) : (<><EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
+                              <Text style={{  ...Mixins.subtitle3,}}>Empty Job</Text></>)}
                               </View>)
                             :
                             this.state.list.map((data, i, arr) => {
