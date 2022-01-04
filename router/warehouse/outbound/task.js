@@ -110,7 +110,7 @@ class List extends React.Component {
         (prevState.renderRefresh !== this.state.renderRefresh &&
           this.state.renderRefresh === true) ||
         prevState.filtered !== this.state.filtered ||
-        prevState.renderFiltered !== this.state.renderFiltered ||
+        (prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true) ||
         prevState.search !== this.state.search ||
         prevState.dropdown !== this.state.dropdown
           ? this.state.filtered
@@ -211,7 +211,7 @@ class List extends React.Component {
         (prevState.renderRefresh !== this.state.renderRefresh &&
           this.state.renderRefresh === true) ||
         prevState.filtered !== this.state.filtered ||
-        prevState.renderFiltered !== this.state.renderFiltered ||
+        (prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true) ||
         prevState.search !== this.state.search ||
         prevState.dropdown !== this.state.dropdown
           ? this.state.filtered
@@ -305,7 +305,7 @@ class List extends React.Component {
         (prevState.renderRefresh !== this.state.renderRefresh &&
           this.state.renderRefresh === false) ||
         prevState.filtered !== this.state.filtered ||
-        prevState.renderFiltered !== this.state.renderFiltered ||
+        (prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true) ||
         prevState.search !== this.state.search ||
         prevState.dropdown !== this.state.dropdown
           ? this.state.filtered

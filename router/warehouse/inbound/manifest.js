@@ -183,7 +183,7 @@ class Warehouse extends React.Component {
           this.state.renderRefresh === true) ||
         prevState.filtered !== this.state.filtered ||
         prevState.search !== this.state.search ||
-        prevState.renderFiltered !== this.state.renderFiltered ||
+       ( prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true)||
         (prevState.updated !== this.state.updated &&
           this.state.updated === false) ||
         (prevState.initialRender !== this.state.initialRender &&
@@ -310,7 +310,7 @@ class Warehouse extends React.Component {
           this.state.renderRefresh === false) ||
         prevState.filtered !== this.state.filtered ||
         prevState.search !== this.state.search ||
-        prevState.renderFiltered !== this.state.renderFiltered ||
+       ( prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true) ||
         (prevState.updated !== this.state.updated &&
           this.state.updated === true) ||
         (prevState.initialRender !== this.state.initialRender &&
@@ -408,7 +408,7 @@ class Warehouse extends React.Component {
           this.state.renderRefresh === false) ||
         prevState.filtered !== this.state.filtered ||
         prevState.search !== this.state.search ||
-        prevState.renderFiltered !== this.state.renderFiltered ||
+        (prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true) ||
         (prevState.updated !== this.state.updated &&
           this.state.updated === false) ||
         (prevState.initialRender !== this.state.initialRender &&

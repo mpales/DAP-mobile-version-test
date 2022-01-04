@@ -78,7 +78,7 @@ class Warehouse extends React.Component{
       if(typeof result === 'object' && result.error === undefined){
 
         this.props.setManifestList(result.products)
-        let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered ||  prevState.renderFiltered !== this.state.renderFiltered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === false)  || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === false) ? this.state.filtered : null;
+        let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === true) || prevState.filtered !== this.state.filtered ||  (prevState.renderFiltered !== this.state.renderFiltered  && this.state.renderFiltered === true)|| prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === false)  || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === false) ? this.state.filtered : null;
         if(filtered === 0) {
           this.setState({_manifest: result.products.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
           } else if(filtered === 1){
@@ -112,7 +112,7 @@ class Warehouse extends React.Component{
         }
       });
       this.props.setManifestList(updatedstatus)
-      let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered ||  prevState.renderFiltered !== this.state.renderFiltered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === true)  || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === false)  ? this.state.filtered : null;
+      let filtered =( prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered || ( prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true) || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === true)  || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === false)  ? this.state.filtered : null;
       if(filtered === 0) {
         this.setState({_manifest: updatedstatus.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
         } else if(filtered === 1){
@@ -125,7 +125,7 @@ class Warehouse extends React.Component{
           this.setState({_manifest: updatedstatus.filter((element)=>  element.status === 3).filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1)  || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
         } 
     } else {
-    let filtered = (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered ||  prevState.renderFiltered !== this.state.renderFiltered || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === false) || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === true) ? this.state.filtered : null;
+    let filtered = (prevState.renderRefresh !== this.state.renderRefresh && this.state.renderRefresh === false) || prevState.filtered !== this.state.filtered ||  (prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true) || prevState.search !== this.state.search || (prevState.updated !== this.state.updated && this.state.updated === false) || (prevState.initialRender !== this.state.initialRender && this.state.initialRender === true) ? this.state.filtered : null;
    
     if(filtered === 0) {
       this.setState({_manifest: manifestList.filter((element)=> (element.item_code !== undefined && String(element.item_code).toLowerCase().indexOf(this.state.search.toLowerCase()) > -1) || element.is_transit === 1), updated: false, renderRefresh: false, initialRender : false, renderFiltered: false});
