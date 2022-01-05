@@ -620,8 +620,7 @@ const GRADELIST = [
   {id: 6, grade: 'EXPIRED'},
   {id: 7, grade: 'NO STOCK'},
   {id: 8, grade: 'RESERVE'},
-  {id: 9, grade: 'SIT'},
-  {id: 10, grade: 'REWORK'},
+  {id: 11, grade: 'NG'},
 ];
 
 const styles = StyleSheet.create({
