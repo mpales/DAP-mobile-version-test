@@ -114,6 +114,7 @@ class Acknowledge extends React.Component {
           recordPhoto: !Boolean(manifest.can_take_photos),
           validDimensions: !Boolean(manifest.can_record_attribute),
           recordBarcodes: !Boolean(manifest.can_take_barcodes),
+          validPhoto: Boolean(manifest.take_photo),
         };
       }
       return {...state};
@@ -1237,7 +1238,7 @@ class Acknowledge extends React.Component {
             </View>
           )}
           {this.state.keyboardState === 'hide' &&
-            this.state._manifest.take_photo === 1 && (
+            this.state._manifest.can_take_photo === 1 && (
               <View
                 style={{
                   marginHorizontal: 10,
@@ -1439,7 +1440,7 @@ class Acknowledge extends React.Component {
                     this.state.recordPhoto === true ? {color: 'white'} : null
                   }
                   disabled={
-                    this.state._manifest.take_photo === 1 &&
+                    this.state._manifest.can_take_photo === 1 &&
                     this.state.validPhoto === true &&
                     this.state.recordPhoto === false
                       ? false
