@@ -352,7 +352,7 @@ class Acknowledge extends React.Component {
     if (action) {
       const {currentASN} = this.props;
       const {_inputCode} = this.state;
-      const confirmPhotos = postData(
+      const confirmPhotos = await postData(
         '/inboundsMobile/' + currentASN + '/' + _inputCode + '/confirm-photos',
       );
       if (
