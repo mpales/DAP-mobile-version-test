@@ -443,6 +443,13 @@ class Example extends React.Component {
         let indexItem = manifestList.findIndex(
           (element) => element.pId === scanItem,
         );
+        const result = await postData(
+          'inboundsMobile/' +
+            this.props.currentASN +
+            '/' +
+            item.pId +
+            '/switch-status/2',
+        );
         this.handleZoomInAnimation();
         this.setState({
           dataItem: item,
@@ -648,7 +655,7 @@ class Example extends React.Component {
                         <Text style={styles.dotLabel}>:</Text>
                       </View>
                       <Text style={styles.infoPackage}>
-                        {dataItem.container_no}
+                        {dataItem.container_no ? dataItem.container_no : '-'}
                       </Text>
                     </View>
                     <View style={styles.dividerContent}>
