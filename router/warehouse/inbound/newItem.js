@@ -480,7 +480,7 @@ class Acknowledge extends React.Component {
             marginTop: 100,
           }}>
           <EmptyRecord height="132" width="213" style={{marginBottom: 15}} />
-          <Text style={{...Mixins.subtitle3}}>No Record</Text>
+          <Text style={{...Mixins.subtitle3}}>All Record Successful</Text>
         </View>
       );
     return (
