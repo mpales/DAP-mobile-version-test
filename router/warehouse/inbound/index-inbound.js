@@ -166,6 +166,14 @@ class WarehouseNavigator extends React.Component {
           this.navigationRef.current.navigate('Inbound', {screen: 'Manifest'});
           return true;
         } else if (
+          this.props.keyStack === 'ReportManifest' && prevProps.keyStack === 'ManifestSupervisor' &&
+          this.props.indexBottomBar === 0
+        ) {
+          this.navigationRef.current.navigate('SupervisorMode', {
+            screen: 'ManifestSupervisor',
+          });
+          return true;
+        } else if (
           this.props.keyStack === 'ReportManifest' &&
           this.props.indexBottomBar === 0
         ) {
@@ -343,7 +351,10 @@ class WarehouseNavigator extends React.Component {
           this.props.keyStack === 'ManifestSupervisor' &&
           this.props.indexBottomBar === 0
         ) {
-          return false;
+          this.navigationRef.current.navigate('SupervisorMode', {
+            screen: 'ListSupervisor',
+          });
+          return true;
         } else if (
           this.props.keyStack === 'CompletedSupervisor' &&
           this.props.indexBottomBar === 0

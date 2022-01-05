@@ -60,18 +60,18 @@ class ConnoteReportDetails extends React.Component {
     const {inboundID, shipmentID} = this.state;
     if(prevProps.keyStack !== this.props.keyStack && this.props.keyStack  === 'IVASDetailsSPV'){
       const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+ shipmentID );
-      this.setState({clientVAS:result.inbound.client,referenceVAS: result.inbound.reference_id,itemIVAS:result.inbound_shipment_va, acknowledged:result.inbound_shipment_va.acknowledged !== undefined ? result.inbound_shipment_va.acknowledged : false});
+      this.setState({clientVAS:result.inbound.client,referenceVAS: result.inbound.reference_id,itemIVAS:result.inbound_shipment_va, acknowledged:result.inbound_shipment_va.acknowledged !== undefined ? Boolean(result.inbound_shipment_va.acknowledged) : false});
     }
     if(prevState.renderAcknowledged !== this.state.renderAcknowledged && this.state.renderAcknowledged === true){
       const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+ shipmentID );
-      this.setState({clientVAS:result.inbound.client,referenceVAS: result.inbound.reference_id,itemIVAS:result.inbound_shipment_va, acknowledged:result.inbound_shipment_va.acknowledged !== undefined ? result.inbound_shipment_va.acknowledged : false, renderAcknowledged : false});
+      this.setState({clientVAS:result.inbound.client,referenceVAS: result.inbound.reference_id,itemIVAS:result.inbound_shipment_va, acknowledged:result.inbound_shipment_va.acknowledged !== undefined ? Boolean(result.inbound_shipment_va.acknowledged) : false, renderAcknowledged : false});
     }
   }
   async componentDidMount(){
     const {inboundID, shipmentID} = this.state;
     const result = await getData('/inboundsMobile/'+inboundID+'/shipmentVAS/'+ shipmentID );
     console.log(result);
-    this.setState({clientVAS:result.inbound.client,referenceVAS: result.inbound.reference_id,itemIVAS:result.inbound_shipment_va, acknowledged:result.inbound_shipment_va.acknowledged !== undefined ? result.inbound_shipment_va.acknowledged : false});
+    this.setState({clientVAS:result.inbound.client,referenceVAS: result.inbound.reference_id,itemIVAS:result.inbound_shipment_va, acknowledged:result.inbound_shipment_va.acknowledged !== undefined ? Boolean(result.inbound_shipment_va.acknowledged) : false});
   }
   checkedIcon = () => {
     return (
