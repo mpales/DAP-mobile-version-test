@@ -257,6 +257,7 @@ class CameraSingle extends React.Component {
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 onPress={this.handleShowImagePreview}
+                disabled={(this.state.pictureGallery === null)}
                 style={styles.gallery}>
                 {this.state.pictureGallery !== null && (
                   <Image
