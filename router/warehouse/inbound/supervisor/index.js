@@ -44,11 +44,13 @@ class SupervisorInbound extends React.Component {
     this.setWrapperofStack.bind(this);
   }
 
-  setWrapperofStack = (index, key) => {
+  setWrapperofStack = (i, key) => {
     const {indexBottomBar} = this.props;
-    if (indexBottomBar === 0 && key !== 'UpdatePhotosSPV') {
+    const {routes,index} = this.props.navigation.dangerouslyGetState();
+
+    if (indexBottomBar === 0 && key !== 'UpdatePhotosSPV' && routes[index].name === 'SupervisorMode' ) {
       this.props.setCurrentStackKey(key);
-      this.props.setCurrentStackIndex(index);
+      this.props.setCurrentStackIndex(i);
     }
   };
   componentWillUnmount() {
