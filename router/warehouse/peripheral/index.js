@@ -368,7 +368,6 @@ class Example extends React.Component {
     ) {
       this.setState({
         PalletArray: resultPallet,
-        ItemPallet: resultPallet[0].palete_id,
       });
     } else {
       if (
@@ -993,7 +992,7 @@ class Example extends React.Component {
                         <Text style={styles.labelPackage}>QTY</Text>
                         <Text style={styles.dotLabel}>:</Text>
                       </View>
-                      <Text style={styles.infoPackage}> {this.state.qty} </Text>
+                      <Text style={styles.infoPackage}>{this.state.qty}</Text>
                     </View>
                   )}
                 </View>

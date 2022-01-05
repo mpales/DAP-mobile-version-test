@@ -352,7 +352,7 @@ class Acknowledge extends React.Component {
     if (action) {
       const {currentASN} = this.props;
       const {_inputCode} = this.state;
-      const confirmPhotos = postData(
+      const confirmPhotos = await postData(
         '/inboundsMobile/' + currentASN + '/' + _inputCode + '/confirm-photos',
       );
       if (
@@ -1238,7 +1238,7 @@ class Acknowledge extends React.Component {
             </View>
           )}
           {this.state.keyboardState === 'hide' &&
-            this.state._manifest.can_take_photo === 1 && (
+            this.state._manifest.can_take_photos === 1 && (
               <View
                 style={{
                   marginHorizontal: 10,
@@ -1440,7 +1440,7 @@ class Acknowledge extends React.Component {
                     this.state.recordPhoto === true ? {color: 'white'} : null
                   }
                   disabled={
-                    this.state._manifest.can_take_photo === 1 &&
+                    this.state._manifest.can_take_photos === 1 &&
                     this.state.validPhoto === true &&
                     this.state.recordPhoto === false
                       ? false
