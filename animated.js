@@ -1,45 +1,46 @@
-import React, {useRef, useEffect} from 'react';
-import {Animated, Easing} from 'react-native';
+import React, {useRef, useEffect, forwardRef,
+  useImperativeHandle,
+  useState,} from 'react';
+import {ActivityIndicator, Animated, Easing} from 'react-native';
 
-const FadeInView = (props) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
-  const windowHeight = useRef(
-    new Animated.Value(props.style.flex === 3 ? 0.5 : 1),
-  ).current;
-  if (props.transition !== undefined) {
-    fadeAnim.setValue(props.transition);
-    Animated.timing(windowHeight, {
-      toValue: props.style.flex === 3 ? 1.05 : 1,
+export default FadeInView =  forwardRef((props, ref) => {
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const [indicator, setIndicator] = useState(false);
+  const hide = React.useCallback( () => {
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(()=> setIndicator(true));
+  }, [fadeAnim]);
+ 
+  const show = React.useCallback( () => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
       duration: 1000,
       useNativeDriver: true,
-    }).start();
-  }
-  useEffect(() => {
-    if (props.transition === undefined) {
-      Animated.timing(windowHeight, {
-        toValue: props.style.flex === 3 ? 1.05 : 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [fadeAnim, props, windowHeight]);
-
+    }).start(()=> setIndicator(false));
+  }, [fadeAnim]);
+ 
+  useImperativeHandle(ref, () => ({
+    setOpacity: (val) => {
+      if(val === 1){
+        show();
+      } else {
+        hide();
+      }
+    },
+  }));
   return (
+    <>
+     {indicator === true && (<ActivityIndicator size={50} color="#ffffff" />)}
     <Animated.View // Special animatable View
       style={{
         ...props.style,
-        transform: [
-          {
-            scaleY: windowHeight.interpolate({
-              inputRange: [0, 3],
-              outputRange: [0, 3],
-            }),
-          },
-        ],
+        opacity: fadeAnim,
       }}>
       {props.children}
     </Animated.View>
+  </>
   );
-};
-
-export {FadeInView};
+});

@@ -353,14 +353,18 @@ class List extends React.Component {
   };
   render() {
     const {putawayList} = this.props;
-    let arrayDate = Array.from({
-      length: putawayList.length,
-    }).map((num, index) => {
-      if (putawayList[index].receivedDate !== undefined && putawayList[index].receivedDate !== 0) {
-        return moment(putawayList[index].receivedDate).format("DD-MM-YYYY");
-      }
-      return null;
-    });
+    let arrayDate = [];
+    if(Array.isArray(putawayList) && putawayList.length > 0){
+       arrayDate = Array.from({
+        length: putawayList.length,
+      }).map((num, index) => {
+        if (putawayList[index].receivedDate !== undefined && putawayList[index].receivedDate !== 0) {
+          return moment(putawayList[index].receivedDate).format("DD-MM-YYYY");
+        }
+        return null;
+      });
+    }
+  
     let stringDate = arrayDate.filter((o)=> o !== null).join();
     let DateOption = [
       ...new Set(String('All' + (stringDate.length > 0 ? ',' + stringDate : '')).split(',')),
@@ -439,7 +443,7 @@ class List extends React.Component {
                       textAlign: 'left',
                     }}
                     data={DateOption}
-                    defaultValueByIndex={this.state.dropdown === '' ? 0 : DateOption.findIndex((o)=> o === this.state.dropdown)}
+                    defaultValueByIndex={(this.state.dropdown === '' || DateOption.some((o)=> o === this.state.dropdown) === false) ? 0 : DateOption.findIndex((o)=> o === this.state.dropdown)}
                     onSelect={(selectedItem, index) => {
                       this.setState({
                         dropdown: selectedItem === 'All' ? '' : selectedItem,
