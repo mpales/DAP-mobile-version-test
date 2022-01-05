@@ -114,6 +114,8 @@ class RelocationRequest extends React.Component {
       this.setState({
         warehouseList: result,
       });
+    } else {
+      this.handleRequestError(result);
     }
   };
 
@@ -128,6 +130,8 @@ class RelocationRequest extends React.Component {
       this.setState({
         locationList: result,
       });
+    } else {
+      this.handleRequestError(result);
     }
   };
 
@@ -369,7 +373,9 @@ class RelocationRequest extends React.Component {
               buttonTextStyle={styles.dropdownButtonText}
               rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
               data={!!warehouseList ? warehouseList : []}
-              defaultButtonText="Select Warehouse"
+              defaultButtonText={
+                !!warehouseList ? 'Select Warehouse' : 'No Result'
+              }
               onSelect={(selectedItem) => {
                 this.handlePicker(selectedItem.id, 'warehouse');
               }}
@@ -384,6 +390,7 @@ class RelocationRequest extends React.Component {
                   <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
                 </View>
               )}
+              disabled={!!warehouseList === false}
               renderCustomizedRowChild={(item, index) => {
                 let selectedWarehouse = warehouseList.find(
                   (warehouse) => warehouse.name === item,
@@ -427,8 +434,12 @@ class RelocationRequest extends React.Component {
               }
               buttonTextStyle={styles.dropdownButtonText}
               rowTextStyle={[styles.dropdownButtonText, {textAlign: 'center'}]}
-              data={!!locationList ? locationList : []}
-              defaultButtonText="Selected Location ID"
+              data={locationList}
+              defaultButtonText={
+                selectedWarehouse !== null && locationList.length === 0
+                  ? 'No Result'
+                  : 'Selected Location ID'
+              }
               onSelect={(selectedItem) => {
                 this.handlePicker(selectedItem.id, 'locationId');
               }}
@@ -443,7 +454,7 @@ class RelocationRequest extends React.Component {
                   <ArrowDown fill="#2D2C2C" width="20px" height="20px" />
                 </View>
               )}
-              disabled={selectedWarehouse === null}
+              disabled={selectedWarehouse === null || locationList.length === 0}
               ref={this.locationDropdownRef}
               renderCustomizedRowChild={(item, index) => {
                 let selectedLocation = locationList.find(
