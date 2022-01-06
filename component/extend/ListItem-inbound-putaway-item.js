@@ -44,7 +44,7 @@ const styles = {
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-
+    position:'relative',
     elevation: 5,
   },
   labelContainer : {
@@ -80,6 +80,7 @@ const styles = {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
+    marginRight:26,
   },
   detailText: {
     ...Mixins.small1,
@@ -154,8 +155,8 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
         <ListItem.Content style={styles.sectionContainer}>
-        <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>Date</Text>
+        <View style={[styles.wrapper,{marginRight:110}]}>
+            <Text style={[styles.detailText, {width: 120}]}>Date</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -165,7 +166,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>Inbound Job ID</Text>
+            <Text style={[styles.detailText, {width: 120}]}>Inbound Job ID</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -175,7 +176,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>Item Code  </Text>
+            <Text style={[styles.detailText, {width: 120}]}>Item Code  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -185,7 +186,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>Description</Text>
+            <Text style={[styles.detailText, {width: 120}]}>Description</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -195,7 +196,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>UOM</Text>
+            <Text style={[styles.detailText, {width: 120}]}>UOM</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -205,7 +206,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>Qty</Text>
+            <Text style={[styles.detailText, {width: 120}]}>Qty</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -215,7 +216,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>Pallet</Text>
+            <Text style={[styles.detailText, {width: 120}]}>Pallet</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -227,14 +228,12 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
           
     
         </ListItem.Content>
-        <View style={styles.labelContainer}>
-        <Badge value={labelstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />
-        <View style={{alignSelf:'flex-end',flexDirection: 'column', flex:1, justifyContent:'center', alignItems:'center'}}>
-           
+        <Badge value={labelstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{position: 'absolute', top: 10,  right: 10, bottom: 0, justifyContent: 'flex-start', alignItems: 'flex-end'}} badgeStyle={{backgroundColor: status}} />
+    
         <ListItem.Chevron
             size={16}
             color="#2D2C2C"
-            containerStyle={{alignContent:'flex-end',justifyContent:'flex-end',alignItems:'flex-end',flexShrink:1,padding:0,margin:0}}
+            containerStyle={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'flex-end'}}
             Component={(props)=>(
               <Button
                 {...props}
@@ -245,9 +244,6 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
               />)}
             onPress={ToManifest}
           />
-          </View>
-       
-        </View>
         
       </ListItem>
     </ThemeProvider>

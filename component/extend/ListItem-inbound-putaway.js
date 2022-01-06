@@ -20,7 +20,7 @@ import Mixins from '../../mixins';
 const styles = {
   sectionContainer: {
     flexGrow: 1,
-    marginHorizontal: 20,
+    marginLeft: 20,
     paddingVertical: 10,
     flexDirection:'column',
   },
@@ -224,7 +224,7 @@ const Manifest = ({item, index, ToManifest}) => {
                     
     
         </ListItem.Content>
-        <View style={{flexDirection: 'column', paddingHorizontal: 10}}>
+        <View style={{flexDirection: 'column', paddingRight: 10, flexShrink:1}}>
             <ListItem.Chevron
                   size={16}
                   color="#2D2C2C"

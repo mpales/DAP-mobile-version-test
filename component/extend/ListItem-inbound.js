@@ -8,7 +8,7 @@ import {
   Button,
   Text,
 } from 'react-native-elements';
-import {View, TouchableOpacity} from 'react-native';
+import {View, TouchableOpacity, PixelRatio} from 'react-native';
 import TouchableScale from 'react-native-touchable-scale'; // https://github.com/kohver/react-native-touchable-scale
 import IconCursor20Mobile from '../../assets/icon/iconmonstr-cursor-20 1mobile.svg';
 import IconTime2Mobile from '../../assets/icon/iconmonstr-time-2 1mobile.svg';
@@ -44,7 +44,7 @@ const styles = {
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-
+    position:'relative',
     elevation: 5,
   },
   labelContainer : {
@@ -80,6 +80,7 @@ const styles = {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
+    marginRight:PixelRatio.get() > 2.75 ? 35: 26,
   },
   detailText: {
     ...Mixins.small1,
@@ -166,18 +167,21 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
         <ListItem.Content style={styles.sectionContainer}>
-        <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>ETA Date</Text>
+      
+          <View style={[styles.wrapper, {marginRight:PixelRatio.get() > 2.75 ? 120 : 110}]}>
+            <Text style={[styles.detailText, {width: 120}]}>ETA Date</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
                 [styles.detailText, styles.valueText]
               }>
-            {moment(item.eta).format("DD-MM-YYYY")}
+        {moment(item.eta).format("DD-MM-YYYY")}
             </Text>
           </View>
+   
+       
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>Client ID  </Text>
+            <Text style={[styles.detailText, {width: 120}]}>Client ID  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -187,7 +191,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>Inbound ID  </Text>
+            <Text style={[styles.detailText, {width: 120}]}>Inbound ID  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -197,7 +201,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>Ref #   </Text>
+            <Text style={[styles.detailText, {width: 120}]}>Ref #   </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -207,7 +211,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>Shipment type  </Text>
+            <Text style={[styles.detailText, {width: 120}]}>Shipment type  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -218,7 +222,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
           </View>
           {item.shipment_type === 2 && (          
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>Container  #  </Text>
+            <Text style={[styles.detailText, {width: 120}]}>Container  #  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -230,7 +234,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
           {item.type === 2 && (
             <>          
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>No. of Pallet  </Text>
+            <Text style={[styles.detailText, {width: 120}]}>No. of Pallet  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -241,7 +245,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
           </View>
              
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: '55%'}]}>No. of Carton  </Text>
+            <Text style={[styles.detailText, {width: 120}]}>No. of Carton  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -253,14 +257,12 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
           </>)}
         <Text style={styles.descText}>{item.total_product_processed+'/'+item.total_product+' Lines Complete'}</Text>
         </ListItem.Content>
-        <View style={styles.labelContainer}>
-        <Badge value={labelstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />
-        <View style={{alignSelf:'flex-end',flexDirection: 'column', flex:1, justifyContent:'center', alignItems:'center'}}>
+        <Badge value={labelstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{position: 'absolute', top: 10,  right: 10, bottom: 0, justifyContent: 'flex-start', alignItems: 'flex-end'}} badgeStyle={{backgroundColor: status}} />
            
         <ListItem.Chevron
             size={16}
             color="#2D2C2C"
-            containerStyle={{alignContent:'flex-end',justifyContent:'flex-end',alignItems:'flex-end',flexShrink:1,padding:0,margin:0}}
+            containerStyle={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'flex-end'}}
             Component={(props)=>(
               <Button
                 {...props}
@@ -271,10 +273,6 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
               />)}
             onPress={ToManifest}
           />
-          </View>
-       
-        </View>
-        
       </ListItem>
     </ThemeProvider>
   );
