@@ -74,8 +74,9 @@ class List extends React.Component {
     const {currentID} = this.props;
     let contentID = putawayID !== null ? putawayID : currentID;
     const result = await getData('inboundsMobile/putaways');
+    console.log(result);
     if (Array.isArray(result)) {
-      let putawayContent = result.find((element) => element.id !== contentID);
+      let putawayContent = result.find((element) => element.id === contentID);
       return putawayContent.content;
     } else {
       return [];
