@@ -8,7 +8,7 @@ import DeliveryNavigator from './delivery';
 import {Overlay} from 'react-native-elements';
 import {createStackNavigator} from '@react-navigation/stack';
 import {TouchableOpacity, View, Text, AppState, Platform} from 'react-native';
-import noAccess from './error/no-access';
+import noAccess from './error/no-rights';
 import {
   PERMISSIONS,
   request,
@@ -35,7 +35,23 @@ class Details extends React.Component {
       cancel: false,
       overlayString: '',
       visible: false,
+      role: null,
+      navigator: null,
     };
+  }
+  static getDerivedStateFromProps(props,state){
+    const {routes, index} = props.navigation.dangerouslyGetState();
+   
+    if (  routes[index].params !== undefined &&
+      routes[index].params.role !== undefined &&
+      routes[index].params !== undefined &&
+        routes[index].params.navigator !== undefined
+    ){
+      
+    return {...state, navigator :  routes[index].params.navigator, role:routes[index].params.role};
+    }
+     
+    return {...state};
   }
   setWrapperofStack = (index, key) => {
     const {indexBottomBar} = this.props;
@@ -554,13 +570,9 @@ class Details extends React.Component {
   render() {
     let Navigate;
     const {visible} = this.state;
-    const {routes, index} = this.props.navigation.dangerouslyGetState();
-    if (  routes[index].params !== undefined &&
-      routes[index].params.role !== undefined &&
-      routes[index].params.role === 'Warehouse') {
-      if (    routes[index].params !== undefined &&
-        routes[index].params.navigator !== undefined &&
-        routes[index].params.navigator === 'INBOUND') {
+  
+    if ( this.state.role === 'Warehouse') {
+      if (    this.state.navigator === 'INBOUND') {
         Navigate = (
           <>
             <WarehouseInNavigator />
@@ -618,9 +630,7 @@ class Details extends React.Component {
             </Overlay>
           </>
         );
-      } else if (    routes[index].params !== undefined &&
-        routes[index].params.navigator !== undefined &&
-        routes[index].params.navigator === 'OUTBOUND') {
+      } else if (  this.state.navigator === 'OUTBOUND') {
         Navigate = (
           <>
             <WarehouseOutNavigator />
@@ -678,9 +688,7 @@ class Details extends React.Component {
             </Overlay>
           </>
         );
-      } else if (    routes[index].params !== undefined &&
-        routes[index].params.navigator !== undefined &&
-        routes[index].params.navigator === 'WAREHOUSE') {
+      } else if (   this.state.navigator === 'WAREHOUSE') {
         Navigate = (
           <>
             <WarehouseNavigator />
@@ -738,9 +746,7 @@ class Details extends React.Component {
             </Overlay>
           </>
         );
-      }else if (    routes[index].params !== undefined &&
-        routes[index].params.navigator !== undefined &&
-        routes[index].params.navigator === 'VAS') {
+      }else if (   this.state.navigator === 'VAS') {
         Navigate = (
           <>
             <VASNavigator />
@@ -802,9 +808,7 @@ class Details extends React.Component {
         this.props.navigation.navigate('MenuWarehouse');
         Navigate = <></>;
       }
-    } else if (  routes[index].params !== undefined &&
-      routes[index].params.role !== undefined &&
-      routes[index].params.role === 'Delivery') {
+    } else if (  this.state.role === 'Delivery') {
       Navigate = (
         <>
           <DeliveryNavigator />
