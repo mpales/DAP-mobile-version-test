@@ -8,7 +8,7 @@ import {
   Button,
   Text,
 } from 'react-native-elements';
-import {View, TouchableOpacity} from 'react-native';
+import {View, TouchableOpacity, PixelRatio} from 'react-native';
 import TouchableScale from 'react-native-touchable-scale'; // https://github.com/kohver/react-native-touchable-scale
 import Location from '../../assets/icon/iconmonstr-location-1 1mobile.svg';
 import Barcode from '../../assets/icon/iconmonstr-barcode-3 1mobile.svg';
@@ -47,7 +47,7 @@ const styles = {
     borderBottomLeftRadius: 5,
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-
+    position:'relative',
     elevation: 5,
   },
   rightList: {
@@ -168,10 +168,10 @@ let uomFiltered = uomArr.filter((o)=> o !== null);;
         <View style={[styles.leftList,{backgroundColor:status}]}>
         </View>
         <ListItem.Content style={styles.sectionContainer}>
-        <View style={[styles.detailContainer,{flexDirection:'row', flexGrow: 1}]}>          
+        <View style={[styles.detailContainer,{flexDirection:'row', flexGrow: 1, paddingRight:PixelRatio.get() > 2.75 ? 60 : 50}]}>          
           <View style={{flexDirection: 'column', flex: 1,}}>
           
-            <View style={{flexDirection: 'row',flex:1}}>
+            <View style={{flexDirection: 'row',flex:1, marginRight:PixelRatio.get() > 2.75 ? 90 : 80 ,}}>
               <View style={{width:100, flexDirection:'row'}}>
               <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
               Location
@@ -190,7 +190,7 @@ let uomFiltered = uomArr.filter((o)=> o !== null);;
 
        
 
-            <View style={{flexDirection: 'row',flex:1}}>
+            <View style={{flexDirection: 'row',flex:1,marginRight:PixelRatio.get() > 2.75 ? 90 : 80 ,}}>
               <View style={{width:100, flexDirection:'row'}}>
               <Text style={{...Mixins.small1,lineHeight: 18,color: '#2D2C2C', fontWeight: '500'}}>
               Item Code
@@ -279,10 +279,12 @@ let uomFiltered = uomArr.filter((o)=> o !== null);;
             </View>
     
           </View>
-          <View style={styles.rightList}>
-          <Badge value={textstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end'}} badgeStyle={{backgroundColor: status}} />
-            <ListItem.Chevron
-            containerStyle={{flexGrow:1,justifyContent: 'center', alignSelf: 'flex-end'}}
+           {/* <View style={styles.rightList}>
+           
+          </View> */}
+           
+           <ListItem.Chevron
+            containerStyle={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'flex-end'}}
               size={26}
               color="#2D2C2C"
               Component={(props)=>(
@@ -303,7 +305,8 @@ let uomFiltered = uomArr.filter((o)=> o !== null);;
               }}
             />
           </View>
-          </View>
+          <Badge value={textstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{position: 'absolute', top: 10,  right: 0, bottom: 0, justifyContent: 'flex-start', alignItems: 'flex-end'}} badgeStyle={{backgroundColor: status}} />
+       
           {isCurrentManifest === item.pick_task_product_id  && (
           <View style={{width:'100%',marginVertical:10, flexDirection: 'column',}}>
             <Button
