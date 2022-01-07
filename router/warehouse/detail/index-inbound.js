@@ -97,7 +97,6 @@ class Acknowledge extends React.Component {
                   titleStyle={[
                     Mixins.buttonFloatedAvatarDefaultTitleStyle,
                     {...Mixins.subtitle3, lineHeight: 16, fontWeight: '700'},
-                    this.props.currentASN === null ? {color: '#6C6B6B'} : null,
                   ]}
                 />
               </View>
@@ -168,7 +167,6 @@ class Acknowledge extends React.Component {
                   titleStyle={[
                     Mixins.buttonFloatedAvatarDefaultTitleStyle,
                     {...Mixins.subtitle3, lineHeight: 16, fontWeight: '700'},
-                    this.props.currentASN === null ? {color: '#6C6B6B'} : null,
                   ]}
                 />
               </View>
@@ -241,7 +239,6 @@ class Acknowledge extends React.Component {
                   titleStyle={[
                     Mixins.buttonFloatedAvatarDefaultTitleStyle,
                     {...Mixins.subtitle3, lineHeight: 16, fontWeight: '700'},
-                    this.props.currentASN === null ? {color: '#6C6B6B'} : null,
                   ]}
                 />
               </View>

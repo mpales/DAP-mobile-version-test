@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useImperativeHandle, forwardRef} from 'react';
 import {View, Dimensions, TouchableOpacity} from 'react-native';
 import {ThemeProvider,Tooltip , Input, Text, CheckBox, LinearProgress, LinearProgressProps} from 'react-native-elements';
 import Mixins from '../../mixins';
@@ -31,15 +31,17 @@ const theme = {
 interface Props extends LinearProgressProps {
   progressLinearVal: number;
   enabled : boolean;
+  flatprogress : boolean;
   callbackTooltip : Function;
   overlayLinearProgress : LinearProgressProps
 }
-const UploadProgress: React.FC<Props> = ({
+const UploadProgress: React.FC<Props> = forwardRef(({
     enabled,
     overlayLinearProgress,
+    flatprogress,
     callbackTooltip,
     ...props
-  }): React.ReactElement => {
+  }, ref): React.ReactElement => {
     const [_stateTooltip, setTooltipContainer] = React.useState<boolean>(false);
     const tooltipRef = React.useRef(null);
     React.useEffect(() => {
@@ -60,6 +62,12 @@ const UploadProgress: React.FC<Props> = ({
         tooltipRef.current.toggleTooltip();
       }
     },[enabled,tooltipRef]);
+    useImperativeHandle(ref, () => ({
+      toggle: () => {
+        toggleHandler();
+      },
+  
+    }));
   return (
          <Tooltip 
          ref={tooltipRef}
@@ -89,11 +97,11 @@ const UploadProgress: React.FC<Props> = ({
         
            <LinearProgress {...overlayLinearProgress}/>
        </View>}>
-       <TouchableOpacity onPress={toggleHandler}>
+       {flatprogress && (<TouchableOpacity onPress={toggleHandler}>
        <LinearProgress {...props} color="primary"/>
-       </TouchableOpacity>
+       </TouchableOpacity>)}
     </Tooltip>
   );
-};
+});
 
 export default UploadProgress;

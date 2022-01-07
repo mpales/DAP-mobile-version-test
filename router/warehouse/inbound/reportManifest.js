@@ -28,11 +28,16 @@ import Incremental from '../../../assets/icon/plus-mobile.svg';
 import Decremental from '../../../assets/icon/min-mobile.svg';
 import {postBlob} from '../../../component/helper/network';
 import UploadTooltip from '../../../component/include/upload-tooltip';
+import Svg, {
+  Path,
+  Rect,
+} from 'react-native-svg';
 import Banner from '../../../component/banner/banner';
 import RNFetchBlob from 'rn-fetch-blob';
 class ReportManifest extends React.Component {
   constructor(props) {
     super(props);
+    progressLinear = null;
     this.state = {
       isShowConfirm: false,
       picker: '',
@@ -126,7 +131,7 @@ class ReportManifest extends React.Component {
     const {overlayProgress} = this.state;
     this.setState({
       progressLinearVal: (1 / total) * written,
-      overlayProgress: overlayProgress === false ? true : overlayProgress,
+     
     });
   };
   getPhotoReceivingGoods = async () => {
@@ -418,18 +423,27 @@ class ReportManifest extends React.Component {
               }}>
               <Avatar
                 onPress={() => {
-                  if (
-                    this.props.photoReportID === null ||
-                    this.props.photoReportID === this.state.dataCode
-                  ) {
-                    this.props.setBottomBar(false);
-                    this.props.navigation.navigate('SingleCamera');
+                  if(this.state.overlayProgress === true){
+                    this.progressLinear.toggle();
+                  } else {
+                      if (
+                        this.props.photoReportID === null ||
+                        this.props.photoReportID === this.state.dataCode
+                      ) {
+                        this.props.setBottomBar(false);
+                        this.props.navigation.navigate('SingleCamera');
+                      }
                   }
                 }}
                 size={79}
                 ImageComponent={() => (
                   <>
-                    <IconPhoto5 height="40" width="40" fill="#fff" />
+                      {this.state.overlayProgress === true ? (
+                    <Svg width="79" height="79" viewBox="0 0 79 79" fill="none">
+                    <Path transform={"rotate("+(this.state.progressLinearVal * 360 )+" 39 40)"} fill-rule="evenodd" clip-rule="evenodd" d="M12.165 43C13.6574 56.4999 25.1026 67 39.0003 67C53.9119 67 66.0003 54.9117 66.0003 40C66.0003 25.0883 53.9119 13 39.0003 13V16C52.2551 16 63.0003 26.7452 63.0003 40C63.0003 53.2548 52.2551 64 39.0003 64C26.7614 64 16.6622 54.8389 15.1859 43H12.165Z" fill="white"/>
+                    <Path d="M44.1818 49.75V52H32.8182V49.75H44.1818ZM44.1818 45.25H32.8182V47.5H44.1818V45.25ZM32.8182 37.375V43H44.1818V37.375H51L38.5 25L26 37.375H32.8182Z" fill="white"/>
+                    </Svg>
+                 ) : (<IconPhoto5 height="40" width="40" fill="#fff" />)}
                     {this.props.photoReportPostpone !== null &&
                       this.props.photoReportID !== null &&
                       this.props.photoReportID === this.state.dataCode && (
@@ -444,9 +458,9 @@ class ReportManifest extends React.Component {
                 )}
                 imageProps={{
                   containerStyle: {
-                    alignItems: 'center',
-                    paddingTop: 18,
-                    paddingBottom: 21,
+                    alignItems: this.state.overlayProgress ? 'flex-start' : 'center',
+                    paddingTop: this.state.overlayProgress ? 0 : 18,
+                    paddingBottom: this.state.overlayProgress ? 0 : 21,
                   },
                 }}
                 overlayContainerStyle={{
@@ -463,6 +477,7 @@ class ReportManifest extends React.Component {
               />
               <View style={{marginVertical: 5}}>
                 <UploadTooltip
+                      ref={(ref)=>this.progressLinear = ref}
                   overlayLinearProgress={{
                     value: this.state.progressLinearVal,
                     color: '#F1811C',
@@ -495,6 +510,7 @@ class ReportManifest extends React.Component {
               containerStyle={{flexShrink: 1}}
               buttonStyle={styles.navigationButton}
               titleStyle={styles.deliveryText}
+              onPressIn={()=>{this.setState({overlayProgress: true})}}
               onPress={this.handleSubmit}
               title="Submit"
               disabled={
