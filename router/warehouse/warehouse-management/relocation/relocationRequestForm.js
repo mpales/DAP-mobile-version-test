@@ -150,7 +150,7 @@ class RelocationRequest extends React.Component {
     const {relocateFrom} = this.state;
     let percentage = 0;
     if (value !== '') {
-      percentage = ((relocateFrom[0].quantity * parseInt(value)) / 100) * 10;
+      percentage = (relocateFrom[0].quantity * parseInt(value)) / 100;
     }
     this.setState({
       quantityToTransfer:
