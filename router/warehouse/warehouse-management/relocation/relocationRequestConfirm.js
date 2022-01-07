@@ -381,7 +381,7 @@ class RelocationRequestConfirm extends React.Component {
           </View>
           <View style={[styles.inputFormContainer, {marginHorizontal: 0}]}>
             <View style={{marginHorizontal: 20}}>
-              <Text style={styles.inputFormTitle}>Quantity To Transfer</Text>
+              <Text style={styles.inputFormtitle}>Quantity To Transfer</Text>
               <Input
                 containerStyle={{paddingHorizontal: 0}}
                 inputContainerStyle={
