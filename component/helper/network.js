@@ -1,4 +1,4 @@
-import crossFetch from 'cross-fetch';
+import crossFetch, {Response} from 'cross-fetch';
 import {SERVER_DOMAIN} from '../../constant/server';
 import fetchDefaults from './network-mixins';
 import fetchBlobDefault from './network-blob-mixins';
@@ -109,7 +109,12 @@ export const getData = (path) => {
       }
       return res.json();
     } catch (err) {
-      return err;
+      if(err instanceof Response){
+        return err;
+      } else {
+        setRootParams('ErrorGate',true);
+        return 'Bad gateway';
+      }
     }
   })();
   return result;
@@ -128,7 +133,12 @@ export const deleteData = (path) => {
       }
       return res.json();
     } catch (err) {
-      return err;
+      if(err instanceof Response){
+        return err;
+      } else {
+        setRootParams('ErrorGate',true);
+        return 'Bad gateway';
+      }
     }
   })();
   return result;
@@ -137,7 +147,7 @@ export const deleteData = (path) => {
 export const postBlob = (path, data, callbackUploadProgress, callbackProgress) => {
   let result = (async () => {
     try {
-      const res = await blobFetch(path,{method:'POST'},data,callbackUploadProgress,callbackProgress);
+      const res = await blobFetch(path,{method:'POST',...data},null,callbackUploadProgress,callbackProgress);
       if (res.respInfo.headers['Content-Type'].includes('text/plain')) {
         return responseBlobHandler(res);
       } else if (res.respInfo.headers['Content-Type'].includes('text/html')) {
@@ -145,6 +155,10 @@ export const postBlob = (path, data, callbackUploadProgress, callbackProgress) =
       }
       return res.json();
     } catch (err) {
+      if(err.message.includes('Failed')){
+        setRootParams('ErrorGate',true);
+        return 'Bad gateway';
+      }
       return err;
     }
   })();
@@ -163,6 +177,10 @@ export const putBlob = (path, data, callbackUploadProgress, callbackProgress) =>
       }
       return res.json();
     } catch (err) {
+      if(err.message.includes('Failed')){
+        setRootParams('ErrorGate',true);
+        return 'Bad gateway';
+      }
       return err;
     }
   })();
@@ -236,6 +254,10 @@ export const getBlob = (path,data, callbackProgress) => {
       }
       return res.json();
     } catch (err) {
+      if(err.message.includes('Failed')){
+        setRootParams('ErrorGate',true);
+        return 'Bad gateway';
+      }
       return err;
     }
   })();
@@ -256,7 +278,12 @@ export const postData = (path, data) => {
       }
       return res.json();
     } catch (err) {
-      return err;
+      if(err instanceof Response){
+        return err;
+      } else {
+        setRootParams('ErrorGate',true);
+        return 'Bad gateway';
+      }
     }
   })();
   return result;
@@ -276,7 +303,12 @@ export const putData = (path, data) => {
       }
       return res.json();
     } catch (err) {
-      return err;
+      if(err instanceof Response){
+        return err;
+      } else {
+        setRootParams('ErrorGate',true);
+        return 'Bad gateway';
+      }
     }
   })();
   return result;
@@ -294,7 +326,11 @@ const responseHandler = async (response) => {
       return response.text();
     case 403:
       return response.text();
+    case 500:
+    case 501:
+    case 503:
     case 504:
+      setRootParams('ErrorGate',true);
       return 'Bad gateway';
     default:
       return 'Something went wrong';
@@ -313,8 +349,12 @@ const responseBlobHandler = (response) => {
         return response.text();
     case 403:
       return response.text();
-    case 504:
-      return 'Bad gateway';
+      case 500:
+        case 501:
+        case 503:
+        case 504:
+          setRootParams('ErrorGate',true);
+          return 'Bad gateway';
     default:
       return 'Something went wrong';
   }
@@ -338,8 +378,12 @@ const responseBlobRawHandler = async (response,data) => {
         return response.text();
     case 403:
       return response.text();
-    case 504:
-      return 'Bad gateway';
+      case 500:
+        case 501:
+        case 503:
+        case 504:
+          setRootParams('ErrorGate',true);
+          return 'Bad gateway';
     default:
       return 'Something went wrong';
   }
@@ -363,7 +407,11 @@ const responseImageHandler = async (response,data) => {
         return response.text();
     case 403:
       return response.text();
+    case 500:
+    case 501:
+    case 503:
     case 504:
+      setRootParams('ErrorGate',true);
       return 'Bad gateway';
     default:
       return 'Something went wrong';

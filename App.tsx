@@ -49,6 +49,7 @@ import {
   setRootParams,
   setRootScreens
 } from './component/helper/persist-login';
+import NoAccess from './router/error/no-rights';
 import MenuWarehouse from './router/warehouse/detail/warehouse-menu';
 import LogoLarge from './assets/dap_logo_hires1-e1544435829468 5large.svg';
 import SplashScreen from 'react-native-splash-screen';
@@ -606,6 +607,15 @@ const NavigationWrapper = (props) => {
             setRootParams('hardReset', false);
           }
         }
+        if (
+          state.routes[state.index].params !== undefined &&
+          state.routes[state.index].params.ErrorGate !== undefined
+        ) {
+          if (state.routes[state.index].params.ErrorGate === true) {
+            setRootParams('ErrorGate', false);
+            navigationRef.current?.navigate('NoAccess');
+          }
+        }
       });
       return () => task.cancel();
     },
@@ -778,6 +788,13 @@ const Root = (props) => {
               <Stack.Screen
                 name="MenuWarehouse"
                 component={MenuWarehouse}
+                options={{
+                  title: '',
+                }}
+              />
+                <Stack.Screen
+                name="NoAccess"
+                component={NoAccess}
                 options={{
                   title: '',
                 }}
