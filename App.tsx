@@ -49,7 +49,7 @@ import {
   setRootParams,
   setRootScreens
 } from './component/helper/persist-login';
-import NoAccess from './router/error/no-rights';
+import NoAccess from './router/error/no-access';
 import MenuWarehouse from './router/warehouse/detail/warehouse-menu';
 import LogoLarge from './assets/dap_logo_hires1-e1544435829468 5large.svg';
 import SplashScreen from 'react-native-splash-screen';
