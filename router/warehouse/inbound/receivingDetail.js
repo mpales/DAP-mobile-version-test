@@ -9,12 +9,17 @@ import {
   LinearProgress,
   Overlay,
 } from 'react-native-elements';
+import Svg, {
+  Path,
+  Rect,
+} from 'react-native-svg';
 import {View, ScrollView, Platform} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
 import moment from 'moment';
 import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
+import ProgressIcon from '../../../assets/icon/Group 5283mobile.svg';
 import WarehouseIlustration from '../../../assets/icon/Group 4968warehouse_ilustrate_mobile.svg';
 import {getData, putBlob, postData} from '../../../component/helper/network';
 import Loading from '../../../component/loading/loading';
@@ -23,6 +28,7 @@ import UploadTooltip from '../../../component/include/upload-tooltip';
 import Banner from '../../../component/banner/banner';
 import RNFetchBlob from 'rn-fetch-blob';
 class Acknowledge extends React.Component {
+  progressLinear = null;
   constructor(props) {
     super(props);
     this.state = {
@@ -1042,21 +1048,29 @@ class Acknowledge extends React.Component {
             }}>
             {(data.status === 3 || data.status === 4) && (
               <>
+       
+
                 <Avatar
                   onPress={() => {
-                    if (
-                      (this.props.photoProofID === null &&
-                        this.state.submitDetail === false) ||
-                      this.props.photoProofID === data.id
-                    ) {
+                    if(this.state.overlayProgress === true){
+                      this.progressLinear.toggle();
+                    } else if((this.props.photoProofID === null &&
+                      this.state.submitDetail === false) ||
+                    this.props.photoProofID === data.id){
                       this.props.setBottomBar(false);
                       this.props.navigation.navigate('SingleCamera');
                     }
+                  
                   }}
                   size={79}
                   ImageComponent={() => (
                     <>
-                      <IconPhoto5 height="40" width="40" fill="#fff" />
+                     {this.state.overlayProgress === true ? (
+                    <Svg width="79" height="79" viewBox="0 0 79 79" fill="none">
+                    <Path transform={"rotate("+(this.state.progressLinearVal * 360 )+" 39 40)"} fill-rule="evenodd" clip-rule="evenodd" d="M12.165 43C13.6574 56.4999 25.1026 67 39.0003 67C53.9119 67 66.0003 54.9117 66.0003 40C66.0003 25.0883 53.9119 13 39.0003 13V16C52.2551 16 63.0003 26.7452 63.0003 40C63.0003 53.2548 52.2551 64 39.0003 64C26.7614 64 16.6622 54.8389 15.1859 43H12.165Z" fill="white"/>
+                    <Path d="M44.1818 49.75V52H32.8182V49.75H44.1818ZM44.1818 45.25H32.8182V47.5H44.1818V45.25ZM32.8182 37.375V43H44.1818V37.375H51L38.5 25L26 37.375H32.8182Z" fill="white"/>
+                    </Svg>
+                 ) : (<IconPhoto5 height="40" width="40" fill="#fff" />)}
                       {((this.props.photoProofPostpone !== null &&
                         this.props.photoProofID !== null &&
                         this.props.photoProofID === data.id) ||
@@ -1072,9 +1086,9 @@ class Acknowledge extends React.Component {
                   )}
                   imageProps={{
                     containerStyle: {
-                      alignItems: 'center',
-                      paddingTop: 18,
-                      paddingBottom: 21,
+                      alignItems: this.state.overlayProgress ? 'flex-start' : 'center',
+                      paddingTop: this.state.overlayProgress ? 0 : 18,
+                      paddingBottom: this.state.overlayProgress ? 0 : 21,
                     },
                   }}
                   overlayContainerStyle={{
@@ -1092,6 +1106,7 @@ class Acknowledge extends React.Component {
                 />
                 <View style={{marginVertical: 5}}>
                   <UploadTooltip
+                    ref={(ref)=>this.progressLinear = ref}
                     overlayLinearProgress={{
                       value: this.state.progressLinearVal,
                       color: '#F1811C',

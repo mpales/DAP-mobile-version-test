@@ -734,7 +734,6 @@ class Example extends React.Component {
                             ? this.state.PalletArray
                             : []
                         }
-                        defaultValueByIndex={0}
                         onSelect={(selectedItem, index) => {
                           this.setState({ItemPallet: selectedItem.palete_id});
                         }}
