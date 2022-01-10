@@ -44,10 +44,13 @@ import {getData, postData} from '../../../component/helper/network';
 import Banner from '../../../component/banner/banner';
 import BlankList from '../../../assets/icon/Group 5122blanklist.svg';
 import EmptyIlustrate from '../../../assets/icon/manifest-empty mobile.svg';
+import InfoTooltip from '../../../assets/icon/iconmonstr-info-2 1mobile.svg';
+import XMarkIcon from '../../../assets/icon/iconmonstr-x-mark-1 1mobile.svg';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component {
   _unsubscribe = null;
+  palletTooltip = null;
   constructor(props) {
     super(props);
     this.state = {
@@ -71,6 +74,9 @@ class Warehouse extends React.Component {
       remark: '',
       remarkHeight: 500,
       stickyHeight : 0,
+      togglePallet : false,
+      palletArray : null,
+      OverlayPalletVisible : false,
     };
     this.goToIVAS.bind(this);
     this.toggleOverlay.bind(this);
@@ -581,6 +587,8 @@ class Warehouse extends React.Component {
               notifbanner: 'Generate New Pallet ID First',
               notifsuccess: false,
             });
+          } else if(Array.isArray(resultPallet) && resultPallet.length > 0){
+            this.setState({palletArray: resultPallet.sort((a,b) => a.pallet_no.replace(/[^0-9.]/g, '') - b.pallet_no.replace(/[^0-9.]/g, ''))})
           }
           this.props.setManifestList(result.products);
           this.setState({
@@ -628,6 +636,8 @@ class Warehouse extends React.Component {
               notifbanner: 'Generate New Pallet ID First',
               notifsuccess: false,
             });
+          } else if(Array.isArray(resultPallet) && resultPallet.length > 0){
+            this.setState({palletArray: resultPallet.sort((a,b) => a.pallet_no.replace(/[^0-9.]/g, '') - b.pallet_no.replace(/[^0-9.]/g, ''))})
           }
           this.props.setManifestList(result.products);
           this.setState({
@@ -660,7 +670,10 @@ class Warehouse extends React.Component {
     const {_visibleOverlay} = this.state;
     this.setState({_visibleOverlay: !_visibleOverlay});
   };
-
+  toggleOverlayPallet = () => {
+    const {OverlayPalletVisible} = this.state;
+    this.setState({OverlayPalletVisible: !OverlayPalletVisible});
+  };
   handleConfirm = async ({action}) => {
     const {receivingNumber} = this.state;
     const {currentASN} = this.props;
@@ -693,14 +706,30 @@ class Warehouse extends React.Component {
       '/inboundsMobile/' + receivingNumber + '/pallet',
     );
     if (typeof result === 'object' && result.error === undefined) {
-      this.setState({palletid: result.id});
+      this.setState({palletid: result.id,generatePallet: false});
     } else {
+      this.setState({   notifbanner: 'Generate Pallet has failed',
+      notifsuccess: false,generatePallet: false}); 
     }
   };
 
   _onRefresh = () => {
     this.setState({renderRefresh: true,   renderFiltered: true,});
   };
+  onPalletOpened = async () =>{
+    const resultPallet = await getData(
+      'inboundsMobile/' + this.props.currentASN + '/pallet',
+    );
+    if (resultPallet.length === 0) {
+      this.setState({
+        notifbanner: 'Generate New Pallet ID First',
+        notifsuccess: false,
+        togglePallet: true
+      });
+    } else if(Array.isArray(resultPallet) && resultPallet.length > 0){
+      this.setState({palletArray: resultPallet.sort((a,b) => a.pallet_no.replace(/[^0-9.]/g, '') - b.pallet_no.replace(/[^0-9.]/g, '')),togglePallet: true, OverlayPalletVisible: true})
+    }
+  }
   render() {
     const {_visibleOverlay, _manifest, receivingNumber} = this.state;
     const {inboundList} = this.props;
@@ -741,28 +770,21 @@ class Warehouse extends React.Component {
                       alignContent: 'flex-end',
                     },
                   ]}>
+                    <View style={{flex:1, flexDirection:'row'}}>
+                      <View style={{flexShrink:1}}>
                   <Text
                     style={{
                       ...Mixins.subtitle1,
                       lineHeight: 21,
                       color: '#424141',
                     }}>
-                    {this.state.inboundNumber}
-                  </Text>
-                  <Text
-                    style={{
-                      ...Mixins.small1,
-                      lineHeight: 18,
-                      color: '#424141',
-                      fontWeight: 'bold',
-                    }}>
-                    {this.state.companyname}
-                  </Text>
-
+               {this.state.inboundNumber}</Text></View>
+                  <View style={{flexShrink:1}}>
                   <Tooltip
                     withPointer={false}
                     backgroundColor="#FFFFFF"
                     skipAndroidStatusBar={true}
+                  
                     popover={
                       <View
                         onLayout={(e) => {
@@ -798,7 +820,26 @@ class Warehouse extends React.Component {
 
                       elevation: 5,
                     }}>
-                    <Button
+                         <View style={{paddingHorizontal:10}}>                   
+                     {this.state.remark ? ( 
+                     <InfoTooltip fill="#F07120" height="18" width="18"/>
+                     ) : (<></>)}
+                      </View>
+                  </Tooltip>
+                  </View>
+                  </View>
+                  <Text
+                    style={{
+                      ...Mixins.small1,
+                      lineHeight: 18,
+                      color: '#424141',
+                      fontWeight: 'bold',
+                    }}>
+                    {this.state.companyname}
+                  </Text>
+
+               
+                  <Button
                       containerStyle={{
                         width: '100%',
                         justifyContent: 'center',
@@ -828,10 +869,9 @@ class Warehouse extends React.Component {
                         styles.deliveryText,
                         {lineHeight: 36, fontWeight: '400'},
                       ]}
-                      title="Remarks"
-                      disabled={true}
+                      title="View Pallet ID"
+                      onPress={this.onPalletOpened}
                     />
-                  </Tooltip>
                 </View>
                 <View
                   style={[
@@ -844,6 +884,7 @@ class Warehouse extends React.Component {
                       alignContent: 'flex-end',
                     },
                   ]}>
+                    <View style={{flex:1}}>
                   <Text
                     style={{
                       ...Mixins.small1,
@@ -854,51 +895,6 @@ class Warehouse extends React.Component {
                     }}>
                     {'Receipt #: ' + this.state.receiptid}
                   </Text>
-                  <View
-                    style={[
-                      styles.headPallet,
-                      {
-                        flexDirection: 'row',
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      },
-                    ]}>
-                    <Text
-                      style={{
-                        ...Mixins.subtitle3,
-                        color: '#424141',
-                        lineHeight: 21,
-                        fontWeight: '600',
-                      }}>
-                      Pallet ID :{' '}
-                    </Text>
-                    <Input
-                      containerStyle={{
-                        flexShrink: 1,
-                        maxHeight: 20,
-                        marginHorizontal: 0,
-                        paddingHorizontal: 0,
-                      }}
-                      inputContainerStyle={{
-                        ...Mixins.containedInputDefaultContainer,
-                        maxHeight: 20,
-                        paddingHorizontal: 0,
-                        paddingVertical: 0,
-                      }}
-                      inputStyle={{
-                        ...Mixins.containedInputDefaultStyle,
-                        ...Mixins.small3,
-                        marginHorizontal: 0,
-                        color: 'black',
-                      }}
-                      labelStyle={[
-                        Mixins.containedInputDefaultLabel,
-                        {marginBottom: 0},
-                      ]}
-                      value={this.state.palletid}
-                      disabled={true}
-                    />
                   </View>
                   <Button
                     containerStyle={{
@@ -914,7 +910,14 @@ class Warehouse extends React.Component {
                       styles.deliveryText,
                       {lineHeight: 36, fontWeight: '400'},
                     ]}
+                    icon={()=>   {
+                    if(this.state.generatePallet === true){
+                      return (<ActivityIndicator size={18} color="#121C78" />);
+                    }
+                    return (<></>);
+                    }}
                     onPress={this.generatePalletID}
+                    onPressIn={()=> this.setState({generatePallet: true})}
                     title="New Pallet ID"
                   />
                 </View>
@@ -1092,6 +1095,33 @@ class Warehouse extends React.Component {
               </TouchableOpacity>
             </View>
           </Overlay>
+          <Overlay
+            fullScreen={false}
+            overlayStyle={styles.overlayContainerStyle}
+            isVisible={this.state.OverlayPalletVisible}
+            onBackdropPress={this.toggleOverlayPallet}>
+          <>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={()=>this.setState({OverlayPalletVisible:false})}
+           >
+            <XMarkIcon width="15" height="15" fill="#fff" />
+          </TouchableOpacity>
+          <ScrollView
+                       persistentScrollbar={true}
+                        style={{alignSelf:'flex-start', paddingHorizontal:20, width:'100%'}}
+                       >
+                       <Text style={[Mixins.body3, {color: 'black', textAlign:'left', fontWeight:'700'}]}>
+                        Pallet ID
+                        </Text>
+                        <Text style={[Mixins.body3, {color: 'black', textAlign:'left',}]}>
+                          { Array.isArray(this.state.palletArray) && this.state.palletArray.length > 0 ? this.state.palletArray.map((val,i)=>
+                            (val.pallet_no + '\r\n')
+                          ) : ''} 
+                        </Text>
+                      </ScrollView>
+          </>
+          </Overlay>
 
           <SafeAreaInsetsContext.Consumer>
             {(inset) => (
@@ -1195,6 +1225,18 @@ const styles = StyleSheet.create({
     borderColor: '#121C78',
     paddingHorizontal: 12,
     height: 20,
+  },
+  closeButton: {
+    position: 'absolute',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 40,
+    height: 40,
+    backgroundColor: '#F07120',
+    borderRadius: 40,
+    right: 20,
+    top: -20,
   },
   badgeInactiveTint: {
     ...Mixins.small3,

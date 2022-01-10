@@ -278,6 +278,22 @@ class Acknowledge extends React.Component {
                 onChangeText={this.stuffTruckPalletInput}
                 value={this.state.stuffTruckPallet}
                 keyboardType="number-pad"
+                onBlur={(e) =>
+                  this.setState({
+                    stuffTruckPallet:
+                    this.state.stuffTruckPallet !== '' && isNaN(this.state.stuffTruckPallet) === false
+                        ? String(parseFloat(this.state.stuffTruckPallet))
+                        : '0',
+                  })
+                }
+                onEndEditing={(e) => {
+                  this.setState({
+                    stuffTruckPallet:
+                    e.nativeEvent.text !== '' &&  isNaN(e.nativeEvent.text) === false
+                        ? String(parseFloat(e.nativeEvent.text))
+                        : '0',
+                  });
+                }}
             />
          </View>      
          <View style={[styles.sectionInput, {paddingVertical:10}]}>
@@ -293,6 +309,22 @@ class Acknowledge extends React.Component {
                 disabled={(!this.state.stuffTruck)}
                 onChangeText={this.stuffTruckCartonInput}
                 value={this.state.stuffTruckCarton}
+                onBlur={(e) =>
+                  this.setState({
+                    stuffTruckCarton:
+                    this.state.stuffTruckCarton !== '' && isNaN(this.state.stuffTruckCarton) === false
+                        ? String(parseFloat(this.state.stuffTruckCarton))
+                        : '0',
+                  })
+                }
+                onEndEditing={(e) => {
+                  this.setState({
+                    stuffTruckCarton:
+                    e.nativeEvent.text !== '' &&  isNaN(e.nativeEvent.text) === false
+                        ? String(parseFloat(e.nativeEvent.text))
+                        : '0',
+                  });
+                }}
                 keyboardType="number-pad"
             />
          </View>
@@ -390,6 +422,22 @@ class Acknowledge extends React.Component {
                       style={{...Mixins.body1,lineHeight:21,color:'#6C6B6B',fontWeight:'400'}}
                       onChangeText={this.stuffContainerPalletInput}
                       value={this.state.stuffContainerPallet}
+                      onBlur={(e) =>
+                        this.setState({
+                          stuffContainerPallet:
+                          this.state.stuffContainerPallet !== '' && isNaN(this.state.stuffContainerPallet) === false
+                              ? String(parseFloat(this.state.stuffContainerPallet))
+                              : '0',
+                        })
+                      }
+                      onEndEditing={(e) => {
+                        this.setState({
+                          stuffContainerPallet:
+                          e.nativeEvent.text !== '' &&  isNaN(e.nativeEvent.text) === false
+                              ? String(parseFloat(e.nativeEvent.text))
+                              : '0',
+                        });
+                      }}
                 keyboardType="number-pad"
                 disabled={this.state.stuffTruck}
             />
@@ -407,6 +455,22 @@ class Acknowledge extends React.Component {
               onChangeText={this.stuffContainerCartonInput}
               value={this.state.stuffContainerCarton}
                 keyboardType="number-pad"
+                onBlur={(e) =>
+                  this.setState({
+                    stuffContainerCarton:
+                    this.state.stuffContainerCarton !== '' && isNaN(this.state.stuffContainerCarton) === false
+                        ? String(parseFloat(this.state.stuffContainerCarton))
+                        : '0',
+                  })
+                }
+                onEndEditing={(e) => {
+                  this.setState({
+                    stuffContainerCarton:
+                    e.nativeEvent.text !== '' &&  isNaN(e.nativeEvent.text) === false
+                        ? String(parseFloat(e.nativeEvent.text))
+                        : '0',
+                  });
+                }}
                 disabled={this.state.stuffTruck}
             />
             </View> 

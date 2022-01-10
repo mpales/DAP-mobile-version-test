@@ -47,6 +47,7 @@ import Banner from '../../../../component/banner/banner';
 
 import BlankList from '../../../../assets/icon/Group 5122blanklist.svg';
 import EmptyIlustrate from '../../../../assets/icon/manifest-empty mobile.svg';
+import InfoTooltip from '../../../../assets/icon/iconmonstr-info-2 1mobile.svg';
 const window = Dimensions.get('window');
 
 class Warehouse extends React.Component {
@@ -457,18 +458,21 @@ class Warehouse extends React.Component {
                       flex: 1,
                       paddingRight: 20,
                       flexDirection: 'column',
-                      justifyContent: 'flex-end',
-                      alignContent: 'flex-end',
+                      justifyContent: 'flex-start',
+                      alignContent: 'flex-start',
                     },
                   ]}>
+                  <View style={{flex:1, flexDirection:'row', }}>
+                  <View style={{flexShrink:1,}}>
                   <Text
                     style={{
                       ...Mixins.subtitle1,
                       lineHeight: 21,
                       color: '#424141',
                     }}>
-                    {this.state.inboundNumber}
-                  </Text>
+                     {this.state.inboundNumber}   
+                     </Text>
+                  </View>
                   <Tooltip
                     withPointer={false}
                     backgroundColor="#FFFFFF"
@@ -508,52 +512,16 @@ class Warehouse extends React.Component {
 
                       elevation: 5,
                     }}>
-                    <Button
-                      containerStyle={{
-                        width: '100%',
-                        justifyContent: 'center',
-                        marginTop: 9,
-                      }}
-                      buttonStyle={[
-                        styles.navigationButton,
-                        {
-                          paddingHorizontal: 0,
-                          paddingVertical: 0,
-                          backgroundColor: '#121C78',
-                        },
-                      ]}
-                      titleStyle={[
-                        styles.deliveryText,
-                        {lineHeight: 36, fontWeight: '400'},
-                      ]}
-                      title="Remarks"
-                      disabledTitleStyle={[
-                        styles.deliveryText,
-                        {lineHeight: 36, fontWeight: '400'},
-                      ]}
-                      disabledStyle={[
-                        styles.navigationButton,
-                        {
-                          paddingHorizontal: 0,
-                          paddingVertical: 0,
-                          backgroundColor: '#121C78',
-                        },
-                      ]}
-                      disabled={true}
-                    />
+                            <View style={{paddingHorizontal:10}}>                   
+                     {this.state.remark ? ( 
+                     <InfoTooltip fill="#F07120" height="18" width="18"/>
+                     ) : (<></>)}
+                      </View>
+
+
                   </Tooltip>
-                </View>
-                <View
-                  style={[
-                    styles.contentHead,
-                    {
-                      flex: 1,
-                      alignSelf: 'flex-end',
-                      flexDirection: 'column',
-                      justifyContent: 'flex-end',
-                      alignContent: 'flex-end',
-                    },
-                  ]}>
+                  </View>
+                 
                   <Text
                     style={{
                       ...Mixins.subtitle1,
@@ -562,11 +530,23 @@ class Warehouse extends React.Component {
                     }}>
                     {this.state.companyname}
                   </Text>
+                </View>
+                <View
+                  style={[
+                    styles.contentHead,
+                    {
+                      flex: 1,
+                      alignSelf: 'flex-start',
+                      flexDirection: 'column',
+                      justifyContent: 'flex-start',
+                      alignContent: 'flex-start',
+                    },
+                  ]}>
                   <Button
                     containerStyle={{
                       width: '100%',
                       justifyContent: 'center',
-                      marginTop: 9,
+                      marginTop: 0,
                     }}
                     buttonStyle={[
                       styles.navigationButton,

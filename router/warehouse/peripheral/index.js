@@ -762,51 +762,7 @@ class Example extends React.Component {
                     </>
                   ) : (
                     <>
-                      <View style={styles.dividerContent}>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            flexShrink: 1,
-                            justifyContent: 'center',
-                            alignContent: 'center',
-                          }}>
-                          <Text style={styles.labelPackage}>Container # </Text>
-                          <Text style={styles.dotLabel}>:</Text>
-                        </View>
-                        <Text style={styles.infoPackage}>
-                          {dataItem.container_no}
-                        </Text>
-                      </View>
-                      <View style={styles.dividerContent}>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            flexShrink: 1,
-                            justifyContent: 'center',
-                            alignContent: 'center',
-                          }}>
-                          <Text style={styles.labelPackage}>No. of Pallet</Text>
-                          <Text style={styles.dotLabel}>:</Text>
-                        </View>
-                        <Text style={styles.infoPackage}>
-                          {dataItem.total_pallet}
-                        </Text>
-                      </View>
-                      <View style={styles.dividerContent}>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            flexShrink: 1,
-                            justifyContent: 'center',
-                            alignContent: 'center',
-                          }}>
-                          <Text style={styles.labelPackage}>No. of Carton</Text>
-                          <Text style={styles.dotLabel}>:</Text>
-                        </View>
-                        <Text style={styles.infoPackage}>
-                          {dataItem.total_carton}
-                        </Text>
-                      </View>
+                     {/* before pallet id for transit  */}
                     </>
                   )}
                   <View style={styles.dividerContent}>
@@ -913,7 +869,7 @@ class Example extends React.Component {
                       </View>
                     )}
                   </View>
-                  {dataItem.is_transit !== 1 && (
+                  {dataItem.is_transit !== 1 ? (
                     <>
                       <View style={styles.dividerContent}>
                         <View
@@ -976,10 +932,7 @@ class Example extends React.Component {
                           </Text>
                         </View>
                       )}
-                    </>
-                  )}
-
-                  {this.state.isConfirm === true && (
+                       {this.state.isConfirm === true && (
                     <View style={styles.dividerContent}>
                       <View
                         style={{
@@ -994,8 +947,136 @@ class Example extends React.Component {
                       <Text style={styles.infoPackage}>{this.state.qty}</Text>
                     </View>
                   )}
+                    </>
+                  ): (
+                    <>
+                      <View style={styles.dividerContent}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            flexShrink: 1,
+                            justifyContent: 'center',
+                            alignContent: 'center',
+                          }}>
+                          <Text style={styles.labelPackage}>No. of Pallet</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
+                        {this.state.isConfirm ? ( 
+                        <Text style={styles.infoPackage}>
+                          {dataItem.total_pallet}
+                        </Text>) : (
+                          <Input   
+                        containerStyle={ { flex: 1,
+                          paddingVertical: 0,
+                          maxHeight: 30,
+                          flexDirection: 'row',
+                        paddingHorizontal:0,
+                      marginHorizontal:0,}}
+                      keyboardType="number-pad"
+                      inputContainerStyle={{
+                        borderWidth: 0,
+                        borderBottomWidth: 0,
+                        flex: 1,
+                        flexDirection: 'row',
+                      }}
+                      inputStyle={{ 
+                        flexShrink:1,
+                        justifyContent:'center',
+                        alignContent:'center',
+                        alignItems:'center',
+                        height:'auto',
+                        maxHeight:'auto',
+                        minHeight:'auto',
+                        borderWidth: 1,
+                        borderColor: '#D5D5D5',
+                        borderRadius: 5,}}
+                      style={[
+                        Mixins.containedInputDefaultStyle,
+                        {
+                          ...Mixins.h4,
+                          fontWeight: '600',
+                          lineHeight: 27,
+                          color: '#424141',
+                          paddingHorizontal:10,
+                        },
+                      ]}
+                      labelStyle={[
+                        Mixins.containedInputDefaultLabel,
+                        {...Mixins.subtitle3, marginBottom: 0, marginRight: 0},
+                      ]}
+                      label=""
+                      value={String(dataItem.total_pallet)}
+                     
+                      />
+                        )}
+                        
+                      </View>
+                      <View style={styles.dividerContent}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            flexShrink: 1,
+                            justifyContent: 'center',
+                            alignContent: 'center',
+                          }}>
+                          <Text style={styles.labelPackage}>No. of Carton</Text>
+                          <Text style={styles.dotLabel}>:</Text>
+                        </View>
+                        {this.state.isConfirm ? ( 
+                        <Text style={styles.infoPackage}>
+                          {dataItem.total_carton}
+                        </Text>) : (
+                          <Input   
+                        containerStyle={ { flex: 1,
+                          paddingVertical: 0,
+                          maxHeight: 30,
+                          flexDirection: 'row',
+                        paddingHorizontal:0,
+                      marginHorizontal:0,}}
+                      keyboardType="number-pad"
+                      inputContainerStyle={{
+                        borderWidth: 0,
+                        borderBottomWidth: 0,
+                        flex: 1,
+                        flexDirection: 'row',
+                      }}
+                      inputStyle={{ 
+                        flexShrink:1,
+                        justifyContent:'center',
+                        alignContent:'center',
+                        alignItems:'center',
+                        height:'auto',
+                        maxHeight:'auto',
+                        minHeight:'auto',
+                        borderWidth: 1,
+                        borderColor: '#D5D5D5',
+                        borderRadius: 5,}}
+                      style={[
+                        Mixins.containedInputDefaultStyle,
+                        {
+                          ...Mixins.h4,
+                          fontWeight: '600',
+                          lineHeight: 27,
+                          color: '#424141',
+                          paddingHorizontal:10,
+                        },
+                      ]}
+                      labelStyle={[
+                        Mixins.containedInputDefaultLabel,
+                        {...Mixins.subtitle3, marginBottom: 0, marginRight: 0},
+                      ]}
+                      label=""
+                      value={String(dataItem.total_carton)}
+                     
+                      />
+                        )}
+                      </View>
+                    </>
+                  )}
+
+                 
                 </View>
-                {this.state.isConfirm !== true && (
+                {(this.state.isConfirm !== true && dataItem.is_transit !== 1) && (
                   <View
                     style={[
                       styles.sectionDividier,
@@ -1638,7 +1719,7 @@ class Example extends React.Component {
     } else if (dataItem.is_transit || toEnterAttr === false) {
       let FormData = await this.getPhotoReceivingGoods();
       let incrementQty = this.state.qty;
-
+      console.log('barcode scanning', incrementQty);
       const ProcessItem = await postBlob(
         'inboundsMobile/' +
           this.props.currentASN +
