@@ -147,7 +147,7 @@ export const deleteData = (path) => {
 export const postBlob = (path, data, callbackUploadProgress, callbackProgress) => {
   let result = (async () => {
     try {
-      const res = await blobFetch(path,{method:'POST',...data},null,callbackUploadProgress,callbackProgress);
+      const res = await blobFetch(path,{method:'POST'},data,callbackUploadProgress,callbackProgress);
       if (res.respInfo.headers['Content-Type'].includes('text/plain')) {
         return responseBlobHandler(res);
       } else if (res.respInfo.headers['Content-Type'].includes('text/html')) {
