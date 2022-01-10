@@ -54,7 +54,7 @@ class List extends React.Component {
     this.setState({renderGoBack: false});
     const result = await getData('inboundsMobile/putaways');
     if (Array.isArray(result)) {
-      return result.filter((element) => element !== null);
+      return result.filter((element) => element !== null).sort((a, b) => -(String(a.receivedDate).localeCompare(String(b.receivedDate))));
     } else {
       return [];
     }

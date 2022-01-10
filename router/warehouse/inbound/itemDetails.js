@@ -86,7 +86,7 @@ class ConnoteDetails extends React.Component {
                 <DetailList title="Barcode" value={ _itemDetail.barcodes.length === 0 ? 'EMPTY' : _itemDetail.barcodes[_itemDetail.barcodes.length - 1].code_number} />
                 <DetailList title="UOM" value={_itemDetail.uom} />
                 <DetailList title="Quantity" value={_itemDetail.qty} />
-                <DetailList title="Product Class" value={_itemDetail.product_class === 1 ? 'Normal Stock' : _itemDetail.product_class === 2 ? 'POSM' : _itemDetail.product_class === 3 ? 'Packaging Materials' : 'Samples'} />
+                <DetailList title="Item Classification" value={_itemDetail.product_class === 1 ? 'Normal Stock' : _itemDetail.product_class === 2 ? 'POSM' : _itemDetail.product_class === 3 ? 'Packaging Materials' : 'Samples'} />
                 <DetailList title="CBM" value={_itemDetail.basic.volume} />
                 <DetailList title="Weight"  value={ _itemDetail.basic.weight + ' KG'} />
                 </View>
@@ -99,7 +99,9 @@ class ConnoteDetails extends React.Component {
                 </View>
                 <View style={[styles.reportSection,{paddingHorizontal:20}]}>
                   <Text style={styles.reportSectionTitle}>Report:</Text>
-                  <TouchableOpacity onPress={this.navigateSeeReport}>
+                  <TouchableOpacity
+                        disabled={(this.state.totalReports === 0)}
+                  onPress={this.navigateSeeReport}>
                   <DetailList
                     title="Total Report"
                     value={this.state.totalReports+" Report"}
@@ -161,6 +163,7 @@ class ConnoteDetails extends React.Component {
             <Text style={styles.headerTitle}>Product Details</Text>
             <TouchableOpacity
               style={styles.seeReportButton}
+              disabled={(this.state.totalReports === 0)}
               onPress={this.navigateSeeReport}>
               <Text style={styles.seeReportText}>See Reports</Text>
               <ChevronRight width="15" height="15" fill="#6C6B6B" />

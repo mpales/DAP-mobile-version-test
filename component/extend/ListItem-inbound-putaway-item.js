@@ -156,7 +156,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         </View>
         <ListItem.Content style={styles.sectionContainer}>
         <View style={[styles.wrapper,{marginRight:110}]}>
-            <Text style={[styles.detailText, {width: 120}]}>Date</Text>
+            <Text style={[styles.detailText, {width: 100}]}>Date</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -166,7 +166,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: 120}]}>Inbound Job ID</Text>
+            <Text style={[styles.detailText, {width: 100}]}>Inbound Job ID</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -176,7 +176,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: 120}]}>Item Code  </Text>
+            <Text style={[styles.detailText, {width: 100}]}>Item Code  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -186,7 +186,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: 120}]}>Description</Text>
+            <Text style={[styles.detailText, {width: 100}]}>Description</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -196,7 +196,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: 120}]}>UOM</Text>
+            <Text style={[styles.detailText, {width: 100}]}>UOM</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -206,7 +206,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: 120}]}>Qty</Text>
+            <Text style={[styles.detailText, {width: 100}]}>Qty</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -216,7 +216,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: 120}]}>Pallet</Text>
+            <Text style={[styles.detailText, {width: 100}]}>Pallet</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={

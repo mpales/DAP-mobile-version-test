@@ -212,14 +212,14 @@ class Example extends React.Component {
 
 
   let packagingArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
-      if(dataItem.detail[index].attributes.packaging === undefined)
+      if(typeof dataItem.detail[index] !== 'object' || dataItem.detail[index].attributes.packaging === undefined)
       return null;
     return dataItem.detail[index].attributes.packaging;
   });
   let packagingFiltered = packagingArr.filter((o)=> o !== null);;
 
   let qtyPickArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
-      if(dataItem.detail[index].attributes.qtyToPick === undefined)
+      if(typeof dataItem.detail[index] !== 'object' || dataItem.detail[index].attributes.qtyToPick === undefined)
       return null;
     return dataItem.detail[index].attributes.qtyToPick;
   });
@@ -234,7 +234,7 @@ class Example extends React.Component {
 
   
   let categoryArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
-    if(dataItem.detail[index].attributes.category === undefined)
+    if(typeof dataItem.detail[index] !== 'object' || dataItem.detail[index].attributes.category === undefined)
     return null;
     return dataItem.detail[index].attributes.category;
   });
@@ -248,7 +248,7 @@ class Example extends React.Component {
   let banchFiltered =banchArr.filter((o)=> o !== null);;
 
   let expArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
-      if(dataItem.detail[index].attributes.expiry_date === undefined)
+      if(typeof dataItem.detail[index] !== 'object' || dataItem.detail[index].attributes.expiry_date === undefined)
       return null;
     return dataItem.detail[index].attributes.expiry_date;
   });
@@ -624,14 +624,14 @@ class Example extends React.Component {
   });
   let uomFiltered = uomArr.filter((o)=> o !== null);;
   let packagingArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
-      if(dataItem.detail[index].attributes.packaging === undefined)
+      if(typeof dataItem.detail[index] !== 'object' || dataItem.detail[index].attributes.packaging === undefined)
       return null;
     return dataItem.detail[index].attributes.packaging;
   });
   let packagingFiltered = packagingArr.filter((o)=> o !== null);;
 
   let qtyPickArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
-      if(dataItem.detail[index].attributes.qtyToPick === undefined)
+      if(typeof dataItem.detail[index] !== 'object' || dataItem.detail[index].attributes.qtyToPick === undefined)
       return null;
     return dataItem.detail[index].attributes.qtyToPick;
   });
@@ -646,7 +646,7 @@ class Example extends React.Component {
 
   
   let categoryArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
-    if(dataItem.detail[index].attributes.category === undefined)
+    if(typeof dataItem.detail[index] !== 'object' || dataItem.detail[index].attributes.category === undefined)
     return null;
     return dataItem.detail[index].attributes.category;
   });
@@ -659,7 +659,7 @@ class Example extends React.Component {
   });
   let banchFiltered = banchArr.filter((o)=> o !== null);;
   let expArr = Array.from({length:dataItem.detail.length}).map((num,index)=>{
-      if(dataItem.detail[index].attributes.expiry_date === undefined)
+      if(typeof dataItem.detail[index] !== 'object' || dataItem.detail[index].attributes.expiry_date === undefined)
       return null;
     return dataItem.detail[index].attributes.expiry_date;
   });
