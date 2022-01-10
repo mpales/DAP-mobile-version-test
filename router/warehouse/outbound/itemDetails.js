@@ -73,24 +73,28 @@ class ConnoteDetails extends React.Component {
   renderHeader = () => {
     const {_itemDetail} = this.state;
     let totalQty = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
+      if(typeof _itemDetail.detail[index] !== 'object' || _itemDetail.detail[index].quantity === undefined)
+      return null;
+
       return _itemDetail.detail[index].quantity;
     });
+    let filteredTotalQty = totalQty.filter((o)=> o !== null);
     let expArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
-        if(_itemDetail.detail[index].attributes.expiry_date === undefined)
+        if(typeof _itemDetail.detail[index] !== 'object' || _itemDetail.detail[index].attributes.expiry_date === undefined)
         return null;
       return _itemDetail.detail[index].attributes.expiry_date;
     });
     let expFiltered = expArr.filter((o)=> o !== null);
 
     let colorArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
-        if(_itemDetail.detail[index].attributes.color === undefined)
+        if(typeof _itemDetail.detail[index] !== 'object' || _itemDetail.detail[index].attributes.color === undefined)
         return null;
       return _itemDetail.detail[index].attributes.color;
     });
     let colorFiltered =colorArr.filter((o)=> o !== null);;
     
     let weightArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
-      if(_itemDetail.detail[index].attributes.weight === undefined)
+      if(typeof _itemDetail.detail[index] !== 'object' || _itemDetail.detail[index].attributes.weight === undefined)
       return null;
       return _itemDetail.detail[index].attributes.weight;
     });
@@ -98,7 +102,7 @@ class ConnoteDetails extends React.Component {
 
     
     let volumeArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
-      if(_itemDetail.detail[index].attributes.volume === undefined)
+      if(typeof _itemDetail.detail[index] !== 'object' || _itemDetail.detail[index].attributes.volume === undefined)
       return null;
       return _itemDetail.detail[index].attributes.volume;
     });
@@ -106,7 +110,7 @@ class ConnoteDetails extends React.Component {
     
        
     let classArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
-      if(_itemDetail.detail[index].attributes.class === undefined)
+      if(typeof _itemDetail.detail[index] !== 'object' || _itemDetail.detail[index].attributes.class === undefined)
       return null;
       return _itemDetail.detail[index].attributes.class;
     });
@@ -119,7 +123,7 @@ class ConnoteDetails extends React.Component {
     });
     let banchFiltered = banchArr.filter((o)=> o !== null);;
     let categoryArr = Array.from({length:_itemDetail.detail.length}).map((num,index)=>{
-      if(_itemDetail.detail[index].attributes.category === undefined)
+      if(typeof _itemDetail.detail[index] !== 'object' || _itemDetail.detail[index].attributes.category === undefined)
       return null;
       return _itemDetail.detail[index].attributes.category;
     });
@@ -140,8 +144,8 @@ class ConnoteDetails extends React.Component {
                 <DetailList title="Description" value={_itemDetail.product.description} />
                 <DetailList title="Barcode" value={_itemDetail.product.item_code} />
                 <DetailList title="UOM" value={_itemDetail.product.uom} />
-                <DetailList title="Quantity" value={totalQty.length > 0 ? String(totalQty.reduce((p,n)=>p+n)) : "0"}/>
-                <DetailList title="Product Class" value={classFiltered.length > 0 ? classFiltered[0] : '-'  } />
+                <DetailList title="Quantity" value={filteredTotalQty.length > 0 ? String(filteredTotalQty.reduce((p,n)=>p+n)) : "0"}/>
+                <DetailList title="Item Classification" value={classFiltered.length > 0 ? classFiltered[0] : '-'  } />
                 <DetailList title="CBM" value={volumeFiltered.length > 0 ? volumeFiltered[0] : '-'} />
                 <DetailList title="Weight" value={weightFiltered.length > 0 ? weightFiltered[0] : '-'} />
                 </View>

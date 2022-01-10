@@ -135,10 +135,11 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
     return item.detail[index].warehouse_storage_container_id;
   });
   let categoryArr = Array.from({length:item.detail.length}).map((num,index)=>{
-    if(item.detail[index].attributes.category === undefined)
-    return [];
+    if(typeof item.detail[index] !== 'object' || (item.detail[index].attributes === undefined && item.detail[index].attributes.category === undefined))
+    return null;
     return item.detail[index].attributes.category;
   });
+  let categoryFiltered = categoryArr.filter((o)=> o !== null);
   let wholeArr = Array.from({length:item.detail.length}).map((num,index)=>{
     if(item.detail[index].quantity === undefined)
     return null;
@@ -273,7 +274,7 @@ let uomFiltered = uomArr.filter((o)=> o !== null);;
 
               <View style={{flexDirection:'row', flexShrink:1}}>
               <Text style={{...Mixins.small1, lineHeight: 18, color: '#424141', fontWeight: '400'}}>
-              {categoryArr[0].length > 0 ? categoryArr[0] : '-'}
+              {categoryFiltered.length > 0 ? categoryFiltered[0] : '-'}
               </Text>
               </View>
             </View>

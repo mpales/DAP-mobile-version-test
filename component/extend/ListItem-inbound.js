@@ -169,7 +169,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
         <ListItem.Content style={styles.sectionContainer}>
       
           <View style={[styles.wrapper, {marginRight:PixelRatio.get() > 2.75 ? 120 : 110}]}>
-            <Text style={[styles.detailText, {width: 120}]}>ETA Date</Text>
+            <Text style={[styles.detailText, {width: 100}]}>ETA Date</Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -181,7 +181,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
    
        
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: 120}]}>Client ID  </Text>
+            <Text style={[styles.detailText, {width: 100}]}>Client ID  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -191,7 +191,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: 120}]}>Inbound ID  </Text>
+            <Text style={[styles.detailText, {width: 100}]}>Inbound ID  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -201,7 +201,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: 120}]}>Ref #   </Text>
+            <Text style={[styles.detailText, {width: 100}]}>Ref #   </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -211,7 +211,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
             </Text>
           </View>
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: 120}]}>Shipment type  </Text>
+            <Text style={[styles.detailText, {width: 100}]}>Shipment type  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -222,7 +222,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
           </View>
           {item.shipment_type === 2 && (          
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: 120}]}>Container  #  </Text>
+            <Text style={[styles.detailText, {width: 100}]}>Container  #  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -234,7 +234,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
           {item.type === 2 && (
             <>          
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: 120}]}>No. of Pallet  </Text>
+            <Text style={[styles.detailText, {width: 100}]}>No. of Pallet  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={
@@ -245,7 +245,7 @@ const Manifest = ({item, index, isActive, ToManifest}) => {
           </View>
              
           <View style={styles.wrapper}>
-            <Text style={[styles.detailText, {width: 120}]}>No. of Carton  </Text>
+            <Text style={[styles.detailText, {width: 100}]}>No. of Carton  </Text>
             <Text style={styles.detailText}>:</Text>
             <Text
               style={

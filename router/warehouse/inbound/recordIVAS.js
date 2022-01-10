@@ -250,13 +250,7 @@ class Acknowledge extends React.Component {
              <Text style={styles.dotLabelStyle}>:</Text>
              <Text style={styles.textHeadInput}>{moment(this.state.inboundData.created_on).format('DD-MM-YYYY')}</Text>
          </View>
-         <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
-            <View style={styles.labelHeadInput}>
-             <Text style={styles.textHeadInput}>Recorded By</Text>
-             </View>
-             <Text style={styles.dotLabelStyle}>:</Text>
-             <Text style={styles.textHeadInput}>{this.props.userRole.name}</Text>
-         </View>
+      
          <Divider orientation="horizontal" color="#D5D5D5" style={{marginVertical: 15}}/>
         <View style={styles.sectionInbound}>
           <View style={{flexDirection:'row', flexShrink:1,}}>

@@ -70,6 +70,7 @@ class Warehouse extends React.Component {
       renderFiltered : false,
       remark: '',
       remarkHeight: 500,
+      stickyHeight : 0,
     };
     this.goToIVAS.bind(this);
     this.toggleOverlay.bind(this);
@@ -1096,7 +1097,7 @@ class Warehouse extends React.Component {
             {(inset) => (
               <>
                 <View
-                  style={[styles.buttonSticky, {bottom: 60 + inset.bottom}]}>
+                  style={[styles.buttonSticky, {bottom: 60 + inset.bottom + this.state.stickyHeight}]}>
                   <Avatar
                     size={75}
                     ImageComponent={() => (
@@ -1119,6 +1120,9 @@ class Warehouse extends React.Component {
                   />
                 </View>
                 <View
+                onLayout={(e)=> {
+                  if((e.nativeEvent.layout.height - 60 ) > 50)
+                  this.setState({stickyHeight:e.nativeEvent.layout.height - 100})}}
                   style={[
                     styles.bottomTabContainer,
                     {paddingBottom: 10 + inset.bottom},
