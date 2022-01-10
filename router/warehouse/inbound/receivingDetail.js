@@ -13,7 +13,7 @@ import Svg, {
   Path,
   Rect,
 } from 'react-native-svg';
-import {View, ScrollView, Platform} from 'react-native';
+import {View, ScrollView, Platform, PixelRatio} from 'react-native';
 import {connect} from 'react-redux';
 import Mixins from '../../../mixins';
 import moment from 'moment';
@@ -940,23 +940,27 @@ class Acknowledge extends React.Component {
                 flexDirection: 'column',
               }}
               style={{
-                flexShrink: 1,
+                ...Mixins.subtitle3,
                 paddingHorizontal: 20,
                 paddingVertical: 0,
-                height: 23,
-                minHeight: 23,
-                maxHeight: 23,
+                textTransform: 'uppercase',
+                  color: '#fff',
+                  fontWeight: '600',
+                  lineHeight:PixelRatio.get() > 2.75 ? 18 : 21,
+                  textAlign:'center',
+                  textAlignVertical:'center',
               }}
               inputStyle={[
                 {
-                  ...Mixins.subtitle3,
+                  flexShrink:1,
+                  justifyContent:'center',
+                  alignContent:'center',
+                  alignItems:'center',
+                  height:'auto',
+                  maxHeight:'auto',
+                  minHeight:'auto',
                   backgroundColor: this.getBackgroundStatusColor(data.status),
                   borderRadius: 5,
-                  fontWeight: '600',
-                  lineHeight: 21,
-                  textTransform: 'uppercase',
-                  color: '#fff',
-                  textAlign: 'center',
                 },
               ]}
               disabledInputStyle={{opacity: 1}}
