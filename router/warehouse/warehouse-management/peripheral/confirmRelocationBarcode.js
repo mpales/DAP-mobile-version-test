@@ -3,9 +3,9 @@ import {Dimensions, StatusBar, StyleSheet, Text, View} from 'react-native';
 import {Button, Divider, Overlay} from 'react-native-elements';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
+import BottomSheet from 'reanimated-bottom-sheet';
 // component
 import Barcode from '../../../../component/camera/filter-barcode';
-import Banner from '../../../../component/banner/banner';
 import {TextList, CustomTextList} from '../../../../component/extend/Text-list';
 // helper
 import {getData, putData} from '../../../../component/helper/network';
@@ -29,6 +29,7 @@ class ConfirmRelocationBarcode extends React.Component {
       isShowSuccessOverlay: false,
       isSubmitting: false,
     };
+    this.modalizeRef = React.createRef();
   }
 
   componentDidMount() {
@@ -126,11 +127,44 @@ class ConfirmRelocationBarcode extends React.Component {
     });
   };
 
-  closeBanner = () => {
-    this.setState({
-      errorMessage: '',
-    });
-    this.props.setBarcodeScanner(true);
+  renderHeader = () => (
+    <View style={styles.header}>
+      <View style={styles.panelHeader}>
+        <View style={styles.panelHandle} />
+      </View>
+    </View>
+  );
+
+  renderInner = () => {
+    const {relocationDetails} = this.state;
+    return (
+      <View style={styles.sheetContainer}>
+        <View style={styles.sheetDetail}>
+          <TextList
+            title="Warehouse"
+            value={!!relocationDetails ? relocationDetails.warehouseNameTo : ''}
+          />
+          <TextList
+            title="Location"
+            value={!!relocationDetails ? relocationDetails.locationTo : ''}
+          />
+          <CustomTextList
+            title="Destination Grade"
+            value={
+              !!relocationDetails
+                ? productGradeToString(relocationDetails.gradeTo)
+                : ''
+            }
+          />
+        </View>
+        <Button
+          title="Manual Input"
+          titleStyle={styles.buttonText}
+          buttonStyle={styles.button}
+          onPress={this.navigateToManualInput}
+        />
+      </View>
+    );
   };
 
   render() {
@@ -140,14 +174,17 @@ class ConfirmRelocationBarcode extends React.Component {
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
         <Barcode renderBarcode={this.renderBarcode} />
-        <View style={styles.manualInputContainer}>
-          <Button
-            title="Manual Input"
-            titleStyle={styles.buttonText}
-            buttonStyle={[styles.button, {marginBottom: 0}]}
-            onPress={this.navigateToManualInput}
-          />
-        </View>
+        <BottomSheet
+          ref={this.modalizeRef}
+          initialSnap={1}
+          snapPoints={[30, 190]}
+          enabledBottomClamp={false}
+          enabledContentTapInteraction={false}
+          renderContent={this.renderInner}
+          renderHeader={this.renderHeader}
+          enabledInnerScrolling={false}
+          enabledBottomInitialAnimation={false}
+        />
         {!isLoading && (
           <Overlay
             overlayStyle={{borderRadius: 10, padding: 0}}
@@ -325,11 +362,32 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 25,
   },
-  manualInputContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 20,
+  header: {
+    backgroundColor: 'white',
+    height: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 0,
+    marginBottom: -1,
+    borderBottomColor: 'white',
+    borderBottomWidth: 0,
+  },
+  panelHeader: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 11,
+  },
+  panelHandle: {
+    width: 120,
+    height: 7,
+    backgroundColor: '#C4C4C4',
+  },
+  sheetContainer: {
+    backgroundColor: 'white',
+  },
+  sheetDetail: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
 });
 
