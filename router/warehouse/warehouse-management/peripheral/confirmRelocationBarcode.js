@@ -109,9 +109,8 @@ class ConfirmRelocationBarcode extends React.Component {
 
   handleShowSuccessOverlay = () => {
     const {isShowSuccessOverlay} = this.state;
-    this.props.setBarcodeScanner(!isShowSuccessOverlay === false);
+    this.props.setBarcodeScanner(false);
     this.setState({
-      canDetectBarcode: !isShowSuccessOverlay === false ? true : false,
       isShowSuccessOverlay: !isShowSuccessOverlay,
     });
   };
@@ -271,7 +270,7 @@ class ConfirmRelocationBarcode extends React.Component {
           </Overlay>
         )}
         <Overlay
-          isVisible={errorMessage !== ''}
+          isVisible={errorMessage !== '' && isShowSuccessOverlay === false}
           overlayStyle={{borderRadius: 13}}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
