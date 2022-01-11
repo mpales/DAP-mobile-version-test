@@ -644,14 +644,16 @@ class Warehouse extends React.Component {
             this.setState({palletArray: resultPallet.sort((a,b) => a.pallet_no.replace(/[^0-9.]/g, '') - b.pallet_no.replace(/[^0-9.]/g, ''))})
           }
           this.props.setManifestList(result.products);
+          let active_inbound_receipt = null;
+          if(result.inbound_receipt !== undefined && Array.isArray(result.inbound_receipt) && result.inbound_receipt.length > 0){
+            active_inbound_receipt = result.inbound_receipt.find((o)=>o.current_active === true);
+          }
           this.setState({
             receivingNumber: currentASN,
             inboundNumber: result.inbound_number,
             _manifest: result.products,
             companyname: result.client,
-            receiptid:
-              result.inbound_receipt[result.inbound_receipt.length - 1]
-                .receipt_no,
+            receiptid: active_inbound_receipt !== null && active_inbound_receipt !== undefined ? active_inbound_receipt.receipt_no : null,
             remark: result.remarks,
             initialRender: true,
             renderFiltered: false,
