@@ -602,7 +602,7 @@ class Warehouse extends React.Component {
             inboundNumber: result.inbound_number,
             _manifest: result.products,
             companyname: result.client,
-            receiptid: active_inbound_receipt !== null && active_inbound_receipt !== undefined ? active_inbound_receipt.receipt_no : '-',
+            receiptid: active_inbound_receipt !== null && active_inbound_receipt !== undefined ? active_inbound_receipt.receipt_no : null,
             remark: result.remarks,
             initialRender: true,
             renderFiltered: false,
@@ -1198,8 +1198,8 @@ class Warehouse extends React.Component {
                     titleStyle={styles.deliveryText}
                     onPress={this.goToIVAS}
                     disabled={
-                      this.state.shipmentVAS === true ||
-                      this.state.receiptid === null
+                      (this.state.shipmentVAS === true ||
+                      this.state.receiptid === null)
                     }
                     title="Shipment VAS"
                   />
@@ -1211,6 +1211,7 @@ class Warehouse extends React.Component {
                     ]}
                     titleStyle={styles.deliveryText}
                     onPress={this.toggleOverlay}
+                    disabled={  ( this.state.receiptid === null)}
                     title="Complete Receiving"
                   />
                 </View>
