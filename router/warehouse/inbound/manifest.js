@@ -21,6 +21,7 @@ import {
   ActivityIndicator,
   PixelRatio,
   Modal,
+  Animated
 } from 'react-native';
 import {
   Avatar,
@@ -51,6 +52,7 @@ const window = Dimensions.get('window');
 class Warehouse extends React.Component {
   _unsubscribe = null;
   palletTooltip = null;
+  fadeGenerateIndicatr = new Animated.Value(1);
   constructor(props) {
     super(props);
     this.state = {
@@ -688,6 +690,10 @@ class Warehouse extends React.Component {
       // this.props.navigation.navigate('containerDetail');
     }
   };
+  handleGenerateAnimate = ()=>{
+    this.fadeGenerateIndicatr.setValue(1);
+    this.setState({generatePallet: true,notifbanner:'', notifsuccess: false})
+  }
   closeNotifBanner = () => {
     this.setState({notifbanner: '', notifsuccess: false});
   };
@@ -708,12 +714,19 @@ class Warehouse extends React.Component {
     const result = await postData(
       '/inboundsMobile/' + receivingNumber + '/pallet',
     );
-    if (typeof result === 'object' && result.error === undefined) {
-      this.setState({palletid: result.id,generatePallet: false});
-    } else {
-      this.setState({   notifbanner: 'Generate Pallet has failed',
-      notifsuccess: false,generatePallet: false}); 
-    }
+    Animated.timing(this.fadeGenerateIndicatr, {
+      toValue: 0,
+      duration: 2000,
+      useNativeDriver: false,
+    }).start(()=>{
+      if (typeof result === 'object' && result.error === undefined) {
+         this.setState({palletid: result.id,generatePallet: false,notifbanner: 'Generated Pallet ID '+ result.id,
+         notifsuccess: true,});
+       } else {
+         this.setState({   notifbanner: 'Generate Pallet has failed',
+         notifsuccess: false,generatePallet: false}); 
+       }
+    });
   };
 
   _onRefresh = () => {
@@ -915,12 +928,13 @@ class Warehouse extends React.Component {
                     ]}
                     icon={()=>   {
                     if(this.state.generatePallet === true){
-                      return (<ActivityIndicator size={18} color="#121C78" />);
+                      return (<Animated.View style={{opacity:this.fadeGenerateIndicatr}}><ActivityIndicator size={18} color="#121C78" /></Animated.View>);
                     }
                     return (<></>);
                     }}
                     onPress={this.generatePalletID}
-                    onPressIn={()=> this.setState({generatePallet: true})}
+                    onPressIn={this.handleGenerateAnimate}
+                    disabled={(this.state.generatePallet === true)}
                     title="New Pallet ID"
                   />
                 </View>
