@@ -1714,7 +1714,7 @@ class Example extends React.Component {
       this.props.navigation.setOptions({headerShown: false});
       this.setState({
         errorAttr:
-          'Please choose item pallet, or re-process item when not showed',
+        'Please choose item pallet before going to next step',
       });
     } else if (dataItem.is_transit || toEnterAttr === false) {
       let FormData = await this.getPhotoReceivingGoods();

@@ -744,6 +744,12 @@ class Warehouse extends React.Component {
       });
     } else if(Array.isArray(resultPallet) && resultPallet.length > 0){
       this.setState({palletArray: resultPallet.sort((a,b) => a.pallet_no.replace(/[^0-9.]/g, '') - b.pallet_no.replace(/[^0-9.]/g, '')),togglePallet: true, OverlayPalletVisible: true})
+    } else if(typeof resultPallet === 'object' && resultPallet.error !== undefined){
+      this.setState({
+        notifbanner: resultPallet.error,
+        notifsuccess: false,
+        togglePallet: false
+      });
     }
   }
   render() {
