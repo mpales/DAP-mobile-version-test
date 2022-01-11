@@ -15,6 +15,7 @@ class Acknowledge extends React.Component {
     super(props);
     this.state = {
       receivingNumber: null,
+      receiptId : null,
       inboundData : null,
       error : '',
       stuffTruck: false,
@@ -48,13 +49,12 @@ class Acknowledge extends React.Component {
     if(receivingNumber === null){
       const {routes, index} = navigation.dangerouslyGetState();
        if(routes[index].params !== undefined && routes[index].params.number !== undefined){
-         console.log('state params',routes[index].params.number);
         let inboundData = inboundList.find((element) => element.id === routes[index].params.number);
         if(inboundData !== undefined){
           if(inboundData.type !== 2 && inboundData.shipment_type === 2){
-            return {...state, receivingNumber: routes[index].params.number,inboundData: inboundData, stuff20Container: 0};
+            return {...state, receivingNumber: routes[index].params.number,inboundData: inboundData, stuff20Container: 0, receiptId:routes[index].params.receiptId};
           } else {
-            return {...state, receivingNumber: routes[index].params.number,inboundData: inboundData, stuffTruck: true};
+            return {...state, receivingNumber: routes[index].params.number,inboundData: inboundData, stuffTruck: true, receiptId:routes[index].params.receiptId};
           }
         } else {
           navigation.goBack();
@@ -201,10 +201,7 @@ class Acknowledge extends React.Component {
   }
   render(){
     if(this.state.inboundData === null) return <Loading/>
-    let active_inbound_receipt = null;
-    if(this.state.inboundData.inbound_receipt.length > 0){
-      active_inbound_receipt = this.state.inboundData.inbound_receipt.find((o)=>o.current_active === true);
-    }
+ 
     return (
         <ScrollView style={styles.body}>
             {this.state.error !== '' && (<Banner
@@ -234,7 +231,7 @@ class Acknowledge extends React.Component {
              <Text style={styles.textHeadInput}>Receipt #</Text>
              </View>
              <Text style={styles.dotLabelStyle}>:</Text>
-             <Text style={styles.textHeadInput}>{this.state.inboundData.inbound_receipt.length > 0  && active_inbound_receipt ? active_inbound_receipt.receipt_no : '-'}</Text>
+             <Text style={styles.textHeadInput}>{ this.state.receiptId}</Text>
          </View>
          <View style={[styles.sectionInput,{    paddingHorizontal: 30,paddingVertical:10}]}>
             <View style={styles.labelHeadInput}>

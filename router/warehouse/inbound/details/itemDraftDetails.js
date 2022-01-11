@@ -126,12 +126,19 @@ class ConnoteDetails extends React.Component {
     );
   };
 
-  renderInner = (item) => {
+  renderInner = ({item,index}) => {
+    let oddeven = index % 2;
     return (
-      <View style={styles.header}>
-        <Text style={styles.detailText}>{moment(item.dateTime).format('DD/MM/YYY h:mm a')}</Text>
-        <Text style={styles.detailText}>{item.user.firstName}</Text>
-        <Text style={styles.detailText}>{item.activities}</Text>
+      <View style={[styles.header,{paddingHorizontal:10,backgroundColor: oddeven == 0 ? '#EFEFEF' : 'white'}]}>
+          <View style={{flex:1}}>
+        <Text style={styles.detailText}>{moment(item.dateTime).format('DD/MM/YYYY h:mm a')}</Text>
+        </View>
+        <View style={{flexShrink:1, paddingHorizontal:10,}}>
+        <Text style={[styles.detailText, {textAlignVertical:'top'}]}>{item.user.firstName}</Text>
+        </View>
+        <View style={{flex:1, justifyContent:'flex-end',alignItems:'flex-end'}}>
+        <Text style={[styles.detailText,{textAlign:'right'}]}>{item.activities}</Text>
+        </View>
       </View>
     );
   };
@@ -152,7 +159,7 @@ class ConnoteDetails extends React.Component {
               data={this.state.dataActivities}
               ListHeaderComponent={this.renderHeader}
               contentContainerStyle={{paddingHorizontal:10}}
-              renderItem={({item}) => this.renderInner(item)}
+              renderItem={this.renderInner}
             />
           </View>
         </View>

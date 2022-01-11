@@ -954,25 +954,25 @@ class Acknowledge extends React.Component {
               <View
                 style={{
                   flexDirection: 'row',
-                  flexShrink: 1,
+                  flex: 1,
                   marginBottom: 0,
                   paddingHorizontal: 10,
                   marginTop: 20,
                 }}>
                 <View
                   style={{
+                    backgroundColor:'transparent',
                     flexShrink: 1,
-                    backgroundColor: 'transparent',
-                    maxHeight: 30,
                     paddingHorizontal: 15,
-                    paddingVertical: 6,
+                    paddingVertical: 0,
                     marginVertical: 0,
                     borderRadius: 5,
-                    minWidth: PixelRatio.get() > 2.75 ? 160 : 140,
+                    width: 140,
                     alignItems: 'flex-start',
-                    marginRight: 20,
+                    justifyContent:'center',
+                    marginRight: 0,
                   }}>
-                  <Text>Length ( m )</Text>
+                  <Text style={{...Mixins.body1,lineHeight:21}}>Length ( m )</Text>
                 </View>
                 <Input
                   containerStyle={{
@@ -999,23 +999,23 @@ class Acknowledge extends React.Component {
               <View
                 style={{
                   flexDirection: 'row',
-                  flexShrink: 1,
+                  flex: 1,
                   paddingHorizontal: 10,
                 }}>
                 <View
                   style={{
+                    backgroundColor:'transparent',
                     flexShrink: 1,
-                    backgroundColor: 'transparent',
-                    maxHeight: 30,
                     paddingHorizontal: 15,
-                    paddingVertical: 6,
+                    paddingVertical: 0,
                     marginVertical: 0,
                     borderRadius: 5,
-                    minWidth: PixelRatio.get() > 2.75 ? 160 : 140,
+                    width: 140,
                     alignItems: 'flex-start',
-                    marginRight: 20,
+                    justifyContent:'center',
+                    marginRight: 0,
                   }}>
-                  <Text>Width ( m )</Text>
+                  <Text style={{...Mixins.body1,lineHeight:21}}>Width ( m )</Text>
                 </View>
                 <Input
                   containerStyle={{
@@ -1042,23 +1042,23 @@ class Acknowledge extends React.Component {
               <View
                 style={{
                   flexDirection: 'row',
-                  flexShrink: 1,
+                  flex: 1,
                   paddingHorizontal: 10,
                 }}>
                 <View
                   style={{
+                    backgroundColor:'transparent',
                     flexShrink: 1,
-                    backgroundColor: 'transparent',
-                    maxHeight: 30,
                     paddingHorizontal: 15,
-                    paddingVertical: 6,
+                    paddingVertical: 0,
                     marginVertical: 0,
                     borderRadius: 5,
-                    minWidth: PixelRatio.get() > 2.75 ? 160 : 140,
+                    width: 140,
                     alignItems: 'flex-start',
-                    marginRight: 20,
+                    justifyContent:'center',
+                    marginRight: 0,
                   }}>
-                  <Text>Height ( m )</Text>
+                  <Text style={{...Mixins.body1,lineHeight:21}}>Height ( m )</Text>
                 </View>
                 <Input
                   containerStyle={{
@@ -1085,23 +1085,23 @@ class Acknowledge extends React.Component {
               <View
                 style={{
                   flexDirection: 'row',
-                  flexShrink: 1,
+                  flex: 1,
                   paddingHorizontal: 10,
                 }}>
                 <View
                   style={{
+                    backgroundColor:'transparent',
                     flexShrink: 1,
-                    backgroundColor: 'transparent',
-                    maxHeight: 30,
                     paddingHorizontal: 15,
-                    paddingVertical: 6,
+                    paddingVertical: 0,
                     marginVertical: 0,
                     borderRadius: 5,
-                    minWidth: PixelRatio.get() > 2.75 ? 160 : 140,
+                    width: 140,
                     alignItems: 'flex-start',
-                    marginRight: 20,
+                    justifyContent:'center',
+                    marginRight: 0,
                   }}>
-                  <Text>Vol. Weight ( m3 )</Text>
+                  <Text style={{...Mixins.body1,lineHeight:21}}>Vol. Weight ( m3 )</Text>
                 </View>
                 <Input
                   containerStyle={{
@@ -1127,23 +1127,23 @@ class Acknowledge extends React.Component {
               <View
                 style={{
                   flexDirection: 'row',
-                  flexShrink: 1,
+                  flex: 1,
                   paddingHorizontal: 10,
                 }}>
                 <View
                   style={{
+                    backgroundColor:'transparent',
                     flexShrink: 1,
-                    backgroundColor: 'transparent',
-                    maxHeight: 30,
                     paddingHorizontal: 15,
-                    paddingVertical: 6,
+                    paddingVertical: 0,
                     marginVertical: 0,
                     borderRadius: 5,
-                    minWidth: PixelRatio.get() > 2.75 ? 160 : 140,
+                    width: 140,
                     alignItems: 'flex-start',
-                    marginRight: 20,
+                    justifyContent:'center',
+                    marginRight: 0,
                   }}>
-                  <Text>Weight ( Kg )</Text>
+                  <Text style={{...Mixins.body1,lineHeight:21}}>Weight ( Kg )</Text>
                 </View>
                 <Input
                   containerStyle={{
@@ -1170,23 +1170,23 @@ class Acknowledge extends React.Component {
               <View
                 style={{
                   flexDirection: 'row',
-                  flexShrink: 1,
+                  flex: 1,
                   paddingHorizontal: 10,
                 }}>
                 <View
                   style={{
+                    backgroundColor:'transparent',
                     flexShrink: 1,
-                    backgroundColor: 'transparent',
-                    maxHeight: 30,
                     paddingHorizontal: 15,
-                    paddingVertical: 6,
+                    paddingVertical: 0,
                     marginVertical: 0,
                     borderRadius: 5,
-                    minWidth: PixelRatio.get() > 2.75 ? 160 : 140,
+                    width: 140,
                     alignItems: 'flex-start',
-                    marginRight: 20,
+                    justifyContent:'center',
+                    marginRight: 0,
                   }}>
-                  <Text># Pcs per carton</Text>
+                  <Text style={{...Mixins.body1,lineHeight:21}}># Pcs per carton</Text>
                 </View>
                 <Input
                   containerStyle={{

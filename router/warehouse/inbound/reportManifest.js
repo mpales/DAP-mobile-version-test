@@ -137,30 +137,33 @@ class ReportManifest extends React.Component {
   getPhotoReceivingGoods = async () => {
     const {photoReportPostpone} = this.props;
     let formdata = [];
-    for (let index = 0; index < photoReportPostpone.length; index++) {
-      let name,
-        filename,
-        path,
-        type = '';
-      await RNFetchBlob.fs
-        .stat(
-          Platform.OS === 'ios'
-            ? photoReportPostpone[index].replace('file://', '')
-            : photoReportPostpone[index],
-        )
-        .then((FSStat) => {
-          name = FSStat.filename.replace('.', '-');
-          filename = FSStat.filename;
-          path = FSStat.path;
-          type = FSStat.type;
-        });
-      if (type === 'file')
-        formdata.push({
-          name: 'photos',
-          filename: filename,
-          type: 'image/jpg',
-          data: Platform.OS === 'ios' ? path : RNFetchBlob.wrap(path),
-        });
+    if(Array.isArray(photoReportPostpone)){
+
+      for (let index = 0; index < photoReportPostpone.length; index++) {
+        let name,
+          filename,
+          path,
+          type = '';
+        await RNFetchBlob.fs
+          .stat(
+            Platform.OS === 'ios'
+              ? photoReportPostpone[index].replace('file://', '')
+              : photoReportPostpone[index],
+          )
+          .then((FSStat) => {
+            name = FSStat.filename.replace('.', '-');
+            filename = FSStat.filename;
+            path = FSStat.path;
+            type = FSStat.type;
+          });
+        if (type === 'file')
+          formdata.push({
+            name: 'photos',
+            filename: filename,
+            type: 'image/jpg',
+            data: Platform.OS === 'ios' ? path : RNFetchBlob.wrap(path),
+          });
+      }
     }
     return formdata;
   };
@@ -415,7 +418,7 @@ class ReportManifest extends React.Component {
                 value={this.state.otherReason}
               />
             </View>
-            <View
+         {this.state.reasonOption !== 'missing-item' && (   <View
               style={{
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -505,18 +508,18 @@ class ReportManifest extends React.Component {
                 Photo Proof
               </Text>
               {/* {this.state.errors !== '' && ( <Text style={{...Mixins.subtitle3,lineHeight:21,fontWeight: '400',color:'red'}}>{this.state.errors}</Text>)} */}
-            </View>
+            </View>)}
             <Button
-              containerStyle={{flexShrink: 1}}
+              containerStyle={{flexShrink: 1, marginTop: this.state.reasonOption !== 'missing-item' ? 0 : 40}}
               buttonStyle={styles.navigationButton}
               titleStyle={styles.deliveryText}
               onPressIn={()=>{this.setState({overlayProgress: true})}}
               onPress={this.handleSubmit}
               title="Submit"
               disabled={
-                this.props.photoReportPostpone === null ||
+               (this.state.reasonOption !== 'missing-item' && ( this.props.photoReportPostpone === null ||
                 (this.props.photoReportID !== null &&
-                  this.props.photoReportID !== this.state.dataCode) ||
+                  this.props.photoReportID !== this.state.dataCode) ))||
                 this.state.reasonOption === ''
                   ? true
                   : false
