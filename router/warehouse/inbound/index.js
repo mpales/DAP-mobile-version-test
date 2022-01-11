@@ -482,7 +482,7 @@ class HomeNavigator extends React.Component {
                   {...props}
                   onPress={() => {
                     this.props.setBottomBar(false);
-                    this.props.navigation.goBack();
+                    this.props.navigation.navigate('ItemDetail');
                   }}
                 />
               );

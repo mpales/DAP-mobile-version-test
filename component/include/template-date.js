@@ -172,15 +172,15 @@ const Manifest = React.forwardRef((props, ref) => {
             color: '#424141',
           }}
           labelStyle={Mixins.containedInputDefaultLabel}
-          placeholderTextColor="#424141"
+          placeholderTextColor="#ABABAB"
           showSoftInputOnFocus={false}
-          placeholder={filterDate}
+          placeholder="dd-MM-yy"
+          value={filterDate}
           onPressIn={() => {
             toggleOverlay(true);
           }}
           renderErrorMessage={false}
         />
-        <Text style={styles.dateInfo}>dd-MM-yy</Text>
       </View>
     </ThemeProvider>
   );

@@ -199,7 +199,7 @@ class ConnoteDetails extends React.Component {
   renderInner = ({item,index}) => {
     let oddeven = index % 2;
     return (
-      <View style={[styles.header,{backgroundColor: oddeven == 0 ? '#EFEFEF' : 'white'}]}>
+      <View style={[styles.header,{paddingHorizontal:10,backgroundColor: oddeven == 0 ? '#EFEFEF' : 'white'}]}>
          <View style={{flex:1}}>
         <Text style={styles.detailText}>{moment(item.date).format('DD/MM/YYYY h:mm a')}</Text>
         </View>

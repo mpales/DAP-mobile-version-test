@@ -138,6 +138,7 @@ class ConnoteReportDetails extends React.Component {
     <View style={styles.detail}>
       <DetailList title="Report By" value={item.reported_by.firstName} />
       <DetailList title="Date and Time" value={moment(item.reported_on).format('DD/MM/YYYY h:mm a')} />
+      <DetailList title="Affected Quantity" value={item.qty} />
       <DetailList title="Photo Proof" value={''} />
       <FlatList
             horizontal={true}
