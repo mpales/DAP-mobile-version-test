@@ -48,6 +48,8 @@ target 'transportApp' do
 
   pod 'rn-fetch-blob', :path => '../node_modules/rn-fetch-blob'
 
+  pod 'RNExitApp', :path => '../node_modules/react-native-exit-app'
+
   target 'transportAppTests' do
     inherit! :complete
 	

@@ -17,6 +17,7 @@ import Mixins from '../../mixins';
 import {checkInternetConnection} from 'react-native-offline'
 import {SERVER_DOMAIN} from '../../constant/server'
 import {navigationRef} from '../../component/helper/persist-login'
+import RNExitApp from 'react-native-exit-app';
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -24,6 +25,7 @@ export default class ErrorBoundary extends React.Component {
   }
 
   HandleServerRespond = async ()=>{
+    RNExitApp.exitApp();
   }
   render() {
     return (
@@ -40,7 +42,7 @@ export default class ErrorBoundary extends React.Component {
         <TouchableOpacity
           style={styles.refreshButton}
           onPress={this.HandleServerRespond}>
-          <Text style={styles.refreshButtonText}>Contact Developer</Text>
+          <Text style={styles.refreshButtonText}>Close</Text>
         </TouchableOpacity>
         </View>
       </View>
