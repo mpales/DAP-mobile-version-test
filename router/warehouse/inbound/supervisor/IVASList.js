@@ -125,20 +125,20 @@ class ConnoteReportDetails extends React.Component {
           <DetailList title="Client ID" value={item.inbound.client} />
           <DetailList title="Ref #" value={item.inbound.reference_id} />
           <DetailList title="Shipment Type" value={this.state.inboundData.shipment_type === 2 ? "FCL" : "LCL"} />
-          <DetailList title="Recorded By" value={item.inbound_shipment_va.created_by  !== undefined ? item.inbound_shipment_va.created_by.firstName : null} />
-          <DetailList title="Date and Time" value={item.inbound_shipment_va.created_on  !== undefined && item.inbound_shipment_va.created_on  !== null ? moment(item.inbound_shipment_va.created_on).format('DD/MM/YYYY h:mm a') : null}/>
+          <DetailList title="Recorded By" value={item.inbound_shipment_va.created_by  !== undefined ? item.inbound_shipment_va.created_by.firstName : '-'} />
+          <DetailList title="Date and Time" value={item.inbound_shipment_va.created_on  !== undefined && item.inbound_shipment_va.created_on  !== null ? moment(item.inbound_shipment_va.created_on).format('DD/MM/YYYY h:mm a') : '-'}/>
          
         <View style={{marginVertical:10, flexDirection:'row'}}> 
         <View style={{flex:1, alignContent:'flex-start'}}>        
         <Text style={{...Mixins.body1,lineHeight:20,fontWeight:'700',color:'#2D2C2C'}}>
-        { shipmentopt}  
+        { item.inbound_shipment_va.inbound_shipment !== undefined  ? shipmentopt : 'Receipt# '+item.receipt_no + ' has no shipment VAS'}  
       </Text>
       </View>
 
         {item.inbound_shipment_va.inbound_shipment !== undefined && (<ArrowDown fill="black" height="26" width="26" style={{flexShrink:1,alignContent:'flex-end', transform:[{rotate:'-90deg'}]}}/>)}
           </View>
-          <DetailList title="Number Pallet" value={item.inbound_shipment_va.inbound_shipment_no_pallet} />
-          <DetailList title="Number Cartons" value={item.inbound_shipment_va.inbound_shipment_no_carton} />
+          <DetailList title="Number Pallet" value={item.inbound_shipment_va.inbound_shipment_no_pallet !== undefined ? item.inbound_shipment_va.inbound_shipment_no_pallet : '-' } />
+          <DetailList title="Number Cartons" value={item.inbound_shipment_va.inbound_shipment_no_carton !== undefined ? item.inbound_shipment_va.inbound_shipment_no_carton : '-'} />
           
         </View>
       </Card>
