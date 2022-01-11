@@ -21,6 +21,7 @@ import {
   ActivityIndicator,
   PixelRatio,
   Modal,
+  Animated
 } from 'react-native';
 import {
   Avatar,
@@ -51,6 +52,7 @@ const window = Dimensions.get('window');
 class Warehouse extends React.Component {
   _unsubscribe = null;
   palletTooltip = null;
+  fadeGenerateIndicatr = new Animated.Value(1);
   constructor(props) {
     super(props);
     this.state = {
@@ -600,7 +602,7 @@ class Warehouse extends React.Component {
             inboundNumber: result.inbound_number,
             _manifest: result.products,
             companyname: result.client,
-            receiptid: active_inbound_receipt !== null && active_inbound_receipt !== undefined ? active_inbound_receipt.receipt_no : '-',
+            receiptid: active_inbound_receipt !== null && active_inbound_receipt !== undefined ? active_inbound_receipt.receipt_no : null,
             remark: result.remarks,
             initialRender: true,
             renderFiltered: false,
@@ -642,14 +644,16 @@ class Warehouse extends React.Component {
             this.setState({palletArray: resultPallet.sort((a,b) => a.pallet_no.replace(/[^0-9.]/g, '') - b.pallet_no.replace(/[^0-9.]/g, ''))})
           }
           this.props.setManifestList(result.products);
+          let active_inbound_receipt = null;
+          if(result.inbound_receipt !== undefined && Array.isArray(result.inbound_receipt) && result.inbound_receipt.length > 0){
+            active_inbound_receipt = result.inbound_receipt.find((o)=>o.current_active === true);
+          }
           this.setState({
             receivingNumber: currentASN,
             inboundNumber: result.inbound_number,
             _manifest: result.products,
             companyname: result.client,
-            receiptid:
-              result.inbound_receipt[result.inbound_receipt.length - 1]
-                .receipt_no,
+            receiptid: active_inbound_receipt !== null && active_inbound_receipt !== undefined ? active_inbound_receipt.receipt_no : null,
             remark: result.remarks,
             initialRender: true,
             renderFiltered: false,
@@ -688,6 +692,10 @@ class Warehouse extends React.Component {
       // this.props.navigation.navigate('containerDetail');
     }
   };
+  handleGenerateAnimate = ()=>{
+    this.fadeGenerateIndicatr.setValue(1);
+    this.setState({generatePallet: true,notifbanner:'', notifsuccess: false})
+  }
   closeNotifBanner = () => {
     this.setState({notifbanner: '', notifsuccess: false});
   };
@@ -708,12 +716,19 @@ class Warehouse extends React.Component {
     const result = await postData(
       '/inboundsMobile/' + receivingNumber + '/pallet',
     );
-    if (typeof result === 'object' && result.error === undefined) {
-      this.setState({palletid: result.id,generatePallet: false});
-    } else {
-      this.setState({   notifbanner: 'Generate Pallet has failed',
-      notifsuccess: false,generatePallet: false}); 
-    }
+    Animated.timing(this.fadeGenerateIndicatr, {
+      toValue: 0,
+      duration: 2000,
+      useNativeDriver: false,
+    }).start(()=>{
+      if (typeof result === 'object' && result.error === undefined) {
+         this.setState({palletid: result.id,generatePallet: false,notifbanner: 'Generated Pallet ID '+ result.id,
+         notifsuccess: true,});
+       } else {
+         this.setState({   notifbanner: 'Generate Pallet has failed',
+         notifsuccess: false,generatePallet: false}); 
+       }
+    });
   };
 
   _onRefresh = () => {
@@ -731,6 +746,12 @@ class Warehouse extends React.Component {
       });
     } else if(Array.isArray(resultPallet) && resultPallet.length > 0){
       this.setState({palletArray: resultPallet.sort((a,b) => a.pallet_no.replace(/[^0-9.]/g, '') - b.pallet_no.replace(/[^0-9.]/g, '')),togglePallet: true, OverlayPalletVisible: true})
+    } else if(typeof resultPallet === 'object' && resultPallet.error !== undefined){
+      this.setState({
+        notifbanner: resultPallet.error,
+        notifsuccess: false,
+        togglePallet: false
+      });
     }
   }
   render() {
@@ -915,12 +936,13 @@ class Warehouse extends React.Component {
                     ]}
                     icon={()=>   {
                     if(this.state.generatePallet === true){
-                      return (<ActivityIndicator size={18} color="#121C78" />);
+                      return (<Animated.View style={{opacity:this.fadeGenerateIndicatr}}><ActivityIndicator size={18} color="#121C78" /></Animated.View>);
                     }
                     return (<></>);
                     }}
                     onPress={this.generatePalletID}
-                    onPressIn={()=> this.setState({generatePallet: true})}
+                    onPressIn={this.handleGenerateAnimate}
+                    disabled={(this.state.generatePallet === true)}
                     title="New Pallet ID"
                   />
                 </View>
@@ -1178,8 +1200,8 @@ class Warehouse extends React.Component {
                     titleStyle={styles.deliveryText}
                     onPress={this.goToIVAS}
                     disabled={
-                      this.state.shipmentVAS === true ||
-                      this.state.receiptid === null
+                      (this.state.shipmentVAS === true ||
+                      this.state.receiptid === null)
                     }
                     title="Shipment VAS"
                   />
@@ -1191,6 +1213,7 @@ class Warehouse extends React.Component {
                     ]}
                     titleStyle={styles.deliveryText}
                     onPress={this.toggleOverlay}
+                    disabled={  ( this.state.receiptid === null)}
                     title="Complete Receiving"
                   />
                 </View>
