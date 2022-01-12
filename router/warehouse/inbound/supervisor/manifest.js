@@ -724,7 +724,7 @@ class Warehouse extends React.Component {
                 <Button
                   containerStyle={{
                     flex: 1,
-                    marginRight: 10,
+                    marginRight: 0,
                     height: '100%',
                     flexBasis: 1,
                   }}
@@ -744,16 +744,7 @@ class Warehouse extends React.Component {
                   }}
                   title="Shipment VAS"
                 />
-                <Button
-                  containerStyle={{flex: 1, height: '100%', flexBasis: 1}}
-                  buttonStyle={[
-                    styles.navigationButton,
-                    {paddingVertical: 10, flexGrow: 1},
-                  ]}
-                  titleStyle={styles.deliveryText}
-                  onPress={this.toggleOverlay}
-                  title="Confirm & Putaway"
-                />
+            
               </View>
             )}
           </SafeAreaInsetsContext.Consumer>
@@ -898,7 +889,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     paddingBottom: 10,
-    paddingTop: 40,
+    paddingTop: 20,
   },
   reportButton: {
     backgroundColor: '#FFF',

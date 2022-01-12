@@ -885,11 +885,11 @@ class Example extends React.Component {
                         <Text style={styles.infoPackage}>
                           {this.props.ManifestType === 1
                             ? dataItem.rework === 0
-                              ? 'SIT -> Buffer'
-                              : 'SIT-> Rework -> Buffer'
+                              ? 'SIT -> BUFFER'
+                              : 'SIT-> REWORKS -> BUFFER'
                             : dataItem.rework === 0
-                            ? 'SIT-> Pick'
-                            : 'SIT-> Rework -> Pick'}
+                            ? 'SIT-> PICK'
+                            : 'SIT-> REWORKS -> PICK'}
                         </Text>
                       </View>
                       <View style={styles.dividerContent}>

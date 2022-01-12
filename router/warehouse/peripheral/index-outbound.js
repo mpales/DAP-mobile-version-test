@@ -169,36 +169,36 @@ class Example extends React.Component {
   let gradeFiltered = gradeArr.filter((o)=> o !== null);
    let grade = '';
     switch (gradeFiltered[0]) {
-     case 1:
-        grade = 'Pick'
-        break;
-        case 2:
-          grade = 'Buffer'
+      case 1:
+        grade = 'PICK'
          break;
-          case 3:
-            grade = 'Damage'
+        case 2:
+          grade = 'BUFFER'
+          break;
+         case 3:
+           grade = 'DAMAGED'
            break;
-           case 4:
-             grade = 'Defective'
+            case 4:
+             grade = 'DEFECTIVE'
              break;
              case 5:
-               grade = 'Short Expiry'
+               grade = 'SHORT EXPIRY'
                break;
-                case 6:
-                  grade = 'Expired'
-                  break;
+               case 6:
+                 grade = 'EXPIRED'
+                 break;
                  case 7:
-                   grade = 'No Stock'
-                   break;
+                   grade = 'NS'
+                  break;
                    case 8:
-                       grade = 'Reserve'
+                      grade = 'RESERVED'
                      break;
                      case 9:
-                         grade = 'SIT'
+                       grade = 'SIT'
                        break;
-                       case 10:
-                         grade = 'Rework'
-                         break;
+                        case 10:
+                         grade = 'REWORKS'
+                          break;
       default:
        break;
    }
@@ -584,34 +584,34 @@ class Example extends React.Component {
   let grade = '';
     switch (gradeFiltered[0]) {
       case 1:
-        grade = 'Pick'
+        grade = 'PICK'
          break;
         case 2:
-          grade = 'Buffer'
+          grade = 'BUFFER'
           break;
          case 3:
-           grade = 'Damage'
+           grade = 'DAMAGED'
            break;
             case 4:
-             grade = 'Defective'
+             grade = 'DEFECTIVE'
              break;
              case 5:
-               grade = 'Short Expiry'
+               grade = 'SHORT EXPIRY'
                break;
                case 6:
-                 grade = 'Expired'
+                 grade = 'EXPIRED'
                  break;
                  case 7:
-                   grade = 'No Stock'
+                   grade = 'NS'
                   break;
                    case 8:
-                      grade = 'Reserve'
+                      grade = 'RESERVED'
                      break;
                      case 9:
                        grade = 'SIT'
                        break;
                         case 10:
-                         grade = 'Rework'
+                         grade = 'REWORKS'
                           break;
      default:
        break;
