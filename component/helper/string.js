@@ -80,7 +80,7 @@ export const productGradeToString = (value) => {
       gradeString = 'BUFFER';
       break;
     case 3:
-      gradeString = 'DAMAGE';
+      gradeString = 'DAMAGED';
       break;
     case 4:
       gradeString = 'DEFECTIVE';
@@ -92,16 +92,16 @@ export const productGradeToString = (value) => {
       gradeString = 'EXPIRED';
       break;
     case 7:
-      gradeString = 'NO STOCK';
+      gradeString = 'NS';
       break;
     case 8:
-      gradeString = 'RESERVE';
+      gradeString = 'RESERVED';
       break;
     case 9:
       gradeString = 'SIT';
       break;
     case 10:
-      gradeString = 'REWORK';
+      gradeString = 'REWORKS';
       break;
     default:
       gradeString = '-';

@@ -30,6 +30,8 @@ import {
   postBlob,
   postData,
 } from '../../../component/helper/network';
+import SelectDropdown from 'react-native-select-dropdown';
+import IconArrow66Mobile from '../../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
 import Banner from '../../../component/banner/banner';
 import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
 import IconView from '../../../assets/icon/iconmonstr-picture-1 1mobile.svg';
@@ -96,6 +98,7 @@ class Acknowledge extends React.Component {
         let manifest = manifestList.find(
           (element) => element.pId === routes[index].params.inputCode,
         );
+        console.log(manifest);
         return {
           ...state,
           productID: manifest.pId,
@@ -226,6 +229,7 @@ class Acknowledge extends React.Component {
           productID +
           '/product-attributes',
       );
+      console.log(getAttributes);
       this.setState({
         length:
           getAttributes.basic.length !== null
@@ -947,7 +951,7 @@ class Acknowledge extends React.Component {
                     fontWeight: '700',
                     color: '#424141',
                   }}>
-                  Carton Dimensions
+                  Update Dimensions
                 </Text>
               </View>
               <Divider color="#D5D5D5" />
@@ -955,7 +959,7 @@ class Acknowledge extends React.Component {
                 style={{
                   flexDirection: 'row',
                   flex: 1,
-                  marginBottom: 0,
+                  marginBottom: 5,
                   paddingHorizontal: 10,
                   marginTop: 20,
                 }}>
@@ -972,7 +976,80 @@ class Acknowledge extends React.Component {
                     justifyContent:'center',
                     marginRight: 0,
                   }}>
-                  <Text style={{...Mixins.body1,lineHeight:21}}>Length ( m )</Text>
+                  <Text style={{...Mixins.body1,lineHeight:21, color:'#424141'}}>UOM</Text>
+                </View>
+            
+                <SelectDropdown
+                            buttonStyle={{flex:1,marginHorizontal:10,height:30,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB',backgroundColor:'white'}}
+                            buttonTextStyle={{...Mixins.body1, color:'#2D2C2C', lineHeight:20, fontWeight:'700',textAlign:'left',}}
+                            data={['20ft', '40ft','20ft High Cube','40ft High Cube'] }
+                            defaultValueByIndex={this.state.stuffContainer}
+                            disabled={true}
+                            onSelect={(selectedItem, index) => {
+                              // const {stuffContainer} = this.state;
+                              // if(index === stuffContainer) {
+                              //   this.setState({
+                              //     stuffContainer : index,
+                              //   });
+                              // } else {
+                              //   this.setState({
+                              //     stuffContainer: index,
+                              //     stuffContainerDot1: false,
+                              //     stuffContainerDot2: false,
+                              //     stuffContainerCarton: '',
+                              //     stuffContainerPallet: '',
+                              //   });
+                              // }
+                            }}
+                            renderDropdownIcon={() => {
+                              return (
+                                <IconArrow66Mobile fill="#ABABAB" height="16" width="16" style={{transform:[{rotate:'90deg'}]}}/>
+                              );
+                            }}
+                            dropdownIconPosition="right"
+                            buttonTextAfterSelection={(selectedItem, index) => {
+                              // text represented after item is selected
+                              // if data array is an array of objects then return selectedItem.property to render after item is selected
+                              return selectedItem;
+                            }}
+                            rowTextForSelection={(item, index) => {
+                              // text represented for each item in dropdown
+                              // if data array is an array of objects then return item.property to represent item in dropdown
+                              return item;
+                            }}
+            
+                            renderCustomizedRowChild={(item, index) => {
+                              return (
+                                <View style={{flex:1,paddingHorizontal:17, backgroundColor: 'transparent',paddingVertical:0,marginVertical:0, justifyContent:'center'}}>
+                                  <Text style={{...Mixins.small1,fontWeight:'400',lineHeight:18, color:'#424141'}}>{item}</Text>
+                                </View>
+                              );
+                            }}
+                          />
+                          </View>
+          
+              <View
+                style={{
+                  flexDirection: 'row',
+                  flex: 1,
+                  marginBottom: 0,
+                  paddingHorizontal: 10,
+                  marginTop: 0,
+                }}>
+                <View
+                  style={{
+                    backgroundColor:'transparent',
+                    flexShrink: 1,
+                    paddingHorizontal: 15,
+                    paddingVertical: 0,
+                    marginVertical: 0,
+                    borderRadius: 5,
+                    width: 140,
+                    alignItems: 'flex-start',
+                    justifyContent:'center',
+                    marginRight: 0,
+                  }}>
+                  <Text style={{...Mixins.body1,lineHeight:21, color:'#424141'}}>Length ( m )</Text>
                 </View>
                 <Input
                   containerStyle={{
@@ -996,6 +1073,7 @@ class Acknowledge extends React.Component {
                   disabled={this.state.validDimensions}
                 />
               </View>
+             
               <View
                 style={{
                   flexDirection: 'row',
@@ -1015,7 +1093,7 @@ class Acknowledge extends React.Component {
                     justifyContent:'center',
                     marginRight: 0,
                   }}>
-                  <Text style={{...Mixins.body1,lineHeight:21}}>Width ( m )</Text>
+                  <Text style={{...Mixins.body1,lineHeight:21, color:'#424141'}}>Width ( m )</Text>
                 </View>
                 <Input
                   containerStyle={{
@@ -1058,7 +1136,7 @@ class Acknowledge extends React.Component {
                     justifyContent:'center',
                     marginRight: 0,
                   }}>
-                  <Text style={{...Mixins.body1,lineHeight:21}}>Height ( m )</Text>
+                  <Text style={{...Mixins.body1,lineHeight:21, color:'#424141'}}>Height ( m )</Text>
                 </View>
                 <Input
                   containerStyle={{
@@ -1101,7 +1179,7 @@ class Acknowledge extends React.Component {
                     justifyContent:'center',
                     marginRight: 0,
                   }}>
-                  <Text style={{...Mixins.body1,lineHeight:21}}>Vol. Weight ( m3 )</Text>
+                  <Text style={{...Mixins.body1,lineHeight:21, color:'#424141'}}>Vol. Weight ( m3 )</Text>
                 </View>
                 <Input
                   containerStyle={{
@@ -1143,7 +1221,7 @@ class Acknowledge extends React.Component {
                     justifyContent:'center',
                     marginRight: 0,
                   }}>
-                  <Text style={{...Mixins.body1,lineHeight:21}}>Weight ( Kg )</Text>
+                  <Text style={{...Mixins.body1,lineHeight:21, color:'#424141'}}>Weight ( Kg )</Text>
                 </View>
                 <Input
                   containerStyle={{
@@ -1186,7 +1264,7 @@ class Acknowledge extends React.Component {
                     justifyContent:'center',
                     marginRight: 0,
                   }}>
-                  <Text style={{...Mixins.body1,lineHeight:21}}># Pcs per carton</Text>
+                  <Text style={{...Mixins.body1,lineHeight:21, color:'#424141'}}># Pcs per carton</Text>
                 </View>
                 <Input
                   containerStyle={{
@@ -1245,7 +1323,7 @@ class Acknowledge extends React.Component {
             </View>
           )}
           {this.state.keyboardState === 'hide' &&
-            this.state._manifest.can_take_photos === 1 && (
+            this.state._manifest.take_photo === 1 && (
               <View
                 style={{
                   marginHorizontal: 10,
@@ -1461,7 +1539,7 @@ class Acknowledge extends React.Component {
                     this.state.recordPhoto === true ? {color: 'white'} : null
                   }
                   disabled={
-                    this.state._manifest.can_take_photos === 1 &&
+                    this.state._manifest.take_photo === 1 &&
                     this.state.validPhoto === true &&
                     this.state.recordPhoto === false
                       ? false

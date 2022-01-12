@@ -97,22 +97,26 @@ class Acknowledge extends React.Component {
     // if(this.state.takeCartoon){
     //   VAS.cartoonDimensionSKU = parseInt(this.state.takeCartonSKU);
     // }
-    const result = await postData('/inboundsMobile/'+this.state.receivingNumber+'/shipmentVAS', VAS);
-    if(result === 'IVAS succesfully created'){
-      this.props.navigation.navigate('Manifest',{
-        notifbanner : result,
-      })
-    } else {
-      if(result.error){
-        this.setState({error:result.error})
-      } else if (result.errors !== undefined){
-        console.log(result.errors);
-        let error = '';
-        result.errors.forEach(element => {
-          error += element.msg + ' ' + element.param +', ';
-        });
-        this.setState({error:error});
+    if(VAS.nCartoon > 0 && VAS.nPallet > 0){
+      const result = await postData('/inboundsMobile/'+this.state.receivingNumber+'/shipmentVAS', VAS);
+      if(typeof result === 'string' && result === 'Shipment VAS Recorded'){
+        this.props.navigation.navigate('Manifest',{
+          notifbanner : result,
+        })
+      } else {
+        if(result.error){
+          this.setState({error:result.error})
+        } else if (result.errors !== undefined){
+          console.log(result.errors);
+          let error = '';
+          result.errors.forEach(element => {
+            error += element.msg + ' ' + element.param +', ';
+          });
+          this.setState({error:error});
+        }
       }
+    } else {
+      this.setState({error:'Input integer above zero for carton or pallet'});
     }
   }
   checkedIcon = () => {
