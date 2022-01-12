@@ -45,6 +45,7 @@ const window = Dimensions.get('window');
 class Acknowledge extends React.Component {
   unsubscribe = null;
   progressLinear = null;
+  dropdownUOM = null;
   constructor(props) {
     super(props);
     this.state = {
@@ -61,6 +62,9 @@ class Acknowledge extends React.Component {
       sku: '',
       description: '',
       uom: '',
+      uomArray: [],
+      uomSingle: '',
+      uomID: null,
       length: '',
       width: '',
       height: '',
@@ -106,20 +110,6 @@ class Acknowledge extends React.Component {
           sku: String(manifest.item_code),
           description: String(manifest.description),
           uom: String(manifest.uom),
-          length:
-            manifest.basic.length !== null ? String(manifest.basic.length) : '',
-          width:
-            manifest.basic.width !== null ? String(manifest.basic.width) : '',
-          height:
-            manifest.basic.height !== null ? String(manifest.basic.height) : '',
-          volweight:
-            manifest.basic.volume !== null ? String(manifest.basic.volume) : '',
-          weight:
-            manifest.basic.weight !== null ? String(manifest.basic.weight) : '',
-          pcscarton:
-            manifest.basic.carton_pcs !== null
-              ? String(manifest.basic.carton_pcs)
-              : '',
           _manifest: manifest,
           recordPhoto: !Boolean(manifest.can_take_photos),
           validDimensions: !Boolean(manifest.can_record_attribute),
@@ -172,6 +162,40 @@ class Acknowledge extends React.Component {
   async componentDidUpdate(prevProps, prevState, snapshot) {
     const {currentASN, manifestList} = this.props;
     if((prevState.barcode !== this.state.barcode && this.state.barcode !== '') || (prevState.validDimensions !== this.state.validDimensions && this.state.validDimensions === true)){
+      if(prevState.validDimensions !== this.state.validDimensions && this.state.validDimensions === true){
+        if (this.state.productID !== null) {
+          const getAttributes = await getData(
+            'inboundsMobile/' +
+              currentASN +
+              '/' +
+              this.state.productID +
+              '/product-attributes',
+          );
+          if(Array.isArray(getAttributes) && getAttributes.length > 0){
+            const savedAttributes = [...getAttributes];
+            let elementAttribute = savedAttributes.shift();
+            this.setState({
+              uomArray:getAttributes,
+              uomSingle: elementAttribute.packaging,
+              uomID: elementAttribute.id,
+              length:
+              String(elementAttribute.length),
+              width:
+              String(elementAttribute.width),
+              height:
+              String(elementAttribute.height),
+              volweight:
+              String(elementAttribute.volume),
+              weight:
+              String(elementAttribute.weight),
+              pcscarton:
+              String(elementAttribute.qty),
+            });
+          } else if(typeof getAttributes === 'object' && getAttributes.error !== undefined ) {
+            this.setState({errors: getAttributes.error, labelerror: true, errorsphoto: ''})
+          }
+        }
+      }
       const result = await getData('inboundsMobile/'+currentASN);
       if(typeof result === 'object' && result.error === undefined){
         this.props.setManifestList(result.products);
@@ -229,33 +253,29 @@ class Acknowledge extends React.Component {
           productID +
           '/product-attributes',
       );
-      console.log(getAttributes);
-      this.setState({
-        length:
-          getAttributes.basic.length !== null
-            ? String(getAttributes.basic.length)
-            : '',
-        width:
-          getAttributes.basic.width !== null
-            ? String(getAttributes.basic.width)
-            : '',
-        height:
-          getAttributes.basic.height !== null
-            ? String(getAttributes.basic.height)
-            : '',
-        volweight:
-          getAttributes.basic.volume !== null
-            ? String(getAttributes.basic.volume)
-            : '',
-        weight:
-          getAttributes.basic.weight !== null
-            ? String(getAttributes.basic.weight)
-            : '',
-        pcscarton:
-          getAttributes.basic.carton_pcs !== null
-            ? String(getAttributes.basic.carton_pcs)
-            : '',
-      });
+      if(Array.isArray(getAttributes) && getAttributes.length > 0){
+        const savedAttributes = [...getAttributes];
+        let elementAttribute = savedAttributes.shift();
+        this.setState({
+          uomArray:getAttributes,
+          uomSingle: elementAttribute.packaging,
+          uomID: elementAttribute.id,
+          length:
+          String(elementAttribute.length),
+          width:
+          String(elementAttribute.width),
+          height:
+          String(elementAttribute.height),
+          volweight:
+          String(elementAttribute.volume),
+          weight:
+          String(elementAttribute.weight),
+          pcscarton:
+          String(elementAttribute.qty),
+        });
+      } else if(typeof getAttributes === 'object' && getAttributes.error !== undefined ) {
+        this.setState({errors: getAttributes.error, labelerror: true, errorsphoto: ''})
+      }
     }
 
     Keyboard.addListener('keyboardDidShow', this.keyboardDidShowHandle);
@@ -286,11 +306,12 @@ class Acknowledge extends React.Component {
   };
   submitItem = async () => {
     const {manifestList, currentASN} = this.props;
-    const {productID, length, width, height, volweight, weight, pcscarton} =
+    const {productID, uomID,length, width, height, volweight, weight, pcscarton} =
       this.state;
     const updateAttr = await putData(
       'inboundsMobile/' + currentASN + '/' + productID + '/product-attributes',
       {
+        uomId: String(uomID),
         length: parseFloat(length),
         weight: parseFloat(weight),
         width: parseFloat(width),
@@ -300,29 +321,29 @@ class Acknowledge extends React.Component {
       },
     );
     if (typeof updateAttr !== 'object') {
-      const updatedManifestAttr = Array.from({length: manifestList.length}).map(
-        (num, index, arr) => {
-          if (productID === manifestList[index].pId) {
-            return {
-              ...manifestList[index],
-              basic: {
-                ...manifestList[index].basic,
-                length: parseFloat(length),
-                weight: parseFloat(weight),
-                width: parseFloat(width),
-                height: parseFloat(height),
-                volume: parseFloat(volweight),
-                carton_pcs: parseInt(pcscarton),
-              },
-            };
-          } else {
-            return manifestList[index];
-          }
-        },
-      );
+      // const updatedManifestAttr = Array.from({length: manifestList.length}).map(
+      //   (num, index, arr) => {
+      //     if (productID === manifestList[index].pId) {
+      //       return {
+      //         ...manifestList[index],
+      //         basic: {
+      //           ...manifestList[index].basic,
+      //           length: parseFloat(length),
+      //           weight: parseFloat(weight),
+      //           width: parseFloat(width),
+      //           height: parseFloat(height),
+      //           volume: parseFloat(volweight),
+      //           carton_pcs: parseInt(pcscarton),
+      //         },
+      //       };
+      //     } else {
+      //       return manifestList[index];
+      //     }
+      //   },
+      // );
       Keyboard.removeListener('keyboardDidShow', this.keyboardDidShowHandle);
       Keyboard.removeListener('keyboardDidHide', this.keyboardDidHideHandle);
-      this.props.setManifestList(updatedManifestAttr);
+      //this.props.setManifestList(updatedManifestAttr);
       this.props.setBottomBar(false);
       // this.props.navigation.navigate('Manifest');
       this.setState({validDimensions: true});
@@ -980,12 +1001,28 @@ class Acknowledge extends React.Component {
                 </View>
             
                 <SelectDropdown
+                            disabled={this.state.validDimensions}
                             buttonStyle={{flex:1,marginHorizontal:10,height:30,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB',backgroundColor:'white'}}
                             buttonTextStyle={{...Mixins.body1, color:'#2D2C2C', lineHeight:20, fontWeight:'700',textAlign:'left',}}
-                            data={['20ft', '40ft','20ft High Cube','40ft High Cube'] }
-                            defaultValueByIndex={this.state.stuffContainer}
-                            disabled={true}
+                            data={this.state.uomArray.length > 0 ? this.state.uomArray : []  }
+                            defaultButtonText={this.state.uomSingle}
                             onSelect={(selectedItem, index) => {
+                              this.setState({
+                                uomSingle: selectedItem.packaging,
+                                uomID:selectedItem.id,
+                                length:
+                                String(selectedItem.length),
+                                width:
+                                String(selectedItem.width),
+                                height:
+                                String(selectedItem.height),
+                                volweight:
+                                String(selectedItem.volume),
+                                weight:
+                                String(selectedItem.weight),
+                                pcscarton:
+                                String(selectedItem.qty),
+                              })
                               // const {stuffContainer} = this.state;
                               // if(index === stuffContainer) {
                               //   this.setState({
@@ -1010,17 +1047,18 @@ class Acknowledge extends React.Component {
                             buttonTextAfterSelection={(selectedItem, index) => {
                               // text represented after item is selected
                               // if data array is an array of objects then return selectedItem.property to render after item is selected
-                              return selectedItem;
+                            
+                              return selectedItem.packaging;
                             }}
                             rowTextForSelection={(item, index) => {
                               // text represented for each item in dropdown
                               // if data array is an array of objects then return item.property to represent item in dropdown
-                              return item;
+                              return item.packaging;
                             }}
             
                             renderCustomizedRowChild={(item, index) => {
                               return (
-                                <View style={{flex:1,paddingHorizontal:17, backgroundColor: 'transparent',paddingVertical:0,marginVertical:0, justifyContent:'center'}}>
+                                <View style={{flex:1,paddingHorizontal:17, backgroundColor: this.state.uomSingle === item ? '#e7e8f2' : 'transparent',paddingVertical:0,marginVertical:0, justifyContent:'center'}}>
                                   <Text style={{...Mixins.small1,fontWeight:'400',lineHeight:18, color:'#424141'}}>{item}</Text>
                                 </View>
                               );
