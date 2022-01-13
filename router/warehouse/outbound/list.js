@@ -73,18 +73,47 @@ class List extends React.Component {
       this.state.renderRefresh !== prevState.renderRefresh &&
       this.state.renderRefresh === true
     ) {
-      this.handleRefreshList();
+      let shouldUpdatePickList =
+        (prevState.renderRefresh !== this.state.renderRefresh &&
+          this.state.renderRefresh === true) ||
+        (prevState.renderGoBack !== this.state.renderGoBack &&
+          this.state.renderGoBack === true) ||
+        prevState.filtered !== this.state.filtered ||
+        prevState.search !== this.state.search ||
+        this.state.updated === true
+          ? true
+          : false;
+      if (shouldUpdatePickList === false) return;
+      this.handleUpdatePickList();
     } else if (
-      (this.state.renderFiltered !== prevState.renderFiltered &&
-        this.state.renderFiltered === true) ||
-      (prevState.renderGoBack !== this.state.renderGoBack &&
-        this.state.renderGoBack === true) ||
-      (prevState.updated !== this.state.updated &&
-        this.state.updated === true) ||
-      prevState.filtered !== this.state.filtered ||
-      prevState.search !== this.state.search
+      this.state.renderFiltered !== prevState.renderFiltered &&
+      this.state.renderFiltered === true
     ) {
+      let shouldUpdateStatus =
+        (prevState.renderFiltered !== this.state.renderFiltered &&
+          this.state.renderFiltered === true) ||
+        (prevState.renderGoBack !== this.state.renderGoBack &&
+          this.state.renderGoBack === true) ||
+        prevState.filtered !== this.state.filtered ||
+        prevState.search !== this.state.search ||
+        this.state.updated === true
+          ? true
+          : false;
+      if (shouldUpdateStatus === false) return;
       this.handleUpdateStatus();
+    } else {
+      let shouldLocalFilter =
+        (prevState.renderRefresh !== this.state.renderRefresh &&
+          this.state.renderRefresh === false) ||
+        (prevState.renderGoBack !== this.state.renderGoBack &&
+          this.state.renderGoBack === true) ||
+        prevState.filtered !== this.state.filtered ||
+        prevState.search !== this.state.search ||
+        this.state.updated === true
+          ? true
+          : false;
+      if (shouldLocalFilter === false) return;
+      this.handleLocalFilter();
     }
   }
 
@@ -125,7 +154,7 @@ class List extends React.Component {
     }
   }
 
-  handleRefreshList = async () => {
+  handleUpdatePickList = async () => {
     const {taskNumber} = this.state;
     const {currentTask} = this.props;
     let outboundId = taskNumber === null ? currentTask : taskNumber;
@@ -133,66 +162,54 @@ class List extends React.Component {
       'outboundMobile/pickTask/' + outboundId,
     );
     this.props.setOutboundList(resultOutbound.products);
-    let filtered = this.state.filtered;
-    if (filtered === 0 && resultOutbound.products !== undefined) {
-      this.setState({
-        _list: resultOutbound.products.filter(
-          (element) =>
-            String(element.product.item_code)
-              .toLowerCase()
-              .indexOf(this.state.search.toLowerCase()) > -1,
-        ),
-        updated: false,
-        renderGoBack: false,
-        renderRefresh: false,
-        renderFiltered: false,
-      });
-    } else {
-      this.setState({
-        _list: resultOutbound.products
-          .filter((element) => element.status === filtered)
-          .filter(
-            (element) =>
-              String(element.product.item_code)
-                .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1,
-          ),
-        updated: false,
-        renderGoBack: false,
-        renderRefresh: false,
-        renderFiltered: false,
-      });
-    }
+    this.filteringTask(resultOutbound.products);
   };
 
   handleUpdateStatus = async () => {
     const resultOutbound = await this.updateStatus();
     this.props.setOutboundList(resultOutbound);
-    let filtered = this.state.filtered;
-    if (filtered === 0 && resultOutbound !== undefined) {
-      this.setState({
-        _list: resultOutbound.filter(
-          (element) =>
-            String(element.product.item_code)
-              .toLowerCase()
-              .indexOf(this.state.search.toLowerCase()) > -1,
-        ),
-        updated: false,
-        renderGoBack: false,
-        renderRefresh: false,
-        renderFiltered: false,
-      });
-    } else {
-      this.setState({
-        _list: resultOutbound
-          .filter((element) => element.status === filtered)
-          .filter(
+    this.filteringTask(resultOutbound);
+  };
+
+  handleLocalFilter = () => {
+    const resultedList = this.props.outboundList;
+    this.filteringTask(resultedList);
+  };
+
+  filteringTask = (resultedList) => {
+    if (!!resultedList) {
+      const {filtered} = this.state;
+      if (filtered === 0) {
+        this.setState({
+          _list: resultedList.filter(
             (element) =>
               String(element.product.item_code)
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1,
           ),
-        updated: false,
+          updated: false,
+          renderGoBack: false,
+          renderRefresh: false,
+          renderFiltered: false,
+        });
+      } else {
+        this.setState({
+          _list: resultedList
+            .filter((element) => element.status === filtered)
+            .filter(
+              (element) =>
+                String(element.product.item_code)
+                  .toLowerCase()
+                  .indexOf(this.state.search.toLowerCase()) > -1,
+            ),
+          updated: false,
+          renderGoBack: false,
+          renderRefresh: false,
+          renderFiltered: false,
+        });
+      }
+    } else {
+      this.setState({
         renderGoBack: false,
         renderRefresh: false,
         renderFiltered: false,
@@ -348,7 +365,10 @@ class List extends React.Component {
                 ...styles.cardContainer,
                 backgroundColor: this.context._Scheme5,
               }}>
-              <ScrollView style={styles.headingCard} horizontal={true}>
+              <ScrollView
+                style={styles.headingCard}
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}>
                 <Badge
                   value="All"
                   containerStyle={styles.badgeSort}
