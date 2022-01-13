@@ -2,45 +2,31 @@ import React from 'react';
 import {
   TextInput,
   Text,
-  TouchableOpacity,
   StyleSheet,
   View,
   ScrollView,
-  PixelRatio,
   Platform,
 } from 'react-native';
-import {Picker} from '@react-native-picker/picker';
-import {
-  CheckBox,
-  Input,
-  Avatar,
-  Button,
-  LinearProgress,
-  Badge,
-} from 'react-native-elements';
+import {CheckBox, Input, Avatar, Button} from 'react-native-elements';
 import {connect} from 'react-redux';
 //icon
 import Mixins from '../../../mixins';
 import IconPhoto5 from '../../../assets/icon/iconmonstr-photo-camera-5 2mobile.svg';
 import Checkmark from '../../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
-import ArrowDown from '../../../assets/icon/iconmonstr-arrow-66mobile-5.svg';
 import Incremental from '../../../assets/icon/plus-mobile.svg';
 import Decremental from '../../../assets/icon/min-mobile.svg';
 import UploadTooltip from '../../../component/include/upload-tooltip';
-import Svg, {
-  Path,
-  Rect,
-} from 'react-native-svg';
+import Svg, {Path} from 'react-native-svg';
 import {postBlob} from '../../../component/helper/network';
 import Banner from '../../../component/banner/banner';
 import RNFetchBlob from 'rn-fetch-blob';
+
 class ReportManifest extends React.Component {
   progressLinear = null;
   constructor(props) {
     super(props);
     this.state = {
       isShowConfirm: false,
-      picker: '',
       deliveryOption: null,
       reasonOption: '',
       otherReason: '',
@@ -49,13 +35,13 @@ class ReportManifest extends React.Component {
       errors: '',
       progressLinearVal: 0,
       overlayProgress: false,
-      qtyreported: '0',
+      qtyreported: 0,
       submitPhoto: false,
     };
     this.handleSubmit.bind(this);
   }
   static getDerivedStateFromProps(props, state) {
-    const {outboundList, navigation, manifestList, loadFromGallery} = props;
+    const {outboundList, navigation, loadFromGallery} = props;
     const {dataCode} = state;
     if (dataCode === '0') {
       const {routes, index} = navigation.dangerouslyGetState();
@@ -78,6 +64,7 @@ class ReportManifest extends React.Component {
     }
     return {...state};
   }
+
   shouldComponentUpdate(nextProps, nextState) {
     if (this.props.keyStack !== nextProps.keyStack) {
       if (nextProps.keyStack === 'ReportManifest') {
@@ -95,6 +82,7 @@ class ReportManifest extends React.Component {
     }
     return true;
   }
+
   async componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevState.dataCode !== this.state.dataCode) {
       this.props.addPhotoReportPostpone(null);
@@ -113,6 +101,7 @@ class ReportManifest extends React.Component {
       }
     }
   }
+
   handleDeliveryOptions = (selectedValue) => {
     this.setState({
       ...this.state,
@@ -126,12 +115,14 @@ class ReportManifest extends React.Component {
       reasonOption: selectedValue,
     });
   };
+
   listenToProgressUpload = (written, total) => {
     const {overlayProgress} = this.state;
     this.setState({
       progressLinearVal: (1 / total) * written,
     });
   };
+
   getPhotoReceivingGoods = async () => {
     const {photoReportPostpone} = this.props;
     let formdata = [];
@@ -162,10 +153,12 @@ class ReportManifest extends React.Component {
     }
     return formdata;
   };
+
   handleSubmit = async () => {
     const {currentTask} = this.props;
-    const {dataCode, _task, qtyreported, reasonOption} = this.state;
+    const {_task, qtyreported, reasonOption} = this.state;
     let FormData = await this.getPhotoReceivingGoods();
+
     let intOption = '0';
     switch (reasonOption) {
       case 'damage-goods':
@@ -186,13 +179,14 @@ class ReportManifest extends React.Component {
       default:
         break;
     }
-    let parsedQty = parseInt(qtyreported);
     let metafield =
-      reasonOption !== 'other' && isNaN(parsedQty) === false && parsedQty > 0
+      reasonOption !== 'other' &&
+      isNaN(qtyreported) === false &&
+      qtyreported > 0
         ? [
             {name: 'type', data: intOption},
             {name: 'description', data: this.state.otherReason},
-            {name: 'qty', data: qtyreported},
+            {name: 'qty', data: qtyreported.toString()},
           ]
         : [
             {name: 'type', data: intOption},
@@ -238,10 +232,37 @@ class ReportManifest extends React.Component {
       }
     });
   };
+
   onChangeReasonInput = (value) => {
     this.setState({
       otherReason: value,
     });
+  };
+
+  handleInput = (text) => {
+    this.setState({
+      qtyreported: isNaN(text)
+        ? 0
+        : /\s/g.test(text)
+        ? ''
+        : text === ''
+        ? text
+        : parseInt(text),
+    });
+  };
+
+  handlePlus = () => {
+    this.setState({
+      qtyreported: this.state.qtyreported + 1,
+    });
+  };
+
+  handleMinus = () => {
+    if (this.state.qtyreported > 0) {
+      this.setState({
+        qtyreported: this.state.qtyreported - 1,
+      });
+    }
   };
 
   render() {
@@ -318,102 +339,31 @@ class ReportManifest extends React.Component {
           </View>
           <View style={styles.contentContainer}>
             {this.state.reasonOption !== 'other' && (
-              <View style={{marginBottom: 5, flexDirection: 'row'}}>
+              <View style={styles.quantityContainer}>
+                <Text style={styles.title}>Affected Quantity</Text>
                 <View
                   style={{
-                    flexDirection: 'column',
-                    marginRight: 15,
-                    paddingVertical: 20,
+                    flexDirection: 'row',
+                    alignItems: 'center',
                   }}>
-                  <Text style={styles.title}>Affected Quantity</Text>
+                  <Button
+                    title="-"
+                    buttonStyle={styles.roundButton}
+                    onPress={this.handleMinus}
+                  />
+                  <TextInput
+                    value={this.state.qtyreported.toString()}
+                    textAlign="center"
+                    style={styles.inputStyle}
+                    keyboardType="number-pad"
+                    onChangeText={(text) => this.handleInput(text)}
+                  />
+                  <Button
+                    title="+"
+                    buttonStyle={styles.roundButton}
+                    onPress={this.handlePlus}
+                  />
                 </View>
-                <Input
-                  containerStyle={{
-                    paddingHorizontal: 0,
-                    marginHorizontal: 0,
-                    flexShrink: 1,
-                    paddingTop: 15,
-                  }}
-                  inputContainerStyle={{borderBottomWidth: 0}}
-                  style={{
-                    ...styles.textInput,
-                    margin: 0,
-                    fontSize: 18,
-                    fontWeight: '700',
-                  }}
-                  keyboardType="number-pad"
-                  inputStyle={{margin: 0}}
-                  onChangeText={(val) => {
-                    this.setState({qtyreported: val});
-                  }}
-                  multiline={false}
-                  numberOfLines={1}
-                  value={this.state.qtyreported}
-                  rightIcon={() => {
-                    return (
-                      <View
-                        style={{
-                          flexDirection: 'column',
-                          backgroundColor: 'transparent',
-                          flex: 1,
-                          marginTop: 5,
-                          marginLeft: 15,
-                          justifyContent: 'center',
-                          alignContent: 'center',
-                        }}>
-                        <Incremental
-                          height="30"
-                          width="30"
-                          style={{flexShrink: 1}}
-                          onPress={() => {
-                            const {qtyreported} = this.state;
-                            let qty = parseInt(qtyreported);
-                            this.setState({
-                              qtyreported:
-                                qtyreported === '' ||
-                                isNaN(qty) === true ||
-                                qty < 0
-                                  ? '0'
-                                  : '' + (qty + 1),
-                            });
-                          }}
-                        />
-                      </View>
-                    );
-                  }}
-                  leftIcon={() => {
-                    return (
-                      <View
-                        style={{
-                          flexDirection: 'column',
-                          backgroundColor: 'transparent',
-                          flex: 1,
-                          marginTop: 5,
-                          marginRight: 15,
-                          justifyContent: 'center',
-                          alignContent: 'center',
-                        }}>
-                        <Decremental
-                          height="30"
-                          width="30"
-                          style={{flexShrink: 1}}
-                          onPress={() => {
-                            const {qtyreported} = this.state;
-                            let qty = parseInt(qtyreported);
-                            this.setState({
-                              qtyreported:
-                                qtyreported === '' ||
-                                isNaN(qty) === true ||
-                                qty <= 0
-                                  ? '0'
-                                  : '' + (qty - 1),
-                            });
-                          }}
-                        />
-                      </View>
-                    );
-                  }}
-                />
               </View>
             )}
             <View style={{marginBottom: 5}}>
@@ -428,35 +378,49 @@ class ReportManifest extends React.Component {
               />
             </View>
 
-            <View
-              style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginVertical: 20,
-              }}>
+            <View style={styles.photoContainer}>
               <Avatar
                 onPress={() => {
-                  if(this.state.overlayProgress === true){
+                  if (this.state.overlayProgress === true) {
                     this.progressLinear.toggle();
                   } else {
-                      if (
-                        this.props.photoReportID === null ||
-                        this.props.photoReportID === this.state.dataCode
-                      ) {
-                        this.props.setBottomBar(false);
-                        this.props.navigation.navigate('SingleCamera');
-                      }
+                    if (
+                      this.props.photoReportID === null ||
+                      this.props.photoReportID === this.state.dataCode
+                    ) {
+                      this.props.setBottomBar(false);
+                      this.props.navigation.navigate('SingleCamera');
+                    }
                   }
                 }}
                 size={79}
                 ImageComponent={() => (
                   <>
-                  {this.state.overlayProgress === true ? (
-                    <Svg width="79" height="79" viewBox="0 0 79 79" fill="none">
-                    <Path transform={"rotate("+(this.state.progressLinearVal * 360 )+" 39 40)"} fill-rule="evenodd" clip-rule="evenodd" d="M12.165 43C13.6574 56.4999 25.1026 67 39.0003 67C53.9119 67 66.0003 54.9117 66.0003 40C66.0003 25.0883 53.9119 13 39.0003 13V16C52.2551 16 63.0003 26.7452 63.0003 40C63.0003 53.2548 52.2551 64 39.0003 64C26.7614 64 16.6622 54.8389 15.1859 43H12.165Z" fill="white"/>
-                    <Path d="M44.1818 49.75V52H32.8182V49.75H44.1818ZM44.1818 45.25H32.8182V47.5H44.1818V45.25ZM32.8182 37.375V43H44.1818V37.375H51L38.5 25L26 37.375H32.8182Z" fill="white"/>
-                    </Svg>
-                 ) : (<IconPhoto5 height="40" width="40" fill="#fff" />)}
+                    {this.state.overlayProgress === true ? (
+                      <Svg
+                        width="79"
+                        height="79"
+                        viewBox="0 0 79 79"
+                        fill="none">
+                        <Path
+                          transform={
+                            'rotate(' +
+                            this.state.progressLinearVal * 360 +
+                            ' 39 40)'
+                          }
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M12.165 43C13.6574 56.4999 25.1026 67 39.0003 67C53.9119 67 66.0003 54.9117 66.0003 40C66.0003 25.0883 53.9119 13 39.0003 13V16C52.2551 16 63.0003 26.7452 63.0003 40C63.0003 53.2548 52.2551 64 39.0003 64C26.7614 64 16.6622 54.8389 15.1859 43H12.165Z"
+                          fill="white"
+                        />
+                        <Path
+                          d="M44.1818 49.75V52H32.8182V49.75H44.1818ZM44.1818 45.25H32.8182V47.5H44.1818V45.25ZM32.8182 37.375V43H44.1818V37.375H51L38.5 25L26 37.375H32.8182Z"
+                          fill="white"
+                        />
+                      </Svg>
+                    ) : (
+                      <IconPhoto5 height="40" width="40" fill="#fff" />
+                    )}
                     {this.props.photoReportPostpone !== null &&
                       this.props.photoReportID !== null &&
                       this.props.photoReportID === this.state.dataCode && (
@@ -471,7 +435,9 @@ class ReportManifest extends React.Component {
                 )}
                 imageProps={{
                   containerStyle: {
-                    alignItems: this.state.overlayProgress ? 'flex-start' : 'center',
+                    alignItems: this.state.overlayProgress
+                      ? 'flex-start'
+                      : 'center',
                     paddingTop: this.state.overlayProgress ? 0 : 18,
                     paddingBottom: this.state.overlayProgress ? 0 : 21,
                   },
@@ -490,7 +456,7 @@ class ReportManifest extends React.Component {
               />
               <View style={{marginVertical: 5}}>
                 <UploadTooltip
-                      ref={(ref)=>this.progressLinear = ref}
+                  ref={(ref) => (this.progressLinear = ref)}
                   overlayLinearProgress={{
                     value: this.state.progressLinearVal,
                     color: '#F1811C',
@@ -523,7 +489,9 @@ class ReportManifest extends React.Component {
               containerStyle={{flexShrink: 1}}
               buttonStyle={styles.navigationButton}
               titleStyle={styles.deliveryText}
-              onPressIn={()=>{ this.setState({overlayProgress:true});}}
+              onPressIn={() => {
+                this.setState({overlayProgress: true});
+              }}
               onPress={this.handleSubmit}
               title="Submit"
               disabled={
@@ -552,7 +520,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     display: 'flex',
     flexDirection: 'column',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   deliveryText: {
     ...Mixins.h6,
@@ -569,26 +537,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
-  picker: {
-    borderWidth: 1,
-    borderColor: '#D5D5D5',
-    borderRadius: 5,
-    marginBottom: 20,
-  },
-  submitButton: {
-    borderRadius: 5,
-    backgroundColor: '#F07120',
-    width: '100%',
-    height: 40,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  submitText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-  },
   checkbox: {
     width: '100%',
     borderWidth: 0,
@@ -596,44 +544,6 @@ const styles = StyleSheet.create({
     margin: 0,
     marginLeft: 0,
     paddingHorizontal: 0,
-  },
-  overlayContainer: {
-    flex: 1,
-    position: 'absolute',
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    top: 0,
-    bottom: 0,
-    right: 0,
-    left: 0,
-  },
-  confirmSubmitSheet: {
-    width: '100%',
-    backgroundColor: '#fff',
-    flex: 0.35,
-    flexDirection: 'column',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
-  cancelButtonContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-  },
-  cancelText: {
-    fontSize: 20,
-    textAlign: 'center',
-  },
-  cancelButton: {
-    width: '40%',
-    height: 40,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 5,
   },
   textInput: {
     ...Mixins.subtitle3,
@@ -647,6 +557,33 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 5,
     right: 5,
+  },
+  quantityContainer: {
+    flex: 1,
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  inputStyle: {
+    width: 70,
+    height: 40,
+    marginHorizontal: 10,
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: '#ABABAB',
+  },
+  roundButton: {
+    ...Mixins.bgButtonPrimary,
+    width: 40,
+    height: 40,
+    borderRadius: 40,
+  },
+  photoContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 20,
   },
 });
 
@@ -664,14 +601,9 @@ const mapDispatchToProps = (dispatch) => {
     setBottomBar: (toggle) => {
       return dispatch({type: 'BottomBar', payload: toggle});
     },
-    setReportedList: (data) => {
-      return dispatch({type: 'ReportedList', payload: data});
+    addPhotoReportPostpone: (uri) => {
+      return dispatch({type: 'PhotoReportPostpone', payload: uri});
     },
-    setReportedTask: (data) => {
-      return dispatch({type: 'ReportedTask', payload: data});
-    },
-    addPhotoReportPostpone: (uri) =>
-      dispatch({type: 'PhotoReportPostpone', payload: uri}),
     loadFromGallery: (action) => {
       return dispatch({type: 'loadFromGallery', payload: action});
     },

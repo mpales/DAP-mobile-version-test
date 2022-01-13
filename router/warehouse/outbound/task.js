@@ -1,21 +1,17 @@
 import React from 'react';
 import {
-  Dimensions,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
-import {Card, Input, SearchBar, Badge} from 'react-native-elements';
-import {Picker} from '@react-native-picker/picker';
+import {Card, Input, Badge} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
-import moment from 'moment';
 import SelectDropdown from 'react-native-select-dropdown';
 //component
 import Outbound from '../../../component/extend/ListItem-outbound';
@@ -29,8 +25,6 @@ import {observer} from 'mobx-react';
 import EmptyIlustrate from '../../../assets/icon/list-empty mobile.svg';
 import {getData} from '../../../component/helper/network';
 
-const window = Dimensions.get('window');
-
 @observer
 class List extends React.Component {
   static contextType = themeStoreContext;
@@ -43,20 +37,22 @@ class List extends React.Component {
       list: [],
       renderGoBack: false,
       renderRefresh: false,
-      renderFiltered : true,
+      renderFiltered: true,
     };
     this.updateTask.bind(this);
     this.setFiltered.bind(this);
     this.updateSearch.bind(this);
   }
+
   updateSearch = (search) => {
     this.setState({search: search, renderFiltered: true});
   };
+
   setFiltered = (num) => {
     this.setState({filtered: num, renderGoBack: true, renderFiltered: true});
   };
+
   updateTask = async () => {
-    // const {activeTask,completeTask, ReportedTask} = this.props;
     const result = await getData('outboundMobile/pickTask');
     if (Array.isArray(result)) {
       return result
@@ -69,6 +65,7 @@ class List extends React.Component {
       return [];
     }
   };
+
   updateStatus = async () => {
     const {outboundTask} = this.props;
     const result = await getData('/outboundMobile/pickTask/status');
@@ -91,7 +88,6 @@ class List extends React.Component {
   };
 
   async componentDidUpdate(prevProps, prevState, snapshot) {
-    const {outboundTask} = this.props;
     if (this.props.keyStack !== prevProps.keyStack) {
       if (
         this.props.keyStack === 'Task' &&
@@ -101,302 +97,24 @@ class List extends React.Component {
       }
     }
     if (
-      prevState.renderRefresh !== this.state.renderRefresh &&
-      this.state.renderRefresh === true
+      (prevState.renderRefresh !== this.state.renderRefresh &&
+        this.state.renderRefresh === true) ||
+      (prevState.renderGoBack !== this.state.renderGoBack &&
+        this.state.renderGoBack === true) ||
+      prevState.filtered !== this.state.filtered ||
+      prevState.renderFiltered !== this.state.renderFiltered ||
+      prevState.search !== this.state.search ||
+      prevState.dropdown !== this.state.dropdown
     ) {
-      const resultedList = await this.updateTask();
-      this.props.setOutboundTask(resultedList);
-      let filtered =
-        (prevState.renderRefresh !== this.state.renderRefresh &&
-          this.state.renderRefresh === true) ||
-        prevState.filtered !== this.state.filtered ||
-        (prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true) ||
-        prevState.search !== this.state.search ||
-        prevState.dropdown !== this.state.dropdown
-          ? this.state.filtered
-          : null;
-      if (filtered === 0) {
-        this.setState({
-          list: resultedList.filter(
-            (element) =>
-              String(element.client_id)
-                .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1 &&
-              (this.state.dropdown === '' ||
-                (this.state.dropdown !== '' &&
-                  element.warehouses.includes(this.state.dropdown))),
-          ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      } else if (filtered === 1) {
-        this.setState({
-          list: resultedList
-            .filter((element) => element.status === 5)
-            .filter(
-              (element) =>
-                String(element.client_id)
-                  .toLowerCase()
-                  .indexOf(this.state.search.toLowerCase()) > -1 &&
-                (this.state.dropdown === '' ||
-                  (this.state.dropdown !== '' &&
-                    element.warehouses.includes(this.state.dropdown))),
-            ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      } else if (filtered === 2) {
-        this.setState({
-          list: resultedList
-            .filter((element) => element.status === 2)
-            .filter(
-              (element) =>
-                String(element.client_id)
-                  .toLowerCase()
-                  .indexOf(this.state.search.toLowerCase()) > -1 &&
-                (this.state.dropdown === '' ||
-                  (this.state.dropdown !== '' &&
-                    element.warehouses.includes(this.state.dropdown))),
-            ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      } else if (filtered === 3) {
-        this.setState({
-          list: resultedList
-            .filter((element) => element.status === 3)
-            .filter(
-              (element) =>
-                String(element.client_id)
-                  .toLowerCase()
-                  .indexOf(this.state.search.toLowerCase()) > -1 &&
-                (this.state.dropdown === '' ||
-                  (this.state.dropdown !== '' &&
-                    element.warehouses.includes(this.state.dropdown))),
-            ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      } else if (filtered === 4) {
-        this.setState({
-          list: resultedList
-            .filter((element) => element.status === 4)
-            .filter(
-              (element) =>
-                String(element.client_id)
-                  .toLowerCase()
-                  .indexOf(this.state.search.toLowerCase()) > -1 &&
-                (this.state.dropdown === '' ||
-                  (this.state.dropdown !== '' &&
-                    element.warehouses.includes(this.state.dropdown))),
-            ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      }
-    } else if (
-      prevState.renderGoBack !== this.state.renderGoBack &&
-      this.state.renderGoBack === true
-    ) {
-      const resultedList = await this.updateStatus();
-      this.props.setOutboundTask(resultedList);
-      let filtered =
-        (prevState.renderGoBack !== this.state.renderGoBack &&
-          this.state.renderGoBack === true) ||
-        (prevState.renderRefresh !== this.state.renderRefresh &&
-          this.state.renderRefresh === true) ||
-        prevState.filtered !== this.state.filtered ||
-        (prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true) ||
-        prevState.search !== this.state.search ||
-        prevState.dropdown !== this.state.dropdown
-          ? this.state.filtered
-          : null;
-      if (filtered === 0) {
-        this.setState({
-          list: resultedList.filter(
-            (element) =>
-              String(element.client_id)
-                .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1 &&
-              (this.state.dropdown === '' ||
-                (this.state.dropdown !== '' &&
-                  element.warehouses.includes(this.state.dropdown))),
-          ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      } else if (filtered === 1) {
-        this.setState({
-          list: resultedList
-            .filter((element) => element.status === 5)
-            .filter(
-              (element) =>
-                String(element.client_id)
-                  .toLowerCase()
-                  .indexOf(this.state.search.toLowerCase()) > -1 &&
-                (this.state.dropdown === '' ||
-                  (this.state.dropdown !== '' &&
-                    element.warehouses.includes(this.state.dropdown))),
-            ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      } else if (filtered === 2) {
-        this.setState({
-          list: resultedList
-            .filter((element) => element.status === 2)
-            .filter(
-              (element) =>
-                String(element.client_id)
-                  .toLowerCase()
-                  .indexOf(this.state.search.toLowerCase()) > -1 &&
-                (this.state.dropdown === '' ||
-                  (this.state.dropdown !== '' &&
-                    element.warehouses.includes(this.state.dropdown))),
-            ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      } else if (filtered === 3) {
-        this.setState({
-          list: resultedList
-            .filter((element) => element.status === 3)
-            .filter(
-              (element) =>
-                String(element.client_id)
-                  .toLowerCase()
-                  .indexOf(this.state.search.toLowerCase()) > -1 &&
-                (this.state.dropdown === '' ||
-                  (this.state.dropdown !== '' &&
-                    element.warehouses.includes(this.state.dropdown))),
-            ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      } else if (filtered === 4) {
-        this.setState({
-          list: resultedList
-            .filter((element) => element.status === 4)
-            .filter(
-              (element) =>
-                String(element.client_id)
-                  .toLowerCase()
-                  .indexOf(this.state.search.toLowerCase()) > -1 &&
-                (this.state.dropdown === '' ||
-                  (this.state.dropdown !== '' &&
-                    element.warehouses.includes(this.state.dropdown))),
-            ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      }
-    } else {
-      let filtered =
-        (prevState.renderRefresh !== this.state.renderRefresh &&
-          this.state.renderRefresh === false) ||
-        prevState.filtered !== this.state.filtered ||
-        (prevState.renderFiltered !== this.state.renderFiltered && this.state.renderFiltered === true) ||
-        prevState.search !== this.state.search ||
-        prevState.dropdown !== this.state.dropdown
-          ? this.state.filtered
-          : null;
-      if (filtered === 0) {
-        this.setState({
-          list: outboundTask.filter(
-            (element) =>
-              String(element.client_id)
-                .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1 &&
-              (this.state.dropdown === '' ||
-                (this.state.dropdown !== '' &&
-                  element.warehouses.includes(this.state.dropdown))),
-          ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      } else if (filtered === 1) {
-        this.setState({
-          list: outboundTask
-            .filter((element) => element.status === 5)
-            .filter(
-              (element) =>
-                String(element.client_id)
-                  .toLowerCase()
-                  .indexOf(this.state.search.toLowerCase()) > -1 &&
-                (this.state.dropdown === '' ||
-                  (this.state.dropdown !== '' &&
-                    element.warehouses.includes(this.state.dropdown))),
-            ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      } else if (filtered === 2) {
-        this.setState({
-          list: outboundTask
-            .filter((element) => element.status === 2)
-            .filter(
-              (element) =>
-                String(element.client_id)
-                  .toLowerCase()
-                  .indexOf(this.state.search.toLowerCase()) > -1 &&
-                (this.state.dropdown === '' ||
-                  (this.state.dropdown !== '' &&
-                    element.warehouses.includes(this.state.dropdown))),
-            ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      } else if (filtered === 3) {
-        this.setState({
-          list: outboundTask
-            .filter((element) => element.status === 3)
-            .filter(
-              (element) =>
-                String(element.client_id)
-                  .toLowerCase()
-                  .indexOf(this.state.search.toLowerCase()) > -1 &&
-                (this.state.dropdown === '' ||
-                  (this.state.dropdown !== '' &&
-                    element.warehouses.includes(this.state.dropdown))),
-            ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      } else if (filtered === 4) {
-        this.setState({
-          list: outboundTask
-            .filter((element) => element.status === 4)
-            .filter(
-              (element) =>
-                String(element.client_id)
-                  .toLowerCase()
-                  .indexOf(this.state.search.toLowerCase()) > -1 &&
-                (this.state.dropdown === '' ||
-                  (this.state.dropdown !== '' &&
-                    element.warehouses.includes(this.state.dropdown))),
-            ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-        });
-      }
+      this.handleResultList();
     }
   }
-  async componentDidMount() {
+
+  componentDidMount() {
+    this.handleResultList();
+  }
+
+  handleResultList = async () => {
     const resultedList = await this.updateTask();
     this.props.setOutboundTask(resultedList);
     const {filtered} = this.state;
@@ -415,71 +133,31 @@ class List extends React.Component {
         renderRefresh: false,
         renderFiltered: false,
       });
-    } else if (filtered === 1) {
+    } else {
       this.setState({
         list: resultedList
-          .filter((element) => element.status === 5)
+          .filter((element) => element.status === filtered)
           .filter(
             (element) =>
               String(element.client_id)
                 .toLowerCase()
                 .indexOf(this.state.search.toLowerCase()) > -1,
           ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-      });
-    } else if (filtered === 2) {
-      this.setState({
-        list: resultedList
-          .filter((element) => element.status === 2)
-          .filter(
-            (element) =>
-              String(element.client_id)
-                .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1,
-          ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-      });
-    } else if (filtered === 3) {
-      this.setState({
-        list: resultedList
-          .filter((element) => element.status === 3)
-          .filter(
-            (element) =>
-              String(element.client_id)
-                .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1,
-          ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
-      });
-    } else if (filtered === 4) {
-      this.setState({
-        list: resultedList
-          .filter((element) => element.status === 4)
-          .filter(
-            (element) =>
-              String(element.client_id)
-                .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1,
-          ),
-          renderGoBack: false,
-          renderRefresh: false,
-          renderFiltered: false,
+        renderGoBack: false,
+        renderRefresh: false,
+        renderFiltered: false,
       });
     }
-  }
+  };
+
   _onRefresh = () => {
     this.setState({renderRefresh: true, renderFiltered: true});
   };
+
   render() {
     const {outboundTask} = this.props;
     let arrayWarehouses = [];
-    if(Array.isArray(outboundTask) && outboundTask.length > 0){
+    if (Array.isArray(outboundTask) && outboundTask.length > 0) {
       arrayWarehouses = Array.from({
         length: outboundTask.length,
       }).map((num, index) => {
@@ -489,9 +167,13 @@ class List extends React.Component {
         return null;
       });
     }
-    let stringWarehouses = arrayWarehouses.filter((o)=> o !== null).join();
+    let stringWarehouses = arrayWarehouses.filter((o) => o !== null).join();
     let Warehouses = [
-      ...new Set(String('All' + (stringWarehouses.length > 0 ? ',' + stringWarehouses : '')).split(',')),
+      ...new Set(
+        String(
+          'All' + (stringWarehouses.length > 0 ? ',' + stringWarehouses : ''),
+        ).split(','),
+      ),
     ];
     return (
       <SafeAreaProvider>
@@ -506,84 +188,100 @@ class List extends React.Component {
               onRefresh={this._onRefresh.bind(this)}
             />
           }>
-          <View style={[styles.headingCard, {paddingVertical: 10}]}>
-            <View style={{flex:1, flexDirection:'column', paddingVertical:0}}>
-              <Text style={{...Mixins.body1,fontWeight:'700',lineHeight:21,color:'black', marginBottom:5}}>Warehouse</Text>
-          <SelectDropdown
-                    buttonStyle={{
-                     width:'100%',
-                      maxHeight: 30,
-                      borderRadius: 5,
-                      borderWidth: 1,
-                      borderColor: '#D5D5D5',
-                      backgroundColor: 'white',
-                    }}
-                    buttonTextStyle={{
-                      ...Mixins.small1,
-                      fontWeight: '400',
-                      lineHeight: 18,
-                      color: '#424141',
-                      textAlign: 'left',
-                    }}
-                    data={Warehouses}
-                    defaultValueByIndex={(this.state.dropdown === '' || Warehouses.some((o)=> o === this.state.dropdown) === false) ? 0 : Warehouses.findIndex((o)=> o === this.state.dropdown)}
-                    onSelect={(selectedItem, index) => {
-                      this.setState({
-                        dropdown: selectedItem === 'All' ? '' : selectedItem,
-                        renderFiltered: true,
-                      });
-                    }}
-                    renderDropdownIcon={() => {
-                      return (
-                        <IconArrow66Mobile
-                          fill="#2D2C2C"
-                          height="15"
-                          width="15"
-                          style={{transform: [{rotate: '90deg'}]}}
-                        />
-                      );
-                    }}
-                    dropdownIconPosition="right"
-                    buttonTextAfterSelection={(selectedItem, index) => {
-                      // text represented after item is selected
-                      // if data array is an array of objects then return selectedItem.property to render after item is selected
-                      return selectedItem;
-                    }}
-                    rowTextForSelection={(item, index) => {
-                      // text represented for each item in dropdown
-                      // if data array is an array of objects then return item.property to represent item in dropdown
-                      return item;
-                    }}
-                    renderCustomizedRowChild={(item, index) => {
-                      return (
-                        <View
-                          style={{
-                            flex: 1,
-                            paddingHorizontal: 27,
-                            backgroundColor:
-                              item === this.state.dropdown ||
-                              (item === 'All' && this.state.dropdown === '')
-                                ? '#e7e8f2'
-                                : 'transparent',
-                            paddingVertical: 0,
-                            marginVertical: 0,
-                            justifyContent: 'center',
-                          }}>
-                          <Text
-                            style={{
-                              ...Mixins.small1,
-                              fontWeight: '400',
-                              lineHeight: 18,
-                              color: '#424141',
-                            }}>
-                            {item}
-                          </Text>
-                        </View>
-                      );
-                    }}
-                  />
-                  </View>
+          <View style={[styles.headingCard, {paddingTop: 10}]}>
+            <View
+              style={{flex: 1, flexDirection: 'column', paddingVertical: 0}}>
+              <Text
+                style={{
+                  ...Mixins.body1,
+                  fontWeight: '700',
+                  lineHeight: 21,
+                  color: 'black',
+                  marginBottom: 5,
+                }}>
+                Warehouse
+              </Text>
+              <SelectDropdown
+                buttonStyle={{
+                  width: '100%',
+                  maxHeight: 30,
+                  borderRadius: 5,
+                  borderWidth: 1,
+                  borderColor: '#D5D5D5',
+                  backgroundColor: 'white',
+                }}
+                buttonTextStyle={{
+                  ...Mixins.small1,
+                  fontWeight: '400',
+                  lineHeight: 18,
+                  color: '#424141',
+                  textAlign: 'left',
+                }}
+                data={Warehouses}
+                defaultValueByIndex={
+                  this.state.dropdown === '' ||
+                  Warehouses.some((o) => o === this.state.dropdown) === false
+                    ? 0
+                    : Warehouses.findIndex((o) => o === this.state.dropdown)
+                }
+                onSelect={(selectedItem, index) => {
+                  this.setState({
+                    dropdown: selectedItem === 'All' ? '' : selectedItem,
+                    renderFiltered: true,
+                  });
+                }}
+                renderDropdownIcon={() => {
+                  return (
+                    <IconArrow66Mobile
+                      fill="#2D2C2C"
+                      height="15"
+                      width="15"
+                      style={{transform: [{rotate: '90deg'}]}}
+                    />
+                  );
+                }}
+                dropdownIconPosition="right"
+                buttonTextAfterSelection={(selectedItem, index) => {
+                  // text represented after item is selected
+                  // if data array is an array of objects then return selectedItem.property to render after item is selected
+                  return selectedItem;
+                }}
+                rowTextForSelection={(item, index) => {
+                  // text represented for each item in dropdown
+                  // if data array is an array of objects then return item.property to represent item in dropdown
+                  return item;
+                }}
+                renderCustomizedRowChild={(item, index) => {
+                  return (
+                    <View
+                      style={{
+                        flex: 1,
+                        paddingHorizontal: 27,
+                        backgroundColor:
+                          item === this.state.dropdown ||
+                          (item === 'All' && this.state.dropdown === '')
+                            ? '#e7e8f2'
+                            : 'transparent',
+                        paddingVertical: 0,
+                        marginVertical: 0,
+                        justifyContent: 'center',
+                      }}>
+                      <Text
+                        style={{
+                          ...Mixins.small1,
+                          fontWeight: '400',
+                          lineHeight: 18,
+                          color: '#424141',
+                        }}>
+                        {item}
+                      </Text>
+                    </View>
+                  );
+                }}
+              />
+            </View>
             <Input
+              placeholder="Search..."
               leftIcon={
                 <IconSearchMobile
                   height="20"
@@ -592,21 +290,24 @@ class List extends React.Component {
                   style={{marginLeft: 5}}
                 />
               }
-              containerStyle={{flex: 1,paddingRight:0}}
+              containerStyle={{flex: 1, paddingRight: 0}}
               inputContainerStyle={{
                 ...styles.textInput,
                 backgroundColor: 'white',
               }}
               inputStyle={[
                 Mixins.containedInputDefaultStyle,
-                {marginHorizontal: 0},
+                Mixins.subtitle3,
+                {marginHorizontal: 0, lineHeight: 21},
               ]}
               labelStyle={[
                 {
                   ...Mixins.body1,
                   ...Mixins.containedInputDefaultLabel,
-                  color: this.context._Scheme7
-                  ,fontWeight:'700',lineHeight:21,color:'black',
+                  color: this.context._Scheme7,
+                  fontWeight: '700',
+                  lineHeight: 21,
+                  color: 'black',
                 },
                 {marginBottom: 5},
               ]}
@@ -623,7 +324,8 @@ class List extends React.Component {
               }}>
               <ScrollView
                 style={{flexDirection: 'row', paddingBottom: 10}}
-                horizontal={true}>
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}>
                 <Badge
                   value="All"
                   containerStyle={styles.badgeSort}
@@ -669,9 +371,9 @@ class List extends React.Component {
                 <Badge
                   value="Reported"
                   containerStyle={styles.badgeSort}
-                  onPress={() => this.setFiltered(1)}
+                  onPress={() => this.setFiltered(5)}
                   badgeStyle={
-                    this.state.filtered === 1
+                    this.state.filtered === 5
                       ? styles.badgeActive
                       : {
                           ...styles.badgeInactive,
@@ -679,7 +381,7 @@ class List extends React.Component {
                         }
                   }
                   textStyle={
-                    this.state.filtered === 1
+                    this.state.filtered === 5
                       ? styles.badgeActiveTint
                       : {
                           ...styles.badgeInactiveTint,
@@ -730,18 +432,26 @@ class List extends React.Component {
                   }
                 />
               </ScrollView>
-              {(this.state.list.length === 0 || this.state.renderFiltered === true) ? (
+              {this.state.list.length === 0 ||
+              this.state.renderFiltered === true ? (
                 <View
                   style={{
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginTop: 100,
                   }}>
-             {this.state.renderFiltered === true ?(<ActivityIndicator 
-                    size={50} 
-                    color="#121C78"
-                />) : (<><EmptyIlustrate height="132" width="213" style={{marginBottom:15}}/>
-                              <Text style={{  ...Mixins.subtitle3,}}>Empty Job</Text></>)}
+                  {this.state.renderFiltered === true ? (
+                    <ActivityIndicator size={50} color="#121C78" />
+                  ) : (
+                    <>
+                      <EmptyIlustrate
+                        height="132"
+                        width="213"
+                        style={{marginBottom: 15}}
+                      />
+                      <Text style={{...Mixins.subtitle3}}>Empty Job</Text>
+                    </>
+                  )}
                 </View>
               ) : (
                 this.state.list.map((data, i) => (
@@ -772,12 +482,6 @@ class List extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  picker: {
-    borderWidth: 0,
-    borderColor: '#D5D5D5',
-    borderRadius: 0,
-    marginBottom: 0,
-  },
   scrollView: {
     backgroundColor: Colors.lighter,
   },
@@ -797,50 +501,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginBottom: 0,
   },
-  headerBeranda: {
-    flexDirection: 'column',
-    height: window.width * 0.16,
-    backgroundColor: '#121C78',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-  },
-  ccmText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  berandaBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   textInput: {
     borderWidth: 1,
     borderColor: '#D5D5D5',
     borderRadius: 5,
     maxHeight: 30,
-  },
-  barSection: {
-    flex: 1,
-  },
-  breadcrumb: {
-    alignItems: 'flex-start',
-  },
-  search: {
-    alignItems: 'flex-end',
-  },
-  navSection: {
-    flex: 1,
-  },
-  toggleDrawer: {
-    alignItems: 'flex-start',
-  },
-  logoWrapper: {
-    alignItems: 'center',
-  },
-  navWrapper: {
-    alignItems: 'flex-end',
-    flexDirection: 'row',
   },
   cardContainer: {
     borderWidth: 0,
@@ -881,72 +546,10 @@ const styles = StyleSheet.create({
   },
 });
 
-const outboundTaskDummy = [
-  {
-    code: 'WHUS00018789719',
-    warehouse_code: 'Warehouse A1',
-    timestamp: moment().subtract(1, 'days').unix(),
-    company: 'WORKEDGE',
-    sku: 20,
-    status: 'Pending',
-  },
-  {
-    code: 'WHUS00018789720',
-    warehouse_code: 'Warehouse A1',
-    timestamp: moment().subtract(1, 'days').unix(),
-    company: 'WORKEDGE',
-    sku: 20,
-    status: 'Pending',
-  },
-  {
-    code: 'WHUS00018789721',
-    warehouse_code: 'Warehouse A1',
-    timestamp: moment().subtract(1, 'days').unix(),
-    company: 'WORKEDGE',
-    sku: 20,
-    status: 'Pending',
-  },
-  {
-    code: 'WHUS00018789722',
-    warehouse_code: 'Warehouse A1',
-    timestamp: moment().subtract(1, 'days').unix(),
-    company: 'WORKEDGE',
-    sku: 20,
-    status: 'Pending',
-  },
-  {
-    code: 'WHUS00018789723',
-    warehouse_code: 'Warehouse A1',
-    timestamp: moment().unix(),
-    company: 'WORKEDGE',
-    sku: 20,
-    status: 'Progress',
-  },
-  {
-    code: 'WHUS00018789724',
-    warehouse_code: 'Warehouse A1',
-    timestamp: moment().unix(),
-    company: 'WORKEDGE',
-    sku: 20,
-    status: 'Progress',
-  },
-  {
-    code: 'WHUS00018789725',
-    warehouse_code: 'Warehouse A1',
-    timestamp: moment().unix(),
-    company: 'WORKEDGE',
-    sku: 20,
-    status: 'Progress',
-  },
-];
-
 function mapStateToProps(state) {
   return {
     outboundTask: state.originReducer.outboundTask,
-    completedInboundList: state.originReducer.completedInboundList,
-    ReportedTask: state.originReducer.filters.ReportedTask,
     activeTask: state.originReducer.filters.activeTask,
-    completeTask: state.originReducer.filters.completeTask,
     keyStack: state.originReducer.filters.keyStack,
   };
 }
@@ -965,7 +568,6 @@ const mapDispatchToProps = (dispatch) => {
     setActiveTask: (data) => {
       return dispatch({type: 'addActiveTask', payload: data});
     },
-    //toggleTodo: () => dispatch(toggleTodo(ownProps).todoId))
   };
 };
 

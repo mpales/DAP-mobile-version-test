@@ -108,3 +108,47 @@ export const stockTakeJobStatusColor = (status) => {
   }
   return color;
 };
+
+export const pickTaskStatusColor = (status) => {
+  let color = '';
+  switch (status) {
+    case 2:
+      color = '#ABABAB';
+      break;
+    case 3:
+      color = '#F07120';
+      break;
+    case 4:
+      color = '#17B055';
+      break;
+    case 5:
+      color = '#E03B3B';
+      break;
+    default:
+      color = '#ABABAB';
+      break;
+  }
+  return color;
+};
+
+export const pickTaskProductStatusColor = (status) => {
+  let color = '';
+  switch (status) {
+    case 1:
+      color = '#ABABAB';
+      break;
+    case 2:
+      color = '#F07120';
+      break;
+    case 3:
+      color = '#17B055';
+      break;
+    case 4:
+      color = '#E03B3B';
+      break;
+    default:
+      color = '#ABABAB';
+      break;
+  }
+  return color;
+};
