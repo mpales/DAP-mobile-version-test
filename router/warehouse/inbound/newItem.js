@@ -73,6 +73,7 @@ class Acknowledge extends React.Component {
       pcscarton: '',
       errors: '',
       errorsphoto: '',
+      refreshFlag : false,
       labelerror: false,
       submitPhoto: false,
       validPhoto: false,
@@ -114,7 +115,6 @@ class Acknowledge extends React.Component {
           recordPhoto: !Boolean(manifest.can_take_photos),
           validDimensions: !Boolean(manifest.can_record_attribute),
           recordBarcodes: !Boolean(manifest.can_take_barcodes),
-          validPhoto: Boolean(manifest.take_photo),
         };
       }
       return {...state};
@@ -152,6 +152,9 @@ class Acknowledge extends React.Component {
           this.setState({submitPhoto: true});
         }
         return false;
+      } else if(nextProps.keyStack === 'newItem' && this.props.keyStack === 'ViewPhotoAttributes') {
+        this.setState({errors: '', errorsphoto: '', labelerror: false,refreshFlag : true});
+        return false;       
       } else if (nextProps.keyStack === 'newItem') {
         this.setState({errors: '', errorsphoto: '', labelerror: false});
         return false;
@@ -226,6 +229,14 @@ class Acknowledge extends React.Component {
         });
       }
     }
+    if(prevState.refreshFlag !== this.state.refreshFlag && this.state.refreshFlag === true){
+      const result = await getData('/inboundsMobile/'+this.props.currentASN+'/'+this.state.productID+'/product-photos');
+      if(typeof result === 'object' && result.error === undefined && Array.isArray(result) && result.length > 0){
+        this.setState({validPhoto: true, refreshFlag: false});
+      } else {
+        this.setState({validPhoto: false, refreshFlag: false});
+      }
+    }
     if (
       prevState.length !== this.state.length ||
       prevState.width !== this.state.width ||
@@ -275,6 +286,14 @@ class Acknowledge extends React.Component {
         });
       } else if(typeof getAttributes === 'object' && getAttributes.error !== undefined ) {
         this.setState({errors: getAttributes.error, labelerror: true, errorsphoto: ''})
+      }
+    }
+    if(this.state._manifest.can_take_photos === 1 && this.state.recordPhoto === false ){
+      const result = await getData('/inboundsMobile/'+this.props.currentASN+'/'+this.state.productID+'/product-photos');
+      if(typeof result === 'object' && result.error === undefined && Array.isArray(result) && result.length > 0){
+        this.setState({validPhoto: true});
+      } else {
+        this.setState({validPhoto: false});
       }
     }
 
@@ -1514,14 +1533,16 @@ class Acknowledge extends React.Component {
                     ]}>
                     <Avatar
                       onPress={() => {
-                        this.props.navigation.navigate('ViewPhotoAttributes', {
-                          number: this.state.productID,
-                        });
+                        if(this.state.validPhoto === true){
+                          this.props.navigation.navigate('ViewPhotoAttributes', {
+                            number: this.state.productID,
+                          });
+                        }
                       }}
                       size={79}
                       ImageComponent={() => (
                         <>
-                          <IconView height="40" width="40" fill="#F07120" />
+                          <IconView height="40" width="40" fill={ this.state.validPhoto === false ? '#fff': "#F07120"} />
                         </>
                       )}
                       imageProps={{
@@ -1532,7 +1553,7 @@ class Acknowledge extends React.Component {
                         },
                       }}
                       overlayContainerStyle={{
-                        backgroundColor: '#fff',
+                        backgroundColor: this.state.validPhoto === false ? 'grey' : '#fff',
                         borderColor: '#424141',
                         borderWidth: 1,
                         flex: 2,
