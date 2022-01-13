@@ -63,6 +63,8 @@ class Warehouse extends React.Component {
       search: '',
       filtered: 0,
       _manifest: [],
+      hasReport : false,
+      hasActiveReceipt : false,
       updated: false,
       initialRender: false,
       notifbanner: '',
@@ -80,7 +82,9 @@ class Warehouse extends React.Component {
     this.handleConfirm.bind(this);
   }
   static getDerivedStateFromProps(props, state) {
-    return {...state};
+    const {_manifest} = state;
+    let flagReport = _manifest.some((o)=> o.status === 4);
+    return {...state, hasReport: flagReport};
   }
   shouldComponentUpdate(nextProps, nextState) {
     return true;
@@ -109,6 +113,10 @@ class Warehouse extends React.Component {
             ? this.state.filtered
             : null;
         this.props.setManifestList(result.products);
+        let active_inbound_flag = null;
+        if(result.inbound_receipt !== undefined && Array.isArray(result.inbound_receipt) && result.inbound_receipt.length > 0){
+          active_inbound_flag = result.inbound_receipt.some((o)=>o.current_active === true);
+        }
         if (filtered === 0) {
           this.setState({
             _manifest: result.products.filter(
@@ -119,6 +127,7 @@ class Warehouse extends React.Component {
                     .indexOf(this.state.search.toLowerCase()) > -1) ||
                 element.is_transit === 1,
             ),
+            hasActiveReceipt: active_inbound_flag,
             updated: false,
             renderRefresh: false,
             initialRender: false,
@@ -136,6 +145,7 @@ class Warehouse extends React.Component {
                       .indexOf(this.state.search.toLowerCase()) > -1) ||
                   element.is_transit === 1,
               ),
+            hasActiveReceipt: active_inbound_flag, 
             updated: false,
             renderRefresh: false,
             initialRender: false,
@@ -153,6 +163,7 @@ class Warehouse extends React.Component {
                       .indexOf(this.state.search.toLowerCase()) > -1) ||
                   element.is_transit === 1,
               ),
+            hasActiveReceipt: active_inbound_flag,
             updated: false,
             renderRefresh: false,
             initialRender: false,
@@ -346,7 +357,12 @@ class Warehouse extends React.Component {
         );
         if (typeof result === 'object' && result.error === undefined) {
           this.props.setManifestList(result.products);
+          let active_inbound_flag = null;
+          if(result.inbound_receipt !== undefined && Array.isArray(result.inbound_receipt) && result.inbound_receipt.length > 0){
+            active_inbound_flag = result.inbound_receipt.some((o)=>o.current_active === true);
+          }
           this.setState({
+            hasActiveReceipt: active_inbound_flag,
             receivingNumber: routes[index].params.number,
             inboundNumber: result.inbound_number,
             _manifest: result.products,
@@ -362,7 +378,12 @@ class Warehouse extends React.Component {
         const result = await getData('inboundsMobile/' + currentASN);
         if (typeof result === 'object' && result.error === undefined) {
           this.props.setManifestList(result.products);
+          let active_inbound_flag = null;
+          if(result.inbound_receipt !== undefined && Array.isArray(result.inbound_receipt) && result.inbound_receipt.length > 0){
+            active_inbound_flag = result.inbound_receipt.some((o)=>o.current_active === true);
+          }
           this.setState({
+            hasActiveReceipt: active_inbound_flag,
             receivingNumber: routes[index].params.number,
             inboundNumber: result.inbound_number,
             _manifest: result.products,
@@ -388,23 +409,39 @@ class Warehouse extends React.Component {
   };
 
   handleConfirm = async ({action}) => {
-    const {receivingNumber} = this.state;
+    const {receivingNumber, hasReport} = this.state;
     const {currentASN} = this.props;
     this.toggleOverlay();
-    if (action) {
+    if (action && hasReport === false) {
       // for prototype only
       const result = await postData(
         '/inboundsMobile/' + receivingNumber + '/confirm-putaway',
       );
       if (typeof result !== 'object') {
         this.props.navigation.navigate('CompletedSupervisor');
+        // this.setState({notifbanner: result, notifsuccess: true});
+      } else {
+        if (result.error !== undefined)
+          this.setState({notifbanner: result.error, notifsuccess: false});
+      }
+      // this.props.addCompleteASN(currentASN);
+      // this.props.completedInboundList.push(this.state.inboundCode);
+      // end
+
+      // this.props.navigation.navigate('containerDetail');
+    } else if(action && hasReport === true){
+      const result = await postData(
+        '/inboundsMobile/' + receivingNumber + '/confirm-putaway',
+      );
+      if (typeof result !== 'object') {
+        // this.props.navigation.navigate('CompletedSupervisor');
         this.setState({notifbanner: result, notifsuccess: true});
       } else {
         if (result.error !== undefined)
           this.setState({notifbanner: result.error, notifsuccess: false});
       }
-      this.props.addCompleteASN(currentASN);
-      this.props.completedInboundList.push(this.state.inboundCode);
+      // this.props.addCompleteASN(currentASN);
+      // this.props.completedInboundList.push(this.state.inboundCode);
       // end
 
       // this.props.navigation.navigate('containerDetail');
@@ -696,7 +733,7 @@ class Warehouse extends React.Component {
             isVisible={_visibleOverlay}
             onBackdropPress={this.toggleOverlay}>
             <Text style={styles.confirmText}>
-              Are you sure you want to Submit ?
+            { this.state.hasReport === true ? 'Are you sure you want to Submit ?' : 'Are you sure you want to Confirm ?'}
             </Text>
             <View style={styles.cancelButtonContainer}>
               <TouchableOpacity
@@ -724,7 +761,7 @@ class Warehouse extends React.Component {
                 <Button
                   containerStyle={{
                     flex: 1,
-                    marginRight: 0,
+                    marginRight: 10,
                     height: '100%',
                     flexBasis: 1,
                   }}
@@ -742,9 +779,20 @@ class Warehouse extends React.Component {
                       number: this.state.receivingNumber,
                     });
                   }}
+                  disabled={(this.state.hasActiveReceipt === null)}
                   title="Shipment VAS"
                 />
-            
+                <Button
+                  containerStyle={{flex: 1, height: '100%', flexBasis: 1}}
+                  buttonStyle={[
+                    styles.navigationButton,
+                    {paddingVertical: 10, flexGrow: 1},
+                  ]}
+                  titleStyle={styles.deliveryText}
+                  onPress={this.toggleOverlay}
+                  disabled={(this.state.hasActiveReceipt === null || this.state.hasActiveReceipt === false)}
+                  title={this.state.hasReport === true ? "Route to Processor" : "Confirm & Putaway"}
+                />
               </View>
             )}
           </SafeAreaInsetsContext.Consumer>
