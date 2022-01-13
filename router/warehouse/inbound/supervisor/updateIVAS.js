@@ -111,7 +111,7 @@ class Acknowledge extends React.Component {
     //  cartoonDimensionSKU : this.state.takeCartonSKU === "0" ? NaN : parseInt(this.state.takeCartonSKU),
       other: this.state.takeOthersInput
     };
-      if(VAS.nCartoon > 0 && VAS.nPallet > 0){
+   
       const result = await putData('/inboundsMobile/'+this.state.receivingNumber+'/shipmentVAS/'+this.state.shipmentID, VAS);
       if(typeof result === 'string' && result === 'Shipment VAS successfully updated'){
         this.props.navigation.goBack();
@@ -127,9 +127,7 @@ class Acknowledge extends React.Component {
           this.setState({error:error});
         }
       }
-    } else {
-      this.setState({error:'Input integer above zero for carton or pallet'});
-    }
+  
   }
   checkedIcon = () => {
     return (
@@ -629,7 +627,7 @@ class Acknowledge extends React.Component {
               buttonStyle={[styles.navigationButton, {paddingHorizontal: 0}]}
               titleStyle={styles.deliveryText}
               onPress={this.submitItem}
-              disabled={ (this.state.stuffTruck && this.state.stuffTruckCarton && this.state.stuffTruckPallet) || (this.state.stuffContainer >=0 && this.state.stuffContainerCarton && this.state.stuffContainerPallet) ? false : true}
+              disabled={ (this.state.stuffTruck && this.state.stuffTruckCarton && this.state.stuffTruckPallet && (this.state.stuffTruckPallet !== '0' || this.state.stuffTruckCarton !== '0')) || (this.state.stuffContainer >=0 && this.state.stuffContainerCarton && this.state.stuffContainerPallet && (this.state.stuffContainerPallet !== '0' || this.state.stuffContainerCarton !== '0')) ? false : true}
               title="Update"
             />
         </ScrollView>
