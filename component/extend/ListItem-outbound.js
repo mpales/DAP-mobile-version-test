@@ -1,20 +1,88 @@
 import React from 'react';
 import {
   ListItem,
-  Avatar,
   ThemeProvider,
-  withBadge,
   Badge,
   Button,
   Text,
 } from 'react-native-elements';
-import {View, TouchableOpacity} from 'react-native';
+import {View} from 'react-native';
 import TouchableScale from 'react-native-touchable-scale'; // https://github.com/kohver/react-native-touchable-scale
-import IconCursor20Mobile from '../../assets/icon/iconmonstr-cursor-20 1mobile.svg';
-import IconTime2Mobile from '../../assets/icon/iconmonstr-time-2 1mobile.svg';
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
 import Mixins from '../../mixins';
 import moment from 'moment';
+// helper
+import {pickTaskStatus} from '../helper/string';
+import {pickTaskStatusColor} from '../helper/status-color';
+
+const ListItemOutbound = ({item, index, isActive, ToManifest}) => {
+  let warehouses =
+    item.warehouses !== undefined ? item.warehouses.join() : null;
+
+  return (
+    <ThemeProvider theme={theme}>
+      <ListItem
+        key={index}
+        Component={TouchableScale}
+        friction={90} //
+        tension={100} // These props are passed to the parent component (here TouchableScale)
+        activeScale={0.95}
+        pad={0}
+        onPress={ToManifest}>
+        <View
+          style={[
+            styles.leftList,
+            {backgroundColor: pickTaskStatusColor(item.status)},
+          ]}></View>
+        <ListItem.Content style={styles.sectionContainer}>
+          <Text style={styles.descText}>
+            {moment(item.delivery_date).format('DD MMMM YYYY')}
+          </Text>
+          <ListItem.Title>{item.pick_task_no}</ListItem.Title>
+          <ListItem.Subtitle>{'Warehouse ' + warehouses}</ListItem.Subtitle>
+          <Text style={styles.descText}>{item.client_id}</Text>
+          <Text style={styles.descText}>
+            {'Type : ' + (item.type === 1 ? 'Single' : 'Multiple')}
+          </Text>
+        </ListItem.Content>
+        <View style={styles.labelContainer}>
+          <Badge
+            value={pickTaskStatus(item.status)}
+            textStyle={styles.badgeText}
+            containerStyle={{
+              alignSelf: 'flex-end',
+              marginHorizontal: 7,
+            }}
+            badgeStyle={{
+              backgroundColor: pickTaskStatusColor(item.status),
+              borderRadius: 5,
+            }}
+          />
+          <View style={{alignSelf: 'flex-end', flexDirection: 'column'}}>
+            <ListItem.Chevron
+              size={16}
+              color="#2D2C2C"
+              containerStyle={styles.chevronButton}
+              Component={(props) => (
+                <Button
+                  {...props}
+                  type="clear"
+                  icon={
+                    <IconArrow66Mobile height="26" width="26" fill="#2D2C2C" />
+                  }
+                />
+              )}
+              onPress={ToManifest}
+            />
+          </View>
+          <Text style={[styles.labelText, {marginHorizontal: 20}]}>
+            packages: -
+          </Text>
+        </View>
+      </ListItem>
+    </ThemeProvider>
+  );
+};
 
 const styles = {
   sectionContainer: {
@@ -23,12 +91,16 @@ const styles = {
     flexGrow: 1,
   },
   titleText: {
-    color: '#6C6B6B',
-    fontWeight: '600',
+    ...Mixins.body3,
+    lineHeight: 18,
+    color: '#424141',
+    fontWeight: '700',
   },
   subtitleText: {
-    marginVertical: 2,
-    color: '#6C6B6B',
+    ...Mixins.body3,
+    fontWeight: '400',
+    lineHeight: 18,
+    color: '#424141',
   },
   containerList: {
     marginHorizontal: 0,
@@ -37,7 +109,7 @@ const styles = {
     marginBottom: 0,
     borderTopLeftRadius: 5,
     borderBottomLeftRadius: 5,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -47,20 +119,20 @@ const styles = {
 
     elevation: 5,
   },
-  labelContainer : {
+  labelContainer: {
     flexShrink: 1,
     flexDirection: 'column',
     justifyContent: 'space-evenly',
     marginHorizontal: 0,
     marginVertical: 10,
-    padding:3,
+    padding: 3,
     alignSelf: 'stretch',
   },
   labelText: {
     ...Mixins.small1,
     fontWeight: '400',
     lineHeight: 18,
-    color:'#ABABAB',
+    color: '#424141',
     alignSelf: 'flex-end',
   },
   leftList: {
@@ -74,9 +146,24 @@ const styles = {
     ...Mixins.body3,
     fontWeight: '400',
     lineHeight: 18,
-    color:'#ABABAB'
-  }
+    color: '#424141',
+  },
+  badgeText: {
+    ...Mixins.small3,
+    fontWeight: '400',
+    lineHeight: 15,
+    paddingHorizontal: 20,
+  },
+  chevronButton: {
+    alignContent: 'flex-end',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+    flexShrink: 1,
+    padding: 0,
+    margin: 0,
+  },
 };
+
 const theme = {
   ListItem: {
     containerStyle: styles.containerList,
@@ -98,84 +185,6 @@ const theme = {
   ListItemContent: {
     containerStyle: styles.sectionContainer,
   },
- 
-
-};
-const Manifest = ({item, index, isActive, ToManifest}) => {
-  let status = 'grey';
-  let textstatus = 'waiting';
-  switch (item.status) {
-    case 4:
-      status = 'green';
-      textstatus = 'Complete'
-      break;
-      case 3:
-        status = 'orange';
-        textstatus = 'In Progress'
-        break;
-        case 2:
-          status = 'grey';
-          textstatus = 'Waiting'
-          break;
-          case 5:
-            status = 'red';
-            textstatus = 'Reported'
-            break;
-    default:
-      break;
-  }
-  let warehouses = item.warehouses !== undefined ? item.warehouses.join() : null;
-  return (
-    <ThemeProvider theme={theme}>
-      <ListItem
-        key={index}
-        Component={TouchableScale}
-        friction={90} //
-        tension={100} // These props are passed to the parent component (here TouchableScale)
-        activeScale={0.95}
-        pad={0}
-        onPress={ToManifest}
-        >
-        <View style={[styles.leftList,{backgroundColor:status}]}>
-        </View>
-        <ListItem.Content style={styles.sectionContainer}>
-          <Text style={{...Mixins.body3, fontWeight: '400',lineHeight: 18, color:'#ABABAB'}}>
-            {moment(item.delivery_date).format('DD MMMM YYYY')}
-          </Text>
-        <ListItem.Subtitle style={{...Mixins.body1, lineHeight: 21, color: '#424141', fontWeight: '600'}}>
-        {item.pick_task_no}
-        </ListItem.Subtitle>
-        <ListItem.Title style={{...Mixins.body3,lineHeight: 18,color: '#ABABAB', fontWeight: '600'}}>
-        {"Warehouse "+warehouses}  
-        </ListItem.Title>
-        <Text style={styles.descText}>{item.client_id}</Text>
-        <Text style={styles.descText}>{"Type : "+(item.type === 1 ? 'Single':'Multiple')}</Text>
-        </ListItem.Content>
-        <View style={styles.labelContainer}>
-        <Badge value={textstatus} status="warning" textStyle={{...Mixins.small3,fontWeight: '400',lineHeight: 15, paddingHorizontal: 20,}} containerStyle={{alignSelf: 'flex-end',marginHorizontal: 7}} badgeStyle={{backgroundColor: status}} />
-        <View style={{alignSelf:'flex-end',flexDirection: 'column'}}>
-           
-        <ListItem.Chevron
-            size={16}
-            color="#2D2C2C"
-            containerStyle={{alignContent:'flex-end',justifyContent:'flex-end',alignItems:'flex-end',flexShrink:1,padding:0,margin:0}}
-            Component={(props)=>(
-              <Button
-                {...props}
-                type="clear"
-                icon={
-                  <IconArrow66Mobile height="26" width="26" fill="#2D2C2C"/>
-                }
-              />)}
-            onPress={ToManifest}
-          />
-          </View>
-        <Text style={[styles.labelText,{marginHorizontal: 20}]}>packages: -</Text>
-        </View>
-        
-      </ListItem>
-    </ThemeProvider>
-  );
 };
 
-export default Manifest;
+export default ListItemOutbound;
