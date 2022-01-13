@@ -70,6 +70,50 @@ export const stockTakeCountStatus = (value) => {
   return statusString;
 };
 
+export const pickTaskStatus = (value) => {
+  let statusString;
+  switch (value) {
+    case 2:
+      statusString = 'Waiting';
+      break;
+    case 3:
+      statusString = 'In Progress';
+      break;
+    case 4:
+      statusString = 'Completed';
+      break;
+    case 5:
+      statusString = 'Reported';
+      break;
+    default:
+      statusString = '';
+      break;
+  }
+  return statusString;
+};
+
+export const pickTaskProductStatus = (value) => {
+  let statusString;
+  switch (value) {
+    case 1:
+      statusString = 'Waiting';
+      break;
+    case 2:
+      statusString = 'In Progress';
+      break;
+    case 3:
+      statusString = 'Completed';
+      break;
+    case 4:
+      statusString = 'Reported';
+      break;
+    default:
+      statusString = '';
+      break;
+  }
+  return statusString;
+};
+
 export const productGradeToString = (value) => {
   let gradeString;
   switch (value) {
