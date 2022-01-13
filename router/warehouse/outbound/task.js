@@ -97,52 +97,111 @@ class List extends React.Component {
       }
     }
     if (
-      (prevState.renderRefresh !== this.state.renderRefresh &&
-        this.state.renderRefresh === true) ||
-      (prevState.renderGoBack !== this.state.renderGoBack &&
-        this.state.renderGoBack === true) ||
-      prevState.filtered !== this.state.filtered ||
-      prevState.renderFiltered !== this.state.renderFiltered ||
-      prevState.search !== this.state.search ||
-      prevState.dropdown !== this.state.dropdown
+      prevState.renderRefresh !== this.state.renderRefresh &&
+      this.state.renderRefresh === true
     ) {
-      this.handleResultList();
+      let shouldUpdateTask =
+        (prevState.renderRefresh !== this.state.renderRefresh &&
+          this.state.renderRefresh === true) ||
+        prevState.filtered !== this.state.filtered ||
+        (prevState.renderFiltered !== this.state.renderFiltered &&
+          this.state.renderFiltered === true) ||
+        prevState.search !== this.state.search ||
+        prevState.dropdown !== this.state.dropdown
+          ? true
+          : false;
+      if (shouldUpdateTask === false) return;
+      this.handleUpdatePickTask();
+    } else if (
+      prevState.renderGoBack !== this.state.renderGoBack &&
+      this.state.renderGoBack === true
+    ) {
+      let shouldUpdateStatus =
+        (prevState.renderGoBack !== this.state.renderGoBack &&
+          this.state.renderGoBack === true) ||
+        (prevState.renderRefresh !== this.state.renderRefresh &&
+          this.state.renderRefresh === true) ||
+        prevState.filtered !== this.state.filtered ||
+        (prevState.renderFiltered !== this.state.renderFiltered &&
+          this.state.renderFiltered === true) ||
+        prevState.search !== this.state.search ||
+        prevState.dropdown !== this.state.dropdown
+          ? true
+          : false;
+      if (shouldUpdateStatus === false) return;
+      this.handleUpdateStatus();
+    } else {
+      let shouldLocalFilter =
+        (prevState.renderRefresh !== this.state.renderRefresh &&
+          this.state.renderRefresh === false) ||
+        prevState.filtered !== this.state.filtered ||
+        (prevState.renderFiltered !== this.state.renderFiltered &&
+          this.state.renderFiltered === true) ||
+        prevState.search !== this.state.search ||
+        prevState.dropdown !== this.state.dropdown
+          ? true
+          : false;
+      if (shouldLocalFilter === false) return;
+      this.handleLocalFilter();
     }
   }
 
   componentDidMount() {
-    this.handleResultList();
+    this.handleUpdatePickTask();
   }
 
-  handleResultList = async () => {
+  handleUpdatePickTask = async () => {
     const resultedList = await this.updateTask();
     this.props.setOutboundTask(resultedList);
-    const {filtered} = this.state;
-    if (filtered === 0) {
-      this.setState({
-        list: resultedList.filter(
-          (element) =>
-            String(element.client_id)
-              .toLowerCase()
-              .indexOf(this.state.search.toLowerCase()) > -1 &&
-            (this.state.dropdown === '' ||
-              (this.state.dropdown !== '' &&
-                element.warehouses.includes(this.state.dropdown))),
-        ),
-        renderGoBack: false,
-        renderRefresh: false,
-        renderFiltered: false,
-      });
-    } else {
-      this.setState({
-        list: resultedList
-          .filter((element) => element.status === filtered)
-          .filter(
+    this.filteringTask(resultedList);
+  };
+
+  handleUpdateStatus = async () => {
+    const resultedList = await this.updateStatus();
+    this.props.setOutboundTask(resultedList);
+    this.filteringTask(resultedList);
+  };
+
+  handleLocalFilter = () => {
+    const resultedList = this.props.outboundTask;
+    this.filteringTask(resultedList);
+  };
+
+  filteringTask = (resultedList) => {
+    if (!!resultedList) {
+      const {filtered} = this.state;
+      if (filtered === 0) {
+        this.setState({
+          list: resultedList.filter(
             (element) =>
               String(element.client_id)
                 .toLowerCase()
-                .indexOf(this.state.search.toLowerCase()) > -1,
+                .indexOf(this.state.search.toLowerCase()) > -1 &&
+              (this.state.dropdown === '' ||
+                (this.state.dropdown !== '' &&
+                  element.warehouses.includes(this.state.dropdown))),
           ),
+          renderGoBack: false,
+          renderRefresh: false,
+          renderFiltered: false,
+        });
+      } else {
+        this.setState({
+          list: resultedList
+            .filter((element) => element.status === filtered)
+            .filter(
+              (element) =>
+                String(element.client_id)
+                  .toLowerCase()
+                  .indexOf(this.state.search.toLowerCase()) > -1,
+            ),
+          renderGoBack: false,
+          renderRefresh: false,
+          renderFiltered: false,
+        });
+      }
+    } else {
+      this.setState({
         renderGoBack: false,
         renderRefresh: false,
         renderFiltered: false,
