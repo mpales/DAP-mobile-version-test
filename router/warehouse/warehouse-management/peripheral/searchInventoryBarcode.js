@@ -35,7 +35,10 @@ class SearchInventoryBarcode extends React.Component {
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
-        <Barcode renderBarcode={this.renderBarcode} />
+        <Barcode
+          renderBarcode={this.renderBarcode}
+          barcodeContext={'Scan Location Barcode'}
+        />
       </SafeAreaProvider>
     );
   }

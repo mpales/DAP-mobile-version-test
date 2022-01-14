@@ -67,7 +67,10 @@ class RequestRelocateToBarcode extends React.Component {
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
-        <Barcode renderBarcode={this.renderBarcode} />
+        <Barcode
+          renderBarcode={this.renderBarcode}
+          barcodeContext={'Scan Location Barcode'}
+        />
         <Overlay isVisible={isShowOverlay} overlayStyle={{borderRadius: 13}}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
