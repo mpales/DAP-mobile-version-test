@@ -29,8 +29,10 @@ export const TextList = ({title, value, color, isBold}) => (
                     )
                   : '-'}
               </>
-            ) : (
+            ) : !!value ? (
               value
+            ) : (
+              '-'
             )}
           </Text>
         ) : (
