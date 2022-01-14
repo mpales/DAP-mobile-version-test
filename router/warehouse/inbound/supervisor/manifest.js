@@ -65,6 +65,7 @@ class Warehouse extends React.Component {
       _manifest: [],
       hasReport : false,
       hasActiveReceipt : false,
+      route_to_processor: false,
       updated: false,
       initialRender: false,
       notifbanner: '',
@@ -82,8 +83,22 @@ class Warehouse extends React.Component {
     this.handleConfirm.bind(this);
   }
   static getDerivedStateFromProps(props, state) {
-    const {_manifest} = state;
+    const {_manifest, receivingNumber} = state;
+    const {navigation,currentASN, inboundList} = props;
+    const {routes,index} = navigation.dangerouslyGetState();
+    let inboundId =   currentASN;   
+    if (
+      routes[index].params !== undefined &&
+      routes[index].params.number !== undefined
+    ){
+      inboundId =   routes[index].params.number;
+    }
     let flagReport = _manifest.some((o)=> o.status === 4);
+    if(receivingNumber === null){
+      let _baseProduct = inboundList.find((o)=> o.id === inboundId);
+      flagReport = _baseProduct !== undefined && _baseProduct.products !== undefined && Array.isArray(_baseProduct.products) && _baseProduct.products.length > 0 ? _baseProduct.products.some((o)=> o.status === 4) : false;
+    } 
+
     return {...state, hasReport: flagReport};
   }
   shouldComponentUpdate(nextProps, nextState) {
@@ -127,6 +142,7 @@ class Warehouse extends React.Component {
                     .indexOf(this.state.search.toLowerCase()) > -1) ||
                 element.is_transit === 1,
             ),
+            route_to_processor : Boolean(result.route_to_processor),
             hasActiveReceipt: active_inbound_flag,
             updated: false,
             renderRefresh: false,
@@ -145,6 +161,7 @@ class Warehouse extends React.Component {
                       .indexOf(this.state.search.toLowerCase()) > -1) ||
                   element.is_transit === 1,
               ),
+              route_to_processor : Boolean(result.route_to_processor),
             hasActiveReceipt: active_inbound_flag, 
             updated: false,
             renderRefresh: false,
@@ -163,6 +180,7 @@ class Warehouse extends React.Component {
                       .indexOf(this.state.search.toLowerCase()) > -1) ||
                   element.is_transit === 1,
               ),
+              route_to_processor : Boolean(result.route_to_processor),
             hasActiveReceipt: active_inbound_flag,
             updated: false,
             renderRefresh: false,
@@ -362,6 +380,7 @@ class Warehouse extends React.Component {
             active_inbound_flag = result.inbound_receipt.some((o)=>o.current_active === true);
           }
           this.setState({
+            route_to_processor : Boolean(result.route_to_processor),
             hasActiveReceipt: active_inbound_flag,
             receivingNumber: routes[index].params.number,
             inboundNumber: result.inbound_number,
@@ -383,6 +402,7 @@ class Warehouse extends React.Component {
             active_inbound_flag = result.inbound_receipt.some((o)=>o.current_active === true);
           }
           this.setState({
+            route_to_processor : Boolean(result.route_to_processor),
             hasActiveReceipt: active_inbound_flag,
             receivingNumber: routes[index].params.number,
             inboundNumber: result.inbound_number,
@@ -598,6 +618,7 @@ class Warehouse extends React.Component {
                         number: this.state.receivingNumber,
                       });
                     }}
+                    disabled={(this.state.receivingNumber === null)}
                     title="Inbound Photos"
                   />
                 </View>
@@ -779,7 +800,7 @@ class Warehouse extends React.Component {
                       number: this.state.receivingNumber,
                     });
                   }}
-                  disabled={(this.state.hasActiveReceipt === null)}
+                  disabled={(this.state.receivingNumber === null || this.state.hasActiveReceipt === null)}
                   title="Shipment VAS"
                 />
                 <Button
@@ -790,7 +811,7 @@ class Warehouse extends React.Component {
                   ]}
                   titleStyle={styles.deliveryText}
                   onPress={this.toggleOverlay}
-                  disabled={(this.state.hasActiveReceipt === null || this.state.hasActiveReceipt === false)}
+                  disabled={( this.state.receivingNumber === null || (( this.state.hasReport === true && (this.state.hasActiveReceipt === null || this.state.route_to_processor === 1)) || (this.state.hasReport === false && (this.state.hasActiveReceipt !== false)))  )}
                   title={this.state.hasReport === true ? "Route to Processor" : "Confirm & Putaway"}
                 />
               </View>
