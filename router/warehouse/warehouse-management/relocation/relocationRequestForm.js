@@ -815,13 +815,14 @@ const REASONCODELIST = [
 const GRADELIST = [
   {id: 1, grade: 'PICK'},
   {id: 2, grade: 'BUFFER'},
-  {id: 3, grade: 'DAMAGE'},
+  {id: 3, grade: 'DAMAGED'},
   {id: 4, grade: 'DEFECTIVE'},
   {id: 5, grade: 'SHORT EXPIRY'},
   {id: 6, grade: 'EXPIRED'},
-  {id: 7, grade: 'NO STOCK'},
-  {id: 8, grade: 'RESERVE'},
-  {id: 11, grade: 'NG'},
+  {id: 7, grade: 'NS'},
+  {id: 8, grade: 'RESERVED'},
+  {id: 9, grade: 'SIT'},
+  {id: 11, grade: 'TRANSIT'},
 ];
 
 const styles = StyleSheet.create({

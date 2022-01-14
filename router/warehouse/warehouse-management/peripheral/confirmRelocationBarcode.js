@@ -116,6 +116,7 @@ class ConfirmRelocationBarcode extends React.Component {
   };
 
   navigateToRelocationJobList = () => {
+    this.setState({isShowSuccessOverlay: false});
     this.props.setBottomBar(true);
     this.props.navigation.navigate('RelocationList');
   };
@@ -172,102 +173,109 @@ class ConfirmRelocationBarcode extends React.Component {
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
-        <Barcode renderBarcode={this.renderBarcode} />
-        <BottomSheet
-          ref={this.modalizeRef}
-          initialSnap={1}
-          snapPoints={[30, 190]}
-          enabledBottomClamp={false}
-          enabledContentTapInteraction={false}
-          renderContent={this.renderInner}
-          renderHeader={this.renderHeader}
-          enabledInnerScrolling={false}
-          enabledBottomInitialAnimation={false}
+        <Barcode
+          renderBarcode={this.renderBarcode}
+          barcodeContext={'Scan Location Barcode'}
         />
         {!isLoading && (
-          <Overlay
-            overlayStyle={{borderRadius: 10, padding: 0}}
-            isVisible={isShowSuccessOverlay}>
-            <View
-              style={{
-                flexShrink: 1,
-                width: screen.width * 0.9,
-              }}>
+          <>
+            {!isShowSuccessOverlay && errorMessage === '' && (
+              <BottomSheet
+                ref={this.modalizeRef}
+                initialSnap={1}
+                snapPoints={[30, 200]}
+                enabledBottomClamp={false}
+                enabledContentTapInteraction={false}
+                renderContent={this.renderInner}
+                renderHeader={this.renderHeader}
+                enabledInnerScrolling={false}
+                enabledBottomInitialAnimation={false}
+              />
+            )}
+            <Overlay
+              overlayStyle={{borderRadius: 10, padding: 0}}
+              isVisible={isShowSuccessOverlay}>
               <View
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderBottomWidth: 1,
-                  borderBottomColor: '#ABABAB',
-                  paddingVertical: 15,
+                  flexShrink: 1,
+                  width: screen.width * 0.9,
                 }}>
-                <CheckmarkIcon height="24" width="24" fill="#17B055" />
-                <Text
+                <View
                   style={{
-                    ...Mixins.subtitle3,
-                    fontSize: 18,
-                    lineHeight: 25,
-                    marginLeft: 10,
-                    color: '#17B055',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: '#ABABAB',
+                    paddingVertical: 15,
                   }}>
-                  Relocation Successful
-                </Text>
-              </View>
-              <View style={{padding: 20}}>
-                <Text style={styles.cardTitle}>New Location</Text>
-                {relocationDetails.productStorageFroms.length > 1 && (
+                  <CheckmarkIcon height="24" width="24" fill="#17B055" />
+                  <Text
+                    style={{
+                      ...Mixins.subtitle3,
+                      fontSize: 18,
+                      lineHeight: 25,
+                      marginLeft: 10,
+                      color: '#17B055',
+                    }}>
+                    Relocation Successful
+                  </Text>
+                </View>
+                <View style={{padding: 20}}>
+                  <Text style={styles.cardTitle}>New Location</Text>
+                  {relocationDetails.productStorageFroms.length > 1 && (
+                    <TextList
+                      title="Warehouse"
+                      value={relocationDetails.warehouseNameTo}
+                    />
+                  )}
                   <TextList
-                    title="Warehouse"
-                    value={relocationDetails.warehouseNameTo}
+                    title="Location"
+                    value={relocationDetails.locationTo}
                   />
-                )}
-                <TextList
-                  title="Location"
-                  value={relocationDetails.locationTo}
-                />
-                {!(relocationDetails.productStorageFroms.length > 1) && (
-                  <>
-                    <TextList
-                      title="Item Code"
-                      value={
-                        relocationDetails.productStorageFroms[0].product
-                          .item_code
-                      }
-                    />
-                    <TextList
-                      title="Description"
-                      value={
-                        relocationDetails.productStorageFroms[0].product
-                          .description
-                      }
-                    />
-                    <TextList
-                      title="UOM"
-                      value={
-                        relocationDetails.productStorageFroms[0].productUom
-                          .packaging
-                      }
-                      isBold={true}
-                    />
-                  </>
-                )}
-                <CustomTextList
-                  title="Destination Grade"
-                  value={productGradeToString(relocationDetails.gradeTo)}
-                />
-                <Button
-                  title="Back To List"
-                  titleStyle={styles.buttonText}
-                  buttonStyle={[
-                    styles.button,
-                    {marginHorizontal: 0, marginTop: 20},
-                  ]}
-                  onPress={this.navigateToRelocationJobList}
-                />
+                  {!(relocationDetails.productStorageFroms.length > 1) && (
+                    <>
+                      <TextList
+                        title="Item Code"
+                        value={
+                          relocationDetails.productStorageFroms[0].product
+                            .item_code
+                        }
+                      />
+                      <TextList
+                        title="Description"
+                        value={
+                          relocationDetails.productStorageFroms[0].product
+                            .description
+                        }
+                      />
+                      <TextList
+                        title="UOM"
+                        value={
+                          relocationDetails.productStorageFroms[0].productUom
+                            .packaging
+                        }
+                        isBold={true}
+                      />
+                    </>
+                  )}
+                  <CustomTextList
+                    title="Destination Grade"
+                    value={productGradeToString(relocationDetails.gradeTo)}
+                  />
+                  <Button
+                    title="Back To List"
+                    titleStyle={styles.buttonText}
+                    buttonStyle={[
+                      styles.button,
+                      {marginHorizontal: 0, marginTop: 20},
+                    ]}
+                    onPress={this.navigateToRelocationJobList}
+                  />
+                </View>
               </View>
-            </View>
-          </Overlay>
+            </Overlay>
+          </>
         )}
         <Overlay
           isVisible={errorMessage !== '' && isShowSuccessOverlay === false}
@@ -391,7 +399,9 @@ const styles = StyleSheet.create({
 });
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    detectBarcode: state.originReducer.filters.isBarcodeScan,
+  };
 }
 
 const mapDispatchToProps = (dispatch) => {
