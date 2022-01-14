@@ -150,31 +150,31 @@ class PickListItemDetails extends React.Component {
                   />
                   <TextList
                     title="Product Class"
-                    value={_itemDetail.detail[0].attributes.class}
+                    value={_itemDetail.detail[0].attributes?.class}
                   />
                   <TextList
                     title="CBM"
-                    value={_itemDetail.detail[0].attributes.cbm}
+                    value={_itemDetail.detail[0].attributes?.cbm}
                   />
                   <TextList
                     title="Weight"
-                    value={_itemDetail.detail[0].attributes.weight}
+                    value={_itemDetail.detail[0].attributes?.weight}
                   />
                 </View>
                 <Divider />
                 <View style={[styles.detailSection, {paddingVertical: 10}]}>
                   <Text style={styles.reportSectionTitle}>
                     Product Category :{' '}
-                    {_itemDetail.detail[0].attributes.category}
+                    {_itemDetail.detail[0].attributes?.category}
                   </Text>
                   <TextList
                     title="Color"
-                    value={_itemDetail.detail[0].attributes.Color}
+                    value={_itemDetail.detail[0].attributes?.Color}
                   />
                   <TextList
                     title="EXP Date"
                     value={Format.formatDate(
-                      _itemDetail.detail[0].attributes.expiry_date,
+                      _itemDetail.detail[0].attributes?.expiry_date,
                     )}
                   />
                   <TextList title="Batch" value={_itemDetail.batch_no} />
