@@ -16,6 +16,7 @@ import {
   Dimensions,
   PixelRatio,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import {connect} from 'react-redux';
 import moment from 'moment';
@@ -46,6 +47,7 @@ class Acknowledge extends React.Component {
   unsubscribe = null;
   progressLinear = null;
   dropdownUOM = null;
+  ItemScrollView = null
   constructor(props) {
     super(props);
     this.state = {
@@ -82,6 +84,8 @@ class Acknowledge extends React.Component {
       validDimensions: false,
       _manifest: null,
       keyboardState: 'hide',
+      onHandleBlurAttribute : false,
+      onHandleLoadingPhoto : false,
     };
     this.registerBarcode.bind(this);
     this.submitItem.bind(this);
@@ -209,7 +213,7 @@ class Acknowledge extends React.Component {
         const result = await getData('inboundsMobile/'+currentASN);
         if(typeof result === 'object' && result.error === undefined){
           this.props.setManifestList(result.products);
-          this.setState({sku:''});
+          this.setState({sku:'', onHandleLoadingPhoto: false});
        }
       }, 8000); 
     }
@@ -416,7 +420,8 @@ class Acknowledge extends React.Component {
           labelerror: false,
         });
       } else {
-        this.setState({recordPhoto: true});
+        this.setState({recordPhoto: true,         onHandleLoadingPhoto: true
+        });
       }
       // for prototype only
       // if((this.state._manifest.is_new === 1 || this.state._manifest.record === 1) && this.state._manifest.input_basic_attributes === 1){
@@ -554,6 +559,16 @@ class Acknowledge extends React.Component {
           />
         )}
         <ScrollView
+        ref={(ref) => this.ItemScrollView = ref}
+        onContentSizeChange={(contentWidth,contentHeight)=>{
+         
+            if(contentHeight > window.height && this.state.onHandleBlurAttribute === true){
+              this.ItemScrollView.scrollTo(
+                { x: 0, y: (window.height/3), animated: true }
+              );
+              this.setState({onHandleBlurAttribute: false});
+            }
+        }}
           style={{
             flex: 1,
             flexDirection: 'column',
@@ -785,7 +800,7 @@ class Acknowledge extends React.Component {
                       flexShrink: 1,
                       marginHorizontal: 0,
                       paddingHorizontal: 0,
-                      maxWidth: 70,
+                    
                     }}
                     inputStyle={{
                       ...Mixins.subtitle3,
@@ -812,12 +827,12 @@ class Acknowledge extends React.Component {
                     disabled={true}
                   />
 
-                  <EmptyIlustrate
+                </View>
+                <EmptyIlustrate
                     width="70"
                     height="70"
-                    style={{marginHorizontal: 20}}
+                    style={{marginHorizontal: 20, position:'absolute', bottom:15, right:15}}
                   />
-                </View>
               </View>
               {this.state._manifest.barcode === 1 && (
                 <View
@@ -970,7 +985,7 @@ class Acknowledge extends React.Component {
             <View
               style={{
                 marginHorizontal: 10,
-                marginVertical: 10,
+                marginVertical:10,
                 shadowColor: '#000',
                 shadowOffset: {
                   width: 0,
@@ -1127,6 +1142,14 @@ class Acknowledge extends React.Component {
                   }}
                   keyboardType="number-pad"
                   value={length}
+                  onBlur={(e) =>
+                    {
+                      this.setState({onHandleBlurAttribute : true});
+                    }
+                  }
+                  onEndEditing={(e) => {
+                    this.setState({onHandleBlurAttribute : true});
+                  }}
                   disabled={this.state.validDimensions}
                 />
               </View>
@@ -1171,6 +1194,14 @@ class Acknowledge extends React.Component {
                   }}
                   keyboardType="number-pad"
                   value={width}
+                  onBlur={(e) =>
+                    {
+                      this.setState({onHandleBlurAttribute : true});
+                    }
+                  }
+                  onEndEditing={(e) => {
+                    this.setState({onHandleBlurAttribute : true});
+                  }}
                   disabled={this.state.validDimensions}
                 />
               </View>
@@ -1214,6 +1245,14 @@ class Acknowledge extends React.Component {
                   }}
                   keyboardType="number-pad"
                   value={height}
+                  onBlur={(e) =>
+                    {
+                      this.setState({onHandleBlurAttribute : true});
+                    }
+                  }
+                  onEndEditing={(e) => {
+                    this.setState({onHandleBlurAttribute : true});
+                  }}
                   disabled={this.state.validDimensions}
                 />
               </View>
@@ -1298,6 +1337,14 @@ class Acknowledge extends React.Component {
                     this.setState({weight: text});
                   }}
                   value={weight}
+                  onBlur={(e) =>
+                    {
+                      this.setState({onHandleBlurAttribute : true});
+                    }
+                  }
+                  onEndEditing={(e) => {
+                    this.setState({onHandleBlurAttribute : true});
+                  }}
                   disabled={this.state.validDimensions}
                   keyboardType="number-pad"
                 />
@@ -1341,6 +1388,14 @@ class Acknowledge extends React.Component {
                     this.setState({pcscarton: text});
                   }}
                   value={pcscarton}
+                  onBlur={(e) =>
+                    {
+                      this.setState({onHandleBlurAttribute : true});
+                    }
+                  }
+                  onEndEditing={(e) => {
+                    this.setState({onHandleBlurAttribute : true});
+                  }}
                   disabled={this.state.validDimensions}
                   keyboardType="number-pad"
                 />
@@ -1604,6 +1659,12 @@ class Acknowledge extends React.Component {
                       ? false
                       : true
                   }
+                  icon={()=>   {
+                    if(this.state.onHandleLoadingPhoto === true){
+                      return (<ActivityIndicator size={30} color="#fff" />);
+                    }
+                    return (<></>);
+                    }}
                   title="Confirm upload photos"
                 />
               </View>
