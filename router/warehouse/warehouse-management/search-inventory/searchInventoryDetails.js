@@ -1,5 +1,12 @@
 import React from 'react';
-import {ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {
+  Dimensions,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {Card} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -16,11 +23,14 @@ import {
 //style
 import Mixins from '../../../../mixins';
 
+const window = Dimensions.get('window');
+
 class SearchInventoryDetails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      warehousName: this.props.route.params?.warehouseData?.warehouseName ?? '',
+      warehouseName:
+        this.props.route.params?.warehouseData?.warehouseName ?? '',
       locationId: this.props.route.params?.warehouseData?.locationId ?? '',
       inventoryList:
         this.props.route.params?.warehouseData?.productStorage ?? null,
@@ -55,25 +65,26 @@ class SearchInventoryDetails extends React.Component {
   };
 
   render() {
-    const {inventoryList, warehousName, locationId, isLoading} = this.state;
+    const {inventoryList, warehouseName, locationId, isLoading} = this.state;
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" />
         <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
-          {(warehousName !== '' || locationId !== '') && (
-            <>
-              <Text style={styles.title}>{`Warehouse ${warehousName}`}</Text>
-              <Text style={styles.title}>{locationId}</Text>
-            </>
-          )}
           {!isLoading && (
             <>
+              {warehouseName !== '' && locationId !== '' && (
+                <>
+                  <Text
+                    style={styles.title}>{`Warehouse ${warehouseName}`}</Text>
+                  <Text style={styles.title}>{locationId}</Text>
+                </>
+              )}
               {inventoryList === null ? (
                 <View
                   style={{
                     flex: 1,
                     alignItems: 'center',
-                    marginTop: '70%',
+                    marginTop: window.height * 0.45,
                   }}>
                   <Text style={styles.text}>Empty</Text>
                 </View>
