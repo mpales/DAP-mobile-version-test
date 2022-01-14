@@ -18,6 +18,7 @@ class ManualInput extends React.Component {
       indexData: null,
       bayCode: null,
       error: false,
+      inputBayBarcode: this.props.route.params?.inputBayBarcode ?? false,
     };
   }
 
@@ -50,6 +51,7 @@ class ManualInput extends React.Component {
         params: {
           manualCode: this.state.inputCode,
           indexData: this.state.indexData,
+          inputBayBarcode: this.state.inputBayBarcode,
         },
       });
     }
@@ -60,6 +62,7 @@ class ManualInput extends React.Component {
   };
 
   render() {
+    const {inputBayBarcode} = this.state;
     return (
       <View style={styles.container}>
         {this.state.error && (
@@ -70,7 +73,9 @@ class ManualInput extends React.Component {
           />
         )}
         <View style={{padding: 20}}>
-          <Text style={styles.title}>Input Manual Item Barcode</Text>
+          <Text style={styles.title}>{`Input Manual ${
+            inputBayBarcode ? 'Bay' : 'Item'
+          } Barcode`}</Text>
           <TextInput
             style={styles.textInput}
             onChangeText={(value) => this.setState({inputCode: value})}
