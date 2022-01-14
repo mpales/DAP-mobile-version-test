@@ -89,13 +89,22 @@ class ConnoteDetails extends React.Component {
                 <DetailList title="CBM" value={_itemDetail.basic.volume} />
                 <DetailList title="Weight" value={_itemDetail.basic.weight + ' KG'} />
                 </View>
-                <Divider/>
-                <View style={[styles.detailSection,{paddingVertical:10}]}>
-                  <Text style={styles.reportSectionTitle}>{'Product Category : '+ _itemDetail.category}</Text>
-                  <DetailList title="Color" value="-" />
-                  <DetailList title="EXP Date" value="-" />
-                  <DetailList title="Batch" value="-" />
-                </View>
+                <Divider style={{marginBottom:10}}/>
+                {_itemDetail.template !== undefined &&
+                    _itemDetail.template !== null &&
+                    _itemDetail.template.attributes !== undefined &&
+                    _itemDetail.template.attributes !== null  && Array.isArray(_itemDetail.template.attributes) === true &&
+                    _itemDetail.template.attributes.length > 0 && (<View style={[styles.detailSection,{paddingBottom:10}]}>
+                  <Text style={styles.reportSectionTitle}>Custom Attributes</Text>
+                  { _itemDetail.template.attributes.map((element,index)=>{
+                      if(element.field_type === 'multi select' || element.field_type === 'options'){
+                        return (<DetailList title={element.name} value={Array.isArray(element.values) && element.values.length > 0 ? element.values.join(', ') : '-'} />);
+                      } else {
+                        return (<DetailList title={element.name} value={element.field_type} />);
+                      }
+                    })}
+                 
+                </View>)}
                 <View style={[styles.reportSection,{paddingHorizontal:20}]}>
                   <Text style={styles.reportSectionTitle}>Report:</Text>
                   <DetailList
