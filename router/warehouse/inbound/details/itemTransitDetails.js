@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Platform
 } from 'react-native';
 import {Card, Divider} from 'react-native-elements';
 import {connect} from 'react-redux';
@@ -26,7 +27,7 @@ class ConnoteDetails extends React.Component {
       dataActivities : [],
       _itemDetail: null,
     };
-    this.renderHeader.bind(this);
+  
   }
   static getDerivedStateFromProps(props,state){
     const {navigation, manifestList} = props;
@@ -59,61 +60,7 @@ class ConnoteDetails extends React.Component {
     this.props.navigation.navigate('ItemReportDetail');
   };
 
-  renderHeader = () => {
-    const {_itemDetail} = this.state;
-    return (
-      <>
-        <Card containerStyle={styles.cardContainer} style={styles.card}>
-             
-             <View style={styles.detail}>
-               <DetailList title="Container #" value="ADIDAS SHOES" />
-               <DetailList title="No. of Pallet" value="20" />
-               <DetailList title="No. of Carton" value="10" />
-               <DetailList title="CBM" value="0.68" />
-               <DetailList
-                 title="Weight"
-                 value="11 KG"
-               />
-               <Divider />
-               <View style={styles.header}>
-                 <Text style={[styles.detailText, {lineHeight: 24}]}>
-                 Delivery Information
-                 </Text>
-               </View>
-               <DetailList title="Delivery Type" value="SELF COLLECTION" />
-             </View>
-           </Card>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Log</Text>
-          <View style={styles.sortContainer}>
-            <Text style={{...mixins.subtitle3, fontWeight: '700'}}>
-              Sort By Name
-            </Text>
-            <View style={styles.sortIconWrapper}>
-              <ChevronDown width="15" height="15" fill="#6C6B6B" />
-            </View>
-          </View>
-        </View>
-        <View style={[styles.header, {marginTop: 10}]}>
-          <Text style={styles.detailText}>Date and Time</Text>
-          <Text style={styles.detailText}>Name</Text>
-          <Text style={styles.detailText}>Activities</Text>
-        </View>
-      </>
-    );
-  };
-
   
-  renderInner = (item) => {
-    return (
-      <View style={styles.header}>
-        <Text style={styles.detailText}>{moment(item.date).format('DD/MM/YYY h:mm a')}</Text>
-        <Text style={styles.detailText}>{item.name.firstName}</Text>
-        <Text style={styles.detailText}>{item.activity}</Text>
-      </View>
-    );
-  };
-
   render() {
     const {_itemDetail} = this.state;
     return (
@@ -125,28 +72,24 @@ class ConnoteDetails extends React.Component {
             
           </View>
           <View style={styles.body}>
-          
-          <Card containerStyle={styles.cardContainer} style={styles.card}>
+            <Card containerStyle={styles.cardContainer} style={styles.card}>
              
-             <View style={styles.detail}>
-               <DetailList title="Container #" value={_itemDetail.container_no} />
+              <View style={styles.detail}>
+              <DetailList title="Container #" value={_itemDetail.container_no} />
                <DetailList title="No. of Pallet" value={_itemDetail.total_pallet} />
                <DetailList title="No. of Carton" value={_itemDetail.total_carton} />
-               <DetailList title="CBM" value="-" />
-               <DetailList
-                 title="Weight"
-                 value="-"
-               />
-               <Divider />
-               <View style={styles.header}>
-                 <Text style={[styles.detailText, {lineHeight: 24}]}>
-                 Delivery Information
-                 </Text>
                </View>
-               <DetailList title="Delivery Type" value={_itemDetail.delivery_type === 1 ? 'Self Collection' : 'Request Delivery'} />
-             </View>
-           </Card>
-      
+                <Divider style={{marginVertical:10}}/>
+                <View style={styles.detail}>
+                <View style={styles.header}>
+                  <Text style={[styles.detailText, {lineHeight: 24, fontWeight: Platform.OS === 'ios' ? '600' : '700'}]}>
+                  Delivery Information
+                  </Text>
+                </View>
+                <DetailList title="Delivery Type" value={_itemDetail.delivery_type === 1 ? 'Self Collection' : 'Request Delivery'} />
+              </View>
+            </Card>
+           
           </View>
         </View>
       </>
@@ -191,6 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     marginHorizontal: 0,
     marginBottom: 20,
+    paddingHorizontal:0,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -208,6 +152,7 @@ const styles = StyleSheet.create({
   },
   detail: {
     flexDirection: 'column',
+    paddingHorizontal:20,
   },
   detailText: {
     ...mixins.subtitle3,

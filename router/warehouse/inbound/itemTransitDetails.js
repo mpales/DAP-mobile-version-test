@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Platform
 } from 'react-native';
 import {Card, Divider} from 'react-native-elements';
 import {connect} from 'react-redux';
@@ -49,38 +50,6 @@ class ConnoteDetails extends React.Component {
     this.props.navigation.navigate('ItemReportDetail');
   };
 
-  renderHeader = () => {
-    return (
-      <>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Log</Text>
-          <View style={styles.sortContainer}>
-            <Text style={{...mixins.subtitle3, fontWeight: '700'}}>
-              Sort By Name
-            </Text>
-            <View style={styles.sortIconWrapper}>
-              <ChevronDown width="15" height="15" fill="#6C6B6B" />
-            </View>
-          </View>
-        </View>
-        <View style={[styles.header, {marginTop: 10}]}>
-          <Text style={styles.detailText}>Date and Time</Text>
-          <Text style={styles.detailText}>Name</Text>
-          <Text style={styles.detailText}>Activities</Text>
-        </View>
-      </>
-    );
-  };
-
-  renderInner = (item) => {
-    return (
-      <View style={styles.header}>
-        <Text style={styles.detailText}>{item.date}</Text>
-        <Text style={styles.detailText}>{item.name}</Text>
-        <Text style={styles.detailText}>{item.status}</Text>
-      </View>
-    );
-  };
 
   render() {
     const {_itemDetail} = this.state;
@@ -99,14 +68,11 @@ class ConnoteDetails extends React.Component {
               <DetailList title="Container #" value={_itemDetail.container_no} />
                <DetailList title="No. of Pallet" value={_itemDetail.total_pallet} />
                <DetailList title="No. of Carton" value={_itemDetail.total_carton} />
-               <DetailList title="CBM" value="-" />
-               <DetailList
-                 title="Weight"
-                 value="-"
-               />
-                <Divider />
+               </View>
+                <Divider style={{marginVertical:10}}/>
+                <View style={styles.detail}>
                 <View style={styles.header}>
-                  <Text style={[styles.detailText, {lineHeight: 24}]}>
+                  <Text style={[styles.detailText, {lineHeight: 24, fontWeight: Platform.OS === 'ios' ? '600' : '700'}]}>
                   Delivery Information
                   </Text>
                 </View>
@@ -158,6 +124,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     marginHorizontal: 0,
     marginBottom: 20,
+    paddingHorizontal:0,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -175,6 +142,7 @@ const styles = StyleSheet.create({
   },
   detail: {
     flexDirection: 'column',
+    paddingHorizontal:20,
   },
   detailText: {
     ...mixins.subtitle3,
