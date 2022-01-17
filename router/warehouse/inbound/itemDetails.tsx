@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{ComponentClass} from 'react';
 import {
   FlatList,
   StatusBar,
@@ -16,9 +16,13 @@ import DetailList from '../../../component/extend/Card-detail';
 import ChevronRight from '../../../assets/icon/iconmonstr-arrow-66mobile-2.svg';
 import ChevronDown from '../../../assets/icon/iconmonstr-arrow-66mobile-1.svg';
 import {getData} from '../../../component/helper/network';
+import {RootState,AppDispatch} from '../../../Store';
 import moment from 'moment';
-class ConnoteDetails extends React.Component {
-  constructor(props) {
+import { Dispatch } from 'redux';
+type Props = StateProps & DispatchProps & OwnProps
+class ConnoteDetails extends React.Component<Props, OwnState> {
+  constructor(props: Props | Readonly<Props>) {
+    
     super(props);
     this.state = {
       sortBy: 'Name',
@@ -30,17 +34,18 @@ class ConnoteDetails extends React.Component {
     this.navigateSeeReport.bind(this);
     this.renderHeader.bind(this);
   }
-  static getDerivedStateFromProps(props,state){
-    const {navigation, manifestList} = props;
+  static getDerivedStateFromProps(props : Props,state: OwnState){
+    const {navigation, manifestList, route} = props;
     const {dataCode, _itemDetail} = state;
     if(dataCode === '0'){
       const {routes, index} = navigation.dangerouslyGetState();
-      if(routes[index].params !== undefined && routes[index].params.dataCode !== undefined) {
-        if( manifestList.some((element)=> element.pId === routes[index].params.dataCode)){
-          let manifest = manifestList.find((element)=>element.pId === routes[index].params.dataCode);
-          return {...state, dataCode: routes[index].params.dataCode, _itemDetail:manifest};    
+      if(route.params !== undefined && route.params?.dataCode !== undefined) {
+       
+        if(route.params?.dataCode !== undefined && manifestList.some((element)=> element.pId === route.params?.dataCode)){
+          let manifest = manifestList.find((element)=>element.pId === route.params?.dataCode);
+          return {...state, dataCode: route.params?.dataCode, _itemDetail:manifest};    
         }
-        return {...state, dataCode: routes[index].params.dataCode};
+        return {...state, dataCode: route.params?.dataCode};
       }
       return {...state};
     } 
@@ -49,7 +54,7 @@ class ConnoteDetails extends React.Component {
   }
 
   async componentDidMount(){
-    const {pId, logs} = this.state._itemDetail;
+    const {pId, logs} = this.state._itemDetail!;
     if(logs.length > 0){
       this.setState({dataActivities:logs})
     } else {
@@ -62,7 +67,7 @@ class ConnoteDetails extends React.Component {
     }
   }
   navigateSeeReport = () => {
-    const {pId} = this.state._itemDetail;
+    const {pId} = this.state._itemDetail!;
     this.props.navigation.navigate('ItemReportDetail',{number:pId});
   };
 
@@ -71,11 +76,11 @@ class ConnoteDetails extends React.Component {
   
     return (
       <>
-       <Card containerStyle={[styles.cardContainer,{paddingHorizontal:0,paddingVertical:10}]} style={styles.card}>
+       <Card containerStyle={[styles.cardContainer,{paddingHorizontal:0,paddingVertical:10}]}>
               <View style={[styles.header,{paddingHorizontal:20}]}>
                 <View>
                   <Text style={[styles.headerTitle, {flex: 0, fontSize: 20}]}>
-                  {_itemDetail.item_code}
+                  {_itemDetail!.item_code}
                   </Text>
                 
                 </View>
@@ -83,23 +88,23 @@ class ConnoteDetails extends React.Component {
               </View>
               <View style={[styles.detail,{paddingVertical:10}]}>
               <View style={[styles.detailSection,{paddingBottom:10}]}>
-                <DetailList title="Description" value={_itemDetail.description} />
-                <DetailList title="Barcode" value={ _itemDetail.barcodes.length === 0 ? 'EMPTY' : _itemDetail.barcodes[_itemDetail.barcodes.length - 1].code_number} />
-                <DetailList title="UOM" value={_itemDetail.uom} />
-                <DetailList title="Quantity" value={_itemDetail.qty} />
-                <DetailList title="Item Classification" value={_itemDetail.product_class === 1 ? 'Normal Stock' : _itemDetail.product_class === 2 ? 'POSM' : _itemDetail.product_class === 3 ? 'Packaging Materials' : 'Samples'} />
-                <DetailList title="CBM" value={_itemDetail.basic.volume} />
-                <DetailList title="Weight"  value={ _itemDetail.basic.weight + ' KG'} />
-                <DetailList title="Product Category"  value={ _itemDetail.category} />
+                <DetailList title="Description" value={_itemDetail!.description} />
+                <DetailList title="Barcode" value={ _itemDetail!.barcodes.length === 0 ? 'EMPTY' : _itemDetail!.barcodes[_itemDetail!.barcodes.length - 1].code_number} />
+                <DetailList title="UOM" value={_itemDetail!.uom} />
+                <DetailList title="Quantity" value={_itemDetail!.qty} />
+                <DetailList title="Item Classification" value={_itemDetail!.product_class === 1 ? 'Normal Stock' : _itemDetail!.product_class === 2 ? 'POSM' : _itemDetail!.product_class === 3 ? 'Packaging Materials' : 'Samples'} />
+                <DetailList title="CBM" value={_itemDetail!.basic.volume} />
+                <DetailList title="Weight"  value={ _itemDetail!.basic.weight + ' KG'} />
+                <DetailList title="Product Category"  value={ _itemDetail!.category} />
                 </View>
                 <Divider style={{marginBottom:10}}/>
-                {_itemDetail.template !== undefined &&
-                    _itemDetail.template !== null &&
-                    _itemDetail.template.attributes !== undefined &&
-                    _itemDetail.template.attributes !== null  && Array.isArray(_itemDetail.template.attributes) === true &&
-                    _itemDetail.template.attributes.length > 0 && (<View style={[styles.detailSection,{paddingBottom:10}]}>
+                {_itemDetail!.template !== undefined &&
+                    _itemDetail!.template !== null &&
+                    _itemDetail!.template?.attributes !== undefined &&
+                    _itemDetail!.template?.attributes !== null  && Array.isArray(_itemDetail!.template?.attributes) === true &&
+                    _itemDetail!.template?.attributes.length > 0 && (<View style={[styles.detailSection,{paddingBottom:10}]}>
                   <Text style={styles.reportSectionTitle}>Custom Attributes</Text>
-                  { _itemDetail.template.attributes.map((element,index)=>{
+                  { _itemDetail!.template?.attributes.map((element,index)=>{
                       if(element.field_type === 'multi select' || element.field_type === 'options'){
                         return (<DetailList title={element.name} value={Array.isArray(element.values) && element.values.length > 0 ? element.values.join(', ') : '-'} />);
                       } else {
@@ -147,10 +152,10 @@ class ConnoteDetails extends React.Component {
     );
   };
 
-  renderInner = ({item,index}) => {
-    let oddeven = index % 2;
+  renderInner = ({item,index} : {index:any, item:any}) => {
+    let oddeven = parseInt(index) % 2;
     return (
-      <View style={[styles.header,{paddingHorizontal:10,backgroundColor: oddeven == 0 ? '#EFEFEF' : 'white'}]}>
+      <View key={index} style={[styles.header,{paddingHorizontal:10,backgroundColor: oddeven == 0 ? '#EFEFEF' : 'white'}]}>
           <View style={{flex:1}}>
         <Text style={styles.detailText}>{moment(item.dateTime).format('DD/MM/YYYY h:mm a')}</Text>
         </View>
@@ -185,6 +190,7 @@ class ConnoteDetails extends React.Component {
             <FlatList
               data={this.state.dataActivities}
               ListHeaderComponent={this.renderHeader}
+              keyExtractor={(item, index) => index.toString()}
               contentContainerStyle={{paddingHorizontal:10}}
               renderItem={this.renderInner}
             />
@@ -288,15 +294,19 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapStateToProps = (state) => {
+export const mapStateToProps = (state:ReduxState) => {
   return {
     manifestList: state.originReducer.manifestList,
     currentASN : state.originReducer.filters.currentASN,
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {};
+export const mapDispatchToProps = (dispatch: Dispatch<ISetAppView>) => {
+  return {
+    setBottomBar: (toggle : boolean) => {
+      return dispatch({type: 'BottomBar', payload: toggle});
+    },
+  };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ConnoteDetails);
+export default connect<StateProps, DispatchProps, OwnProps,RootState>(mapStateToProps, mapDispatchToProps)(ConnoteDetails);
