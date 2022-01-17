@@ -519,7 +519,7 @@ class List extends React.Component {
                     index={i}
                     item={data}
                     ToManifest={() => {
-                      this.props.setBottomBar(true);
+                      this.props.setBottomBar(false);
                       this.props.setCurrentTask(data.id);
                       // this.props.setActiveTask(data.id);
                       this.props.navigation.navigate({
