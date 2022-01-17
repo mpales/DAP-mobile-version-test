@@ -1,8 +1,21 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, TextStyle, ViewProps} from 'react-native';
 import mixins from '../../mixins';
 
-const DetailItemList = ({title, value, report, labelStyle}) => {
+interface Props extends ViewProps {
+  title : string;
+  value : string;
+  report? : boolean;
+  labelStyle? : TextStyle
+}
+
+const DetailItemList: React.FC<Props> = ({
+  title, 
+  value, 
+  report, 
+  labelStyle,
+  ...props
+}): React.ReactElement => {
   return (
     <View style={styles.wrapper}>
       <Text style={[styles.detailText, {width: '40%'}, labelStyle]}>{title}</Text>

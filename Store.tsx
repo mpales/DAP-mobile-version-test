@@ -124,15 +124,20 @@ const rootReducer = combineReducers({
   network : network,
 });
 
+
   const persistedReducer = persistReducer(networkPersistConfig, rootReducer)
 
 // const enhancerWithWorker = compose(
 //   applyMiddleware(networkMiddleware, thunk),
 //   uploadThread.applyWatchUploadEnhancher(),
 // );
-
+  const store = createStore(persistedReducer, applyMiddleware(networkMiddleware, thunk));
+  // Infer the `RootState` and `AppDispatch` types from the store itself
+  export type RootState = ReturnType<typeof store.getState>
+  // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
+  export type AppDispatch = typeof store.dispatch
+  
   export default function configureStore(callback) {
-    const store = createStore(persistedReducer, applyMiddleware(networkMiddleware, thunk));
     const { connectionChange } = offlineActionCreators;
     // https://github.com/rt2zz/redux-persist#persiststorestore-config-callback
     const persistor = persistStore(store, null, () => {
