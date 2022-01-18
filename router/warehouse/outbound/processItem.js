@@ -41,7 +41,6 @@ class ProcessItem extends React.Component {
       {quantity: qty},
     );
     if (typeof result === 'object' && result.error !== undefined) {
-      this.props.navigation.setOptions({headerShown: false});
       this.setState({
         errorMessage: result.error,
       });
@@ -115,7 +114,6 @@ class ProcessItem extends React.Component {
               </View>
             )}
             <View style={styles.contentContainer}>
-              <TextList title="Pallet" value={dataItem.pallet} />
               <TextList title="Item Code" value={dataItem.product.item_code} />
               <TextList
                 title="Description"
@@ -125,16 +123,8 @@ class ProcessItem extends React.Component {
               <TextList title="Qty to pick" value={dataItem.qtytoPick} />
               <TextList title="Barcode" value={dataItem.product.barcode} />
               <TextList
-                title="Stock Grade"
+                title="Item Grade"
                 value={productGradeToString(dataItem.detail[0].grade)}
-              />
-              <TextList
-                title="Packaging"
-                value={dataItem.detail[0].packaging}
-              />
-              <TextList
-                title="Category"
-                value={dataItem.detail[0].attributes?.category}
               />
               <TextList
                 title="Batch Number"
@@ -145,35 +135,37 @@ class ProcessItem extends React.Component {
                 value={
                   dataItem.detail[0].attributes?.expiry_date === undefined
                     ? '-'
-                    : Format.formatDateTime(
+                    : Format.formatDate(
                         dataItem.detail[0].attributes?.expiry_date,
                       )
                 }
               />
-              <Text style={styles.qtyTitle}>Enter Qty</Text>
-              <View style={styles.quantityContainer}>
-                <Decremental
-                  height="30"
-                  width="30"
-                  style={{flexShrink: 1, marginVertical: 5}}
-                  onPress={() => {
-                    this.handleMinus;
-                  }}
-                />
-                <TextInput
-                  value={this.state.qty.toString()}
-                  textAlign="center"
-                  style={styles.inputStyle}
-                  keyboardType="number-pad"
-                  onChangeText={(text) => this.handleInput(text)}
-                />
-                <Incremental
-                  height="30"
-                  width="30"
-                  style={{flexShrink: 1, marginVertical: 5}}
-                  onPress={this.handlePlus}
-                />
-              </View>
+              {!isCompleted && (
+                <>
+                  <Text style={styles.qtyTitle}>Enter Qty</Text>
+                  <View style={styles.quantityContainer}>
+                    <Decremental
+                      height="30"
+                      width="30"
+                      style={{flexShrink: 1, marginVertical: 5}}
+                      onPress={this.handleMinus}
+                    />
+                    <TextInput
+                      value={this.state.qty.toString()}
+                      textAlign="center"
+                      style={styles.inputStyle}
+                      keyboardType="number-pad"
+                      onChangeText={(text) => this.handleInput(text)}
+                    />
+                    <Incremental
+                      height="30"
+                      width="30"
+                      style={{flexShrink: 1, marginVertical: 5}}
+                      onPress={this.handlePlus}
+                    />
+                  </View>
+                </>
+              )}
               <View style={styles.buttonContainer}>
                 {isCompleted ? (
                   <Button
