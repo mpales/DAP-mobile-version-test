@@ -282,10 +282,18 @@ class List extends React.Component {
   handleModalAction = (action) => {
     if (action) {
       // implement api for complete pick task
+      this.handleShowModal();
       this.props.navigation.navigate('Task');
     } else {
       this.handleShowModal();
     }
+  };
+
+  disableCompleteButton = () => {
+    const {_list} = this.state;
+    let waitingStatus = _list.find((el) => el.status === 1 || el.status === 2);
+    if (waitingStatus === undefined) return false;
+    return true;
   };
 
   render() {
@@ -352,29 +360,16 @@ class List extends React.Component {
             </View>
           </View>
           <SearchBar
-            placeholder="Type Here..."
+            placeholder="Search..."
             onChangeText={this.updateSearch}
             value={this.state.search}
             lightTheme={true}
-            inputStyle={{backgroundColor: '#fff'}}
-            placeholderTextColor="#2D2C2C"
-            searchIcon={() => (
+            inputStyle={styles.searchInputText}
+            searchIcon={
               <IconSearchMobile height="20" width="20" fill="#2D2C2C" />
-            )}
-            containerStyle={{
-              backgroundColor: 'transparent',
-              borderTopWidth: 0,
-              borderBottomWidth: 0,
-              paddingHorizontal: 20,
-              marginVertical: 5,
-            }}
-            inputContainerStyle={{
-              backgroundColor: 'white',
-              borderWidth: 1,
-              borderBottomWidth: 1,
-              borderColor: '#D5D5D5',
-            }}
-            leftIconContainerStyle={{backgroundColor: 'white'}}
+            }
+            containerStyle={styles.searchContainer}
+            inputContainerStyle={styles.searchInputContainer}
           />
           <View style={styles.sectionContent}>
             <View
@@ -547,6 +542,7 @@ class List extends React.Component {
             titleStyle={styles.buttonText}
             buttonStyle={styles.button}
             onPress={() => this.handleShowModal(true)}
+            disabled={_list.length === 0 ? true : this.disableCompleteButton()}
             disabledStyle={{backgroundColor: '#ABABAB'}}
             disabledTitleStyle={{color: '#FFF'}}
           />
@@ -705,6 +701,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
+  },
+  searchInputText: {
+    ...Mixins.subtitle3,
+    padding: 0,
+    lineHeight: 24,
+  },
+  searchContainer: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    borderTopWidth: 0,
+    borderBottomWidth: 0,
+    padding: 0,
+    marginHorizontal: 20,
+    marginVertical: 10,
+  },
+  searchInputContainer: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#D5D5D5',
+    height: 40,
   },
 });
 
