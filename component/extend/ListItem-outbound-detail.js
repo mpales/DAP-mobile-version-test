@@ -14,6 +14,7 @@ import Mixins from '../../mixins';
 // helper
 import {pickTaskProductStatus} from '../helper/string';
 import {pickTaskProductStatusColor} from '../helper/status-color';
+import {productGradeToString} from '../helper/string';
 
 const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
   const isCurrentManifest = useSelector(
@@ -24,18 +25,6 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
       return item.detail[index].warehouse_storage_container_id;
     },
   );
-  let categoryArr = Array.from({length: item.detail.length}).map(
-    (num, index) => {
-      if (
-        typeof item.detail[index] !== 'object' ||
-        (item.detail[index].attributes === undefined &&
-          item.detail[index].attributes.category === undefined)
-      )
-        return null;
-      return item.detail[index].attributes.category;
-    },
-  );
-  let categoryFiltered = categoryArr.filter((o) => o !== null);
   let wholeArr = Array.from({length: item.detail.length}).map((num, index) => {
     if (item.detail[index].quantity === undefined) return null;
     return item.detail[index].quantity;
@@ -58,7 +47,7 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
         </View>
 
         <View style={{flexDirection: 'row', flexShrink: 1}}>
-          <Text style={styles.valueText}>{value}</Text>
+          <Text style={styles.valueText}>{value ?? '-'}</Text>
         </View>
       </View>
     );
@@ -80,7 +69,7 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
         </View>
 
         <View style={{flexDirection: 'row', flexShrink: 1}}>
-          <Text style={styles.valueText}>{value}</Text>
+          <Text style={styles.valueText}>{value ?? '-'}</Text>
         </View>
       </View>
     );
@@ -123,18 +112,10 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
                 title="UOM"
                 value={uomFiltered.length > 0 ? uomFiltered[0] : '-'}
               />
+              <TextList title="QTY" value={item.qtytoPick} />
               <TextList
-                title="QTY"
-                value={wholeFiltered.length > 0 ? wholeFiltered[0] : '-'}
-              />
-              <TextList
-                title="Category"
-                value={
-                  categoryFiltered.length > 0 &&
-                  categoryFiltered[0] !== undefined
-                    ? categoryFiltered[0]
-                    : '-'
-                }
+                title="Grade"
+                value={productGradeToString(item.detail[0].grade)}
               />
             </View>
             <ListItem.Chevron
