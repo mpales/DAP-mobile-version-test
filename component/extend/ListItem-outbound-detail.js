@@ -104,6 +104,13 @@ const Manifest = ({item, index, currentList, ToManifest, navigation}) => {
             {backgroundColor: pickTaskProductStatusColor(item.status)},
           ]}></View>
         <ListItem.Content style={styles.sectionContainer}>
+          <View style={styles.flagContainer}>
+            {item.rework === 1 && (
+              <View style={styles.flag}>
+                <Text style={styles.flagText}>Rework</Text>
+              </View>
+            )}
+          </View>
           <View style={styles.detailContainer}>
             <View style={{flexDirection: 'column', flex: 1}}>
               <CustomTextList title="Location" value={populated_location[0]} />
@@ -310,6 +317,26 @@ const styles = {
     paddingHorizontal: 0,
     marginHorizontal: 0,
     marginVertical: 5,
+  },
+  flagContainer: {
+    flexDirection: 'row',
+    flexShrink: 1,
+  },
+  flag: {
+    flexDirection: 'row',
+    flexShrink: 1,
+    marginVertical: 5,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#D5D5D5',
+    paddingHorizontal: 10,
+    marginRight: 5,
+  },
+  flagText: {
+    ...Mixins.small1,
+    lineHeight: 18,
+    color: '#F07120',
+    fontWeight: '500',
   },
 };
 const theme = {
