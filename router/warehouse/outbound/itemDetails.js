@@ -1,19 +1,9 @@
 import React from 'react';
-import {
-  FlatList,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import {Card, Divider} from 'react-native-elements';
 import {connect} from 'react-redux';
 import mixins from '../../../mixins';
-import moment from 'moment';
 // component
-import DetailList from '../../../component/extend/Card-detail';
 import {NavigateTextList, TextList} from '../../../component/extend/Text-list';
 import Loading from '../../../component/loading/loading';
 // icon
@@ -21,6 +11,7 @@ import ChevronDown from '../../../assets/icon/iconmonstr-arrow-66mobile-1.svg';
 // helper
 import {getData} from '../../../component/helper/network';
 import Format from '../../../component/helper/format';
+import {cleanKeyString} from '../../../component/helper/string';
 
 class PickListItemDetails extends React.Component {
   constructor(props) {
@@ -34,6 +25,7 @@ class PickListItemDetails extends React.Component {
       _itemDetail: null,
     };
   }
+
   static getDerivedStateFromProps(props, state) {
     const {navigation} = props;
     const {dataCode} = state;
@@ -112,10 +104,13 @@ class PickListItemDetails extends React.Component {
     if (_itemDetail === null) {
       return <Loading />;
     }
+
     return (
       <>
         <StatusBar barStyle="dark-content" />
-        <ScrollView style={styles.container}>
+        <ScrollView
+          style={styles.container}
+          showsVerticalScrollIndicator={false}>
           <View style={styles.body}>
             <View style={styles.header}>
               <Text style={styles.headerTitle}>Product Details</Text>
@@ -140,43 +135,54 @@ class PickListItemDetails extends React.Component {
                     value={_itemDetail.product.description}
                   />
                   <TextList title="UOM" value={_itemDetail.product.uom} />
-                  <TextList
-                    title="Quantity"
-                    value={_itemDetail.detail[0].quantity}
-                  />
+                  <TextList title="Quantity" value={_itemDetail.qtytoPick} />
                   <TextList
                     title="Barcode"
-                    value={_itemDetail.product.item_code}
+                    value={_itemDetail.detail[0]?.barcode}
                   />
                   <TextList
                     title="Product Class"
-                    value={_itemDetail.detail[0].attributes?.class}
+                    value={_itemDetail.detail[0]?.class}
                   />
-                  <TextList
-                    title="CBM"
-                    value={_itemDetail.detail[0].attributes?.cbm}
-                  />
+                  <TextList title="CBM" value={_itemDetail.detail[0]?.cbm} />
                   <TextList
                     title="Weight"
-                    value={_itemDetail.detail[0].attributes?.weight}
+                    value={_itemDetail.detail[0]?.weight}
                   />
                 </View>
                 <Divider />
                 <View style={[styles.detailSection, {paddingVertical: 10}]}>
-                  <Text style={styles.reportSectionTitle}>
-                    Product Category :{' '}
-                    {_itemDetail.detail[0].attributes?.category}
-                  </Text>
-                  <TextList
-                    title="Color"
-                    value={_itemDetail.detail[0].attributes?.Color}
-                  />
-                  <TextList
-                    title="EXP Date"
-                    value={Format.formatDate(
-                      _itemDetail.detail[0].attributes?.expiry_date,
+                  {_itemDetail.detail[0]?.attributes !== undefined &&
+                    Object.keys(_itemDetail.detail[0]?.attributes).map(
+                      (key) => {
+                        if (
+                          key.toLowerCase().includes('date') &&
+                          _itemDetail.detail[0].attributes[key] === 0
+                        )
+                          return;
+                        if (key.toLowerCase().includes('category')) {
+                          return (
+                            <Text style={styles.reportSectionTitle} key={key}>
+                              {`Product Category : ${_itemDetail.detail[0].attributes[key]}`}
+                            </Text>
+                          );
+                        } else {
+                          return (
+                            <TextList
+                              title={cleanKeyString(key)}
+                              value={
+                                key.toLowerCase().includes('date')
+                                  ? Format.formatDate(
+                                      _itemDetail.detail[0].attributes[key],
+                                    )
+                                  : _itemDetail.detail[0].attributes[key]
+                              }
+                              key={key}
+                            />
+                          );
+                        }
+                      },
                     )}
-                  />
                   <TextList title="Batch" value={_itemDetail.batch_no} />
                 </View>
                 <View style={[styles.reportSection, {paddingHorizontal: 20}]}>
@@ -296,6 +302,7 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 1,
+    marginBottom: 40,
   },
   cardContainer: {
     borderRadius: 5,
