@@ -1,13 +1,9 @@
 import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Input} from 'react-native-elements';
 import {connect} from 'react-redux';
 import Banner from '../../../component/banner/banner';
+import Mixins from '../../../mixins';
 
 class ManualInput extends React.Component {
   constructor(props) {
@@ -62,7 +58,7 @@ class ManualInput extends React.Component {
   };
 
   render() {
-    const {inputBayBarcode} = this.state;
+    const {inputBayBarcode, inputCode} = this.state;
     return (
       <View style={styles.container}>
         {this.state.error && (
@@ -76,10 +72,14 @@ class ManualInput extends React.Component {
           <Text style={styles.title}>{`Input Manual ${
             inputBayBarcode ? 'Bay' : 'Item'
           } Barcode`}</Text>
-          <TextInput
-            style={styles.textInput}
-            onChangeText={(value) => this.setState({inputCode: value})}
-            defaultValue=""
+          <Input
+            placeholder=""
+            value={inputCode}
+            containerStyle={{paddingHorizontal: 0, marginBottom: 20}}
+            inputContainerStyle={styles.inputContainer}
+            inputStyle={styles.inputText}
+            renderErrorMessage={false}
+            onChangeText={(text) => this.setState({inputCode: text})}
           />
           <TouchableOpacity
             style={styles.submitButton}
@@ -122,6 +122,17 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
+  },
+  inputContainer: {
+    borderRadius: 5,
+    borderWidth: 1,
+    height: 40,
+    borderColor: '#D5D5D5',
+  },
+  inputText: {
+    ...Mixins.subtitle3,
+    lineHeight: 21,
+    paddingHorizontal: 10,
   },
 });
 
