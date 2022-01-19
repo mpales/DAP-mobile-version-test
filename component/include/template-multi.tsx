@@ -1,10 +1,9 @@
-import { keys } from 'mobx';
-import React from 'react';
-import {View} from 'react-native';
+import React,{Ref} from 'react';
+import {View, StyleSheet} from 'react-native';
 import {ThemeProvider, Input, Text, CheckBox} from 'react-native-elements';
 import Mixins from '../../mixins';
 import Checkmark from '../../assets/icon/iconmonstr-check-mark-7 1mobile.svg';
-const styles = {
+const styles =  StyleSheet.create({
     dividerContent: {
         flexDirection: 'row',
         flexShrink: 1,
@@ -71,13 +70,29 @@ const styles = {
         marginRight: 5,
         marginVertical: 3,
       },
-};
+});
 const theme = {
  
 };
-
-const Manifest = React.forwardRef((props, ref) => {
-    const [indexOption, setCurrentIndexOption] = React.useState([...props.values]);
+interface errorObj {
+  error : string;
+}
+export interface inferTemplateMulti {
+  getSavedAttr : () => Array<string | null> | null | errorObj ;
+}
+interface Props  {
+  required: number;
+  name : string;
+  values? : Array<string> 
+  ref: Ref<inferTemplateMulti | null>
+}
+const Manifest: React.FC<Props>  = React.forwardRef(({
+  required,
+  name,
+  values,
+  ...props
+}, ref): React.ReactElement => {
+    const [indexOption, setCurrentIndexOption] = React.useState<Array<string | boolean>>(values !== undefined ? [...values] : []);
     const toggleChangeMultiSelect = React.useCallback((val)=>{
       let select = Array.from({length: indexOption.length}).map((num,index)=>{
         let bool = (typeof indexOption[index] === 'boolean') ? indexOption[index] : false;
@@ -87,17 +102,17 @@ const Manifest = React.forwardRef((props, ref) => {
         return bool;
       });  
       setCurrentIndexOption(select);
-    });
+    }, []);
     React.useImperativeHandle(ref, () => ({
         getSavedAttr :  () =>{
-            if(indexOption.includes(true) === false && props.required === 1){
-                return {"error": "validation error in attributes : " + props.name}
+            if(indexOption.includes(true) === false && required === 1){
+                return {"error": "validation error in attributes : " + name}
             }
 
             return Array.from({length:indexOption.length}).map((num, index)=>{
               if(typeof indexOption[index] === 'boolean'){
-                if(indexOption[index] === true){
-                  return props.values[index];
+                if(indexOption[index] === true && values !== undefined){
+                  return values[index];
                 } else {
                   return null;
                 }
@@ -110,11 +125,11 @@ const Manifest = React.forwardRef((props, ref) => {
     <ThemeProvider theme={theme}>
         <View style={[styles.dividerContent,{marginVertical:3}]}>
         <View style={{flexDirection:'row', flexShrink:1, justifyContent:'flex-start',alignItems:'flex-start', paddingTop:10}}>                        
-              <Text style={styles.labelPackage}>{props.name}</Text>
+              <Text style={styles.labelPackage}>{name}</Text>
               <Text style={styles.dotLabel}>:</Text>
             </View>
             <View style={styles.containerCheckbox}>
-            {props.values.map((num,index)=>{
+            {values !== undefined && values?.map((num,index)=>{
                 return(
                     <CheckBox
                     center

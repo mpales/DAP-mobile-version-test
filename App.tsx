@@ -13,6 +13,7 @@ import configureStore from './Store';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   StyleSheet,
+  ActivityIndicator,
   View,
   StatusBar,
   TouchableOpacity,
@@ -22,6 +23,7 @@ import {
   BackHandler,
   Dimensions,
 } from 'react-native';
+import {LinearProgress} from 'react-native-elements';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Signature from './Browser';
 import {NavigationContainer, TabRouter} from '@react-navigation/native';
@@ -626,7 +628,7 @@ const NavigationWrapper = (props) => {
       dispatch(changeQueueSemaphore('RED'));
     }
   }, [isConnected]); // Only re-run the effect if count changes
-
+  
   return (
     <SafeAreaProvider
       style={{backgroundColor: '#121C78', width: '100%', height: '100%'}}>
@@ -717,7 +719,7 @@ const Root = (props) => {
     isLoggedIn.current = bool;
   }, []);
   
-  const {store, persistor} = configureStore(() => {
+  const {store, persistor} = configureStore( () => {
     // this is callback to store.subscribe, please don't load anymore state
     // as this is expensive trigger to redux without lazy
     setLoggedin(store);
@@ -758,7 +760,10 @@ const Root = (props) => {
   if (isLoading) return null;
   return (
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
+      <PersistGate loading={<View style={{backgroundColor: '#121C78', width: '100%', height: '100%', justifyContent:'center', alignItems:'center', paddingHorizontal: 10}}>
+      <LogoLarge width="179" height={screen.height * 0.10} style={{alignSelf: 'center', marginBottom: 40}} />
+      <ActivityIndicator size={40} color="#FFFFFF"  />
+      </View>} persistor={persistor}>
         <ReduxNetworkProvider>
           <NavigationWrapper>
             <Stack.Navigator

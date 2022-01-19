@@ -128,7 +128,9 @@ class Camera extends React.Component {
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             onPress={this.handleShowImagePreview}
-            style={styles.gallery}>
+            style={styles.gallery}
+            disabled={(this.state.pictureData === null)}
+            >
             {this.state.pictureData.length > 0 && (
               <Image
                 style={styles.imagePreviewButton}

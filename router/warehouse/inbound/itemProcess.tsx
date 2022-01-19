@@ -35,12 +35,12 @@ import moment from 'moment';
 import {postData, getData, postBlob} from '../../../component/helper/network';
 import {connect} from 'react-redux';
 import MultipleSKUList from '../../../component/extend/ListItem-inbound-multiple-sku';
-import TemplateOption from '../../../component/include/template-option';
-import TemplateScale from '../../../component/include/template-scale';
-import TemplateSelect from '../../../component/include/template-select';
-import TemplateText from '../../../component/include/template-text';
-import TemplateMulti from '../../../component/include/template-multi';
-import TemplateDate from '../../../component/include/template-date';
+import TemplateOption,{inferTemplateOption} from '../../../component/include/template-option';
+import TemplateScale, {inferTemplateScale} from '../../../component/include/template-scale';
+import TemplateSelect, {inferTemplateSelect} from '../../../component/include/template-select';
+import TemplateText,{inferTemplateText} from '../../../component/include/template-text';
+import TemplateMulti, {inferTemplateMulti} from '../../../component/include/template-multi';
+import TemplateDate, {inferTemplateDate} from '../../../component/include/template-date';
 import Banner from '../../../component/banner/banner';
 import RNFetchBlob from 'rn-fetch-blob';
 import Incremental from '../../../assets/icon/plus-mobile.svg';
@@ -57,25 +57,42 @@ const grade = [
   'Reserve',
 ];
 const pallet = ['PLDAP 0091', 'PLDAP 0092', 'PLDAP 0093', 'PLDAP 0094'];
-class Example extends React.Component {
-  _unsubscribe = null;
-  _unsubscribeLock = null;
-  refAttrArray = React.createRef(null);
-  refBatch = React.createRef(null);
-  refexpiryDate = React.createRef(null);
-  refproductionDate = React.createRef(null);
+import {RootState,AppDispatch} from '../../../Store';
+import { Dispatch } from 'redux';
+
+class ImageComponent extends React.Component {
+  constructor(props: any) {
+    super(props);
+  }
+  render(){
+    return (<>
+    <IconPhoto5 height="40" width="40" fill="#fff" />
+  </>)
+  }
+}
+type Props = StateProps & DispatchProps & OwnProps
+
+class Example extends  React.Component<Props, OwnState>  {
+  _unsubscribe: null | VoidFunction = null;
+  _unsubscribeLock: null | VoidFunction = null;
+  refAttrArray = React.createRef<Array<inferTemplateSelect | inferTemplateText | inferTemplateScale | inferTemplateOption | inferTemplateMulti | inferTemplateDate>>();
+  refBatch = React.createRef<null | inferTemplateText>();
+  refexpiryDate = React.createRef<null | inferTemplateDate>();
+  refproductionDate = React.createRef<null | inferTemplateDate>();
+  modalizeRef = React.createRef();
   animatedValue = new Animated.Value(0);
-  constructor(props) {
+  constructor(props: Props | Readonly<Props>) {
     super(props);
     this.state = {
       dataCode: '0',
-      qty: 0,
+      qty: '0',
       scanItem: '0',
       dataItem: null,
       multipleSKU: false,
       indexItem: null,
       ItemGrade: null,
       ItemPallet: null,
+      ItemPalletNo : null,
       PalletArray: null,
       currentPOSM: false,
       enterAttr: false,
@@ -89,19 +106,17 @@ class Example extends React.Component {
       ISODateProductionString: null,
       ISODateExpiryString: null,
     };
-    this.refBatch.current = null;
-    this.refAttrArray.current = [];
     this.handleResetAnimation.bind(this);
     this.handleZoomInAnimation.bind(this);
     this.renderBarcode.bind(this);
-    this.modalizeRef = React.createRef();
   }
 
-  static getDerivedStateFromProps(props, state) {
+  static getDerivedStateFromProps(props : Props, state : OwnState) {
     const {
       manifestList,
       currentASN,
       navigation,
+      route,
       setBarcodeScanner,
       detectBarcode,
     } = props;
@@ -109,24 +124,24 @@ class Example extends React.Component {
     const {routes, index} = navigation.dangerouslyGetState();
     if (scanItem === '0') {
       if (
-        routes[index].params !== undefined &&
-        routes[index].params.inputCode !== undefined &&
+        route.params !== undefined &&
+        route.params.inputCode !== undefined &&
         manifestList.some(
-          (element) => element.pId === routes[index].params.inputCode,
+          (element) => element.pId === route.params.inputCode,
         )
       ) {
         setBarcodeScanner(false);
         let elementItem = manifestList.find(
-          (element) => element.pId === routes[index].params.inputCode,
+          (element) => element.pId === route.params.inputCode,
         );
         return {
           ...state,
-          scanItem: routes[index].params.inputCode,
+          scanItem: route.params.inputCode,
           dataCode:
-            elementItem.is_transit === 1
+            elementItem?.is_transit === 1
               ? 'transit'
-              : elementItem.barcodes.length > 0
-              ? elementItem.barcodes[elementItem.barcodes.length - 1]
+              : elementItem?.barcodes !== undefined && Array.isArray(elementItem?.barcodes) && elementItem?.barcodes.length > 0
+              ? elementItem?.barcodes[elementItem?.barcodes.length - 1]
                   .code_number
               : 'empty',
         };
@@ -137,7 +152,7 @@ class Example extends React.Component {
     }
     return {...state};
   }
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps:Props, nextState : OwnState) {
     // if((this.state.ItemPallet !== nextState.ItemPallet) && nextState.dataItem === this.state.dataItem && nextState.PalletArray === this.state.PalletArray){
     //   return false;
     // } else if(nextState.isPOSM === true && nextState.dataItem === null){
@@ -145,7 +160,7 @@ class Example extends React.Component {
     // }
     return true;
   }
-  async componentDidUpdate(prevProps, prevState) {
+  async componentDidUpdate(prevProps : Props, prevState : OwnState) {
     const {
       manifestList,
       detectBarcode,
@@ -177,7 +192,7 @@ class Example extends React.Component {
     if (items !== undefined && items.is_transit !== 1) {
       let arrayBarcodes = Array.from({length: items.barcodes.length}).map(
         (num, index) => {
-          return items.barcodes[index].code_number;
+          return items?.barcodes[index].code_number;
         },
       );
       if (
@@ -205,28 +220,31 @@ class Example extends React.Component {
           // if(foundIndex.length > 1) {
           //   this.setState({multipleSKU: true, filterMultipleSKU : foundIndex});
           // } else {
-          const result = await postData(
-            'inboundsMobile/' +
-              this.props.currentASN +
-              '/' +
-              item.pId +
-              '/switch-status/2',
-          );
-          if (
-            result.error !== undefined &&
-            this.props.keyStack === 'ItemProcess'
-          ) {
-            this.props.setItemError(result.error);
-            this.props.navigation.goBack();
-          } else {
-            this.setState({
-              dataItem: item,
-              qty: 0,
-              ItemGrade: 'Pick',
-              indexItem: indexItem,
-              currentPOSM: false,
-            });
+          if(item !== undefined){
+            const result = await postData(
+              'inboundsMobile/' +
+                this.props.currentASN +
+                '/' +
+                item.pId +
+                '/switch-status/2',
+            );
+            if (
+              result.error !== undefined &&
+              this.props.keyStack === 'ItemProcess'
+            ) {
+              this.props.setItemError(result.error);
+              this.props.navigation.goBack();
+            } else {
+              this.setState({
+                dataItem: item,
+                qty: '0',
+                ItemGrade: 'Pick',
+                indexItem: indexItem,
+                currentPOSM: false,
+              });
+            }
           }
+        
           // }
         } else if (
           this.state.indexItem !== null &&
@@ -249,7 +267,7 @@ class Example extends React.Component {
           } else {
             this.setState({
               dataItem: item,
-              qty: 0,
+              qty: '0',
               ItemGrade: 'Pick',
               currentPOSM: false,
               multipleSKU: false,
@@ -259,34 +277,35 @@ class Example extends React.Component {
         }
       }
     } else {
-      if (dataCode === 'transit' && dataCode !== 0 && dataItem === null) {
-        console.log('trigger transit');
+      if (dataCode === 'transit' && dataItem === null) {
         let item = manifestList.find((element) => element.pId === scanItem);
         let indexItem = manifestList.findIndex(
           (element) => element.pId === scanItem,
         );
-        const result = await postData(
-          'inboundsMobile/' +
-            this.props.currentASN +
-            '/' +
-            item.pId +
-            '/switch-status/2',
-        );
-        this.setState({
-          dataItem: item,
-          qty: 0,
-          ItemGrade: 'Pick',
-          indexItem: indexItem,
-          currentPOSM: false,
-        });
+        if(item !== undefined){
+          const result = await postData(
+            'inboundsMobile/' +
+              this.props.currentASN +
+              '/' +
+              item.pId +
+              '/switch-status/2',
+          );
+          this.setState({
+            dataItem: item,
+            qty: '0',
+            ItemGrade: 'Pick',
+            indexItem: indexItem,
+            currentPOSM: false,
+          });
+        }
       }
     }
   }
   componentWillUnmount() {
     this.props.setBarcodeScanner(true);
     this.props.addPOSMPostpone(null);
-    this._unsubscribe();
-    this._unsubscribeLock();
+    if(this._unsubscribe !== null && typeof this._unsubscribe === 'function') this._unsubscribe();
+    if(this._unsubscribeLock !== null && typeof this._unsubscribeLock === 'function') this._unsubscribeLock();
   }
   async componentDidMount() {
     const {scanItem, dataCode} = this.state;
@@ -353,7 +372,7 @@ class Example extends React.Component {
     if (items !== undefined && items.is_transit !== 1) {
       let arrayBarcodes = Array.from({length: items.barcodes.length}).map(
         (num, index) => {
-          return items.barcodes[index].code_number;
+          return items?.barcodes[index].code_number;
         },
       );
 
@@ -383,28 +402,31 @@ class Example extends React.Component {
           // if(foundIndex.length > 1) {
           //   this.setState({multipleSKU: true, filterMultipleSKU : foundIndex});
           // } else {
-          const result = await postData(
-            'inboundsMobile/' +
-              this.props.currentASN +
-              '/' +
-              item.pId +
-              '/switch-status/2',
-          );
-          if (
-            result.error !== undefined &&
-            this.props.keyStack === 'ItemProcess'
-          ) {
-            this.props.setItemError(result.error);
-            this.props.navigation.goBack();
-          } else {
-            this.setState({
-              dataItem: item,
-              qty: 0,
-              ItemGrade: 'Pick',
-              indexItem: indexItem,
-              currentPOSM: false,
-            });
-          }
+            if(item !== undefined){
+              const result = await postData(
+                'inboundsMobile/' +
+                  this.props.currentASN +
+                  '/' +
+                  item.pId +
+                  '/switch-status/2',
+              );
+              if (
+                result.error !== undefined &&
+                this.props.keyStack === 'ItemProcess'
+              ) {
+                this.props.setItemError(result.error);
+                this.props.navigation.goBack();
+              } else {
+                this.setState({
+                  dataItem: item,
+                  qty: '0',
+                  ItemGrade: 'Pick',
+                  indexItem: indexItem,
+                  currentPOSM: false,
+                });
+              }
+            }
+         
           // }
         } else if (
           this.state.indexItem !== null &&
@@ -427,7 +449,7 @@ class Example extends React.Component {
           } else {
             this.setState({
               dataItem: item,
-              qty: 0,
+              qty: '0',
               ItemGrade: 'Pick',
               currentPOSM: false,
               filterMultipleSKU: null,
@@ -439,24 +461,27 @@ class Example extends React.Component {
     } else {
       if (dataCode === 'transit' && detectBarcode === false) {
         let item = manifestList.find((element) => element.pId === scanItem);
-        let indexItem = manifestList.findIndex(
-          (element) => element.pId === scanItem,
-        );
-        const result = await postData(
-          'inboundsMobile/' +
-            this.props.currentASN +
-            '/' +
-            item.pId +
-            '/switch-status/2',
-        );
-        this.handleZoomInAnimation();
-        this.setState({
-          dataItem: item,
-          qty: 0,
-          ItemGrade: 'Pick',
-          indexItem: indexItem,
-          currentPOSM: false,
-        });
+        if(item !== undefined){
+          let indexItem = manifestList.findIndex(
+            (element) => element.pId === scanItem,
+          );
+          const result = await postData(
+            'inboundsMobile/' +
+              this.props.currentASN +
+              '/' +
+              item.pId +
+              '/switch-status/2',
+          );
+          this.handleZoomInAnimation();
+          this.setState({
+            dataItem: item,
+            qty: '0',
+            ItemGrade: 'Pick',
+            indexItem: indexItem,
+            currentPOSM: false,
+          });
+        }
+        
       }
     }
   }
@@ -465,10 +490,10 @@ class Example extends React.Component {
     let formdata = [];
     if (POSMPostpone !== null) {
       for (let index = 0; index < POSMPostpone.length; index++) {
-        let name,
-          filename,
-          path,
-          type = '';
+        let name : string = '';
+        let filename : string = '';
+        let path : string = '';
+        let type : string = '';
         await RNFetchBlob.fs
           .stat(
             Platform.OS === 'ios'
@@ -492,25 +517,25 @@ class Example extends React.Component {
     }
     return formdata;
   };
-  toggleOverlay = (bool) => {
-    if (bool && this.state.ISODateString === null && Platform.OS === 'ios') {
-      let stringdate = moment().format('DD/MM/YYYY');
-      this.setState({filterDate: stringdate, ISODateString: new Date()});
-    }
-    this.setState({overlayDate: bool !== undefined ? bool : false});
-  };
+  // toggleOverlay = (bool : boolean) => {
+  //   if (bool && this.state.ISODateString === null && Platform.OS === 'ios') {
+  //     let stringdate = moment().format('DD/MM/YYYY');
+  //     this.setState({filterDate: stringdate, ISODateString: new Date()});
+  //   }
+  //   this.setState({overlayDate: bool !== undefined ? bool : false});
+  // };
 
-  changedDateTimePicker = (event, selectedDate) => {
-    this.toggleOverlay(false);
-    if (event.type === 'neutralButtonPressed' || event === 'iOSClearDate') {
-      this.setState({filterDate: '', ISODateString: null});
-    } else {
-      if (selectedDate !== undefined) {
-        let stringdate = moment('' + selectedDate).format('DD/MM/YYYY');
-        this.setState({filterDate: stringdate, ISODateString: selectedDate});
-      }
-    }
-  };
+  // changedDateTimePicker = (event, selectedDate) => {
+  //   this.toggleOverlay(false);
+  //   if (event.type === 'neutralButtonPressed' || event === 'iOSClearDate') {
+  //     this.setState({filterDate: '', ISODateString: null});
+  //   } else {
+  //     if (selectedDate !== undefined) {
+  //       let stringdate = moment('' + selectedDate).format('DD/MM/YYYY');
+  //       this.setState({filterDate: stringdate, ISODateString: selectedDate});
+  //     }
+  //   }
+  // };
   handleCancel = async () => {
     const result = await postData(
       'inboundsMobile/' +
@@ -525,6 +550,7 @@ class Example extends React.Component {
     Animated.timing(this.animatedValue, {
       toValue: 0,
       duration: 0,
+      useNativeDriver: false
     }).reset();
   };
   handleZoomInAnimation = () => {
@@ -536,18 +562,18 @@ class Example extends React.Component {
       useNativeDriver: false,
     }).start();
   };
-  renderMultipleSKU = (props) => (
-    <MultipleSKUList
-      {...props}
-      selectIndex={() =>
-        this.setState({
-          indexItem: this.props.manifestList.findIndex(
-            (element) => element.pId === props.item.pId,
-          ),
-        })
-      }
-    />
-  );
+  // renderMultipleSKU = (props : any) => (
+  //   <MultipleSKUList
+  //     {...props}
+  //     selectIndex={() =>
+  //       this.setState({
+  //         indexItem: this.props.manifestList.findIndex(
+  //           (element) => element.pId === props.item.pId,
+  //         ),
+  //       })
+  //     }
+  //   />
+  // );
   renderModal = () => {
     const {dataItem, dataCode, qty, scanItem} = this.state;
     return (
@@ -659,14 +685,8 @@ class Example extends React.Component {
                     <Text style={styles.dotLabel}>:</Text>
                   </View>
                   {this.state.isConfirm === true ? (
-                    <Text style={styles.infoPackage}>
-                      {this.state.PalletArray.some(
-                        (o) => o.palete_id === this.state.ItemPallet,
-                      ) === true
-                        ? this.state.PalletArray.find(
-                            (o) => o.palete_id === this.state.ItemPallet,
-                          )['pallet_no']
-                        : null}
+                  <Text style={styles.infoPackage}>
+                    {this.state.ItemPalletNo}    
                     </Text>
                   ) : (
                     <View
@@ -693,7 +713,7 @@ class Example extends React.Component {
                             : []
                         }
                         onSelect={(selectedItem, index) => {
-                          this.setState({ItemPallet: selectedItem.palete_id});
+                          this.setState({ItemPallet: selectedItem.palete_id, ItemPalletNo: selectedItem.pallet_no});
                         }}
                         renderDropdownIcon={() => {
                           return (
@@ -717,17 +737,15 @@ class Example extends React.Component {
                           return item.pallet_no;
                         }}
                         renderCustomizedRowChild={(item, index) => {
-                          let findPallet = this.state.PalletArray.find(
-                            (o) => o.pallet_no === item,
-                          );
+                        
                           return (
                             <View
                               style={{
                                 flex: 1,
                                 paddingHorizontal: 27,
                                 backgroundColor:
-                                  findPallet !== undefined &&
-                                  findPallet.palete_id === this.state.ItemPallet
+                                  this.state.ItemPalletNo !== null &&
+                                  this.state.ItemPalletNo === item
                                     ? '#e7e8f2'
                                     : 'transparent',
                                 paddingVertical: 0,
@@ -1008,12 +1026,13 @@ class Example extends React.Component {
                       style={{flexShrink: 1, marginVertical: 5}}
                       onPress={() => {
                         const {qty, dataItem} = this.state;
+                        let parsedQty = parseInt(qty);
                         this.setState({
                           qty:
-                            qty !== '' && qty > 0
-                              ? qty - 1
-                              : qty === ''
-                              ? 0
+                            isNaN(parsedQty) === false && parsedQty > 0
+                              ? String(parsedQty - 1)
+                              : isNaN(parsedQty) === true && qty === ''
+                              ? '0'
                               : qty,
                         });
                       }}
@@ -1042,24 +1061,27 @@ class Example extends React.Component {
                         Mixins.containedInputDefaultLabel,
                         {marginBottom: 5},
                       ]}
-                      value={String(this.state.qty)}
+                      value={this.state.qty}
                       onChangeText={(val) => {
                         this.setState({qty: val});
                       }}
-                      onBlur={(e) =>
+                      onBlur={(e) =>{
+                        const {qty} = this.state;
+                        let qty_parsed = parseFloat(qty);
                         this.setState({
                           qty:
-                          this.state.qty !== '' && isNaN(this.state.qty) === false
-                              ? parseFloat(this.state.qty)
-                              : 0,
+                          typeof qty === 'string' && isNaN(qty_parsed) === false
+                              ? String(qty_parsed)
+                              : '0',
                         })
-                      }
+                      }}
                       onEndEditing={(e) => {
+                        let qty_parsed = parseFloat(e.nativeEvent.text);
                         this.setState({
                           qty:
-                          e.nativeEvent.text !== '' && isNaN(e.nativeEvent.text) === false
-                              ? parseFloat(e.nativeEvent.text)
-                              : 0,
+                          typeof this.state.qty === 'string' && isNaN(qty_parsed) === false
+                              ? String(qty_parsed)
+                              : '0',
                         });
                       }}
                     />
@@ -1069,8 +1091,9 @@ class Example extends React.Component {
                       style={{flexShrink: 1, marginVertical: 5}}
                       onPress={() => {
                         const {qty, dataItem} = this.state;
+                        let parsedQty = parseInt(qty);
                         this.setState({
-                          qty: qty !== '' ? qty + 1 : qty === '' ? 1 : qty,
+                          qty: isNaN(parsedQty) === false ? String(parsedQty + 1) : isNaN(parsedQty) === true && qty === '' ? '1' : qty,
                         });
                       }}
                     />
@@ -1087,12 +1110,12 @@ class Example extends React.Component {
             </View>
           ) : dataItem === null && this.state.multipleSKU === true ? (
             <View style={styles.sheetPackages}>
-              <FlatList
+              {/* <FlatList
                 keyExtractor={(item, index) => index.toString()}
                 horizontal={false}
                 data={this.state.filterMultipleSKU}
                 renderItem={this.renderMultipleSKU.bind(this)}
-              />
+              /> */}
             </View>
           ) : dataItem !== null && this.state.enterAttr === true ? (
             <View style={styles.sheetPackages}>
@@ -1104,51 +1127,45 @@ class Example extends React.Component {
                         </Text>
                       </View> */}
 
-                {this.state.dataItem.specialField.batchTracking === 1 && (
+                {this.state.dataItem!.specialField.batchTracking === 1 && (
                   <TemplateText
                     required={1}
                     name="Batch #"
-                    ref={(ref) => {
-                      if (ref !== null) this.refBatch.current = ref;
-                    }}
+                    ref={this.refBatch}
                   />
                 )}
 
-                {this.state.dataItem.specialField.expiryDateTracking === 1 && (
+                {this.state.dataItem!.specialField.expiryDateTracking === 1 && (
                   <TemplateDate
                     required={
-                      this.state.dataItem.specialField.expiryDateMandatory
+                      this.state.dataItem!.specialField.expiryDateMandatory
                     }
                     name="Exp Date"
-                    ref={(ref) => {
-                      if (ref !== null) this.refexpiryDate.current = ref;
-                    }}
+                    ref={this.refexpiryDate}
                   />
                 )}
-                {this.state.dataItem.specialField.productionDateTracking ===
+                {this.state.dataItem!.specialField.productionDateTracking ===
                   1 && (
                   <TemplateDate
                     required={1}
                     name="Mfg Date"
-                    ref={(ref) => {
-                      if (ref !== null) this.refproductionDate.current = ref;
-                    }}
+                    ref={this.refproductionDate}
                   />
                 )}
 
-                {this.state.dataItem.template !== undefined &&
-                  this.state.dataItem.template !== null &&
-                  this.state.dataItem.template.attributes !== undefined &&
-                  this.state.dataItem.template.attributes !== null &&
-                  this.state.dataItem.template.attributes.map(
+                {this.state.dataItem!.template !== undefined &&
+                  this.state.dataItem!.template !== null &&
+                  this.state.dataItem!.template.attributes !== undefined &&
+                  this.state.dataItem!.template.attributes !== null &&
+                  this.state.dataItem!.template.attributes.map(
                     (element, index) => {
                       if (element.field_type === 'text') {
                         return (
                           <TemplateText
                             {...element}
                             ref={(ref) => {
-                              if (ref !== null)
-                                this.refAttrArray.current[index] = ref;
+                              if (ref !== null && this.refAttrArray.current !== null)
+                                this.refAttrArray!.current[index] = ref;
                             }}
                           />
                         );
@@ -1157,8 +1174,8 @@ class Example extends React.Component {
                           <TemplateSelect
                             {...element}
                             ref={(ref) => {
-                              if (ref !== null)
-                                this.refAttrArray.current[index] = ref;
+                              if (ref !== null && this.refAttrArray.current !== null)
+                              this.refAttrArray!.current[index] = ref;
                             }}
                           />
                         );
@@ -1167,7 +1184,7 @@ class Example extends React.Component {
                           <TemplateMulti
                             {...element}
                             ref={(ref) => {
-                              if (ref !== null)
+                              if (ref !== null && this.refAttrArray.current !== null)
                                 this.refAttrArray.current[index] = ref;
                             }}
                           />
@@ -1177,8 +1194,8 @@ class Example extends React.Component {
                           <TemplateOption
                             {...element}
                             ref={(ref) => {
-                              if (ref !== null)
-                                this.refAttrArray.current[index] = ref;
+                              if (ref !== null && this.refAttrArray.current !== null)
+                                this.refAttrArray!.current[index] = ref;
                             }}
                           />
                         );
@@ -1187,7 +1204,7 @@ class Example extends React.Component {
                           <TemplateScale
                             {...element}
                             ref={(ref) => {
-                              if (ref !== null)
+                              if (ref !== null && this.refAttrArray.current !== null)
                                 this.refAttrArray.current[index] = ref;
                             }}
                           />
@@ -1205,14 +1222,15 @@ class Example extends React.Component {
               ]}>
               <Avatar
                 onPress={() => {
-                  this.props.navigation.navigate('POSMPhoto');
+                  this.props.navigation.navigate({
+                    name :'POSMPhoto',
+                    params : {
+
+                    },
+                  });
                 }}
                 size={79}
-                ImageComponent={() => (
-                  <>
-                    <IconPhoto5 height="40" width="40" fill="#fff" />
-                  </>
-                )}
+                ImageComponent={ImageComponent}
                 imageProps={{
                   containerStyle: {
                     alignItems: 'center',
@@ -1443,41 +1461,41 @@ class Example extends React.Component {
     </View>
   );
 
-  renderBarcode = (barcode) => {
+  renderBarcode = (barcode : any) => {
     if (barcode.length > 0 && barcode[0].data.length > 0) {
       this.setState({dataCode: barcode[0].data});
     }
   };
-  makeScannedItem = (dataCode, qty) => {
-    return Array.from({length: qty}).map((num, index) => {
-      return dataCode;
-    });
-  };
+  // makeScannedItem = (dataCode, qty) => {
+  //   return Array.from({length: qty}).map((num, index) => {
+  //     return dataCode;
+  //   });
+  // };
   onSubmit = async () => {
     const {dataCode, qty, scanItem, ItemGrade, dataItem} = this.state;
     //this.props.setBarcodeScanner(true);
     let toEnterAttr = false;
     if (
-      dataItem.specialField !== undefined &&
-      dataItem.specialField !== null &&
-      (dataItem.specialField.batchTracking === 1 ||
-        dataItem.specialField.productionDateTracking === 1 ||
-        dataItem.specialField.expiryDateTracking === 1)
+      dataItem!.specialField !== undefined &&
+      dataItem!.specialField !== null &&
+      (dataItem!.specialField.batchTracking === 1 ||
+        dataItem!.specialField.productionDateTracking === 1 ||
+        dataItem!.specialField.expiryDateTracking === 1)
     ) {
       toEnterAttr = true;
     }
     if (
-      dataItem.template !== undefined &&
-      dataItem.template !== null &&
-      dataItem.template.attributes !== undefined &&
-      dataItem.template.attributes !== null &&
-      Array.isArray(dataItem.template.attributes) === true &&
-      dataItem.template.attributes.length > 0
+      dataItem!.template !== undefined &&
+      dataItem!.template !== null &&
+      dataItem!.template.attributes !== undefined &&
+      dataItem!.template.attributes !== null &&
+      Array.isArray(dataItem!.template.attributes) === true &&
+      dataItem!.template.attributes.length > 0
     ) {
       toEnterAttr = true;
     }
 
-    if (parseInt(qty) !== qty) {
+    if (isNaN(parseInt(qty)) === false && parseInt(qty) !== parseFloat(qty)) {
       this.setState({
         errorAttr: 'Qty only in integer',
       });
@@ -1486,7 +1504,7 @@ class Example extends React.Component {
         errorAttr:
           'Please choose item pallet before going to next step',
       });
-    } else if (dataItem.is_transit || toEnterAttr === false) {
+    } else if (dataItem!.is_transit || toEnterAttr === false) {
       let FormData = await this.getPhotoReceivingGoods();
       let incrementQty = this.state.qty;
 
@@ -1513,7 +1531,7 @@ class Example extends React.Component {
           this.props.navigation.setOptions({headerTitle: 'Item Processed'});
           this.setState({
             dataCode: '0',
-            qty: qty === '' ? 0 : qty,
+            qty: isNaN(parseInt(qty)) === true ? '0' : qty,
             enterAttr: toEnterAttr,
             isConfirm: true,
             isPOSM: false,
@@ -1525,7 +1543,7 @@ class Example extends React.Component {
       this.props.navigation.setOptions({headerTitle: 'Item Attribute'});
       this.setState({
         dataCode: '0',
-        qty: qty === '' ? 0 : qty,
+        qty: isNaN(parseInt(qty)) === true ? '0' : qty,
         enterAttr: toEnterAttr,
         isConfirm: false,
         isPOSM: false,
@@ -1533,62 +1551,64 @@ class Example extends React.Component {
       });
     }
     // for prototype only
-    let arr = this.makeScannedItem(scanItem, qty);
-    console.log(arr);
-    this.props.setItemGrade(ItemGrade);
-    this.props.setItemScanned(arr);
+    // let arr = this.makeScannedItem(scanItem, qty);
+    // console.log(arr);
+    // this.props.setItemGrade(ItemGrade);
+    // this.props.setItemScanned(arr);
     this.props.setBottomBar(false);
     //this.props.navigation.navigate('Manifest');
   };
   onUpdateAttr = async () => {
     const {dataItem} = this.state;
-    let attributes = [];
+    let attributes:Array<object> = [];
     let errors = [];
     let batchAttr =
-      dataItem.specialField.batchTracking === 1
-        ? this.refBatch.current.getSavedAttr()
+      dataItem!.specialField.batchTracking === 1 && this.refBatch !== null && this.refBatch.current !== null
+        ? this.refBatch!.current!.getSavedAttr()
         : null;
-    if (batchAttr !== null && batchAttr.error !== undefined) {
+    if (batchAttr !== null && typeof batchAttr === 'object' && batchAttr.error !== undefined) {
       errors.push(batchAttr.error);
     }
     let ISOexpiry =
-      dataItem.specialField.expiryDateTracking === 1
-        ? this.refexpiryDate.current.getSavedAttr()
+      dataItem!.specialField.expiryDateTracking === 1 && this.refexpiryDate !== null && this.refexpiryDate.current !== null
+        ? this.refexpiryDate!.current.getSavedAttr()
         : null;
-    if (ISOexpiry !== null && ISOexpiry.error !== undefined) {
+    if (ISOexpiry !== null && typeof ISOexpiry === 'object' && ISOexpiry.error !== undefined) {
       errors.push(ISOexpiry.error);
     }
     let ISOproduction =
-      dataItem.specialField.productionDateTracking === 1
-        ? this.refproductionDate.current.getSavedAttr()
+      dataItem!.specialField.productionDateTracking === 1 && this.refproductionDate.current !== null
+        ? this.refproductionDate!.current.getSavedAttr()
         : null;
-    if (ISOproduction !== null && ISOproduction.error !== undefined) {
+    if (ISOproduction !== null && typeof ISOproduction === 'object' && ISOproduction.error !== undefined) {
       errors.push(ISOproduction.error);
     }
     if (
-      this.state.dataItem.template !== undefined &&
-      this.state.dataItem.template !== null &&
-      this.state.dataItem.template.attributes !== undefined &&
-      this.state.dataItem.template.attributes !== null
+      this.state.dataItem!.template !== undefined &&
+      this.state.dataItem!.template !== null &&
+      this.state.dataItem!.template.attributes !== undefined &&
+      this.state.dataItem!.template.attributes !== null
     ) {
       for (
         let index = 0;
-        index < this.state.dataItem.template.attributes.length;
+        index < this.state.dataItem!.template.attributes.length;
         index++
       ) {
-        const element = this.state.dataItem.template.attributes[index];
-        const refEl = this.refAttrArray.current[index];
-        let savedAttr = refEl.getSavedAttr();
-        if (savedAttr.error === undefined) {
-          if (element.field_type === 'options') {
-            attributes.push({
-              [element.name]: element.values[savedAttr],
-            });
-          } else {
-            attributes.push({
-              [element.name]: savedAttr,
-            });
-          }
+        const element = this.state.dataItem!.template.attributes[index];
+        const refEl =  this.refAttrArray !== null && this.refAttrArray!.current !== null  ? this.refAttrArray!.current[index] : null;
+        let savedAttr = refEl !== null ? refEl.getSavedAttr() : null;
+        if (savedAttr instanceof Array || savedAttr === null || typeof savedAttr !== 'object') {
+          if(savedAttr !== null){
+              if (element.field_type === 'options' && element.values !== undefined && typeof savedAttr === 'number') {
+                attributes.push({
+                  [element.name]: element.values[savedAttr],
+                });
+              } else {
+                attributes.push({
+                  [element.name]: savedAttr,
+                });
+              }
+            }
         } else {
           errors.push(savedAttr.error);
         }
@@ -1638,9 +1658,9 @@ class Example extends React.Component {
             isConfirm: true,
             attrData: attributes,
             errorAttr: '',
-            batchNo: batchAttr,
-            ISODateExpiryString: ISOexpiry,
-            ISODateProductionString: ISOproduction,
+            batchNo: batchAttr === null || typeof batchAttr === 'string' ? batchAttr: null ,
+            ISODateExpiryString: ISOexpiry === null || typeof ISOexpiry === 'string' ? ISOexpiry : null,
+            ISODateProductionString: ISOproduction === null || typeof ISOproduction === 'string' ? ISOproduction : null,
           });
         }
       });
@@ -1651,7 +1671,7 @@ class Example extends React.Component {
     }
   };
   closeNotifBanner = () => {
-    this.setState({errorAttr: '', notifsuccess: false});
+    this.setState({errorAttr: ''});
   };
   render() {
     const {dataItem, dataCode} = this.state;
@@ -1973,7 +1993,7 @@ const styles = StyleSheet.create({
   },
 });
 
-function mapStateToProps(state) {
+function mapStateToProps(state:ReduxState) {
   return {
     ManifestCompleted: state.originReducer.filters.manifestCompleted,
     detectBarcode: state.originReducer.filters.isBarcodeScan,
@@ -1988,28 +2008,28 @@ function mapStateToProps(state) {
   };
 }
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch: Dispatch<ISetAppView | ISetAppItem | ISetReduxItem>) => {
   return {
-    dispatchCompleteManifest: (bool) => {
+    dispatchCompleteManifest: (bool : boolean) => {
       return dispatch({type: 'ManifestCompleted', payload: bool});
     },
-    setBarcodeScanner: (toggle) => {
+    setBarcodeScanner: (toggle : boolean) => {
       return dispatch({type: 'ScannerActive', payload: toggle});
     },
-    setItemScanned: (item) => {
+    setItemScanned: (item : string) => {
       return dispatch({type: 'BarcodeScanned', payload: item});
     },
-    setItemGrade: (grade) => {
+    setItemGrade: (grade : string) => {
       return dispatch({type: 'BarcodeGrade', payload: grade});
     },
-    setItemError: (error) => {
+    setItemError: (error : string) => {
       return dispatch({type: 'ManifestError', payload: error});
     },
-    setBottomBar: (toggle) => {
+    setBottomBar: (toggle : boolean) => {
       return dispatch({type: 'BottomBar', payload: toggle});
     },
-    addPOSMPostpone: (uri) => dispatch({type: 'POSMPostpone', payload: uri}),
+    addPOSMPostpone: (uri : string | null) => dispatch({type: 'POSMPostpone', payload: uri}),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Example);
+export default connect<StateProps, DispatchProps, OwnProps,RootState>(mapStateToProps, mapDispatchToProps)(Example);
