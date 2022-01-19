@@ -8,8 +8,9 @@ import {
   View,
   RefreshControl,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
-import {Card, SearchBar, Badge} from 'react-native-elements';
+import {Button, SearchBar, Badge, Overlay} from 'react-native-elements';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
@@ -19,13 +20,13 @@ import OutboundDetail from '../../../component/extend/ListItem-outbound-detail';
 import Mixins from '../../../mixins';
 //icon
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
-import moment from 'moment';
 import Banner from '../../../component/banner/banner';
 import {getData} from '../../../component/helper/network';
 import {themeStoreContext} from '../../../mixins';
 import {observer} from 'mobx-react';
 import EmptyIlustrate from '../../../assets/icon/manifest-empty mobile.svg';
-const window = Dimensions.get('window');
+
+const screen = Dimensions.get('window');
 
 @observer
 class List extends React.Component {
@@ -45,6 +46,7 @@ class List extends React.Component {
       renderGoBack: false,
       notifbanner: '',
       notifsuccess: false,
+      isShowModal: false,
     };
     this.setFiltered.bind(this);
     this.updateSearch.bind(this);
@@ -271,9 +273,24 @@ class List extends React.Component {
     this.setState({notifbanner: '', notifsuccess: false});
   };
 
+  handleShowModal = (value) => {
+    this.setState({
+      isShowModal: value ?? false,
+    });
+  };
+
+  handleModalAction = (action) => {
+    if (action) {
+      // implement api for complete pick task
+      this.props.navigation.navigate('Task');
+    } else {
+      this.handleShowModal();
+    }
+  };
+
   render() {
     const {outboundTask} = this.props;
-    const {taskNumber, _list} = this.state;
+    const {taskNumber, _list, isShowModal} = this.state;
     let currentTask = outboundTask.find((element) => element.id === taskNumber);
 
     return (
@@ -360,8 +377,8 @@ class List extends React.Component {
             leftIconContainerStyle={{backgroundColor: 'white'}}
           />
           <View style={styles.sectionContent}>
-            <Card
-              containerStyle={{
+            <View
+              style={{
                 ...styles.cardContainer,
                 backgroundColor: this.context._Scheme5,
               }}>
@@ -521,9 +538,44 @@ class List extends React.Component {
                   );
                 })
               )}
-            </Card>
+            </View>
           </View>
         </ScrollView>
+        <View style={styles.bottomButtonContainer}>
+          <Button
+            title="Complete Pick Task"
+            titleStyle={styles.buttonText}
+            buttonStyle={styles.button}
+            onPress={() => this.handleShowModal(true)}
+            disabledStyle={{backgroundColor: '#ABABAB'}}
+            disabledTitleStyle={{color: '#FFF'}}
+          />
+        </View>
+        {isShowModal && (
+          <Overlay
+            fullScreen={false}
+            overlayStyle={styles.containerStyleOverlay}
+            isVisible={isShowModal}>
+            <Text style={styles.confirmText}>
+              Are you sure sure you want to Complete Pick Task?
+            </Text>
+            <View style={styles.cancelButtonContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.cancelButton,
+                  {borderWidth: 1, borderColor: '#ABABAB'},
+                ]}
+                onPress={() => this.handleModalAction(false)}>
+                <Text style={[styles.cancelText, {color: '#ABABAB'}]}>No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.cancelButton, {backgroundColor: '#F07120'}]}
+                onPress={() => this.handleModalAction(true)}>
+                <Text style={[styles.cancelText, {color: '#FFF'}]}>Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </Overlay>
+        )}
       </SafeAreaProvider>
     );
   }
@@ -537,6 +589,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     flexDirection: 'column',
     flex: 1,
+    marginBottom: 70,
   },
   headingCard: {
     flexDirection: 'row',
@@ -589,6 +642,69 @@ const styles = StyleSheet.create({
     ...Mixins.small3,
     lineHeight: 12,
     color: '#121C78',
+  },
+  bottomButtonContainer: {
+    justifyContent: 'center',
+    position: 'absolute',
+    height: 70,
+    backgroundColor: '#FFF',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  button: {
+    ...Mixins.bgButtonPrimary,
+    marginHorizontal: 20,
+  },
+  buttonText: {
+    ...Mixins.subtitle3,
+    fontSize: 18,
+    lineHeight: 25,
+    color: '#FFF',
+  },
+  containerStyleOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    left: 0,
+    height: screen.height * 0.3,
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+  },
+  confirmText: {
+    ...Mixins.subtitle3,
+    fontSize: 20,
+    textAlign: 'center',
+    marginHorizontal: 20,
+  },
+  cancelText: {
+    ...Mixins.subtitle3,
+    fontSize: 18,
+    lineHeight: 25,
+  },
+  cancelButtonContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
+  cancelButton: {
+    width: '40%',
+    height: 40,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
   },
 });
 
