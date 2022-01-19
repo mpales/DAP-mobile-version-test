@@ -43,7 +43,7 @@ var apiFetch = fetchDefaults(crossFetch, SERVER_DOMAIN, async (url, opt) => {
   await getToken('jwtToken').then((test) => {
     token = test.replace(/^"(.+(?="$))"$/, '$1');
   });
- 
+
   await getDeviceSignature().then((test) => {
     signature = test.replace(/^"(.+(?="$))"$/, '$1');
   });
@@ -74,7 +74,7 @@ var blobFetch = fetchBlobDefault(RNFetchBlob, SERVER_DOMAIN, async () => {
   await getToken('jwtToken').then((test) => {
     token = test.replace(/^"(.+(?="$))"$/, '$1');
   });
- 
+
   await getDeviceSignature().then((test) => {
     signature = test.replace(/^"(.+(?="$))"$/, '$1');
   });
@@ -89,11 +89,11 @@ var blobFetch = fetchBlobDefault(RNFetchBlob, SERVER_DOMAIN, async () => {
   });
 
   return {
-      'Content-Type': 'multipart/form-data',
-      'User-Agent': UA,
-      fingerprint: signature,
-      authToken: token,
-    };
+    'Content-Type': 'multipart/form-data',
+    'User-Agent': UA,
+    fingerprint: signature,
+    authToken: token,
+  };
 });
 
 export const getData = (path) => {
@@ -103,16 +103,16 @@ export const getData = (path) => {
         method: 'GET',
       });
       if (res.headers.map['content-type'].includes('text/plain')) {
-        return  responseHandler(res);
+        return responseHandler(res);
       } else if (res.headers.map['content-type'].includes('text/html')) {
-        return  responseHandler(res);
+        return responseHandler(res);
       }
       return res.json();
     } catch (err) {
-      if(err instanceof Response){
+      if (err instanceof Response) {
         return err;
       } else {
-        setRootParams('ErrorGate',true);
+        setRootParams('ErrorGate', true);
         return 'Bad gateway';
       }
     }
@@ -133,10 +133,10 @@ export const deleteData = (path) => {
       }
       return res.json();
     } catch (err) {
-      if(err instanceof Response){
+      if (err instanceof Response) {
         return err;
       } else {
-        setRootParams('ErrorGate',true);
+        setRootParams('ErrorGate', true);
         return 'Bad gateway';
       }
     }
@@ -144,10 +144,21 @@ export const deleteData = (path) => {
   return result;
 };
 
-export const postBlob = (path, data, callbackUploadProgress, callbackProgress) => {
+export const postBlob = (
+  path,
+  data,
+  callbackUploadProgress,
+  callbackProgress,
+) => {
   let result = (async () => {
     try {
-      const res = await blobFetch(path,{method:'POST'},data,callbackUploadProgress,callbackProgress);
+      const res = await blobFetch(
+        path,
+        {method: 'POST'},
+        data,
+        callbackUploadProgress,
+        callbackProgress,
+      );
       if (res.respInfo.headers['Content-Type'].includes('text/plain')) {
         return responseBlobHandler(res);
       } else if (res.respInfo.headers['Content-Type'].includes('text/html')) {
@@ -155,8 +166,8 @@ export const postBlob = (path, data, callbackUploadProgress, callbackProgress) =
       }
       return res.json();
     } catch (err) {
-      if(err.message.includes('Failed')){
-        setRootParams('ErrorGate',true);
+      if (err.message.includes('Failed')) {
+        setRootParams('ErrorGate', true);
         return 'Bad gateway';
       }
       return err;
@@ -164,12 +175,23 @@ export const postBlob = (path, data, callbackUploadProgress, callbackProgress) =
   })();
   return new Promise((resolve, reject) => {
     resolve(result);
-  });;
+  });
 };
-export const putBlob = (path, data, callbackUploadProgress, callbackProgress) => {
+export const putBlob = (
+  path,
+  data,
+  callbackUploadProgress,
+  callbackProgress,
+) => {
   let result = (async () => {
     try {
-      const res = await blobFetch(path,{method:'PUT'},data,callbackUploadProgress,callbackProgress);
+      const res = await blobFetch(
+        path,
+        {method: 'PUT'},
+        data,
+        callbackUploadProgress,
+        callbackProgress,
+      );
       if (res.respInfo.headers['Content-Type'].includes('text/plain')) {
         return responseBlobHandler(res);
       } else if (res.respInfo.headers['Content-Type'].includes('text/html')) {
@@ -177,8 +199,8 @@ export const putBlob = (path, data, callbackUploadProgress, callbackProgress) =>
       }
       return res.json();
     } catch (err) {
-      if(err.message.includes('Failed')){
-        setRootParams('ErrorGate',true);
+      if (err.message.includes('Failed')) {
+        setRootParams('ErrorGate', true);
         return 'Bad gateway';
       }
       return err;
@@ -186,76 +208,95 @@ export const putBlob = (path, data, callbackUploadProgress, callbackProgress) =>
   })();
   return new Promise((resolve, reject) => {
     resolve(result);
-  });;
+  });
 };
 
 //background process blob using cancelation process in fetching to trigger background thread.
-export const putBackgroundBlob = async (path, data, callbackUploadProgress, callbackProgress, triggerCancel) => {
- 
-  return await blobFetch(path,{method:'PUT'},data,callbackUploadProgress,callbackProgress, triggerCancel).then((res)=>{
-    if (res.respInfo.headers['Content-Type'].includes('text/plain')) {
-      return responseBlobHandler(res);
-    } else if (res.respInfo.headers['Content-Type'].includes('text/html')) {
-      return responseBlobHandler(res);
-    }
-    return res.json();
-  }, async (canceled)=>{
-    let token = null;
-    let signature = null;
-    let UA = null;
-    //replace quotes from storage string
-    await getToken('jwtToken').then((test) => {
-      token = test.replace(/^"(.+(?="$))"$/, '$1');
-    });
-   
-    await getDeviceSignature().then((test) => {
-      signature = test.replace(/^"(.+(?="$))"$/, '$1');
-    });
-    console.log(signature);
-  
-    await getUserAgent().then((userAgent) => {
-      UA = userAgent;
-      // iOS: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143"
-      // tvOS: not available
-      // Android: ?
-      // Windows: ?
-    });
-    let parsed = JSON.stringify(data).replaceAll(
-      'RNFetchBlob-file://',
-      'ReactNativeBlobUtil-file://',
-    );
-    // uploadThread.applyBackgroundFetch(
-    //   {
-    //     'Content-Type': 'multipart/form-data',
-    //     'User-Agent': UA,
-    //     fingerprint: signature,
-    //     authToken: token,
-    //     method:'PUT',
-    //     data:JSON.parse(parsed),
-    //     url: SERVER_DOMAIN + path,
-    //   }
-    // );
-    return canceled;
-  });
-    
+export const putBackgroundBlob = async (
+  path,
+  data,
+  callbackUploadProgress,
+  callbackProgress,
+  triggerCancel,
+) => {
+  return await blobFetch(
+    path,
+    {method: 'PUT'},
+    data,
+    callbackUploadProgress,
+    callbackProgress,
+    triggerCancel,
+  ).then(
+    (res) => {
+      if (res.respInfo.headers['Content-Type'].includes('text/plain')) {
+        return responseBlobHandler(res);
+      } else if (res.respInfo.headers['Content-Type'].includes('text/html')) {
+        return responseBlobHandler(res);
+      }
+      return res.json();
+    },
+    async (canceled) => {
+      let token = null;
+      let signature = null;
+      let UA = null;
+      //replace quotes from storage string
+      await getToken('jwtToken').then((test) => {
+        token = test.replace(/^"(.+(?="$))"$/, '$1');
+      });
+
+      await getDeviceSignature().then((test) => {
+        signature = test.replace(/^"(.+(?="$))"$/, '$1');
+      });
+      console.log(signature);
+
+      await getUserAgent().then((userAgent) => {
+        UA = userAgent;
+        // iOS: "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143"
+        // tvOS: not available
+        // Android: ?
+        // Windows: ?
+      });
+      let parsed = JSON.stringify(data).replaceAll(
+        'RNFetchBlob-file://',
+        'ReactNativeBlobUtil-file://',
+      );
+      // uploadThread.applyBackgroundFetch(
+      //   {
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent': UA,
+      //     fingerprint: signature,
+      //     authToken: token,
+      //     method:'PUT',
+      //     data:JSON.parse(parsed),
+      //     url: SERVER_DOMAIN + path,
+      //   }
+      // );
+      return canceled;
+    },
+  );
 };
 
-
-export const getBlob = (path,data, callbackProgress) => {
+export const getBlob = (path, data, callbackProgress) => {
   let result = (async () => {
     try {
-      const res = await blobFetch(path,{method:'GET'}, null,null,callbackProgress);
+      const res = await blobFetch(
+        path,
+        {method: 'GET'},
+        null,
+        null,
+        callbackProgress,
+      );
       if (res.respInfo.headers['Content-Type'].includes('text/plain')) {
-        return await responseBlobRawHandler(res,data);
+        return await responseBlobRawHandler(res, data);
       } else if (res.respInfo.headers['Content-Type'].includes('text/html')) {
-        return await responseBlobRawHandler(res,data);
+        return await responseBlobRawHandler(res, data);
       } else if (res.respInfo.headers['Content-Type'].includes('image')) {
-        return responseImageHandler(res,data);
+        return responseImageHandler(res, data);
       }
       return res.json();
     } catch (err) {
-      if(err.message.includes('Failed')){
-        setRootParams('ErrorGate',true);
+      if (err.message.includes('Failed')) {
+        setRootParams('ErrorGate', true);
         return 'Bad gateway';
       }
       return err;
@@ -278,10 +319,10 @@ export const postData = (path, data) => {
       }
       return res.json();
     } catch (err) {
-      if(err instanceof Response){
+      if (err instanceof Response) {
         return err;
       } else {
-        setRootParams('ErrorGate',true);
+        setRootParams('ErrorGate', true);
         return 'Bad gateway';
       }
     }
@@ -303,10 +344,10 @@ export const putData = (path, data) => {
       }
       return res.json();
     } catch (err) {
-      if(err instanceof Response){
+      if (err instanceof Response) {
         return err;
       } else {
-        setRootParams('ErrorGate',true);
+        setRootParams('ErrorGate', true);
         return 'Bad gateway';
       }
     }
@@ -322,7 +363,9 @@ const responseHandler = async (response) => {
     case 404:
       return 'Not found';
     case 401:
-      setRootParams('hardReset',true);
+      setRootParams('hardReset', true);
+      return response.text();
+    case 400:
       return response.text();
     case 403:
       return response.text();
@@ -330,7 +373,7 @@ const responseHandler = async (response) => {
     case 501:
     case 503:
     case 504:
-      setRootParams('ErrorGate',true);
+      setRootParams('ErrorGate', true);
       return 'Bad gateway';
     default:
       return 'Something went wrong';
@@ -344,74 +387,88 @@ const responseBlobHandler = (response) => {
       return response.text();
     case 404:
       return 'Not found';
-      case 401:
-        setRootParams('hardReset',true);
-        return response.text();
-    case 403:
+    case 401:
+      setRootParams('hardReset', true);
       return response.text();
-      case 500:
-        case 501:
-        case 503:
-        case 504:
-          setRootParams('ErrorGate',true);
-          return 'Bad gateway';
-    default:
-      return 'Something went wrong';
-  }
-};
-
-const responseBlobRawHandler = async (response,data) => {
-  const dirs = RNFetchBlob.fs.dirs.CacheDir
-  const {status} = response.respInfo;
-  switch (status) {
-    case 200:
-      if(data !== undefined && data.filename !== undefined){
-        await RNFetchBlob.fs.writeFile(dirs+'/'+data.filename, await response.text(), 'base64')
-        return dirs+'/'+data.filename;
-      } else {
-        return response.text();
-      }
-    case 404:
-      return 'Not found';
-      case 401:
-        setRootParams('hardReset',true);
-        return response.text();
-    case 403:
+    case 400:
       return response.text();
-      case 500:
-        case 501:
-        case 503:
-        case 504:
-          setRootParams('ErrorGate',true);
-          return 'Bad gateway';
-    default:
-      return 'Something went wrong';
-  }
-};
-
-const responseImageHandler = async (response,data) => {
-  const dirs = RNFetchBlob.fs.dirs.CacheDir
-  const {status} = response.respInfo;
-  switch (status) {
-    case 200:
-      if(data !== undefined && data.filename !== undefined){
-        await RNFetchBlob.fs.writeFile(dirs+'/'+data.filename, await response.base64(), 'base64')
-        return dirs+'/'+data.filename;
-      } else {
-        return response.text();
-      }
-    case 404:
-      return 'Not found';
-      case 401:
-        setRootParams('hardReset',true);
-        return response.text();
     case 403:
       return response.text();
     case 500:
     case 501:
     case 503:
     case 504:
-      setRootParams('ErrorGate',true);
+      setRootParams('ErrorGate', true);
+      return 'Bad gateway';
+    default:
+      return 'Something went wrong';
+  }
+};
+
+const responseBlobRawHandler = async (response, data) => {
+  const dirs = RNFetchBlob.fs.dirs.CacheDir;
+  const {status} = response.respInfo;
+  switch (status) {
+    case 200:
+      if (data !== undefined && data.filename !== undefined) {
+        await RNFetchBlob.fs.writeFile(
+          dirs + '/' + data.filename,
+          await response.text(),
+          'base64',
+        );
+        return dirs + '/' + data.filename;
+      } else {
+        return response.text();
+      }
+    case 404:
+      return 'Not found';
+    case 401:
+      setRootParams('hardReset', true);
+      return response.text();
+    case 400:
+      return response.text();
+    case 403:
+      return response.text();
+    case 500:
+    case 501:
+    case 503:
+    case 504:
+      setRootParams('ErrorGate', true);
+      return 'Bad gateway';
+    default:
+      return 'Something went wrong';
+  }
+};
+
+const responseImageHandler = async (response, data) => {
+  const dirs = RNFetchBlob.fs.dirs.CacheDir;
+  const {status} = response.respInfo;
+  switch (status) {
+    case 200:
+      if (data !== undefined && data.filename !== undefined) {
+        await RNFetchBlob.fs.writeFile(
+          dirs + '/' + data.filename,
+          await response.base64(),
+          'base64',
+        );
+        return dirs + '/' + data.filename;
+      } else {
+        return response.text();
+      }
+    case 404:
+      return 'Not found';
+    case 401:
+      setRootParams('hardReset', true);
+      return response.text();
+    case 400:
+      return response.text();
+    case 403:
+      return response.text();
+    case 500:
+    case 501:
+    case 503:
+    case 504:
+      setRootParams('ErrorGate', true);
       return 'Bad gateway';
     default:
       return 'Something went wrong';
