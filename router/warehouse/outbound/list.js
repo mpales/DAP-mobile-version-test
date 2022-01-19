@@ -18,6 +18,8 @@ import {connect} from 'react-redux';
 import OutboundDetail from '../../../component/extend/ListItem-outbound-detail';
 //style
 import Mixins from '../../../mixins';
+// helper
+import {postData} from '../../../component/helper/network';
 //icon
 import IconSearchMobile from '../../../assets/icon/iconmonstr-search-thinmobile.svg';
 import Banner from '../../../component/banner/banner';
@@ -253,6 +255,19 @@ class List extends React.Component {
     return updatedStatus;
   };
 
+  completePickTask = async () => {
+    const {currentTask} = this.props;
+    if (currentTask !== null) {
+      const result = await postData(`/outboundMobile/pickTask/${currentTask}`);
+      this.handleShowModal();
+      if (result === 'Pick job status changed to complete') {
+        this.props.navigation.navigate('Task');
+      } else {
+        this.handleRequestError(result);
+      }
+    }
+  };
+
   componentWillUnmount() {
     this._unsubscribe();
   }
@@ -273,6 +288,18 @@ class List extends React.Component {
     this.setState({notifbanner: '', notifsuccess: false});
   };
 
+  handleRequestError = (result) => {
+    let errorMessage = '';
+    if (!!result.error) {
+      notifbanner = result.error;
+    } else if (typeof result === 'string') {
+      notifbanner = result;
+    }
+    this.setState({
+      notifbanner: errorMessage,
+    });
+  };
+
   handleShowModal = (value) => {
     this.setState({
       isShowModal: value ?? false,
@@ -282,8 +309,7 @@ class List extends React.Component {
   handleModalAction = (action) => {
     if (action) {
       // implement api for complete pick task
-      this.handleShowModal();
-      this.props.navigation.navigate('Task');
+      this.completePickTask();
     } else {
       this.handleShowModal();
     }
