@@ -133,14 +133,13 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         
-	def job = System.getenv('JOB_NAME')
-        def ver = System.getenv('VERSION')
+	//def job = System.getenv('JOB_NAME')
+        //def ver = System.getenv('VERSION')
         //def build = System.getenv('BUILD_NUMBER')
 
         versionCode 1
-        versionName job + "(" + ver + ")"
+        versionName System.getenv('VERSION')
         archivesBaseName = versionName 
-        //project.ext.set("archivesBaseName", versionName);
 	
         multiDexEnabled true
         missingDimensionStrategy 'react-native-camera', 'mlkit'
