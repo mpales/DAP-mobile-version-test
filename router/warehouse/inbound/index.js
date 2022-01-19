@@ -27,6 +27,9 @@ import itemReportDetail from './itemReportDetails';
 import newItem from './newItem';
 import Mixins from '../../../mixins';
 import itemDetail from './itemDetails';
+// typescript as error check
+// import {default as itemDetail} from './itemDetails';
+// let b :itemDetail<React.ComponentType> = itemDetail;
 import SingleCamera from '../peripheral/cameraMulti';
 import EnlargeImage from '../peripheral/enlargeImage';
 import EnlargePhoto from '../peripheral/enlargePhoto';
@@ -53,6 +56,7 @@ import Completed from './completed';
 import WarehouseIn from '../detail/index-inbound';
 import updatePhoto from '../peripheral/updatePhoto';
 import completeReceiving from './complete-receiving';
+
 const Stack = createStackNavigator();
 class HomeNavigator extends React.Component {
   constructor(props) {

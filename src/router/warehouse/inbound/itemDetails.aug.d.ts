@@ -17,8 +17,7 @@ import '../../../../router/warehouse/inbound/itemDetails';
 import {ConnectedProps, GetProps} from 'react-redux';
 import { StackNavigationProp  } from '@react-navigation/stack';
 import { RouteProp   } from '@react-navigation/native';
-
-import { ComponentClass, Consumer, ConsumerProps, ContextType, Dispatch, ExoticComponent, Provider, ProviderExoticComponent, ProviderProps, SetStateAction } from 'react';
+import React,{ ConsumerProps, ComponentType, Dispatch, ExoticComponent, Provider, ProviderExoticComponent, ProviderProps, SetStateAction, Component } from 'react';
 
 declare module '../../../../router/warehouse/inbound/itemDetails' {
     type StackParamList = {
@@ -49,7 +48,7 @@ declare module '../../../../router/warehouse/inbound/itemDetails' {
         dataCode : string;
         dataActivities : Array<object>;
         totalReports: number;
-        _itemDetail:  null  | keyableDetail,
+        _itemDetail:  null  | keyableDetail | undefined,
     }
     interface keyableDetail {
         description: any;
@@ -107,10 +106,15 @@ declare module '../../../../router/warehouse/inbound/itemDetails' {
     interface ReactView {
         getDerivedStateFromProps : (props: StateProps & DispatchProps & OwnProps, state: OwnState) => OwnState
         contextType?:React.ContextType<Context | any>
+        prototype: inheritInit;
     }
-    
+   
+    interface inheritInit {
+    navigateSeeReport: (test:any,asd:any) => void;
+    renderHeader : () => JSX.Element; 
+   }
     // default augmentation for router view
     export default interface itemDetail <ConnectedComponent> {
-        WrappedComponent : ReactView;
+        WrappedComponent :ReactView;
     } 
 }

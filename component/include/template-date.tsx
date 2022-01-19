@@ -1,10 +1,10 @@
-import React from 'react';
-import {View, Platform, TouchableOpacity} from 'react-native';
+import React,{Ref} from 'react';
+import {View, Platform, TouchableOpacity, StyleSheet} from 'react-native';
 import {ThemeProvider, Input, Text, Overlay} from 'react-native-elements';
 import Mixins from '../../mixins';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
-const styles = {
+const styles = StyleSheet.create({
   dividerContent: {
     flexDirection: 'row',
     flexShrink: 1,
@@ -39,12 +39,26 @@ const styles = {
     paddingHorizontal: 7,
     textAlignVertical: 'center',
   },
-};
+});
 const theme = {};
-
-const Manifest = React.forwardRef((props, ref) => {
+interface errorObj {
+  error : string;
+}
+export interface inferTemplateDate {
+  getSavedAttr : () => string | null | errorObj ;
+}
+interface Props  {
+  required: number;
+  name : string;
+  ref: Ref<inferTemplateDate | null>
+}
+const Manifest: React.FC<Props> = React.forwardRef(({
+  required,
+  name,
+  ...props
+}, ref): React.ReactElement => {
   const [filterDate, setFilteredDate] = React.useState('');
-  const [ISODateString, setISODate] = React.useState(null);
+  const [ISODateString, setISODate] = React.useState<null | Date>(null);
   const [overlayDate, setOverlayDate] = React.useState(false);
   const toggleOverlay = React.useCallback((bool) => {
     if (bool && ISODateString === null && Platform.OS === 'ios') {
@@ -53,7 +67,7 @@ const Manifest = React.forwardRef((props, ref) => {
       setISODate(new Date());
     }
     setOverlayDate(bool !== undefined ? bool : false);
-  });
+  }, []);
   const changedDateTimePicker = React.useCallback((event, selectedDate) => {
     toggleOverlay(false);
     if (event.type === 'neutralButtonPressed' || event === 'iOSClearDate') {
@@ -66,11 +80,11 @@ const Manifest = React.forwardRef((props, ref) => {
         setISODate(selectedDate);
       }
     }
-  });
+  }, []);
   React.useImperativeHandle(ref, () => ({
     getSavedAttr: () => {
-      if (filterDate === '' && props.required === 1) {
-        return {error: 'validation error in attributes : ' + props.name};
+      if (filterDate === '' && required === 1) {
+        return {error: 'validation error in attributes : ' + name};
       }
       return moment(ISODateString).toISOString();
     },
@@ -80,11 +94,11 @@ const Manifest = React.forwardRef((props, ref) => {
       {Platform.OS === 'ios' ? (
         <Overlay
           isVisible={overlayDate}
-          onBackdropPress={toggleOverlay}
+          onBackdropPress={()=>toggleOverlay(false)}
           overlayStyle={{
             backgroundColor: '#121C78',
             paddingHorizontal: 15,
-            paddingHorizontal: 5,
+            paddingVertical: 5, // paddinghorizontal?
             borderWidth: 2,
             borderRadius: 10,
             borderColor: 'transparent',
@@ -102,7 +116,6 @@ const Manifest = React.forwardRef((props, ref) => {
             testID="dateTimePicker"
             value={ISODateString ? new Date(ISODateString) : new Date()}
             mode="date"
-            is24Hour={true}
             display="inline"
             onChange={changedDateTimePicker}
             style={{backgroundColor: 'white'}}
@@ -126,7 +139,7 @@ const Manifest = React.forwardRef((props, ref) => {
             <DateTimePicker
               testID="dateTimePicker"
               value={ISODateString ? new Date(ISODateString) : new Date()}
-              mode="countdown"
+              mode="date"
               is24Hour={true}
               display="default"
               onChange={changedDateTimePicker}
@@ -143,7 +156,7 @@ const Manifest = React.forwardRef((props, ref) => {
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-          <Text style={styles.labelPackage}>{props.name}</Text>
+          <Text style={styles.labelPackage}>{name}</Text>
           <Text style={styles.dotLabel}>:</Text>
         </View>
 
@@ -176,9 +189,9 @@ const Manifest = React.forwardRef((props, ref) => {
           showSoftInputOnFocus={false}
           placeholder="dd-MM-yy"
           value={filterDate}
-          onPressIn={() => {
-            toggleOverlay(true);
-          }}
+          onFocus={()=>
+            toggleOverlay(true)
+          }
           renderErrorMessage={false}
         />
       </View>

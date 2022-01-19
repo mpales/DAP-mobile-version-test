@@ -1,9 +1,9 @@
-import React from 'react';
-import {View} from 'react-native';
+import React,{Ref} from 'react';
+import {View, StyleSheet} from 'react-native';
 import {ThemeProvider, Input, Text, CheckBox} from 'react-native-elements';
 import Mixins from '../../mixins';
 
-const styles = {
+const styles = StyleSheet.create({
     dividerContent: {
         flexDirection: 'row',
         flexShrink: 1,
@@ -53,20 +53,36 @@ const styles = {
         lineHeight: 18,
         paddingHorizontal:9,
       },
-};
+});
 const theme = {
  
 };
-
-const Manifest = React.forwardRef((props, ref) => {
-    const [indexOption, setCurrentIndexOption] = React.useState("");
+interface errorObj {
+  error : string;
+}
+export interface inferTemplateOption {
+  getSavedAttr : () => number | null | errorObj ;
+}
+interface Props  {
+  required: number;
+  name : string;
+  values? : Array<string> 
+  ref: Ref<inferTemplateOption | null>
+}
+const Manifest: React.FC<Props>  = React.forwardRef(({
+  required,
+  name,
+  values,
+  ...props
+}, ref): React.ReactElement  => {
+    const [indexOption, setCurrentIndexOption] = React.useState<number | null>(null);
     const handlechangeOption = React.useCallback((val)=>{
         setCurrentIndexOption(val);
-    });
+    },[]);
     React.useImperativeHandle(ref, () => ({
         getSavedAttr :  () =>{
-            if(indexOption === "" && props.required === 1){
-                return {"error": "validation error in attributes : " + props.name}
+            if(typeof indexOption === 'string' && indexOption === "" && required === 1){
+                return {"error": "validation error in attributes : " + name}
             }
             return indexOption;
         },
@@ -75,11 +91,11 @@ const Manifest = React.forwardRef((props, ref) => {
     <ThemeProvider theme={theme}>
         <View style={[styles.dividerContent,{marginVertical:3}]}>
         <View style={{flexDirection:'row', flexShrink:1, justifyContent:'flex-start',alignItems:'flex-start', paddingTop:10}}>                        
-              <Text style={styles.labelPackage}>{props.name}</Text>
+              <Text style={styles.labelPackage}>{name}</Text>
               <Text style={styles.dotLabel}>:</Text>
             </View>
             <View style={styles.containerCheckbox}>
-            {props.values.map((num,index)=>{
+            {values !== undefined && values.map((num,index)=>{
                 return(
                     <CheckBox
                     center

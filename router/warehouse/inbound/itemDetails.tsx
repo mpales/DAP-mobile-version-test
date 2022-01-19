@@ -20,9 +20,10 @@ import {RootState,AppDispatch} from '../../../Store';
 import moment from 'moment';
 import { Dispatch } from 'redux';
 type Props = StateProps & DispatchProps & OwnProps
+
 class ConnoteDetails extends React.Component<Props, OwnState> {
   constructor(props: Props | Readonly<Props>) {
-    
+   
     super(props);
     this.state = {
       sortBy: 'Name',
@@ -31,9 +32,11 @@ class ConnoteDetails extends React.Component<Props, OwnState> {
       totalReports: 0,
       _itemDetail: null,
     };
+    
     this.navigateSeeReport.bind(this);
     this.renderHeader.bind(this);
   }
+ 
   static getDerivedStateFromProps(props : Props,state: OwnState){
     const {navigation, manifestList, route} = props;
     const {dataCode, _itemDetail} = state;
