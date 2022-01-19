@@ -132,8 +132,14 @@ android {
         applicationId "com.transportapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        
+        def build = System.getenv('BUILD_NUMBER')
+        def job = System.getenv('JOB_NAME')
         versionCode 1
-        versionName "1.0.0"
+        versionName build + job
+        archivesBaseName = versionName 
+        //project.ext.set("archivesBaseName", versionName);
+	
         multiDexEnabled true
         missingDimensionStrategy 'react-native-camera', 'mlkit'
         resValue "string", "mauron85_bgloc_account_type", "${applicationId}.mauron85.bgloc.account"
