@@ -134,7 +134,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         
 	def job = System.getenv('JOB_NAME')
-        def ver = System.getenv('BUILD_NUMBER')
+        def ver = System.getenv('VERSION')
         //def build = System.getenv('BUILD_NUMBER')
 
         versionCode 1
