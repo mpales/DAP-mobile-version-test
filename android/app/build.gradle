@@ -133,10 +133,12 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         
-        def build = System.getenv('BUILD_NUMBER')
-        def job = System.getenv('JOB_NAME')
+	def job = System.getenv('JOB_NAME')
+        def ver = System.getenv('BUILD_NUMBER')
+        //def build = System.getenv('BUILD_NUMBER')
+
         versionCode 1
-        versionName build + job
+        versionName job + "(" + ver + ")"
         archivesBaseName = versionName 
         //project.ext.set("archivesBaseName", versionName);
 	
