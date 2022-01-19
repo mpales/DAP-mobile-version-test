@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    environment {
+        //TEMP = "$pr_title".replaceAll(verRegexs, '$1')
+        VERSION = "dapmobile-1.0.0-beta"
+    }
     stages {
         stage ('Checkout Repo') {
             //please setup git repo and credential on pipeline config
