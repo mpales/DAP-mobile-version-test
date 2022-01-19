@@ -1,10 +1,10 @@
-import React from 'react';
-import {View} from 'react-native';
+import React,{Ref}  from 'react';
+import {View,StyleSheet} from 'react-native';
 import {ThemeProvider, Input, Text} from 'react-native-elements';
 import Mixins from '../../mixins';
 import SelectDropdown from 'react-native-select-dropdown';
 
-const styles = {
+const styles = StyleSheet.create({
     dividerContent: {
         flexDirection: 'row',
         flexShrink: 1,
@@ -39,20 +39,36 @@ const styles = {
         lineHeight: 18,
         paddingHorizontal:9,
       },
-};
+});
 const theme = {
  
 };
-
-const Manifest = React.forwardRef((props, ref) => {
+interface errorObj {
+  error : string;
+}
+export interface inferTemplateSelect {
+  getSavedAttr : () => string | errorObj ;
+}
+interface Props  {
+  required: number;
+  name : string;
+  values?: Array<string>;
+  ref: Ref<inferTemplateSelect | null > 
+}
+const Manifest: React.FC<Props> = React.forwardRef(({
+  required,
+  name,
+  values,
+  ...props
+}, ref): React.ReactElement => {
     const [selectVal, setCurrentValue] = React.useState("");
     const handlechangeText = React.useCallback((val)=>{
         setCurrentValue(val);
-    });
+    }, []);
     React.useImperativeHandle(ref, () => ({
         getSavedAttr :  () =>{
-            if(selectVal === "" && props.required === 1){
-                return {"error": "validation error in attributes : " + props.name}
+            if(selectVal === "" && required === 1){
+                return {"error": "validation error in attributes : " + name}
             }
             return selectVal;
         },
@@ -61,13 +77,13 @@ const Manifest = React.forwardRef((props, ref) => {
     <ThemeProvider theme={theme}>
         <View style={[styles.dividerContent,{marginVertical:3}]}>
             <View style={{flexDirection:'row', flexShrink:1, justifyContent:'center',alignItems:'center'}}>                        
-              <Text style={styles.labelPackage}>{props.name}</Text>
+              <Text style={styles.labelPackage}>{name}</Text>
               <Text style={styles.dotLabel}>:</Text>
             </View>
-                    <SelectDropdown
+                    {values !== undefined && (<SelectDropdown
                             buttonStyle={{flexBasis:1, flexGrow:1,maxHeight:25,borderRadius: 5, borderWidth:1, borderColor: '#ABABAB', backgroundColor:'white'}}
                             buttonTextStyle={{...styles.infoPackage,textAlign:'left',}}
-                            data={props.values}
+                            data={values}
                             defaultValue={selectVal}
                             onSelect={(selectedItem, index) => {
                              handlechangeText(selectedItem);
@@ -89,7 +105,7 @@ const Manifest = React.forwardRef((props, ref) => {
                                 </View>
                               );
                             }}
-                          />
+                          />)}
         </View>
     </ThemeProvider>
   );

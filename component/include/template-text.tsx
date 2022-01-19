@@ -1,9 +1,9 @@
-import React from 'react';
-import {View} from 'react-native';
-import {ThemeProvider, Input, Text} from 'react-native-elements';
+import React,{Ref} from 'react';
+import {View,Text, StyleSheet} from 'react-native';
+import {ThemeProvider, Input} from 'react-native-elements';
 import Mixins from '../../mixins';
 
-const styles = {
+const styles = StyleSheet.create({
   dividerContent: {
     flexDirection: 'row',
     flexShrink: 1,
@@ -30,25 +30,39 @@ const styles = {
     lineHeight: 18,
     paddingHorizontal: 9,
   },
-};
+});
 const theme = {};
-
-const Manifest = React.forwardRef((props, ref) => {
+interface errorObj {
+  error : string;
+}
+export interface inferTemplateText {
+  getSavedAttr : () => string | errorObj ;
+}
+interface Props  {
+  required: number;
+  name : string;
+  ref: Ref<inferTemplateText | null>
+}
+const Manifest: React.FC<Props>  = React.forwardRef(({
+  required,
+  name,
+  ...props
+}, ref): React.ReactElement => {
   const [textualVal, setCurrentText] = React.useState('');
   const handlechangeText = React.useCallback((val) => {
     setCurrentText(val);
-  });
+  }, []);
   React.useImperativeHandle(ref, () => ({
     getSavedAttr: () => {
-      if (textualVal === '' && props.required === 1) {
-        return {error: 'validation error in attributes : ' + props.name};
+      if (textualVal === '' && required === 1) {
+        return {error: 'validation error in attributes : ' + name};
       }
       return textualVal;
     },
   }));
   return (
     <ThemeProvider theme={theme}>
-      <View style={[styles.dividerContent, {marginVertical: 3}]}>
+      <View style={{...styles.dividerContent,marginVertical: 3}}>
         <View
           style={{
             flexDirection: 'row',
@@ -56,7 +70,7 @@ const Manifest = React.forwardRef((props, ref) => {
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-          <Text style={styles.labelPackage}>{props.name}</Text>
+          <Text style={styles.labelPackage}>{name}</Text>
           <Text style={styles.dotLabel}>:</Text>
         </View>
 
@@ -88,7 +102,7 @@ const Manifest = React.forwardRef((props, ref) => {
           onChangeText={handlechangeText}
         />
       </View>
-    </ThemeProvider>
+         </ThemeProvider>
   );
 });
 
