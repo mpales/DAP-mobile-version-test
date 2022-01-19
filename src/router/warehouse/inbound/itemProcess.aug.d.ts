@@ -1,7 +1,7 @@
 /**
  * Created on Monday January 17 2022
  *
- * ambient for component View itemDetails
+ * ambient for component View itemProcess
  * 
  * Usecase for inbound router template augmentation 
  * written in typescript.
