@@ -114,6 +114,28 @@ export const pickTaskProductStatus = (value) => {
   return statusString;
 };
 
+export const productClassToString = (value) => {
+  let productClassString;
+  switch (value) {
+    case 1:
+      productClassString = 'Normal Stock';
+      break;
+    case 1:
+      productClassString = 'POSM';
+      break;
+    case 1:
+      productClassString = 'Packaging Materials';
+      break;
+    case 1:
+      productClassString = 'Samples';
+      break;
+    default:
+      gradeString = '-';
+      break;
+  }
+  return productClassString;
+};
+
 export const productGradeToString = (value) => {
   let gradeString;
   switch (value) {

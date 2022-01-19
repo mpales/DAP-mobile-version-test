@@ -11,7 +11,10 @@ import ChevronDown from '../../../assets/icon/iconmonstr-arrow-66mobile-1.svg';
 // helper
 import {getData} from '../../../component/helper/network';
 import Format from '../../../component/helper/format';
-import {cleanKeyString} from '../../../component/helper/string';
+import {
+  cleanKeyString,
+  productClassToString,
+} from '../../../component/helper/string';
 
 class PickListItemDetails extends React.Component {
   constructor(props) {
@@ -124,7 +127,7 @@ class PickListItemDetails extends React.Component {
               <View style={[styles.header, {paddingHorizontal: 20}]}>
                 <View>
                   <Text style={[styles.headerTitle, {flex: 0, fontSize: 20}]}>
-                    {_itemDetail.product.item_code}
+                    {_itemDetail.product?.item_code}
                   </Text>
                 </View>
               </View>
@@ -132,22 +135,24 @@ class PickListItemDetails extends React.Component {
                 <View style={[styles.detailSection, {paddingBottom: 10}]}>
                   <TextList
                     title="Description"
-                    value={_itemDetail.product.description}
+                    value={_itemDetail.product?.description}
                   />
-                  <TextList title="UOM" value={_itemDetail.product.uom} />
+                  <TextList title="UOM" value={_itemDetail.product?.uom} />
                   <TextList title="Quantity" value={_itemDetail.qtytoPick} />
                   <TextList
                     title="Barcode"
-                    value={_itemDetail.detail[0]?.barcode}
+                    value={_itemDetail?.barcodes.toString() ?? '-'}
                   />
                   <TextList
                     title="Product Class"
-                    value={_itemDetail.detail[0]?.class}
+                    value={productClassToString(
+                      _itemDetail.product.product_class,
+                    )}
                   />
                   <TextList title="CBM" value={_itemDetail.detail[0]?.cbm} />
                   <TextList
                     title="Weight"
-                    value={_itemDetail.detail[0]?.weight}
+                    value={_itemDetail.product?.weight.toString()}
                   />
                 </View>
                 <Divider />

@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  ListItem,
-  ThemeProvider,
-  Badge,
-  Button,
-  Text,
-} from 'react-native-elements';
+import {ListItem, ThemeProvider, Text} from 'react-native-elements';
 import {View} from 'react-native';
 import TouchableScale from 'react-native-touchable-scale'; // https://github.com/kohver/react-native-touchable-scale
 import IconArrow66Mobile from '../../assets/icon/iconmonstr-arrow-66mobile-6.svg';
@@ -54,7 +48,11 @@ const ListItemOutbound = ({item, index, isActive, ToManifest}) => {
         <ListItem.Content style={styles.sectionContainer}>
           <TextList
             title="Date"
-            value={Format.formatDate(item.delivery_date)}
+            value={
+              typeof item.delivery_date === 'string'
+                ? Format.formatDate(item.delivery_date)
+                : '-'
+            }
           />
           <TextList title="Pick Task ID" value={item.pick_task_no} />
           <TextList title="Warehouse" value={warehouses} />
